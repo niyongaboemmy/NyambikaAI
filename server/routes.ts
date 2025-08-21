@@ -1,227 +1,462 @@
-import express from 'express';
-import { storage } from './storage';
-import { insertProductSchema, insertUserSchema, insertOrderSchema, insertTryOnSchema } from '../shared/schema';
-import multer from 'multer';
+import type { Express } from "express";
+import { createServer, type Server } from "http";
+import { z } from "zod";
+import { storage } from "./storage";
+import {
+  insertUserSchema,
+  insertProductSchema,
+  insertCategorySchema,
+  insertCartItemSchema,
+  insertOrderSchema,
+  insertOrderItemSchema,
+  insertFavoriteSchema,
+  insertTryOnSessionSchema
+} from "@shared/schema";
 
-const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() });
-
-// Products
-router.get('/api/products', async (req, res) => {
-  try {
-    const { category, featured, sellerId } = req.query;
-    const filters: any = {};
-    
-    if (category) filters.category = category as string;
-    if (featured) filters.featured = featured === 'true';
-    if (sellerId) filters.sellerId = sellerId as string;
-    
-    const products = await storage.getProducts(filters);
-    res.json(products);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch products' });
-  }
-});
-
-router.get('/api/products/:id', async (req, res) => {
-  try {
-    const product = await storage.getProductById(req.params.id);
-    if (!product) {
-      return res.status(404).json({ error: 'Product not found' });
+export async function registerRoutes(app: Express): Promise<Server> {
+  
+  // Auth middleware (simplified for now)
+  const requireAuth = (req: any, res: any, next: any) => {
+    const userId = req.headers['x-user-id']; // Simplified auth
+    if (!userId) {
+      return res.status(401).json({ message: 'Authentication required' });
     }
-    res.json(product);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch product' });
-  }
-});
+    req.userId = userId;
+    next();
+  };
 
-router.post('/api/products', async (req, res) => {
-  try {
-    const productData = insertProductSchema.parse(req.body);
-    const product = await storage.createProduct(productData);
-    res.status(201).json(product);
-  } catch (error) {
-    res.status(400).json({ error: 'Invalid product data' });
-  }
-});
-
-// Users
-router.post('/api/auth/register', async (req, res) => {
-  try {
-    const userData = insertUserSchema.parse(req.body);
-    
-    // Check if user already exists
-    const existingUser = await storage.getUserByEmail(userData.email);
-    if (existingUser) {
-      return res.status(409).json({ error: 'User already exists' });
+  // Categories routes
+  app.get('/api/categories', async (req, res) => {
+    try {
+      const categories = await storage.getCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-    
-    const user = await storage.createUser(userData);
-    res.status(201).json({ ...user, password: undefined });
-  } catch (error) {
-    res.status(400).json({ error: 'Invalid user data' });
-  }
-});
+  });
 
-router.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await storage.getUserByEmail(email);
-    
-    if (!user || user.password !== password) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
-    
-    res.json({ ...user, password: undefined });
-  } catch (error) {
-    res.status(500).json({ error: 'Login failed' });
-  }
-});
-
-router.get('/api/user/:id', async (req, res) => {
-  try {
-    const user = await storage.getUserById(req.params.id);
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-    res.json({ ...user, password: undefined });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch user' });
-  }
-});
-
-// Orders
-router.post('/api/orders', async (req, res) => {
-  try {
-    const orderData = insertOrderSchema.parse(req.body);
-    const order = await storage.createOrder(orderData);
-    res.status(201).json(order);
-  } catch (error) {
-    res.status(400).json({ error: 'Invalid order data' });
-  }
-});
-
-router.get('/api/orders/:userId', async (req, res) => {
-  try {
-    const orders = await storage.getOrdersByUserId(req.params.userId);
-    res.json(orders);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch orders' });
-  }
-});
-
-// AI Try-On
-router.post('/api/ai/tryon', upload.single('image'), async (req, res) => {
-  try {
-    const { productId, userId } = req.body;
-    
-    if (!req.file) {
-      return res.status(400).json({ error: 'No image uploaded' });
-    }
-    
-    // Convert uploaded image to base64
-    const userImage = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-    
-    const tryOnData = insertTryOnSchema.parse({
-      userId,
-      productId,
-      userImage,
-    });
-    
-    const tryOn = await storage.createTryOn(tryOnData);
-    
-    // Simulate AI processing
-    setTimeout(async () => {
-      // In a real implementation, this would call the AI service
-      const resultImage = `/api/placeholder/400/600?tryon=${tryOn.id}`;
-      await storage.updateTryOn(tryOn.id, {
-        resultImage,
-        confidence: 0.85,
-      });
-    }, 2000);
-    
-    res.status(201).json(tryOn);
-  } catch (error) {
-    res.status(400).json({ error: 'Try-on failed' });
-  }
-});
-
-router.get('/api/ai/tryon/:id', async (req, res) => {
-  try {
-    const tryOn = await storage.getTryOnById(req.params.id);
-    if (!tryOn) {
-      return res.status(404).json({ error: 'Try-on not found' });
-    }
-    res.json(tryOn);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch try-on' });
-  }
-});
-
-router.get('/api/ai/tryon/user/:userId', async (req, res) => {
-  try {
-    const tryOns = await storage.getTryOnsByUserId(req.params.userId);
-    res.json(tryOns);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch try-ons' });
-  }
-});
-
-// Size Recommendations
-router.post('/api/ai/size-suggest', async (req, res) => {
-  try {
-    const { userId, productId, measurements } = req.body;
-    
-    // Simple size recommendation logic
-    let recommendedSize = 'M';
-    let confidence = 0.7;
-    
-    if (measurements.height && measurements.weight) {
-      const bmi = measurements.weight / Math.pow(measurements.height / 100, 2);
-      
-      if (bmi < 18.5) {
-        recommendedSize = 'S';
-        confidence = 0.8;
-      } else if (bmi > 25) {
-        recommendedSize = 'L';
-        confidence = 0.8;
-      } else {
-        recommendedSize = 'M';
-        confidence = 0.85;
+  app.get('/api/categories/:id', async (req, res) => {
+    try {
+      const category = await storage.getCategory(req.params.id);
+      if (!category) {
+        return res.status(404).json({ message: 'Category not found' });
       }
+      res.json(category);
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-    
-    const recommendation = await storage.createSizeRecommendation({
-      userId,
-      productId,
-      recommendedSize,
-      confidence,
-      measurements,
+  });
+
+  app.post('/api/categories', async (req, res) => {
+    try {
+      const validatedData = insertCategorySchema.parse(req.body);
+      const category = await storage.createCategory(validatedData);
+      res.status(201).json(category);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error creating category:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Products routes
+  app.get('/api/products', async (req, res) => {
+    try {
+      const { categoryId, search, limit, offset } = req.query;
+      const options = {
+        categoryId: categoryId as string,
+        search: search as string,
+        limit: limit ? parseInt(limit as string) : undefined,
+        offset: offset ? parseInt(offset as string) : undefined,
+      };
+      
+      const products = await storage.getProducts(options);
+      res.json(products);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/products/:id', async (req, res) => {
+    try {
+      const product = await storage.getProduct(req.params.id);
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+      res.json(product);
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/products', async (req, res) => {
+    try {
+      const validatedData = insertProductSchema.parse(req.body);
+      const product = await storage.createProduct(validatedData);
+      res.status(201).json(product);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error creating product:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // User routes
+  app.get('/api/users/:id', async (req, res) => {
+    try {
+      const user = await storage.getUser(req.params.id);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      // Remove password from response
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      console.error('Error fetching user:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/users', async (req, res) => {
+    try {
+      const validatedData = insertUserSchema.parse(req.body);
+      const user = await storage.createUser(validatedData);
+      // Remove password from response
+      const { password, ...userWithoutPassword } = user;
+      res.status(201).json(userWithoutPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error creating user:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/users/:id', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertUserSchema.partial().parse(req.body);
+      const user = await storage.updateUser(req.params.id, validatedData);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      // Remove password from response
+      const { password, ...userWithoutPassword } = user;
+      res.json(userWithoutPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error updating user:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Cart routes
+  app.get('/api/cart', requireAuth, async (req, res) => {
+    try {
+      const cartItems = await storage.getCartItems(req.userId);
+      res.json(cartItems);
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/cart', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertCartItemSchema.parse({
+        ...req.body,
+        userId: req.userId
+      });
+      const cartItem = await storage.addToCart(validatedData);
+      res.status(201).json(cartItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error adding to cart:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/cart/:id', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertCartItemSchema.partial().parse(req.body);
+      const cartItem = await storage.updateCartItem(req.params.id, validatedData);
+      if (!cartItem) {
+        return res.status(404).json({ message: 'Cart item not found' });
+      }
+      res.json(cartItem);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error updating cart item:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/cart/:id', requireAuth, async (req, res) => {
+    try {
+      await storage.removeFromCart(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error removing from cart:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/cart', requireAuth, async (req, res) => {
+    try {
+      await storage.clearCart(req.userId);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error clearing cart:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Orders routes
+  app.get('/api/orders', requireAuth, async (req, res) => {
+    try {
+      const orders = await storage.getOrders(req.userId);
+      res.json(orders);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/orders/:id', requireAuth, async (req, res) => {
+    try {
+      const order = await storage.getOrder(req.params.id);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      res.json(order);
+    } catch (error) {
+      console.error('Error fetching order:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/orders', requireAuth, async (req, res) => {
+    try {
+      const { items, ...orderData } = req.body;
+      const validatedOrderData = insertOrderSchema.parse({
+        ...orderData,
+        userId: req.userId
+      });
+      const validatedItems = z.array(insertOrderItemSchema).parse(items);
+      
+      const order = await storage.createOrder(validatedOrderData, validatedItems);
+      
+      // Clear cart after successful order
+      await storage.clearCart(req.userId);
+      
+      res.status(201).json(order);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error creating order:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/orders/:id/status', async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ message: 'Status is required' });
+      }
+      
+      const order = await storage.updateOrderStatus(req.params.id, status);
+      if (!order) {
+        return res.status(404).json({ message: 'Order not found' });
+      }
+      res.json(order);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Favorites routes
+  app.get('/api/favorites', requireAuth, async (req, res) => {
+    try {
+      const favorites = await storage.getFavorites(req.userId);
+      res.json(favorites);
+    } catch (error) {
+      console.error('Error fetching favorites:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/favorites', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertFavoriteSchema.parse({
+        ...req.body,
+        userId: req.userId
+      });
+      const favorite = await storage.addToFavorites(validatedData);
+      res.status(201).json(favorite);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error adding to favorites:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/favorites/:productId', requireAuth, async (req, res) => {
+    try {
+      await storage.removeFromFavorites(req.userId, req.params.productId);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error removing from favorites:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/favorites/:productId/check', requireAuth, async (req, res) => {
+    try {
+      const isFavorite = await storage.isFavorite(req.userId, req.params.productId);
+      res.json({ isFavorite });
+    } catch (error) {
+      console.error('Error checking favorite status:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Try-on sessions routes
+  app.get('/api/try-on-sessions', requireAuth, async (req, res) => {
+    try {
+      const sessions = await storage.getTryOnSessions(req.userId);
+      res.json(sessions);
+    } catch (error) {
+      console.error('Error fetching try-on sessions:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/try-on-sessions/:id', requireAuth, async (req, res) => {
+    try {
+      const session = await storage.getTryOnSession(req.params.id);
+      if (!session) {
+        return res.status(404).json({ message: 'Try-on session not found' });
+      }
+      res.json(session);
+    } catch (error) {
+      console.error('Error fetching try-on session:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/try-on-sessions', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertTryOnSessionSchema.parse({
+        ...req.body,
+        userId: req.userId
+      });
+      const session = await storage.createTryOnSession(validatedData);
+      res.status(201).json(session);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error creating try-on session:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/try-on-sessions/:id', requireAuth, async (req, res) => {
+    try {
+      const validatedData = insertTryOnSessionSchema.partial().parse(req.body);
+      const session = await storage.updateTryOnSession(req.params.id, validatedData);
+      if (!session) {
+        return res.status(404).json({ message: 'Try-on session not found' });
+      }
+      res.json(session);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error updating try-on session:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // AI Try-on processing endpoint (placeholder for AI service integration)
+  app.post('/api/try-on-sessions/:id/process', requireAuth, async (req, res) => {
+    try {
+      const session = await storage.getTryOnSession(req.params.id);
+      if (!session) {
+        return res.status(404).json({ message: 'Try-on session not found' });
+      }
+
+      // Update status to processing
+      await storage.updateTryOnSession(req.params.id, { status: 'processing' });
+
+      // TODO: Integrate with AI service for actual image processing
+      // For now, simulate processing time and return original image
+      setTimeout(async () => {
+        await storage.updateTryOnSession(req.params.id, {
+          status: 'completed',
+          processedImageUrl: session.imageUrl // In real implementation, this would be the processed image
+        });
+      }, 3000);
+
+      res.json({ message: 'Processing started' });
+    } catch (error) {
+      console.error('Error processing try-on session:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Search endpoint
+  app.get('/api/search', async (req, res) => {
+    try {
+      const { q, category, limit } = req.query;
+      
+      if (!q) {
+        return res.status(400).json({ message: 'Search query is required' });
+      }
+
+      const options = {
+        search: q as string,
+        categoryId: category as string,
+        limit: limit ? parseInt(limit as string) : 20,
+      };
+
+      const products = await storage.getProducts(options);
+      res.json({ query: q, results: products });
+    } catch (error) {
+      console.error('Error performing search:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Health check endpoint
+  app.get('/api/health', (req, res) => {
+    res.json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      service: 'Nyambika AI Fashion Platform API'
     });
-    
-    res.json(recommendation);
-  } catch (error) {
-    res.status(400).json({ error: 'Size recommendation failed' });
-  }
-});
+  });
 
-// Placeholder image endpoint
-router.get('/api/placeholder/:width/:height', (req, res) => {
-  const { width, height } = req.params;
-  const color = req.query.color || 'cccccc';
-  const text = req.query.text || `${width}x${height}`;
-  
-  // Return SVG placeholder
-  const svg = `
-    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
-      <rect width="100%" height="100%" fill="#${color}"/>
-      <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#666" 
-            font-family="Arial, sans-serif" font-size="16">${text}</text>
-    </svg>
-  `;
-  
-  res.setHeader('Content-Type', 'image/svg+xml');
-  res.send(svg);
-});
+  const httpServer = createServer(app);
 
-export default router;
+  return httpServer;
+}

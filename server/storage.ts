@@ -1,285 +1,387 @@
-import { User, Product, Order, TryOn, SizeRecommendation, InsertUser, InsertProduct, InsertOrder, InsertTryOn, InsertSizeRecommendation } from '../shared/schema';
-import { v4 as uuidv4 } from 'uuid';
+import { 
+  users, 
+  products, 
+  categories, 
+  cartItems, 
+  orders, 
+  orderItems, 
+  favorites, 
+  tryOnSessions,
+  type User, 
+  type InsertUser,
+  type Product,
+  type InsertProduct,
+  type Category,
+  type InsertCategory,
+  type CartItem,
+  type InsertCartItem,
+  type Order,
+  type InsertOrder,
+  type OrderItem,
+  type InsertOrderItem,
+  type Favorite,
+  type InsertFavorite,
+  type TryOnSession,
+  type InsertTryOnSession
+} from "@shared/schema";
+import { db } from "./db";
+import { eq, like, and, desc, asc } from "drizzle-orm";
 
 export interface IStorage {
-  // Users
+  // User operations
+  getUser(id: string): Promise<User | undefined>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  getUserById(id: string): Promise<User | null>;
-  getUserByEmail(email: string): Promise<User | null>;
-  updateUser(id: string, updates: Partial<User>): Promise<User | null>;
-  deleteUser(id: string): Promise<boolean>;
+  updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined>;
 
-  // Products
+  // Category operations
+  getCategories(): Promise<Category[]>;
+  getCategory(id: string): Promise<Category | undefined>;
+  createCategory(category: InsertCategory): Promise<Category>;
+
+  // Product operations
+  getProducts(options?: {
+    categoryId?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<Product[]>;
+  getProduct(id: string): Promise<Product | undefined>;
   createProduct(product: InsertProduct): Promise<Product>;
-  getProducts(filters?: { category?: string; featured?: boolean; sellerId?: string }): Promise<Product[]>;
-  getProductById(id: string): Promise<Product | null>;
-  updateProduct(id: string, updates: Partial<Product>): Promise<Product | null>;
-  deleteProduct(id: string): Promise<boolean>;
+  updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product | undefined>;
 
-  // Orders
-  createOrder(order: InsertOrder): Promise<Order>;
-  getOrderById(id: string): Promise<Order | null>;
-  getOrdersByUserId(userId: string): Promise<Order[]>;
-  updateOrder(id: string, updates: Partial<Order>): Promise<Order | null>;
+  // Cart operations
+  getCartItems(userId: string): Promise<(CartItem & { product: Product })[]>;
+  addToCart(cartItem: InsertCartItem): Promise<CartItem>;
+  updateCartItem(id: string, updates: Partial<InsertCartItem>): Promise<CartItem | undefined>;
+  removeFromCart(id: string): Promise<void>;
+  clearCart(userId: string): Promise<void>;
 
-  // Try-On
-  createTryOn(tryOn: InsertTryOn): Promise<TryOn>;
-  getTryOnById(id: string): Promise<TryOn | null>;
-  getTryOnsByUserId(userId: string): Promise<TryOn[]>;
-  updateTryOn(id: string, updates: Partial<TryOn>): Promise<TryOn | null>;
+  // Order operations
+  getOrders(userId: string): Promise<Order[]>;
+  getOrder(id: string): Promise<(Order & { items: (OrderItem & { product: Product })[] }) | undefined>;
+  createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
+  updateOrderStatus(id: string, status: string): Promise<Order | undefined>;
 
-  // Size Recommendations
-  createSizeRecommendation(recommendation: InsertSizeRecommendation): Promise<SizeRecommendation>;
-  getSizeRecommendationsByUserId(userId: string): Promise<SizeRecommendation[]>;
-  getSizeRecommendationByProduct(userId: string, productId: string): Promise<SizeRecommendation | null>;
+  // Favorites operations
+  getFavorites(userId: string): Promise<(Favorite & { product: Product })[]>;
+  addToFavorites(favorite: InsertFavorite): Promise<Favorite>;
+  removeFromFavorites(userId: string, productId: string): Promise<void>;
+  isFavorite(userId: string, productId: string): Promise<boolean>;
+
+  // Try-on session operations
+  getTryOnSessions(userId: string): Promise<TryOnSession[]>;
+  getTryOnSession(id: string): Promise<TryOnSession | undefined>;
+  createTryOnSession(session: InsertTryOnSession): Promise<TryOnSession>;
+  updateTryOnSession(id: string, updates: Partial<InsertTryOnSession>): Promise<TryOnSession | undefined>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User> = new Map();
-  private products: Map<string, Product> = new Map();
-  private orders: Map<string, Order> = new Map();
-  private tryOns: Map<string, TryOn> = new Map();
-  private sizeRecommendations: Map<string, SizeRecommendation> = new Map();
-
-  constructor() {
-    this.seedData();
+export class DatabaseStorage implements IStorage {
+  // User operations
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
-  private seedData() {
-    // Sample products
-    const products = [
-      {
-        id: uuidv4(),
-        name: "Traditional Rwandan Dress",
-        description: "Beautiful handwoven traditional dress with modern styling",
-        price: 45000,
-        currency: "RWF",
-        category: "Traditional",
-        subcategory: "Dresses",
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Blue", "Red", "Green"],
-        images: ["/api/placeholder/400/600"],
-        sellerId: "seller1",
-        stock: 15,
-        tags: ["traditional", "handmade", "cultural"],
-        featured: true,
-        rating: 4.8,
-        reviewCount: 24,
-        createdAt: new Date(),
-      },
-      {
-        id: uuidv4(),
-        name: "Modern Ankara Blazer",
-        description: "Contemporary blazer with authentic Ankara print",
-        price: 65000,
-        currency: "RWF",
-        category: "Modern",
-        subcategory: "Blazers",
-        sizes: ["S", "M", "L", "XL"],
-        colors: ["Orange", "Yellow", "Purple"],
-        images: ["/api/placeholder/400/600"],
-        sellerId: "seller2",
-        stock: 8,
-        tags: ["modern", "professional", "ankara"],
-        featured: true,
-        rating: 4.6,
-        reviewCount: 18,
-        createdAt: new Date(),
-      },
-      {
-        id: uuidv4(),
-        name: "Casual Cotton Shirt",
-        description: "Comfortable everyday shirt with African-inspired patterns",
-        price: 25000,
-        currency: "RWF",
-        category: "Casual",
-        subcategory: "Shirts",
-        sizes: ["S", "M", "L", "XL", "XXL"],
-        colors: ["White", "Black", "Navy"],
-        images: ["/api/placeholder/400/600"],
-        sellerId: "seller1",
-        stock: 20,
-        tags: ["casual", "cotton", "everyday"],
-        featured: false,
-        rating: 4.3,
-        reviewCount: 32,
-        createdAt: new Date(),
-      }
-    ];
-
-    products.forEach(product => {
-      this.products.set(product.id, product);
-    });
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
-  // User methods
-  async createUser(user: InsertUser): Promise<User> {
-    const newUser: User = {
-      ...user,
-      id: uuidv4(),
-      createdAt: new Date(),
-    };
-    this.users.set(newUser.id, newUser);
-    return newUser;
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
   }
 
-  async getUserById(id: string): Promise<User | null> {
-    return this.users.get(id) || null;
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    for (const user of this.users.values()) {
-      if (user.email === email) {
-        return user;
-      }
-    }
-    return null;
+  async updateUser(id: string, updates: Partial<InsertUser>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
   }
 
-  async updateUser(id: string, updates: Partial<User>): Promise<User | null> {
-    const user = this.users.get(id);
-    if (!user) return null;
+  // Category operations
+  async getCategories(): Promise<Category[]> {
+    return await db.select().from(categories).orderBy(asc(categories.name));
+  }
+
+  async getCategory(id: string): Promise<Category | undefined> {
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
+  }
+
+  async createCategory(category: InsertCategory): Promise<Category> {
+    const [newCategory] = await db
+      .insert(categories)
+      .values(category)
+      .returning();
+    return newCategory;
+  }
+
+  // Product operations
+  async getProducts(options: {
+    categoryId?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  } = {}): Promise<Product[]> {
+    let query = db.select().from(products);
+
+    const conditions = [];
     
-    const updatedUser = { ...user, ...updates };
-    this.users.set(id, updatedUser);
-    return updatedUser;
+    if (options.categoryId) {
+      conditions.push(eq(products.categoryId, options.categoryId));
+    }
+
+    if (options.search) {
+      conditions.push(
+        like(products.name, `%${options.search}%`)
+      );
+    }
+
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    query = query.orderBy(desc(products.createdAt));
+
+    if (options.limit) {
+      query = query.limit(options.limit);
+    }
+
+    if (options.offset) {
+      query = query.offset(options.offset);
+    }
+
+    return await query;
   }
 
-  async deleteUser(id: string): Promise<boolean> {
-    return this.users.delete(id);
+  async getProduct(id: string): Promise<Product | undefined> {
+    const [product] = await db.select().from(products).where(eq(products.id, id));
+    return product || undefined;
   }
 
-  // Product methods
   async createProduct(product: InsertProduct): Promise<Product> {
-    const newProduct: Product = {
-      ...product,
-      id: uuidv4(),
-      rating: 0,
-      reviewCount: 0,
-      createdAt: new Date(),
-    };
-    this.products.set(newProduct.id, newProduct);
+    const [newProduct] = await db
+      .insert(products)
+      .values(product)
+      .returning();
     return newProduct;
   }
 
-  async getProducts(filters?: { category?: string; featured?: boolean; sellerId?: string }): Promise<Product[]> {
-    let products = Array.from(this.products.values());
-    
-    if (filters?.category) {
-      products = products.filter(p => p.category === filters.category);
+  async updateProduct(id: string, updates: Partial<InsertProduct>): Promise<Product | undefined> {
+    const [product] = await db
+      .update(products)
+      .set(updates)
+      .where(eq(products.id, id))
+      .returning();
+    return product || undefined;
+  }
+
+  // Cart operations
+  async getCartItems(userId: string): Promise<(CartItem & { product: Product })[]> {
+    return await db
+      .select({
+        id: cartItems.id,
+        userId: cartItems.userId,
+        productId: cartItems.productId,
+        quantity: cartItems.quantity,
+        size: cartItems.size,
+        color: cartItems.color,
+        createdAt: cartItems.createdAt,
+        product: products
+      })
+      .from(cartItems)
+      .leftJoin(products, eq(cartItems.productId, products.id))
+      .where(eq(cartItems.userId, userId))
+      .orderBy(desc(cartItems.createdAt));
+  }
+
+  async addToCart(cartItem: InsertCartItem): Promise<CartItem> {
+    // Check if item already exists in cart
+    const [existingItem] = await db
+      .select()
+      .from(cartItems)
+      .where(
+        and(
+          eq(cartItems.userId, cartItem.userId!),
+          eq(cartItems.productId, cartItem.productId!),
+          eq(cartItems.size, cartItem.size || ''),
+          eq(cartItems.color, cartItem.color || '')
+        )
+      );
+
+    if (existingItem) {
+      // Update quantity
+      const [updatedItem] = await db
+        .update(cartItems)
+        .set({ quantity: existingItem.quantity + (cartItem.quantity || 1) })
+        .where(eq(cartItems.id, existingItem.id))
+        .returning();
+      return updatedItem;
+    } else {
+      // Insert new item
+      const [newItem] = await db
+        .insert(cartItems)
+        .values(cartItem)
+        .returning();
+      return newItem;
     }
-    if (filters?.featured !== undefined) {
-      products = products.filter(p => p.featured === filters.featured);
-    }
-    if (filters?.sellerId) {
-      products = products.filter(p => p.sellerId === filters.sellerId);
-    }
+  }
+
+  async updateCartItem(id: string, updates: Partial<InsertCartItem>): Promise<CartItem | undefined> {
+    const [item] = await db
+      .update(cartItems)
+      .set(updates)
+      .where(eq(cartItems.id, id))
+      .returning();
+    return item || undefined;
+  }
+
+  async removeFromCart(id: string): Promise<void> {
+    await db.delete(cartItems).where(eq(cartItems.id, id));
+  }
+
+  async clearCart(userId: string): Promise<void> {
+    await db.delete(cartItems).where(eq(cartItems.userId, userId));
+  }
+
+  // Order operations
+  async getOrders(userId: string): Promise<Order[]> {
+    return await db
+      .select()
+      .from(orders)
+      .where(eq(orders.userId, userId))
+      .orderBy(desc(orders.createdAt));
+  }
+
+  async getOrder(id: string): Promise<(Order & { items: (OrderItem & { product: Product })[] }) | undefined> {
+    const [order] = await db.select().from(orders).where(eq(orders.id, id));
     
-    return products.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    if (!order) return undefined;
+
+    const items = await db
+      .select({
+        id: orderItems.id,
+        orderId: orderItems.orderId,
+        productId: orderItems.productId,
+        quantity: orderItems.quantity,
+        price: orderItems.price,
+        size: orderItems.size,
+        color: orderItems.color,
+        product: products
+      })
+      .from(orderItems)
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(orderItems.orderId, id));
+
+    return { ...order, items };
   }
 
-  async getProductById(id: string): Promise<Product | null> {
-    return this.products.get(id) || null;
-  }
+  async createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
+    const [newOrder] = await db
+      .insert(orders)
+      .values(order)
+      .returning();
 
-  async updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
-    const product = this.products.get(id);
-    if (!product) return null;
-    
-    const updatedProduct = { ...product, ...updates };
-    this.products.set(id, updatedProduct);
-    return updatedProduct;
-  }
+    const orderItemsWithOrderId = items.map(item => ({
+      ...item,
+      orderId: newOrder.id
+    }));
 
-  async deleteProduct(id: string): Promise<boolean> {
-    return this.products.delete(id);
-  }
+    await db.insert(orderItems).values(orderItemsWithOrderId);
 
-  // Order methods
-  async createOrder(order: InsertOrder): Promise<Order> {
-    const newOrder: Order = {
-      ...order,
-      id: uuidv4(),
-      createdAt: new Date(),
-    };
-    this.orders.set(newOrder.id, newOrder);
     return newOrder;
   }
 
-  async getOrderById(id: string): Promise<Order | null> {
-    return this.orders.get(id) || null;
+  async updateOrderStatus(id: string, status: string): Promise<Order | undefined> {
+    const [order] = await db
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+    return order || undefined;
   }
 
-  async getOrdersByUserId(userId: string): Promise<Order[]> {
-    return Array.from(this.orders.values())
-      .filter(order => order.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  // Favorites operations
+  async getFavorites(userId: string): Promise<(Favorite & { product: Product })[]> {
+    return await db
+      .select({
+        id: favorites.id,
+        userId: favorites.userId,
+        productId: favorites.productId,
+        createdAt: favorites.createdAt,
+        product: products
+      })
+      .from(favorites)
+      .leftJoin(products, eq(favorites.productId, products.id))
+      .where(eq(favorites.userId, userId))
+      .orderBy(desc(favorites.createdAt));
   }
 
-  async updateOrder(id: string, updates: Partial<Order>): Promise<Order | null> {
-    const order = this.orders.get(id);
-    if (!order) return null;
-    
-    const updatedOrder = { ...order, ...updates };
-    this.orders.set(id, updatedOrder);
-    return updatedOrder;
+  async addToFavorites(favorite: InsertFavorite): Promise<Favorite> {
+    const [newFavorite] = await db
+      .insert(favorites)
+      .values(favorite)
+      .returning();
+    return newFavorite;
   }
 
-  // Try-On methods
-  async createTryOn(tryOn: InsertTryOn): Promise<TryOn> {
-    const newTryOn: TryOn = {
-      ...tryOn,
-      id: uuidv4(),
-      createdAt: new Date(),
-    };
-    this.tryOns.set(newTryOn.id, newTryOn);
-    return newTryOn;
+  async removeFromFavorites(userId: string, productId: string): Promise<void> {
+    await db
+      .delete(favorites)
+      .where(and(eq(favorites.userId, userId), eq(favorites.productId, productId)));
   }
 
-  async getTryOnById(id: string): Promise<TryOn | null> {
-    return this.tryOns.get(id) || null;
+  async isFavorite(userId: string, productId: string): Promise<boolean> {
+    const [favorite] = await db
+      .select()
+      .from(favorites)
+      .where(and(eq(favorites.userId, userId), eq(favorites.productId, productId)));
+    return !!favorite;
   }
 
-  async getTryOnsByUserId(userId: string): Promise<TryOn[]> {
-    return Array.from(this.tryOns.values())
-      .filter(tryOn => tryOn.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  // Try-on session operations
+  async getTryOnSessions(userId: string): Promise<TryOnSession[]> {
+    return await db
+      .select()
+      .from(tryOnSessions)
+      .where(eq(tryOnSessions.userId, userId))
+      .orderBy(desc(tryOnSessions.createdAt));
   }
 
-  async updateTryOn(id: string, updates: Partial<TryOn>): Promise<TryOn | null> {
-    const tryOn = this.tryOns.get(id);
-    if (!tryOn) return null;
-    
-    const updatedTryOn = { ...tryOn, ...updates };
-    this.tryOns.set(id, updatedTryOn);
-    return updatedTryOn;
+  async getTryOnSession(id: string): Promise<TryOnSession | undefined> {
+    const [session] = await db.select().from(tryOnSessions).where(eq(tryOnSessions.id, id));
+    return session || undefined;
   }
 
-  // Size Recommendation methods
-  async createSizeRecommendation(recommendation: InsertSizeRecommendation): Promise<SizeRecommendation> {
-    const newRecommendation: SizeRecommendation = {
-      ...recommendation,
-      id: uuidv4(),
-      createdAt: new Date(),
-    };
-    this.sizeRecommendations.set(newRecommendation.id, newRecommendation);
-    return newRecommendation;
+  async createTryOnSession(session: InsertTryOnSession): Promise<TryOnSession> {
+    const [newSession] = await db
+      .insert(tryOnSessions)
+      .values(session)
+      .returning();
+    return newSession;
   }
 
-  async getSizeRecommendationsByUserId(userId: string): Promise<SizeRecommendation[]> {
-    return Array.from(this.sizeRecommendations.values())
-      .filter(rec => rec.userId === userId)
-      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-  }
-
-  async getSizeRecommendationByProduct(userId: string, productId: string): Promise<SizeRecommendation | null> {
-    for (const rec of this.sizeRecommendations.values()) {
-      if (rec.userId === userId && rec.productId === productId) {
-        return rec;
-      }
-    }
-    return null;
+  async updateTryOnSession(id: string, updates: Partial<InsertTryOnSession>): Promise<TryOnSession | undefined> {
+    const [session] = await db
+      .update(tryOnSessions)
+      .set(updates)
+      .where(eq(tryOnSessions.id, id))
+      .returning();
+    return session || undefined;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

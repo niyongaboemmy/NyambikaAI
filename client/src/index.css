@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(210 16.7% 97.6%);
+  --foreground: hsl(222.2 84% 4.9%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222.2 84% 4.9%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(222.2 84% 4.9%);
+  --primary: hsl(217.2 91.2% 59.8%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(210 40% 98%);
+  --secondary-foreground: hsl(222.2 84% 4.9%);
+  --muted: hsl(210 40% 96%);
+  --muted-foreground: hsl(215.4 16.3% 46.9%);
+  --accent: hsl(210 40% 96%);
+  --accent-foreground: hsl(222.2 84% 4.9%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(214.3 31.8% 91.4%);
+  --input: hsl(214.3 31.8% 91.4%);
+  --ring: hsl(217.2 91.2% 59.8%);
+  --chart-1: hsl(217.2 91.2% 59.8%);
+  --chart-2: hsl(173 58% 39%);
+  --chart-3: hsl(197 37% 24%);
+  --chart-4: hsl(43 74% 66%);
+  --chart-5: hsl(27 87% 67%);
+  
+  /* Custom Nyambika Colors - Light Mode */
+  --electric-blue: hsl(217.2 91.2% 59.8%);
+  --coral: hsl(0 84.2% 60.2%);
+  --electric-blue-rgb: 59 130 246;
+  --coral-rgb: 255 107 107;
+  
+  /* Glassmorphism */
+  --glass-bg: hsla(0 0% 100% / 0.15);
+  --glass-border: hsla(0 0% 100% / 0.2);
+  
+  /* Neumorphism */
+  --neu-light-1: hsl(0 0% 100%);
+  --neu-light-2: hsl(210 16.7% 90%);
+  --neu-dark-1: hsl(210 16.7% 85%);
+  --neu-dark-2: hsl(210 16.7% 95%);
+  
+  --radius: 1rem;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+.dark {
+  --background: hsl(222.2 84% 4.9%);
+  --foreground: hsl(210 40% 98%);
+  --card: hsl(222.2 84% 4.9%);
+  --card-foreground: hsl(210 40% 98%);
+  --popover: hsl(222.2 84% 4.9%);
+  --popover-foreground: hsl(210 40% 98%);
+  --primary: hsl(262.1 83.3% 57.8%);
+  --primary-foreground: hsl(210 40% 98%);
+  --secondary: hsl(217.2 32.6% 17.5%);
+  --secondary-foreground: hsl(210 40% 98%);
+  --muted: hsl(217.2 32.6% 17.5%);
+  --muted-foreground: hsl(215 20.2% 65.1%);
+  --accent: hsl(217.2 32.6% 17.5%);
+  --accent-foreground: hsl(210 40% 98%);
+  --destructive: hsl(0 62.8% 30.6%);
+  --destructive-foreground: hsl(210 40% 98%);
+  --border: hsl(217.2 32.6% 17.5%);
+  --input: hsl(217.2 32.6% 17.5%);
+  --ring: hsl(262.1 83.3% 57.8%);
+  --chart-1: hsl(220 70% 50%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+  
+  /* Custom Nyambika Colors - Dark Mode */
+  --electric-blue: hsl(262.1 83.3% 57.8%);
+  --coral: hsl(42.1 86.2% 59.6%);
+  --electric-blue-rgb: 139 92 246;
+  --coral-rgb: 245 158 11;
+  
+  /* Glassmorphism Dark */
+  --glass-bg: hsla(222.2 84% 4.9% / 0.15);
+  --glass-border: hsla(215 20.2% 65.1% / 0.2);
+  
+  /* Neumorphism Dark */
+  --neu-light-1: hsl(222.2 84% 8%);
+  --neu-light-2: hsl(217.2 32.6% 17.5%);
+  --neu-dark-1: hsl(222.2 84% 2%);
+  --neu-dark-2: hsl(222.2 84% 6%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  .glassmorphism {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+  }
+  
+  .neumorphism {
+    box-shadow: 
+      8px 8px 16px var(--neu-dark-1),
+      -8px -8px 16px var(--neu-light-1);
+  }
+  
+  .neumorphism-inset {
+    box-shadow: 
+      inset 8px 8px 16px var(--neu-dark-1),
+      inset -8px -8px 16px var(--neu-light-1);
+  }
+  
+  .gradient-text {
+    background: linear-gradient(135deg, rgb(var(--electric-blue-rgb)), rgb(var(--coral-rgb)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, rgb(var(--electric-blue-rgb)), rgb(var(--coral-rgb)));
+  }
+  
+  .floating-card {
+    @apply glassmorphism rounded-3xl hover:scale-105 transition-all duration-500;
+    transform-style: preserve-3d;
+  }
+  
+  .floating-card:hover {
+    box-shadow: 
+      0 25px 50px -12px rgba(0, 0, 0, 0.25),
+      0 0 0 1px var(--glass-border);
+  }
+}
+
+@layer utilities {
+  .animate-gradient-x {
+    animation: gradient-x 15s ease infinite;
+    background-size: 200% 200%;
+  }
+  
+  .animate-gradient-y {
+    animation: gradient-y 15s ease infinite;
+    background-size: 200% 200%;
+  }
+  
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes gradient-x {
+  0%, 100% {
+    background-position: left center;
+  }
+  50% {
+    background-position: right center;
+  }
+}
+
+@keyframes gradient-y {
+  0%, 100% {
+    background-position: center top;
+  }
+  50% {
+    background-position: center bottom;
+  }
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px);
+  }
+  50% { 
+    transform: translateY(-10px);
+  }
+}
