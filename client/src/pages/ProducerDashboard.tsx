@@ -117,33 +117,33 @@ export default function ProducerDashboard() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'approved':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-yellow-600" />;
       case 'rejected':
-        return <AlertCircle className="h-4 w-4 text-red-500" />;
+        return <AlertCircle className="h-4 w-4 text-red-600" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
-  const getOrderStatusColor = (status: string) => {
+  const getOrderStatusBadge = (status: string) => {
     switch (status) {
       case 'processing':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100';
+        return 'info-badge';
       case 'shipped':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100';
+        return 'warning-badge';
       case 'delivered':
-        return 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
+        return 'success-badge';
       case 'cancelled':
-        return 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
+        return 'error-badge';
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100';
+        return 'status-badge bg-muted text-muted-foreground';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-background">
       <main className="pt-24 pb-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -152,7 +152,7 @@ export default function ProducerDashboard() {
               <h1 className="text-3xl md:text-4xl font-bold gradient-text">
                 Producer Dashboard
               </h1>
-              <p className="text-gray-600 dark:text-gray-300 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Manage your products and track your business performance
               </p>
             </div>
@@ -160,14 +160,14 @@ export default function ProducerDashboard() {
               <select
                 value={timeRange}
                 onChange={(e) => setTimeRange(e.target.value)}
-                className="glassmorphism rounded-lg px-4 py-2 bg-transparent border-0"
+                className="clean-input"
               >
                 <option value="week">This Week</option>
                 <option value="month">This Month</option>
                 <option value="quarter">This Quarter</option>
                 <option value="year">This Year</option>
               </select>
-              <Button className="gradient-bg text-white">
+              <Button className="gradient-bg text-white hover:opacity-90 transition-opacity">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Product
               </Button>
@@ -183,13 +183,13 @@ export default function ProducerDashboard() {
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           {stat.title}
                         </p>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                        <p className="text-2xl font-bold text-foreground mt-1">
                           {stat.value}
                         </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-sm text-muted-foreground mt-1">
                           {stat.change}
                         </p>
                       </div>
@@ -225,15 +225,15 @@ export default function ProducerDashboard() {
                       />
                       <div className="flex-1">
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                          <h3 className="font-semibold text-foreground">
                             {product.name}
                           </h3>
                           {getStatusIcon(product.status)}
                         </div>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           {product.nameRw}
                         </p>
-                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
                           <span>{product.price}</span>
                           <span>Stock: {product.stock}</span>
                           <span>Orders: {product.orders}</span>
@@ -272,21 +272,21 @@ export default function ProducerDashboard() {
                     <div className="flex items-center justify-between">
                       <div>
                         <div className="flex items-center space-x-2">
-                          <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                          <h3 className="font-semibold text-foreground">
                             {order.id}
                           </h3>
-                          <span className={`px-2 py-1 rounded-full text-xs ${getOrderStatusColor(order.status)}`}>
+                          <span className={`${getOrderStatusBadge(order.status)}`}>
                             {order.status}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                        <p className="text-sm text-muted-foreground">
                           {order.customerName} • {order.product}
                         </p>
                         <div className="flex items-center space-x-4 mt-2">
-                          <span className="font-bold text-[rgb(var(--electric-blue-rgb))]">
+                          <span className="font-bold text-primary">
                             {order.amount}
                           </span>
-                          <span className="text-sm text-gray-500 dark:text-gray-400 flex items-center">
+                          <span className="text-sm text-muted-foreground flex items-center">
                             <Calendar className="h-3 w-3 mr-1" />
                             {order.date}
                           </span>

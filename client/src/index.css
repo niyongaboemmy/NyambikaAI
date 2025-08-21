@@ -4,92 +4,102 @@
 @tailwind utilities;
 
 :root {
-  --background: hsl(210 16.7% 97.6%);
-  --foreground: hsl(222.2 84% 4.9%);
+  --background: hsl(0 0% 98%);
+  --foreground: hsl(230 26% 18%);
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(222.2 84% 4.9%);
+  --card-foreground: hsl(230 26% 18%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(222.2 84% 4.9%);
-  --primary: hsl(217.2 91.2% 59.8%);
+  --popover-foreground: hsl(230 26% 18%);
+  --primary: hsl(235 100% 65%);
   --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(210 40% 98%);
-  --secondary-foreground: hsl(222.2 84% 4.9%);
-  --muted: hsl(210 40% 96%);
-  --muted-foreground: hsl(215.4 16.3% 46.9%);
-  --accent: hsl(210 40% 96%);
-  --accent-foreground: hsl(222.2 84% 4.9%);
-  --destructive: hsl(0 84.2% 60.2%);
+  --secondary: hsl(220 24% 97%);
+  --secondary-foreground: hsl(230 26% 18%);
+  --muted: hsl(220 14% 96%);
+  --muted-foreground: hsl(220 9% 46%);
+  --accent: hsl(220 24% 95%);
+  --accent-foreground: hsl(230 26% 18%);
+  --destructive: hsl(0 72% 51%);
   --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(214.3 31.8% 91.4%);
-  --input: hsl(214.3 31.8% 91.4%);
-  --ring: hsl(217.2 91.2% 59.8%);
-  --chart-1: hsl(217.2 91.2% 59.8%);
-  --chart-2: hsl(173 58% 39%);
-  --chart-3: hsl(197 37% 24%);
-  --chart-4: hsl(43 74% 66%);
-  --chart-5: hsl(27 87% 67%);
-  
-  /* Custom Nyambika Colors - Light Mode */
-  --electric-blue: hsl(217.2 91.2% 59.8%);
-  --coral: hsl(0 84.2% 60.2%);
-  --electric-blue-rgb: 59 130 246;
-  --coral-rgb: 255 107 107;
-  
-  /* Glassmorphism */
-  --glass-bg: hsla(0 0% 100% / 0.15);
-  --glass-border: hsla(0 0% 100% / 0.2);
-  
-  /* Neumorphism */
-  --neu-light-1: hsl(0 0% 100%);
-  --neu-light-2: hsl(210 16.7% 90%);
-  --neu-dark-1: hsl(210 16.7% 85%);
-  --neu-dark-2: hsl(210 16.7% 95%);
-  
-  --radius: 1rem;
-  --font-sans: 'Inter', system-ui, sans-serif;
-}
-
-.dark {
-  --background: hsl(222.2 84% 4.9%);
-  --foreground: hsl(210 40% 98%);
-  --card: hsl(222.2 84% 4.9%);
-  --card-foreground: hsl(210 40% 98%);
-  --popover: hsl(222.2 84% 4.9%);
-  --popover-foreground: hsl(210 40% 98%);
-  --primary: hsl(262.1 83.3% 57.8%);
-  --primary-foreground: hsl(210 40% 98%);
-  --secondary: hsl(217.2 32.6% 17.5%);
-  --secondary-foreground: hsl(210 40% 98%);
-  --muted: hsl(217.2 32.6% 17.5%);
-  --muted-foreground: hsl(215 20.2% 65.1%);
-  --accent: hsl(217.2 32.6% 17.5%);
-  --accent-foreground: hsl(210 40% 98%);
-  --destructive: hsl(0 62.8% 30.6%);
-  --destructive-foreground: hsl(210 40% 98%);
-  --border: hsl(217.2 32.6% 17.5%);
-  --input: hsl(217.2 32.6% 17.5%);
-  --ring: hsl(262.1 83.3% 57.8%);
-  --chart-1: hsl(220 70% 50%);
+  --border: hsl(220 13% 91%);
+  --input: hsl(220 13% 91%);
+  --ring: hsl(235 100% 65%);
+  --chart-1: hsl(235 100% 65%);
   --chart-2: hsl(160 60% 45%);
   --chart-3: hsl(30 80% 55%);
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   
-  /* Custom Nyambika Colors - Dark Mode */
-  --electric-blue: hsl(262.1 83.3% 57.8%);
-  --coral: hsl(42.1 86.2% 59.6%);
-  --electric-blue-rgb: 139 92 246;
-  --coral-rgb: 245 158 11;
+  /* Clean Nyambika Colors - Light Mode */
+  --electric-blue: hsl(235 100% 65%);
+  --coral: hsl(0 72% 51%);
+  --success: hsl(142 71% 45%);
+  --warning: hsl(45 93% 47%);
+  --electric-blue-rgb: 82 82 255;
+  --coral-rgb: 220 38 38;
+  --success-rgb: 34 197 94;
+  --warning-rgb: 245 158 11;
   
-  /* Glassmorphism Dark */
-  --glass-bg: hsla(222.2 84% 4.9% / 0.15);
-  --glass-border: hsla(215 20.2% 65.1% / 0.2);
+  /* Clean Glassmorphism */
+  --glass-bg: hsla(0 0% 100% / 0.8);
+  --glass-border: hsla(235 100% 65% / 0.12);
+  --glass-shadow: hsla(235 100% 65% / 0.08);
   
-  /* Neumorphism Dark */
-  --neu-light-1: hsl(222.2 84% 8%);
-  --neu-light-2: hsl(217.2 32.6% 17.5%);
-  --neu-dark-1: hsl(222.2 84% 2%);
-  --neu-dark-2: hsl(222.2 84% 6%);
+  /* Modern Card Shadows */
+  --shadow-sm: 0 1px 2px 0 hsla(235 100% 65% / 0.05);
+  --shadow-md: 0 4px 6px -1px hsla(235 100% 65% / 0.1), 0 2px 4px -1px hsla(235 100% 65% / 0.06);
+  --shadow-lg: 0 10px 15px -3px hsla(235 100% 65% / 0.1), 0 4px 6px -2px hsla(235 100% 65% / 0.05);
+  --shadow-xl: 0 20px 25px -5px hsla(235 100% 65% / 0.1), 0 10px 10px -5px hsla(235 100% 65% / 0.04);
+  
+  --radius: 0.75rem;
+  --font-sans: 'Inter', system-ui, sans-serif;
+}
+
+.dark {
+  --background: hsl(230 23% 9%);
+  --foreground: hsl(225 14% 93%);
+  --card: hsl(230 26% 12%);
+  --card-foreground: hsl(225 14% 93%);
+  --popover: hsl(230 26% 12%);
+  --popover-foreground: hsl(225 14% 93%);
+  --primary: hsl(235 100% 70%);
+  --primary-foreground: hsl(230 23% 9%);
+  --secondary: hsl(230 26% 15%);
+  --secondary-foreground: hsl(225 14% 93%);
+  --muted: hsl(230 26% 15%);
+  --muted-foreground: hsl(225 9% 60%);
+  --accent: hsl(230 26% 18%);
+  --accent-foreground: hsl(225 14% 93%);
+  --destructive: hsl(0 72% 51%);
+  --destructive-foreground: hsl(225 14% 93%);
+  --border: hsl(230 26% 18%);
+  --input: hsl(230 26% 18%);
+  --ring: hsl(235 100% 70%);
+  --chart-1: hsl(235 100% 70%);
+  --chart-2: hsl(160 60% 45%);
+  --chart-3: hsl(30 80% 55%);
+  --chart-4: hsl(280 65% 60%);
+  --chart-5: hsl(340 75% 55%);
+  
+  /* Clean Nyambika Colors - Dark Mode */
+  --electric-blue: hsl(235 100% 70%);
+  --coral: hsl(0 72% 51%);
+  --success: hsl(142 71% 45%);
+  --warning: hsl(45 93% 47%);
+  --electric-blue-rgb: 103 103 255;
+  --coral-rgb: 220 38 38;
+  --success-rgb: 34 197 94;
+  --warning-rgb: 245 158 11;
+  
+  /* Clean Glassmorphism Dark */
+  --glass-bg: hsla(230 26% 12% / 0.8);
+  --glass-border: hsla(235 100% 70% / 0.15);
+  --glass-shadow: hsla(235 100% 70% / 0.1);
+  
+  /* Modern Card Shadows Dark */
+  --shadow-sm: 0 1px 2px 0 hsla(0 0% 0% / 0.05);
+  --shadow-md: 0 4px 6px -1px hsla(0 0% 0% / 0.1), 0 2px 4px -1px hsla(0 0% 0% / 0.06);
+  --shadow-lg: 0 10px 15px -3px hsla(0 0% 0% / 0.1), 0 4px 6px -2px hsla(0 0% 0% / 0.05);
+  --shadow-xl: 0 20px 25px -5px hsla(0 0% 0% / 0.1), 0 10px 10px -5px hsla(0 0% 0% / 0.04);
 }
 
 @layer base {
@@ -110,43 +120,70 @@
 @layer components {
   .glassmorphism {
     background: var(--glass-bg);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-lg);
   }
   
-  .neumorphism {
-    box-shadow: 
-      8px 8px 16px var(--neu-dark-1),
-      -8px -8px 16px var(--neu-light-1);
+  .floating-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  .neumorphism-inset {
-    box-shadow: 
-      inset 8px 8px 16px var(--neu-dark-1),
-      inset -8px -8px 16px var(--neu-light-1);
+  .floating-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--coral) 100%);
   }
   
   .gradient-text {
-    background: linear-gradient(135deg, rgb(var(--electric-blue-rgb)), rgb(var(--coral-rgb)));
+    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--coral) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
   
-  .gradient-bg {
-    background: linear-gradient(135deg, rgb(var(--electric-blue-rgb)), rgb(var(--coral-rgb)));
+  .soft-shadow {
+    box-shadow: var(--shadow-sm);
   }
   
-  .floating-card {
-    @apply glassmorphism rounded-3xl hover:scale-105 transition-all duration-500;
-    transform-style: preserve-3d;
+  .clean-button {
+    @apply px-6 py-3 rounded-xl font-medium transition-all duration-300;
+    @apply border border-border bg-card text-card-foreground;
+    @apply hover:bg-accent hover:text-accent-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
   
-  .floating-card:hover {
-    box-shadow: 
-      0 25px 50px -12px rgba(0, 0, 0, 0.25),
-      0 0 0 1px var(--glass-border);
+  .clean-input {
+    @apply px-4 py-3 rounded-lg border border-border bg-background text-foreground;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply placeholder:text-muted-foreground;
+  }
+  
+  .status-badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .success-badge {
+    @apply status-badge bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100;
+  }
+  
+  .warning-badge {
+    @apply status-badge bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100;
+  }
+  
+  .error-badge {
+    @apply status-badge bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100;
+  }
+  
+  .info-badge {
+    @apply status-badge bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100;
   }
 }
 

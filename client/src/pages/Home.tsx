@@ -48,7 +48,7 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800 transition-all duration-500">
+    <div className="min-h-screen bg-background transition-all duration-500">
       <RoleBasedNavigation userRole="customer" userName="Marie Uwimana" />
       <HeroSection />
       <CategoryCards />

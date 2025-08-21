@@ -153,7 +153,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen bg-background">
       <main className="pt-24 pb-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Header */}
@@ -161,7 +161,7 @@ export default function AdminDashboard() {
             <h1 className="text-3xl md:text-4xl font-bold gradient-text">
               System Administration
             </h1>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">
+            <p className="text-muted-foreground mt-2">
               Monitor platform activity and manage users, products, and operations
             </p>
           </div>
