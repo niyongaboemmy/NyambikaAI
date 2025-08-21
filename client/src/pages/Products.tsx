@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { Search, Filter, Heart, Plus } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
 export default function Products() {
+  const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -90,7 +92,8 @@ export default function Products() {
   };
 
   const addToCart = (productId: string) => {
-    console.log('Adding to cart:', productId);
+    // Navigate to product detail page for size selection
+    setLocation(`/product/${productId}`);
   };
 
   return (
@@ -188,7 +191,7 @@ export default function Products() {
                       onClick={() => addToCart(product.id)}
                       className="gradient-bg text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300"
                     >
-                      <Plus className="h-4 w-4" />
+                      View Details
                     </Button>
                   </div>
                 </div>

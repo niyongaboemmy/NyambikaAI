@@ -1,8 +1,14 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
+import Stripe from "stripe";
 import { storage } from "./storage";
 import { generateVirtualTryOn, analyzeFashionImage, generateSizeRecommendation } from "./openai";
+
+// Initialize Stripe
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2025-07-30.basil",
+});
 import {
   insertUserSchema,
   insertProductSchema,
@@ -221,13 +227,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/cart', requireAuth, async (req, res) => {
+  app.delete('/api/cart', requireAuth, async (req: any, res) => {
     try {
       await storage.clearCart(req.userId);
       res.status(204).send();
     } catch (error) {
       console.error('Error clearing cart:', error);
       res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Payment routes (Stripe)
+  app.post('/api/create-payment-intent', requireAuth, async (req: any, res) => {
+    try {
+      const { amount, currency = 'rwf' } = req.body;
+      
+      // Create payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Convert to cents
+        currency: currency.toLowerCase(),
+        payment_method_types: ['card'],
+        metadata: {
+          userId: req.userId
+        }
+      });
+
+      res.json({
+        clientSecret: paymentIntent.client_secret,
+        paymentIntentId: paymentIntent.id
+      });
+    } catch (error: any) {
+      console.error('Error creating payment intent:', error);
+      res.status(500).json({ 
+        message: 'Error creating payment intent',
+        error: error.message 
+      });
     }
   });
 
@@ -335,7 +369,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/favorites/:productId/check', requireAuth, async (req, res) => {
+  app.get('/api/favorites/:productId/check', requireAuth, async (req: any, res) => {
     try {
       const isFavorite = await storage.isFavorite(req.userId, req.params.productId);
       res.json({ isFavorite });

@@ -7,6 +7,8 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import Home from "@/pages/Home";
 import Products from "@/pages/Products";
 import TryOn from "@/pages/TryOn";
+import ProductDetail from "@/pages/ProductDetail";
+import Checkout from "@/pages/Checkout";
 import Profile from "@/pages/Profile";
 import Cart from "@/pages/Cart";
 import ProducerDashboard from "@/pages/ProducerDashboard";
@@ -19,6 +21,8 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/products" component={Products} />
       <Route path="/try-on" component={TryOn} />
+      <Route path="/product/:id" component={ProductDetail} />
+      <Route path="/checkout" component={Checkout} />
       <Route path="/profile" component={Profile} />
       <Route path="/cart" component={Cart} />
       
