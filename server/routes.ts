@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
 import { storage } from "./storage";
+import { generateVirtualTryOn, analyzeFashionImage, generateSizeRecommendation } from "./openai";
 import {
   insertUserSchema,
   insertProductSchema,
@@ -10,12 +11,17 @@ import {
   insertOrderSchema,
   insertOrderItemSchema,
   insertFavoriteSchema,
-  insertTryOnSessionSchema
+  insertTryOnSessionSchema,
+  insertReviewSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Auth middleware (simplified for now)
+  interface AuthenticatedRequest extends Express.Request {
+    userId: string;
+  }
+
   const requireAuth = (req: any, res: any, next: any) => {
     const userId = req.headers['x-user-id']; // Simplified auth
     if (!userId) {
@@ -161,7 +167,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Cart routes
-  app.get('/api/cart', requireAuth, async (req, res) => {
+  app.get('/api/cart', requireAuth, async (req: any, res) => {
     try {
       const cartItems = await storage.getCartItems(req.userId);
       res.json(cartItems);
@@ -171,7 +177,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/cart', requireAuth, async (req, res) => {
+  app.post('/api/cart', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertCartItemSchema.parse({
         ...req.body,
@@ -188,7 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/cart/:id', requireAuth, async (req, res) => {
+  app.put('/api/cart/:id', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertCartItemSchema.partial().parse(req.body);
       const cartItem = await storage.updateCartItem(req.params.id, validatedData);
@@ -205,7 +211,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/cart/:id', requireAuth, async (req, res) => {
+  app.delete('/api/cart/:id', requireAuth, async (req: any, res) => {
     try {
       await storage.removeFromCart(req.params.id);
       res.status(204).send();
@@ -226,7 +232,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Orders routes
-  app.get('/api/orders', requireAuth, async (req, res) => {
+  app.get('/api/orders', requireAuth, async (req: any, res) => {
     try {
       const orders = await storage.getOrders(req.userId);
       res.json(orders);
@@ -249,7 +255,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/orders', requireAuth, async (req, res) => {
+  app.post('/api/orders', requireAuth, async (req: any, res) => {
     try {
       const { items, ...orderData } = req.body;
       const validatedOrderData = insertOrderSchema.parse({
@@ -292,7 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Favorites routes
-  app.get('/api/favorites', requireAuth, async (req, res) => {
+  app.get('/api/favorites', requireAuth, async (req: any, res) => {
     try {
       const favorites = await storage.getFavorites(req.userId);
       res.json(favorites);
@@ -302,7 +308,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/favorites', requireAuth, async (req, res) => {
+  app.post('/api/favorites', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertFavoriteSchema.parse({
         ...req.body,
@@ -319,7 +325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.delete('/api/favorites/:productId', requireAuth, async (req, res) => {
+  app.delete('/api/favorites/:productId', requireAuth, async (req: any, res) => {
     try {
       await storage.removeFromFavorites(req.userId, req.params.productId);
       res.status(204).send();
@@ -340,7 +346,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Try-on sessions routes
-  app.get('/api/try-on-sessions', requireAuth, async (req, res) => {
+  app.get('/api/try-on-sessions', requireAuth, async (req: any, res) => {
     try {
       const sessions = await storage.getTryOnSessions(req.userId);
       res.json(sessions);
@@ -363,7 +369,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/try-on-sessions', requireAuth, async (req, res) => {
+  app.post('/api/try-on-sessions', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertTryOnSessionSchema.parse({
         ...req.body,
@@ -380,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.put('/api/try-on-sessions/:id', requireAuth, async (req, res) => {
+  app.put('/api/try-on-sessions/:id', requireAuth, async (req: any, res) => {
     try {
       const validatedData = insertTryOnSessionSchema.partial().parse(req.body);
       const session = await storage.updateTryOnSession(req.params.id, validatedData);
@@ -397,30 +403,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // AI Try-on processing endpoint (placeholder for AI service integration)
-  app.post('/api/try-on-sessions/:id/process', requireAuth, async (req, res) => {
+  // AI Try-on processing endpoint
+  app.post('/api/try-on-sessions/:id/process', requireAuth, async (req: any, res) => {
     try {
       const session = await storage.getTryOnSession(req.params.id);
       if (!session) {
         return res.status(404).json({ message: 'Try-on session not found' });
       }
 
+      const product = await storage.getProduct(session.productId!);
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+
       // Update status to processing
       await storage.updateTryOnSession(req.params.id, { status: 'processing' });
 
-      // TODO: Integrate with AI service for actual image processing
-      // For now, simulate processing time and return original image
-      setTimeout(async () => {
+      // Get customer measurements if available
+      const user = await storage.getUser(session.userId!);
+      const measurements = user?.measurements ? JSON.parse(user.measurements) : undefined;
+
+      // Process with AI
+      const result = await generateVirtualTryOn(
+        session.customerImageUrl,
+        product.imageUrl,
+        product.name,
+        measurements
+      );
+
+      if (result.success) {
         await storage.updateTryOnSession(req.params.id, {
           status: 'completed',
-          processedImageUrl: session.imageUrl // In real implementation, this would be the processed image
+          tryOnImageUrl: result.tryOnImageUrl,
+          fitRecommendation: JSON.stringify(result.recommendations)
         });
-      }, 3000);
-
-      res.json({ message: 'Processing started' });
+        res.json({ 
+          message: 'Try-on completed successfully',
+          tryOnImageUrl: result.tryOnImageUrl,
+          recommendations: result.recommendations
+        });
+      } else {
+        await storage.updateTryOnSession(req.params.id, { status: 'failed' });
+        res.status(500).json({ message: result.error || 'Try-on processing failed' });
+      }
     } catch (error) {
       console.error('Error processing try-on session:', error);
+      await storage.updateTryOnSession(req.params.id, { status: 'failed' });
       res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // AI Fashion analysis endpoint
+  app.post('/api/ai/analyze-fashion', async (req, res) => {
+    try {
+      const { imageBase64 } = req.body;
+      if (!imageBase64) {
+        return res.status(400).json({ message: 'Image data is required' });
+      }
+
+      const analysis = await analyzeFashionImage(imageBase64);
+      res.json(analysis);
+    } catch (error) {
+      console.error('Error analyzing fashion image:', error);
+      res.status(500).json({ message: 'Failed to analyze image' });
+    }
+  });
+
+  // AI Size recommendation endpoint
+  app.post('/api/ai/size-recommendation', requireAuth, async (req: any, res) => {
+    try {
+      const { measurements, productType, productSizes } = req.body;
+      if (!measurements || !productType || !productSizes) {
+        return res.status(400).json({ message: 'Measurements, product type, and available sizes are required' });
+      }
+
+      const recommendation = await generateSizeRecommendation(measurements, productType, productSizes);
+      res.json(recommendation);
+    } catch (error) {
+      console.error('Error generating size recommendation:', error);
+      res.status(500).json({ message: 'Failed to generate size recommendation' });
     }
   });
 

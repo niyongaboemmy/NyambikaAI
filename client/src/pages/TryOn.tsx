@@ -78,12 +78,60 @@ export default function TryOn() {
   };
 
   const processImage = async () => {
+    if (!selectedImage) return;
+    
     setIsProcessing(true);
-    // Simulate AI processing
-    setTimeout(() => {
+    
+    try {
+      // Convert base64 to blob and back to clean base64
+      const base64Data = selectedImage.split(',')[1];
+      
+      // Create try-on session
+      const sessionResponse = await fetch('/api/try-on-sessions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': 'demo-user-1' // Demo authentication
+        },
+        body: JSON.stringify({
+          customerImageUrl: selectedImage,
+          productId: sampleProducts[0].id, // Use first product for demo
+        })
+      });
+
+      if (!sessionResponse.ok) {
+        throw new Error('Failed to create try-on session');
+      }
+
+      const session = await sessionResponse.json();
+
+      // Process the try-on with AI
+      const processResponse = await fetch(`/api/try-on-sessions/${session.id}/process`, {
+        method: 'POST',
+        headers: {
+          'x-user-id': 'demo-user-1'
+        }
+      });
+
+      if (processResponse.ok) {
+        const result = await processResponse.json();
+        if (result.tryOnImageUrl) {
+          setProcessedImage(result.tryOnImageUrl);
+        } else {
+          // Fallback to original image if AI processing fails
+          setProcessedImage(selectedImage);
+        }
+      } else {
+        // Fallback processing
+        setProcessedImage(selectedImage);
+      }
+    } catch (error) {
+      console.error('Error processing image:', error);
+      // Fallback to original image
       setProcessedImage(selectedImage);
+    } finally {
       setIsProcessing(false);
-    }, 3000);
+    }
   };
 
   const resetSession = () => {
@@ -184,10 +232,11 @@ export default function TryOn() {
                       <div className="flex justify-center gap-4">
                         <Button 
                           onClick={processImage}
-                          className="gradient-bg text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
+                          disabled={isProcessing}
+                          className="gradient-bg text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:scale-100"
                         >
                           <Zap className="mr-2 h-5 w-5" />
-                          Process with AI
+                          {isProcessing ? 'Processing...' : 'Process with AI'}
                         </Button>
                         <Button 
                           onClick={resetSession}
@@ -212,7 +261,10 @@ export default function TryOn() {
                         <div className="glassmorphism rounded-xl p-6 text-center">
                           <div className="animate-spin h-8 w-8 border-2 border-[rgb(var(--electric-blue-rgb))] border-t-transparent rounded-full mx-auto mb-4"></div>
                           <p className="text-gray-700 dark:text-gray-300 font-semibold">
-                            AI Processing...
+                            AI Processing with OpenAI...
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
+                            Analyzing fit and generating virtual try-on
                           </p>
                           <div className="w-32 bg-gray-300 dark:bg-gray-600 rounded-full h-2 mt-4">
                             <div className="gradient-bg h-2 rounded-full animate-pulse" style={{ width: '65%' }}></div>

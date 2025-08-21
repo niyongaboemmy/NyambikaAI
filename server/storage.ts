@@ -7,6 +7,7 @@ import {
   orderItems, 
   favorites, 
   tryOnSessions,
+  reviews,
   type User, 
   type InsertUser,
   type Product,
@@ -22,7 +23,9 @@ import {
   type Favorite,
   type InsertFavorite,
   type TryOnSession,
-  type InsertTryOnSession
+  type InsertTryOnSession,
+  type Review,
+  type InsertReview
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, like, and, desc, asc } from "drizzle-orm";
@@ -75,6 +78,10 @@ export interface IStorage {
   getTryOnSession(id: string): Promise<TryOnSession | undefined>;
   createTryOnSession(session: InsertTryOnSession): Promise<TryOnSession>;
   updateTryOnSession(id: string, updates: Partial<InsertTryOnSession>): Promise<TryOnSession | undefined>;
+
+  // Reviews operations
+  getReviews(productId?: string): Promise<Review[]>;
+  createReview(review: InsertReview): Promise<Review>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -381,6 +388,19 @@ export class DatabaseStorage implements IStorage {
       .where(eq(tryOnSessions.id, id))
       .returning();
     return session || undefined;
+  }
+
+  // Reviews operations
+  async getReviews(productId?: string): Promise<Review[]> {
+    if (productId) {
+      return await db.select().from(reviews).where(eq(reviews.productId, productId)).orderBy(desc(reviews.createdAt));
+    }
+    return await db.select().from(reviews).orderBy(desc(reviews.createdAt));
+  }
+
+  async createReview(review: InsertReview): Promise<Review> {
+    const [newReview] = await db.insert(reviews).values(review).returning();
+    return newReview;
   }
 }
 
