@@ -12,6 +12,10 @@ export const users = pgTable("users", {
   fullNameRw: text("full_name_rw"),
   phone: text("phone"),
   location: text("location"),
+  role: text("role").notNull().default("customer"), // customer, producer, admin
+  businessName: text("business_name"), // for producers
+  businessLicense: text("business_license"), // for producers
+  isVerified: boolean("is_verified").default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -31,10 +35,13 @@ export const products = pgTable("products", {
   description: text("description").notNull(),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
   categoryId: varchar("category_id").references(() => categories.id),
+  producerId: varchar("producer_id").references(() => users.id), // seller/producer
   imageUrl: text("image_url").notNull(),
   sizes: text("sizes").array(),
   colors: text("colors").array(),
+  stockQuantity: integer("stock_quantity").default(0),
   inStock: boolean("in_stock").default(true),
+  isApproved: boolean("is_approved").default(false), // admin approval
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -50,11 +57,15 @@ export const cartItems = pgTable("cart_items", {
 
 export const orders = pgTable("orders", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id),
+  customerId: varchar("customer_id").references(() => users.id),
+  producerId: varchar("producer_id").references(() => users.id),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
-  status: text("status").notNull().default("pending"),
+  status: text("status").notNull().default("pending"), // pending, confirmed, processing, shipped, delivered, cancelled
   paymentMethod: text("payment_method"),
+  paymentStatus: text("payment_status").default("pending"),
   shippingAddress: text("shipping_address"),
+  trackingNumber: text("tracking_number"),
+  notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

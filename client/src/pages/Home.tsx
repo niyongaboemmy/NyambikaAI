@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import Header from '@/components/Header';
+import RoleBasedNavigation from '@/components/RoleBasedNavigation';
 import HeroSection from '@/components/HeroSection';
 import CategoryCards from '@/components/CategoryCards';
 import AITryOnStudio from '@/components/AITryOnStudio';
@@ -49,7 +49,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800 transition-all duration-500">
-      <Header />
+      <RoleBasedNavigation userRole="customer" userName="Marie Uwimana" />
       <HeroSection />
       <CategoryCards />
       <AITryOnStudio />
