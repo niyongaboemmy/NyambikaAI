@@ -1,532 +1,429 @@
-import { useState, useRef } from 'react';
-import { useParams, useLocation } from 'wouter';
-import { Heart, ShoppingCart, Camera, Wand2, ArrowLeft, Star, Share2, Truck, Shield, RotateCcw } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useRef } from "react";
+import { useParams, useLocation } from "wouter";
+import {
+  Heart,
+  ShoppingCart,
+  Camera,
+  Wand2,
+  ArrowLeft,
+  Star,
+  Share2,
+  Truck,
+  Shield,
+  RotateCcw,
+  Loader2,
+  Check,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { useQuery } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
+import type { Product } from "@shared/schema";
+import Footer from "@/components/Footer";
+import TryOnWidget from "@/components/TryOnWidget";
+import { useCart } from "@/contexts/CartContext";
 
-interface ProductDetailProps {}
+interface ExtendedProduct extends Product {
+  images?: string[];
+  originalPrice?: number;
+  discount?: number;
+  rating?: number;
+  reviewCount?: number;
+  measurements?: Record<string, Record<string, string>>;
+}
 
-export default function ProductDetail({}: ProductDetailProps) {
+export default function ProductDetail() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [showTryOn, setShowTryOn] = useState(false);
-  const [customerImage, setCustomerImage] = useState<string | null>(null);
-  const [tryOnResult, setTryOnResult] = useState<string | null>(null);
-  const [isProcessingTryOn, setIsProcessingTryOn] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Mock product data (in real app, fetch from API)
-  const product = {
-    id: id || '1',
-    name: 'Elegant Evening Dress',
-    nameRw: 'Ikoti Nziza y\'Umugoroba',
-    description: 'Premium silk blend with intricate embroidery. Perfect for special occasions and elegant events. Features a flowing silhouette that flatters all body types.',
-    price: 85000,
-    originalPrice: 120000,
-    discount: 29,
-    currency: 'RWF',
-    images: [
-      'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000',
-      'https://images.unsplash.com/photo-1566479179817-c0e22ca41a80?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000',
-      'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000'
-    ],
-    sizes: ['XS', 'S', 'M', 'L', 'XL'],
-    colors: ['Navy Blue', 'Burgundy', 'Black', 'Emerald'],
-    measurements: {
-      XS: { chest: '82cm', waist: '66cm', length: '140cm' },
-      S: { chest: '86cm', waist: '70cm', length: '142cm' },
-      M: { chest: '90cm', waist: '74cm', length: '144cm' },
-      L: { chest: '94cm', waist: '78cm', length: '146cm' },
-      XL: { chest: '98cm', waist: '82cm', length: '148cm' }
-    },
-    rating: 4.8,
-    reviewCount: 124,
-    inStock: true,
-    category: 'women',
-    brand: 'Nyambika Collection',
-    material: '100% Silk Blend',
-    careInstructions: 'Dry clean only'
-  };
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const { addItem } = useCart();
 
-  // Handle image upload for try-on
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onload = (e) => setCustomerImage(e.target?.result as string);
-        reader.readAsDataURL(file);
-      } else {
-        toast({
-          title: "Invalid file type",
-          description: "Please select an image file.",
-          variant: "destructive"
-        });
-      }
-    }
-  };
+  // Fetch product from API
+  const {
+    data: product,
+    isLoading: productLoading,
+    error,
+  } = useQuery<ExtendedProduct>({
+    queryKey: ["product", id],
+    queryFn: async () => {
+      if (!id) throw new Error("Product ID is required");
+      const response = await fetch(`/api/products/${id}`);
+      if (!response.ok) throw new Error("Failed to fetch product");
+      const data = await response.json();
 
-  // AI Try-on processing
-  const processTryOn = async () => {
-    if (!customerImage || !product.id) return;
-
-    setIsProcessingTryOn(true);
-    try {
-      // Create try-on session
-      const sessionResponse = await fetch('/api/try-on-sessions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': 'demo-user-1'
+      // Mock additional data for demo
+      return {
+        ...data,
+        images: [
+          data.imageUrl,
+          "https://images.unsplash.com/photo-1566479179817-c0e22ca41a80?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000",
+          "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000",
+        ],
+        originalPrice:
+          typeof data.price === "number"
+            ? data.price * 1.4
+            : parseFloat(data.price) * 1.4,
+        discount: 29,
+        rating: 4.8,
+        reviewCount: 124,
+        measurements: {
+          XS: { chest: "82cm", waist: "66cm", length: "140cm" },
+          S: { chest: "86cm", waist: "70cm", length: "142cm" },
+          M: { chest: "90cm", waist: "74cm", length: "144cm" },
+          L: { chest: "94cm", waist: "78cm", length: "146cm" },
+          XL: { chest: "98cm", waist: "82cm", length: "148cm" },
         },
-        body: JSON.stringify({
-          customerImageUrl: customerImage,
-          productId: product.id
-        })
-      });
-
-      if (!sessionResponse.ok) {
-        throw new Error('Failed to create try-on session');
-      }
-
-      const session = await sessionResponse.json();
-
-      // Process the try-on
-      const processResponse = await fetch(`/api/try-on-sessions/${session.id}/process`, {
-        method: 'POST',
-        headers: { 'x-user-id': 'demo-user-1' }
-      });
-
-      if (processResponse.ok) {
-        const result = await processResponse.json();
-        setTryOnResult(result.tryOnImageUrl || customerImage);
-        toast({
-          title: "Try-on completed!",
-          description: "Your virtual try-on is ready."
-        });
-      } else {
-        throw new Error('Try-on processing failed');
-      }
-    } catch (error) {
-      console.error('Try-on error:', error);
-      toast({
-        title: "Try-on failed",
-        description: "Please try again or contact support.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessingTryOn(false);
-    }
-  };
-
-  // Add to cart mutation
-  const addToCartMutation = useMutation({
-    mutationFn: async () => {
-      if (!selectedSize) {
-        throw new Error('Please select a size');
-      }
-
-      const response = await fetch('/api/cart', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': 'demo-user-1'
-        },
-        body: JSON.stringify({
-          productId: product.id,
-          quantity,
-          size: selectedSize,
-          color: selectedColor
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to add to cart');
-      }
-
-      return response.json();
+      };
     },
-    onSuccess: () => {
-      toast({
-        title: "Added to cart!",
-        description: `${product.name} (${selectedSize}) added to your cart.`
-      });
-      queryClient.invalidateQueries({ queryKey: ['/api/cart'] });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Failed to add to cart",
-        description: error.message,
-        variant: "destructive"
-      });
-    }
+    enabled: !!id,
   });
 
-  // Buy now - direct to checkout
-  const handleBuyNow = async () => {
+  // Try-on is now handled by TryOnWidget
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    if (!selectedSize) {
+      toast({ title: "Size Required", description: "Please select a size first", variant: "destructive" });
+      return;
+    }
+    if (!selectedColor) {
+      toast({ title: "Color Required", description: "Please select a color first", variant: "destructive" });
+      return;
+    }
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        nameRw: product.nameRw,
+        description: product.description,
+        price: typeof product.price === "number" ? product.price : parseFloat(product.price),
+        image: product.imageUrl,
+        size: selectedSize,
+      },
+      quantity
+    );
+    toast({ title: "Added to cart", description: "Product added to your cart" });
+  };
+
+  const handleBuyNow = () => {
     if (!selectedSize) {
       toast({
-        title: "Size required",
-        description: "Please select a size before purchasing.",
-        variant: "destructive"
+        title: "Size Required",
+        description: "Please select a size first",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!selectedColor) {
+      toast({
+        title: "Color Required",
+        description: "Please select a color first",
+        variant: "destructive",
       });
       return;
     }
 
-    // Add to cart and redirect to checkout
-    try {
-      await addToCartMutation.mutateAsync();
-      setLocation('/checkout');
-    } catch (error) {
-      // Error is handled by the mutation
-    }
+    handleAddToCart();
+    setTimeout(() => {
+      setLocation("/checkout");
+    }, 500);
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-RW', {
-      style: 'currency',
-      currency: 'RWF',
-      minimumFractionDigits: 0
-    }).format(price);
+  const formatPrice = (price: string | number) => {
+    const numPrice = typeof price === "string" ? parseFloat(price) : price;
+    return new Intl.NumberFormat("rw-RW", {
+      style: "currency",
+      currency: "RWF",
+      minimumFractionDigits: 0,
+    })
+      .format(numPrice)
+      .replace("RWF", "RWF");
   };
 
-  const getRecommendedSize = () => {
-    // Simple size recommendation logic
-    if (tryOnResult) {
-      return selectedSize || 'M'; // Return current selection or default
-    }
-    return 'M'; // Default recommendation
-  };
+  if (productLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <span className="text-lg">Loading product...</span>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
+        <div className="flex justify-center items-center min-h-screen">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
+            <Button onClick={() => setLocation("/products")}>
+              Back to Products
+            </Button>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
-      {/* Header */}
-      <div className="sticky top-0 z-50 glassmorphism border-b border-white/20">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            onClick={() => setLocation('/products')}
-            className="glassmorphism"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Subira / Back
-          </Button>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="icon" className="glassmorphism">
-              <Share2 className="h-4 w-4" />
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className={`glassmorphism ${isFavorite ? 'text-red-500' : ''}`}
-              onClick={() => setIsFavorite(!isFavorite)}
+      <main className="pt-24 pb-12 px-4 md:px-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <Button
+              variant="ghost"
+              onClick={() => setLocation("/products")}
+              className="flex items-center gap-2 glassmorphism"
             >
-              <Heart className={`h-4 w-4 ${isFavorite ? 'fill-current' : ''}`} />
+              <ArrowLeft className="h-4 w-4" />
+              Back to Products
             </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="icon" className="glassmorphism">
+                <Share2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`glassmorphism ${isFavorite ? "text-red-500" : ""}`}
+                onClick={() => setIsFavorite(!isFavorite)}
+              >
+                <Heart
+                  className={`h-4 w-4 ${isFavorite ? "fill-current" : ""}`}
+                />
+              </Button>
+            </div>
           </div>
-        </div>
-      </div>
 
-      <main className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <Card className="floating-card p-2">
-              <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Product Images */}
+            <div className="space-y-6">
+              <div className="aspect-square rounded-3xl overflow-hidden bg-gray-100 dark:bg-gray-800 neumorphism">
                 <img
-                  src={product.images[currentImageIndex]}
+                  src={product.images?.[currentImageIndex] || product.imageUrl}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
-                {product.discount > 0 && (
-                  <div className="absolute top-4 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
-                    -{product.discount}%
-                  </div>
-                )}
               </div>
-            </Card>
-            
-            {/* Thumbnail Images */}
-            <div className="flex gap-2 overflow-x-auto">
-              {product.images.map((image, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`flex-shrink-0 w-20 h-24 rounded-lg overflow-hidden border-2 transition-all ${
-                    currentImageIndex === index 
-                      ? 'border-primary shadow-lg' 
-                      : 'border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  <img
-                    src={image}
-                    alt={`${product.name} ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Product Details */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-3xl font-bold gradient-text mb-2">
-                {product.name}
-              </h1>
-              <p className="text-lg text-gray-600 dark:text-gray-400 mb-4">
-                {product.nameRw}
-              </p>
-              
-              {/* Rating */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className="flex">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Star
-                      key={star}
-                      className={`h-4 w-4 ${
-                        star <= Math.floor(product.rating)
-                          ? 'text-yellow-500 fill-current'
-                          : 'text-gray-300'
+              {product.images && product.images.length > 1 && (
+                <div className="grid grid-cols-4 gap-3">
+                  {product.images.map((image, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentImageIndex(index)}
+                      className={`aspect-square rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800 border-2 transition-all duration-300 ${
+                        currentImageIndex === index
+                          ? "border-blue-500 ring-2 ring-blue-200"
+                          : "border-transparent hover:border-blue-300"
                       }`}
-                    />
+                    >
+                      <img
+                        src={image}
+                        alt={`${product.name} ${index + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
                   ))}
                 </div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">
-                  {product.rating} ({product.reviewCount} reviews)
-                </span>
-              </div>
-
-              {/* Price */}
-              <div className="flex items-center gap-3 mb-6">
-                <span className="text-3xl font-bold text-primary">
-                  {formatPrice(product.price)}
-                </span>
-                {product.originalPrice > product.price && (
-                  <span className="text-lg text-gray-500 line-through">
-                    {formatPrice(product.originalPrice)}
-                  </span>
-                )}
-              </div>
-
-              <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                {product.description}
-              </p>
-            </div>
-
-            {/* Size Selection */}
-            <Card className="floating-card p-6">
-              <h3 className="font-bold mb-4">Hitamo Ingano / Choose Size</h3>
-              <div className="grid grid-cols-5 gap-2 mb-4">
-                {product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`py-3 px-4 rounded-lg border text-center font-medium transition-all ${
-                      selectedSize === size
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-gray-300 dark:border-gray-600 hover:border-primary'
-                    }`}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-              
-              {selectedSize && (
-                <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-3 rounded-lg">
-                  <strong>Size {selectedSize} measurements:</strong><br />
-                  Chest: {product.measurements[selectedSize as keyof typeof product.measurements]?.chest}, 
-                  Waist: {product.measurements[selectedSize as keyof typeof product.measurements]?.waist}, 
-                  Length: {product.measurements[selectedSize as keyof typeof product.measurements]?.length}
-                </div>
               )}
-            </Card>
-
-            {/* Color Selection */}
-            <Card className="floating-card p-6">
-              <h3 className="font-bold mb-4">Hitamo Ibara / Choose Color</h3>
-              <div className="flex gap-3">
-                {product.colors.map((color) => (
-                  <button
-                    key={color}
-                    onClick={() => setSelectedColor(color)}
-                    className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all ${
-                      selectedColor === color
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-gray-300 dark:border-gray-600 hover:border-primary'
-                    }`}
-                  >
-                    {color}
-                  </button>
-                ))}
-              </div>
-            </Card>
-
-            {/* Virtual Try-On */}
-            <Card className="floating-card p-6">
-              <h3 className="font-bold mb-4 flex items-center gap-2">
-                <Wand2 className="h-5 w-5" />
-                AI Virtual Try-On
-              </h3>
-              
-              {!showTryOn ? (
-                <Button
-                  onClick={() => setShowTryOn(true)}
-                  className="w-full gradient-bg text-white"
-                >
-                  <Camera className="mr-2 h-4 w-4" />
-                  Reba Uko Ikubana / See How It Looks
-                </Button>
-              ) : (
-                <div className="space-y-4">
-                  {!customerImage ? (
-                    <div 
-                      className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 transition-colors"
-                      onClick={() => fileInputRef.current?.click()}
-                    >
-                      <Camera className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                      <p className="text-gray-600 dark:text-gray-400">
-                        Upload your photo for virtual try-on
-                      </p>
-                    </div>
-                  ) : !tryOnResult ? (
-                    <div className="space-y-4">
-                      <img 
-                        src={customerImage} 
-                        alt="Your photo" 
-                        className="w-full max-h-48 object-cover rounded-lg"
-                      />
-                      <Button
-                        onClick={processTryOn}
-                        disabled={isProcessingTryOn || !selectedSize}
-                        className="w-full gradient-bg text-white"
-                      >
-                        {isProcessingTryOn ? (
-                          <>
-                            <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <Wand2 className="mr-2 h-4 w-4" />
-                            Try On This Dress
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <img 
-                        src={tryOnResult} 
-                        alt="Try-on result" 
-                        className="w-full max-h-64 object-cover rounded-lg"
-                      />
-                      <div className="text-sm bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
-                        <strong>AI Recommendation:</strong> Size {getRecommendedSize()} looks great on you!
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setCustomerImage(null);
-                          setTryOnResult(null);
-                        }}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <RotateCcw className="mr-2 h-4 w-4" />
-                        Try Again
-                      </Button>
-                    </div>
-                  )}
-                  
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                </div>
-              )}
-            </Card>
-
-            {/* Quantity and Actions */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <label className="font-medium">Quantity:</label>
-                <div className="flex items-center border rounded-lg overflow-hidden">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-2 border-x">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <Button
-                  onClick={() => addToCartMutation.mutate()}
-                  disabled={!selectedSize || addToCartMutation.isPending}
-                  variant="outline"
-                  className="glassmorphism"
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  {addToCartMutation.isPending ? 'Adding...' : 'Add to Cart'}
-                </Button>
-                <Button
-                  onClick={handleBuyNow}
-                  disabled={!selectedSize}
-                  className="gradient-bg text-white"
-                >
-                  Gura Ubu / Buy Now
-                </Button>
-              </div>
             </div>
 
             {/* Product Info */}
-            <Card className="floating-card p-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <Truck className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium">Free Delivery</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Within Kigali in 1-2 days
-                    </p>
+            <div className="space-y-8">
+              <div className="glassmorphism rounded-3xl p-8">
+                <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
+                  {product.name}
+                </h1>
+                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+                  {product.nameRw}
+                </p>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="flex items-center gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`h-5 w-5 ${
+                          i < Math.floor(product.rating || 0)
+                            ? "text-yellow-400 fill-current"
+                            : "text-gray-300"
+                        }`}
+                      />
+                    ))}
+                    <span className="text-sm text-gray-600 dark:text-gray-400 ml-2">
+                      {product.rating} ({product.reviewCount} reviews)
+                    </span>
                   </div>
+                  <Badge variant="secondary" className="ml-auto">
+                    {product.inStock ? "In Stock" : "Out of Stock"}
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Shield className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium">Quality Guarantee</p>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      30-day return policy
+                <div className="flex items-center gap-4 mb-8">
+                  <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                    {formatPrice(product.price)}
+                  </span>
+                  {product.originalPrice && (
+                    <>
+                      <span className="text-xl text-gray-500 line-through">
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                      <Badge variant="destructive" className="animate-pulse">
+                        -{product.discount}% OFF
+                      </Badge>
+                    </>
+                  )}
+                </div>
+
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+                  {product.description}
+                </p>
+              </div>
+
+              {/* Size Selection */}
+              <div className="glassmorphism rounded-3xl p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <span>Size Selection</span>
+                  {selectedSize && (
+                    <Badge variant="outline">{selectedSize}</Badge>
+                  )}
+                </h3>
+                <div className="grid grid-cols-5 gap-3 mb-4">
+                  {product.sizes?.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSize(size)}
+                      className={`p-4 text-center border-2 rounded-xl transition-all duration-300 font-medium ${
+                        selectedSize === size
+                          ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 scale-105 shadow-lg"
+                          : "border-gray-300 hover:border-blue-300 hover:scale-105 dark:border-gray-600 glassmorphism"
+                      }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
+                {selectedSize && product.measurements?.[selectedSize] && (
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm font-semibold mb-2 text-blue-800 dark:text-blue-200">
+                      Size {selectedSize} Measurements:
                     </p>
+                    <div className="text-sm text-blue-700 dark:text-blue-300 space-x-4">
+                      {Object.entries(product.measurements[selectedSize]).map(
+                        ([key, value]) => (
+                          <span key={key} className="inline-block">
+                            <strong>{key}:</strong> {value}
+                          </span>
+                        )
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Color Selection */}
+              <div className="glassmorphism rounded-3xl p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <span>Color Selection</span>
+                  {selectedColor && (
+                    <Badge variant="outline">{selectedColor}</Badge>
+                  )}
+                </h3>
+                <div className="flex gap-3 flex-wrap">
+                  {product.colors?.map((color) => (
+                    <button
+                      key={color}
+                      onClick={() => setSelectedColor(color)}
+                      className={`px-6 py-3 border-2 rounded-xl transition-all duration-300 font-medium ${
+                        selectedColor === color
+                          ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 scale-105 shadow-lg"
+                          : "border-gray-300 hover:border-blue-300 hover:scale-105 dark:border-gray-600 glassmorphism"
+                      }`}
+                    >
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* AI Try-On Section */}
+              <div className="glassmorphism rounded-3xl p-6">
+                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                  <Wand2 className="h-5 w-5 text-purple-500" />
+                  AI Virtual Try-On
+                </h3>
+
+                {!showTryOn ? (
+                  <Button
+                    onClick={() => setShowTryOn(true)}
+                    className="w-full gradient-bg text-white py-3 rounded-xl hover:scale-105 transition-all duration-300"
+                  >
+                    <Camera className="h-5 w-5 mr-2" />
+                    Try On with AI
+                  </Button>
+                ) : (
+                  <TryOnWidget productId={id!} productImageUrl={product.imageUrl} />
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <Button
+                    onClick={handleAddToCart}
+                    disabled={!selectedSize || !selectedColor}
+                    variant="outline"
+                    className="flex-1 glassmorphism border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 py-3 rounded-xl"
+                  >
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Add to Cart
+                  </Button>
+                  <Button
+                    onClick={handleBuyNow}
+                    disabled={!selectedSize || !selectedColor}
+                    className="flex-1 gradient-bg text-white py-3 rounded-xl hover:scale-105 transition-all duration-300"
+                  >
+                    Buy Now
+                  </Button>
+                </div>
+
+                {/* Product Features */}
+                <div className="glassmorphism rounded-2xl p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <Truck className="h-5 w-5 text-green-500" />
+                      <span className="text-sm">Free Delivery</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <Shield className="h-5 w-5 text-blue-500" />
+                      <span className="text-sm">Quality Guaranteed</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <RotateCcw className="h-5 w-5 text-purple-500" />
+                      <span className="text-sm">Easy Returns</span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </Card>
+            </div>
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

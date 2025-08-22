@@ -1,20 +1,18 @@
 import { useState } from 'react';
+import { useLocation } from 'wouter';
 import { Camera, Upload, Sparkles, Ruler, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export default function AITryOnStudio() {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [, setLocation] = useLocation();
 
   const handleTakePhoto = () => {
-    setIsProcessing(true);
-    // TODO: Implement camera functionality
-    setTimeout(() => setIsProcessing(false), 3000);
+    setLocation('/try-on/start');
   };
 
   const handleUploadPhoto = () => {
-    setIsProcessing(true);
-    // TODO: Implement file upload functionality
-    setTimeout(() => setIsProcessing(false), 3000);
+    setLocation('/try-on/start');
   };
 
   const features = [

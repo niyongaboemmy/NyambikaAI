@@ -1,63 +1,139 @@
-import { useState } from 'react';
-import { User, Settings, Heart, ShoppingBag, Star, Edit3, Camera } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { useState, useEffect } from "react";
+import {
+  User,
+  Settings,
+  Heart,
+  ShoppingBag,
+  Star,
+  Edit3,
+  Camera,
+  Loader2,
+} from "lucide-react";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 
 export default function Profile() {
+  const { user, isAuthenticated } = useAuth();
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    name: 'Jean Baptiste',
-    name_rw: 'Mukamana Marie',
-    email: 'jean.mukamana@example.com',
-    phone: '+250 788 123 456',
-    location: 'Kigali, Rwanda'
+    name: "",
+    fullNameRw: "",
+    email: "",
+    phone: "",
+    location: "",
+  });
+
+  // Redirect if not authenticated
+  if (!isAuthenticated) {
+    setLocation("/login");
+    return null;
+  }
+
+  // Initialize form with user data
+  useEffect(() => {
+    if (user) {
+      setUserInfo({
+        name: user.name || "",
+        fullNameRw: "",
+        email: user.email || "",
+        phone: user.phone || "",
+        location: "",
+      });
+    }
+  }, [user]);
+
+  // Profile update mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (profileData: typeof userInfo) => {
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/auth/profile", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          fullName: profileData.name,
+          fullNameRw: profileData.fullNameRw,
+          phone: profileData.phone,
+          location: profileData.location,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Failed to update profile");
+      }
+
+      return response.json();
+    },
+    onSuccess: (updatedUser) => {
+      toast({
+        title: "Profile updated successfully!",
+        description: "Your profile information has been saved.",
+      });
+      setIsEditing(false);
+      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to update profile",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const favoriteItems = [
     {
-      id: '1',
-      name: 'Summer Dress',
-      price: '45,000 RWF',
-      image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
+      id: "1",
+      name: "Summer Dress",
+      price: "45,000 RWF",
+      image:
+        "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400",
     },
     {
-      id: '2',
-      name: 'Leather Handbag',
-      price: '65,000 RWF',
-      image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
+      id: "2",
+      name: "Leather Handbag",
+      price: "65,000 RWF",
+      image:
+        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400",
     },
   ];
 
   const recentOrders = [
     {
-      id: 'ORD-001',
-      date: '2024-08-15',
-      status: 'Delivered',
-      total: '120,000 RWF',
-      items: 2
+      id: "ORD-001",
+      date: "2024-08-15",
+      status: "Delivered",
+      total: "120,000 RWF",
+      items: 2,
     },
     {
-      id: 'ORD-002',
-      date: '2024-08-10',
-      status: 'Processing',
-      total: '85,000 RWF',
-      items: 1
+      id: "ORD-002",
+      date: "2024-08-10",
+      status: "Processing",
+      total: "85,000 RWF",
+      items: 1,
     },
   ];
 
   const handleSaveProfile = () => {
-    setIsEditing(false);
-    // TODO: Save profile changes
+    updateProfileMutation.mutate(userInfo);
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
-      <Header />
-      
       <main className="pt-24 pb-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Page Header */}
@@ -80,11 +156,15 @@ export default function Profile() {
                       Personal Information
                     </CardTitle>
                     <Button
-                      onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
-                      className={isEditing ? "gradient-bg text-white" : "glassmorphism"}
+                      onClick={() =>
+                        isEditing ? handleSaveProfile() : setIsEditing(true)
+                      }
+                      className={
+                        isEditing ? "gradient-bg text-white" : "glassmorphism"
+                      }
                     >
                       <Edit3 className="mr-2 h-4 w-4" />
-                      {isEditing ? 'Save' : 'Edit'}
+                      {isEditing ? "Save" : "Edit"}
                     </Button>
                   </div>
                 </CardHeader>
@@ -108,7 +188,7 @@ export default function Profile() {
                         {userInfo.name}
                       </h2>
                       <p className="text-gray-600 dark:text-gray-400">
-                        {userInfo.name_rw}
+                        {userInfo.fullNameRw}
                       </p>
                     </div>
                   </div>
@@ -119,7 +199,9 @@ export default function Profile() {
                       <Input
                         id="name"
                         value={userInfo.name}
-                        onChange={(e) => setUserInfo({...userInfo, name: e.target.value})}
+                        onChange={(e) =>
+                          setUserInfo({ ...userInfo, name: e.target.value })
+                        }
                         disabled={!isEditing}
                         className="glassmorphism border-0 bg-transparent mt-2"
                       />
@@ -128,8 +210,13 @@ export default function Profile() {
                       <Label htmlFor="name_rw">Izina mu Kinyarwanda</Label>
                       <Input
                         id="name_rw"
-                        value={userInfo.name_rw}
-                        onChange={(e) => setUserInfo({...userInfo, name_rw: e.target.value})}
+                        value={userInfo.fullNameRw}
+                        onChange={(e) =>
+                          setUserInfo({
+                            ...userInfo,
+                            fullNameRw: e.target.value,
+                          })
+                        }
                         disabled={!isEditing}
                         className="glassmorphism border-0 bg-transparent mt-2"
                       />
@@ -140,7 +227,9 @@ export default function Profile() {
                         id="email"
                         type="email"
                         value={userInfo.email}
-                        onChange={(e) => setUserInfo({...userInfo, email: e.target.value})}
+                        onChange={(e) =>
+                          setUserInfo({ ...userInfo, email: e.target.value })
+                        }
                         disabled={!isEditing}
                         className="glassmorphism border-0 bg-transparent mt-2"
                       />
@@ -150,7 +239,9 @@ export default function Profile() {
                       <Input
                         id="phone"
                         value={userInfo.phone}
-                        onChange={(e) => setUserInfo({...userInfo, phone: e.target.value})}
+                        onChange={(e) =>
+                          setUserInfo({ ...userInfo, phone: e.target.value })
+                        }
                         disabled={!isEditing}
                         className="glassmorphism border-0 bg-transparent mt-2"
                       />
@@ -160,7 +251,9 @@ export default function Profile() {
                       <Input
                         id="location"
                         value={userInfo.location}
-                        onChange={(e) => setUserInfo({...userInfo, location: e.target.value})}
+                        onChange={(e) =>
+                          setUserInfo({ ...userInfo, location: e.target.value })
+                        }
                         disabled={!isEditing}
                         className="glassmorphism border-0 bg-transparent mt-2"
                       />
@@ -179,7 +272,10 @@ export default function Profile() {
                 <CardContent className="p-0">
                   <div className="space-y-4">
                     {recentOrders.map((order) => (
-                      <div key={order.id} className="glassmorphism rounded-xl p-4 hover:scale-105 transition-all duration-300">
+                      <div
+                        key={order.id}
+                        className="glassmorphism rounded-xl p-4 hover:scale-105 transition-all duration-300"
+                      >
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="font-semibold text-gray-800 dark:text-gray-200">
@@ -193,11 +289,13 @@ export default function Profile() {
                             <p className="font-bold text-[rgb(var(--electric-blue-rgb))]">
                               {order.total}
                             </p>
-                            <span className={`px-2 py-1 rounded-full text-xs ${
-                              order.status === 'Delivered' 
-                                ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100'
-                                : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100'
-                            }`}>
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs ${
+                                order.status === "Delivered"
+                                  ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
+                                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+                              }`}
+                            >
                               {order.status}
                             </span>
                           </div>
@@ -243,7 +341,10 @@ export default function Profile() {
                 <CardContent className="p-0">
                   <div className="space-y-4">
                     {favoriteItems.map((item) => (
-                      <div key={item.id} className="flex items-center space-x-3">
+                      <div
+                        key={item.id}
+                        className="flex items-center space-x-3"
+                      >
                         <img
                           src={item.image}
                           alt={item.name}

@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyambika - Rwanda Fashion E-commerce Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0F766E',
+                        secondary: '#F59E0B',
+                        accent: '#3B82F6',
+                        success: '#10B981',
+                        error: '#EF4444'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif']
+                    }
+                }
+            }
+        };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans">
+    <!-- @COMPONENT: AppShell -->
+    <div id="app" class="min-h-screen bg-gray-50">
+        
+        <!-- Mobile Navigation Header -->
+        <!-- @COMPONENT: MobileHeader -->
+        <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50 lg:hidden">
+            <div class="px-4 py-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <button data-event="click:toggleMenu" class="p-2 rounded-lg hover:bg-gray-100 lg:hidden">
+                            <i class="fas fa-bars text-xl text-gray-700"></i>
+                        </button>
+                        <h1 class="text-xl font-bold text-primary">Nyambika</h1>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button data-event="click:openSearch" class="p-2 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-search text-lg text-gray-700"></i>
+                        </button>
+                        <button data-event="click:openCart" class="p-2 rounded-lg hover:bg-gray-100 relative">
+                            <i class="fas fa-shopping-cart text-lg text-gray-700"></i>
+                            <span data-bind="cart.itemCount" class="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                        <button data-event="click:openProfile" class="p-2 rounded-lg hover:bg-gray-100">
+                            <i class="fas fa-user text-lg text-gray-700"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- @END_COMPONENT: MobileHeader -->
+
+        <!-- Desktop Navigation -->
+        <!-- @COMPONENT: DesktopHeader -->
+        <header class="hidden lg:block bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center space-x-8">
+                        <h1 class="text-2xl font-bold text-primary">Nyambika</h1>
+                        <nav class="flex space-x-6">
+                            <a href="#" class="text-gray-700 hover:text-primary font-medium">Home</a>
+                            <a href="#" class="text-gray-700 hover:text-primary font-medium">Women</a>
+                            <a href="#" class="text-gray-700 hover:text-primary font-medium">Men</a>
+                            <a href="#" class="text-gray-700 hover:text-primary font-medium">Traditional</a>
+                            <a href="#" class="text-gray-700 hover:text-primary font-medium">Accessories</a>
+                        </nav>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4">
+                        <div class="relative">
+                            <input type="text" placeholder="Search products..." class="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        </div>
+                        <button data-event="click:openCart" class="relative p-2 text-gray-700 hover:text-primary">
+                            <i class="fas fa-shopping-cart text-xl"></i>
+                            <span data-bind="cart.itemCount" class="absolute -top-1 -right-1 bg-secondary text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">3</span>
+                        </button>
+                        <button data-event="click:openProfile" class="p-2 text-gray-700 hover:text-primary">
+                            <i class="fas fa-user text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- @END_COMPONENT: DesktopHeader -->
+
+        <!-- Main Content Area -->
+        <main class="pb-20 lg:pb-0">
+            
+            <!-- Hero Section -->
+            <!-- @COMPONENT: HeroSection -->
+            <section class="bg-gradient-to-r from-primary to-teal-600 text-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+                    <div class="grid lg:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h2 class="text-3xl lg:text-5xl font-bold mb-4">
+                                Discover Rwanda's<br>Fashion Excellence
+                            </h2>
+                            <p class="text-lg lg:text-xl mb-6 text-teal-100">
+                                Experience AI-powered virtual try-on and find the perfect fit for traditional and modern clothing.
+                            </p>
+                            <div class="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
+                                <button data-event="click:startShopping" class="bg-secondary hover:bg-yellow-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                    Start Shopping
+                                </button>
+                                <button data-event="click:tryVirtualTryOn" class="border border-white hover:bg-white hover:text-primary text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                    Try Virtual Try-On
+                                </button>
+                            </div>
+                        </div>
+                        <div class="hidden lg:block">
+                            <!-- Beautiful Rwandan fashion model wearing traditional clothing -->
+                            <img src="https://pixabay.com/get/gdb41f3a4dcb719711121f66bc4df656e9a58aee2ef751a25b15d9929a694a86ef0540f2b6a71fa35511fc4725707b1558594f68dfdbb7a01a151790ba58127a6_1280.jpg" 
+                                 alt="Rwandan fashion model" 
+                                 class="rounded-xl shadow-2xl w-full h-auto" />
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: HeroSection -->
+
+            <!-- Features Section -->
+            <!-- @COMPONENT: FeaturesSection -->
+            <section class="py-12 lg:py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h3 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Why Choose Nyambika?</h3>
+                        <p class="text-gray-600 max-w-2xl mx-auto">Experience the future of fashion shopping with our AI-powered features designed for Rwanda's unique market.</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <div class="text-center p-6">
+                            <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-camera text-2xl text-primary"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold mb-2">Virtual Try-On</h4>
+                            <p class="text-gray-600">See how clothes look on you before buying with our AI-powered virtual fitting room.</p>
+                        </div>
+                        
+                        <div class="text-center p-6">
+                            <div class="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-ruler-combined text-2xl text-secondary"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold mb-2">Perfect Size Match</h4>
+                            <p class="text-gray-600">Get personalized size recommendations based on your measurements and preferences.</p>
+                        </div>
+                        
+                        <div class="text-center p-6">
+                            <div class="w-16 h-16 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-mobile-alt text-2xl text-accent"></i>
+                            </div>
+                            <h4 class="text-xl font-semibold mb-2">Mobile Payment</h4>
+                            <p class="text-gray-600">Easy checkout with MTN Money, Airtel Money, and international payment options.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: FeaturesSection -->
+
+            <!-- Categories Section -->
+            <!-- @COMPONENT: CategoriesSection -->
+            <section class="py-12 lg:py-16 bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h3 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">Shop by Category</h3>
+                        <p class="text-gray-600">Discover our curated collections of traditional and modern fashion.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                        <!-- @MAP: categories.map(category => ( -->
+                        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+                            <!-- Traditional Rwandan clothing display -->
+                            <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                                 alt="Traditional Wear" 
+                                 class="w-full h-32 lg:h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform" />
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900">Traditional Wear</h4>
+                                <p class="text-sm text-gray-600">120+ items</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+                            <!-- Modern women's fashion -->
+                            <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                                 alt="Women's Fashion" 
+                                 class="w-full h-32 lg:h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform" />
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900">Women's Fashion</h4>
+                                <p class="text-sm text-gray-600">250+ items</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+                            <!-- Men's clothing collection -->
+                            <img src="https://images.unsplash.com/photo-1516257984-b1b4d707412e?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                                 alt="Men's Fashion" 
+                                 class="w-full h-32 lg:h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform" />
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900">Men's Fashion</h4>
+                                <p class="text-sm text-gray-600">180+ items</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow cursor-pointer group">
+                            <!-- Fashion accessories -->
+                            <img src="https://pixabay.com/get/g3a4f394b7fc73f36cd49c7e6a5158c1cabc648ddd962393ad56118ca08b856609aa93f86169b3103e96130b97b53ddbc824602ab00bf7f8bd3573d7fa5e90c02_1280.jpg" 
+                                 alt="Accessories" 
+                                 class="w-full h-32 lg:h-48 object-cover rounded-t-lg group-hover:scale-105 transition-transform" />
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900">Accessories</h4>
+                                <p class="text-sm text-gray-600">90+ items</p>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: CategoriesSection -->
+
+            <!-- Featured Products -->
+            <!-- @COMPONENT: FeaturedProducts -->
+            <section class="py-12 lg:py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h3 class="text-2xl lg:text-3xl font-bold text-gray-900">Featured Products</h3>
+                        <button class="text-primary hover:text-primary-dark font-semibold">View All <i class="fas fa-arrow-right ml-2"></i></button>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+                        <!-- @MAP: featuredProducts.map(product => ( -->
+                        <div class="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer group">
+                            <div class="relative">
+                                <!-- Elegant African print dress -->
+                                <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" 
+                                     alt="African Print Dress" 
+                                     class="w-full h-48 lg:h-64 object-cover rounded-t-lg" />
+                                <button data-event="click:addToWishlist" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="far fa-heart text-gray-600 hover:text-red-500"></i>
+                                </button>
+                                <button data-event="click:quickView" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Quick View
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900 mb-1" data-bind="product.name">African Print Dress</h4>
+                                <p class="text-sm text-gray-600 mb-2" data-bind="product.seller">Kigali Fashion House</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-lg font-bold text-primary" data-bind="product.price">RWF 25,000</span>
+                                    <div class="flex items-center">
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="far fa-star text-sm"></i>
+                                        </div>
+                                        <span class="text-sm text-gray-600 ml-1">(4.2)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer group">
+                            <div class="relative">
+                                <!-- Traditional Rwandan men's shirt -->
+                                <img src="https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" 
+                                     alt="Traditional Men's Shirt" 
+                                     class="w-full h-48 lg:h-64 object-cover rounded-t-lg" />
+                                <button data-event="click:addToWishlist" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="far fa-heart text-gray-600 hover:text-red-500"></i>
+                                </button>
+                                <button data-event="click:quickView" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Quick View
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900 mb-1">Traditional Men's Shirt</h4>
+                                <p class="text-sm text-gray-600 mb-2">Heritage Crafts Rwanda</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-lg font-bold text-primary">RWF 18,500</span>
+                                    <div class="flex items-center">
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                        </div>
+                                        <span class="text-sm text-gray-600 ml-1">(4.8)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer group">
+                            <div class="relative">
+                                <!-- Modern casual wear -->
+                                <img src="https://images.unsplash.com/photo-1541099649105-f69ad21f3246?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" 
+                                     alt="Modern Casual Wear" 
+                                     class="w-full h-48 lg:h-64 object-cover rounded-t-lg" />
+                                <button data-event="click:addToWishlist" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="far fa-heart text-gray-600 hover:text-red-500"></i>
+                                </button>
+                                <button data-event="click:quickView" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Quick View
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900 mb-1">Modern Casual Set</h4>
+                                <p class="text-sm text-gray-600 mb-2">Urban Style Rwanda</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-lg font-bold text-primary">RWF 32,000</span>
+                                    <div class="flex items-center">
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="far fa-star text-sm"></i>
+                                        </div>
+                                        <span class="text-sm text-gray-600 ml-1">(4.1)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white border border-gray-200 rounded-lg hover:shadow-lg transition-shadow cursor-pointer group">
+                            <div class="relative">
+                                <!-- Traditional accessories -->
+                                <img src="https://images.unsplash.com/photo-1573408301185-9146fe634ad0?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=400" 
+                                     alt="Traditional Accessories" 
+                                     class="w-full h-48 lg:h-64 object-cover rounded-t-lg" />
+                                <button data-event="click:addToWishlist" class="absolute top-3 right-3 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm hover:shadow-md opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <i class="far fa-heart text-gray-600 hover:text-red-500"></i>
+                                </button>
+                                <button data-event="click:quickView" class="absolute bottom-3 left-1/2 transform -translate-x-1/2 bg-primary text-white px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                    Quick View
+                                </button>
+                            </div>
+                            <div class="p-4">
+                                <h4 class="font-semibold text-gray-900 mb-1">Traditional Jewelry Set</h4>
+                                <p class="text-sm text-gray-600 mb-2">Artisan Collective</p>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-lg font-bold text-primary">RWF 15,000</span>
+                                    <div class="flex items-center">
+                                        <div class="flex text-yellow-400">
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                            <i class="fas fa-star text-sm"></i>
+                                        </div>
+                                        <span class="text-sm text-gray-600 ml-1">(4.9)</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: FeaturedProducts -->
+
+            <!-- Virtual Try-On Section -->
+            <!-- @COMPONENT: VirtualTryOnSection -->
+            <section class="py-12 lg:py-16 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid lg:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="text-2xl lg:text-3xl font-bold mb-4">Try Before You Buy</h3>
+                            <p class="text-lg text-gray-300 mb-6">
+                                Use our AI-powered virtual try-on technology to see how clothes fit you perfectly. Upload your photo and get instant size recommendations.
+                            </p>
+                            <div class="space-y-4 mb-6">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-success mr-3"></i>
+                                    <span>Accurate size recommendations</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-success mr-3"></i>
+                                    <span>Real-time virtual fitting</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-success mr-3"></i>
+                                    <span>Reduce returns and exchanges</span>
+                                </div>
+                            </div>
+                            <button data-event="click:startVirtualTryOn" class="bg-secondary hover:bg-yellow-500 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                                Start Virtual Try-On
+                            </button>
+                        </div>
+                        <div class="hidden lg:block">
+                            <!-- Virtual try-on interface mockup -->
+                            <div class="bg-white rounded-xl p-6 shadow-2xl">
+                                <div class="bg-gray-100 rounded-lg h-64 flex items-center justify-center mb-4">
+                                    <div class="text-center text-gray-500">
+                                        <i class="fas fa-camera text-4xl mb-2"></i>
+                                        <p>AI Virtual Try-On</p>
+                                        <p class="text-sm">Upload photo to start</p>
+                                    </div>
+                                </div>
+                                <button class="w-full bg-primary text-white py-2 rounded-lg font-medium">
+                                    <!-- @FUNCTIONALITY: This should trigger camera/photo upload -->
+                                    Upload Photo
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: VirtualTryOnSection -->
+
+            <!-- Testimonials -->
+            <!-- @COMPONENT: TestimonialsSection -->
+            <section class="py-12 lg:py-16 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h3 class="text-2xl lg:text-3xl font-bold text-gray-900 mb-4">What Our Customers Say</h3>
+                        <p class="text-gray-600">Join thousands of satisfied customers across Rwanda</p>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8">
+                        <!-- @MAP: testimonials.map(testimonial => ( -->
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <div class="flex text-yellow-400 mb-4">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="text-gray-700 mb-4">"Nyambika's virtual try-on helped me find the perfect traditional dress for my wedding. The size was exactly right!"</p>
+                            <div class="flex items-center">
+                                <!-- Customer profile photo -->
+                                <img src="https://pixabay.com/get/gf60d9e13f20fe2c5da84e62b1377c114745b260276af672a7275cf845ff4a16f49e0a45508ceabcfd154d53be9511e14245afa09b03ee8db65eaa40e5df11f35_1280.jpg" 
+                                     alt="Customer" 
+                                     class="w-12 h-12 rounded-full object-cover mr-3" />
+                                <div>
+                                    <h5 class="font-semibold text-gray-900">Marie Uwimana</h5>
+                                    <p class="text-sm text-gray-600">Kigali</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <div class="flex text-yellow-400 mb-4">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="text-gray-700 mb-4">"Great selection of both modern and traditional clothes. Fast delivery and excellent customer service!"</p>
+                            <div class="flex items-center">
+                                <!-- Customer profile photo -->
+                                <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=60&h=60&face=crop" 
+                                     alt="Customer" 
+                                     class="w-12 h-12 rounded-full object-cover mr-3" />
+                                <div>
+                                    <h5 class="font-semibold text-gray-900">Jean Baptiste</h5>
+                                    <p class="text-sm text-gray-600">Butare</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-50 rounded-lg p-6">
+                            <div class="flex text-yellow-400 mb-4">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <p class="text-gray-700 mb-4">"Supporting local designers while getting high-quality fashion. MTN Money payment made it so convenient!"</p>
+                            <div class="flex items-center">
+                                <!-- Customer profile photo -->
+                                <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=60&h=60&face=crop" 
+                                     alt="Customer" 
+                                     class="w-12 h-12 rounded-full object-cover mr-3" />
+                                <div>
+                                    <h5 class="font-semibold text-gray-900">Grace Mukamana</h5>
+                                    <p class="text-sm text-gray-600">Musanze</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: TestimonialsSection -->
+
+        </main>
+
+        <!-- Mobile Bottom Navigation -->
+        <!-- @COMPONENT: MobileBottomNav -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 lg:hidden">
+            <div class="grid grid-cols-5 py-2">
+                <button data-event="click:navigate:home" class="flex flex-col items-center p-2 text-primary">
+                    <i class="fas fa-home text-lg"></i>
+                    <span class="text-xs mt-1">Home</span>
+                </button>
+                <button data-event="click:navigate:categories" class="flex flex-col items-center p-2 text-gray-600">
+                    <i class="fas fa-th-large text-lg"></i>
+                    <span class="text-xs mt-1">Categories</span>
+                </button>
+                <button data-event="click:navigate:tryOn" class="flex flex-col items-center p-2 text-gray-600">
+                    <i class="fas fa-camera text-lg"></i>
+                    <span class="text-xs mt-1">Try On</span>
+                </button>
+                <button data-event="click:navigate:orders" class="flex flex-col items-center p-2 text-gray-600">
+                    <i class="fas fa-box text-lg"></i>
+                    <span class="text-xs mt-1">Orders</span>
+                </button>
+                <button data-event="click:navigate:profile" class="flex flex-col items-center p-2 text-gray-600">
+                    <i class="fas fa-user text-lg"></i>
+                    <span class="text-xs mt-1">Profile</span>
+                </button>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: MobileBottomNav -->
+
+        <!-- Footer (Desktop) -->
+        <!-- @COMPONENT: Footer -->
+        <footer class="hidden lg:block bg-gray-900 text-white py-12">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid md:grid-cols-4 gap-8">
+                    <div>
+                        <h4 class="text-xl font-bold mb-4 text-primary">Nyambika</h4>
+                        <p class="text-gray-300 mb-4">Rwanda's premier AI-powered fashion e-commerce platform connecting local designers with customers.</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-facebook text-xl"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-instagram text-xl"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-twitter text-xl"></i></a>
+                            <a href="#" class="text-gray-400 hover:text-white"><i class="fab fa-linkedin text-xl"></i></a>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h5 class="font-semibold mb-4">Quick Links</h5>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><a href="#" class="hover:text-white">About Us</a></li>
+                            <li><a href="#" class="hover:text-white">How It Works</a></li>
+                            <li><a href="#" class="hover:text-white">Become a Seller</a></li>
+                            <li><a href="#" class="hover:text-white">Virtual Try-On</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h5 class="font-semibold mb-4">Customer Service</h5>
+                        <ul class="space-y-2 text-gray-300">
+                            <li><a href="#" class="hover:text-white">Contact Us</a></li>
+                            <li><a href="#" class="hover:text-white">Size Guide</a></li>
+                            <li><a href="#" class="hover:text-white">Returns & Exchanges</a></li>
+                            <li><a href="#" class="hover:text-white">FAQ</a></li>
+                        </ul>
+                    </div>
+                    
+                    <div>
+                        <h5 class="font-semibold mb-4">Contact Information</h5>
+                        <div class="space-y-2 text-gray-300">
+                            <p><i class="fas fa-map-marker-alt mr-2"></i>Kigali, Rwanda</p>
+                            <p><i class="fas fa-phone mr-2"></i>+250 XXX XXX XXX</p>
+                            <p><i class="fas fa-envelope mr-2"></i>support@nyambika.rw</p>
+                        </div>
+                        <div class="mt-4">
+                            <h6 class="font-semibold mb-2">Payment Methods</h6>
+                            <div class="flex space-x-2">
+                                <div class="bg-gray-800 px-2 py-1 rounded text-sm">MTN Money</div>
+                                <div class="bg-gray-800 px-2 py-1 rounded text-sm">Airtel Money</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                    <p>&copy; 2024 Nyambika. All rights reserved. Made with ❤️ in Rwanda.</p>
+                </div>
+            </div>
+        </footer>
+        <!-- @END_COMPONENT: Footer -->
+
+        <!-- Cart Sidebar (Hidden by default) -->
+        <!-- @COMPONENT: CartSidebar -->
+        <div id="cartSidebar" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-xl transform translate-x-full transition-transform z-50" data-mock="true">
+            <div class="flex flex-col h-full">
+                <div class="flex items-center justify-between p-4 border-b">
+                    <h3 class="text-lg font-semibold">Shopping Cart</h3>
+                    <button data-event="click:closeCart" class="p-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-times text-gray-500"></i>
+                    </button>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto p-4">
+                    <!-- @MAP: cartItems.map(item => ( -->
+                    <div class="flex items-center space-x-3 py-3 border-b border-gray-100">
+                        <img src="https://images.unsplash.com/photo-1596755094514-f87e34085b2c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=80&h=80" 
+                             alt="Cart item" 
+                             class="w-16 h-16 object-cover rounded" />
+                        <div class="flex-1">
+                            <h4 class="font-medium text-sm" data-bind="item.name">African Print Dress</h4>
+                            <p class="text-xs text-gray-600" data-bind="item.size">Size: M</p>
+                            <p class="text-sm font-semibold text-primary" data-bind="item.price">RWF 25,000</p>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="w-6 h-6 rounded border flex items-center justify-center text-sm">-</button>
+                            <span class="text-sm" data-bind="item.quantity">1</span>
+                            <button class="w-6 h-6 rounded border flex items-center justify-center text-sm">+</button>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+                
+                <div class="border-t p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="font-semibold">Total:</span>
+                        <span class="text-xl font-bold text-primary" data-bind="cart.total">RWF 43,500</span>
+                    </div>
+                    <button data-event="click:checkout" class="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary-dark transition-colors">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: CartSidebar -->
+
+    </div>
+    <!-- @END_COMPONENT: AppShell -->
+
+    <script>
+        // TODO: Implement business logic, API calls, and state management
+        (function() {
+            // Basic UI interactions for demo purposes
+            let cartCount = 3;
+            
+            // Cart sidebar toggle
+            const cartButtons = document.querySelectorAll('[data-event*="openCart"]');
+            const cartSidebar = document.getElementById('cartSidebar');
+            const closeCartButton = document.querySelector('[data-event*="closeCart"]');
+            
+            cartButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    cartSidebar.classList.remove('translate-x-full');
+                });
+            });
+            
+            if (closeCartButton) {
+                closeCartButton.addEventListener('click', () => {
+                    cartSidebar.classList.add('translate-x-full');
+                });
+            }
+            
+            // Close cart when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!cartSidebar.contains(e.target) && !e.target.closest('[data-event*="openCart"]')) {
+                    cartSidebar.classList.add('translate-x-full');
+                }
+            });
+            
+            // Mock virtual try-on functionality
+            const tryOnButtons = document.querySelectorAll('[data-event*="tryVirtualTryOn"], [data-event*="startVirtualTryOn"]');
+            tryOnButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    alert('Virtual Try-On feature coming soon! This will integrate with AI models for real-time fitting.');
+                });
+            });
+            
+            // Mock quick view functionality
+            const quickViewButtons = document.querySelectorAll('[data-event*="quickView"]');
+            quickViewButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    alert('Quick View modal would open here with product details, size options, and add to cart functionality.');
+                });
+            });
+            
+            // Mobile navigation highlighting
+            const mobileNavButtons = document.querySelectorAll('[data-event*="navigate"]');
+            mobileNavButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    mobileNavButtons.forEach(btn => {
+                        btn.classList.remove('text-primary');
+                        btn.classList.add('text-gray-600');
+                    });
+                    // Add active class to clicked button
+                    button.classList.remove('text-gray-600');
+                    button.classList.add('text-primary');
+                });
+            });
+            
+        })();
+    </script>
+</body>
+</html>

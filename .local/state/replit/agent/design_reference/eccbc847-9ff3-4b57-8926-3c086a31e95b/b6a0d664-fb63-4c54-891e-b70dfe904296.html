@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyambika - AI-Powered Fashion Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'emerald-deep': '#0F4C3A',
+                        'gold-rich': '#D4AF37',
+                        'terracotta': '#E07A5F',
+                        'sage': '#A8B5A0',
+                        'cream': '#F8F5F2',
+                    },
+                    backdropBlur: {
+                        'xs': '2px',
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --primary: #0F4C3A;
+            --secondary: #D4AF37;
+            --accent: #E07A5F;
+            --neutral: #A8B5A0;
+            --bg-primary: #FAFAFA;
+            --bg-secondary: #F8F5F2;
+            --text-primary: #1A1A1A;
+            --text-secondary: #4A5568;
+            --glass-bg: rgba(248, 245, 242, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.18);
+        }
+
+        [data-theme="dark"] {
+            --primary: #D4AF37;
+            --secondary: #0F4C3A;
+            --accent: #E07A5F;
+            --neutral: #A8B5A0;
+            --bg-primary: #1A1A1A;
+            --bg-secondary: #2D2D2D;
+            --text-primary: #FAFAFA;
+            --text-secondary: #B0B0B0;
+            --glass-bg: rgba(26, 26, 26, 0.25);
+            --glass-border: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .glass-morphism {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+        }
+
+        .theme-toggle {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] .theme-toggle::before {
+            transform: translateX(30px);
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--primary) 100%);
+        }
+
+        .category-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .category-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .ai-badge {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .search-container {
+            position: relative;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .search-input {
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            color: var(--text-primary);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .nav-menu {
+            display: none;
+        }
+
+        .nav-menu.active {
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                padding: 2rem 1rem;
+            }
+            
+            .category-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+
+        .product-overlay {
+            background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+        }
+    </style>
+</head>
+<body class="font-inter">
+    <!-- @COMPONENT: Header [navigation, theme toggle, user actions] -->
+    <header class="glass-morphism sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold">
+                        <span style="color: var(--primary);">Nyambika</span>
+                        <div class="ai-badge inline-block px-2 py-1 text-xs text-white rounded-full ml-2">AI</div>
+                    </div>
+                </div>
+
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">Home</a>
+                    <a href="#products" class="hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">Products</a>
+                    <a href="#tryon" class="hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">Try-On Studio</a>
+                    <a href="#about" class="hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">About</a>
+                </div>
+
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <div class="theme-toggle" onclick="toggleTheme()">
+                        <i class="fas fa-sun absolute left-2 top-1/2 transform -translate-y-1/2 text-xs text-yellow-500"></i>
+                        <i class="fas fa-moon absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-blue-300"></i>
+                    </div>
+
+                    <button class="glass-morphism p-2 rounded-lg hover:bg-opacity-30 transition-all">
+                        <i class="fas fa-shopping-cart" style="color: var(--text-primary);"></i>
+                    </button>
+
+                    <button class="glass-morphism p-2 rounded-lg hover:bg-opacity-30 transition-all">
+                        <i class="fas fa-user" style="color: var(--text-primary);"></i>
+                    </button>
+
+                    <!-- Mobile Menu Toggle -->
+                    <button class="md:hidden glass-morphism p-2 rounded-lg" onclick="toggleMobileMenu()">
+                        <i class="fas fa-bars" style="color: var(--text-primary);"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile Navigation Menu -->
+            <div id="mobile-menu" class="nav-menu md:hidden mt-4 glass-morphism rounded-lg p-4">
+                <div class="flex flex-col space-y-3">
+                    <a href="#" class="py-2 hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">Home</a>
+                    <a href="#products" class="py-2 hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">Products</a>
+                    <a href="#tryon" class="py-2 hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">Try-On Studio</a>
+                    <a href="#about" class="py-2 hover:text-opacity-70 transition-colors" style="color: var(--text-primary);">About</a>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <!-- @END_COMPONENT: Header -->
+
+    <!-- @COMPONENT: Hero Section [main banner, CTA, visual appeal] -->
+    <section class="hero-gradient min-h-screen flex items-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-20">
+            <!-- Modern African fashion photography with dramatic lighting -->
+            <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Elegant fashion photography" class="w-full h-full object-cover">
+        </div>
+        
+        <div class="container mx-auto px-4 relative z-10">
+            <div class="hero-content text-center max-w-4xl mx-auto">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6" style="color: var(--text-primary);">
+                    Fashion Redefined with
+                    <span class="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                        AI Magic
+                    </span>
+                </h1>
+                
+                <p class="text-xl md:text-2xl mb-8 font-light" style="color: var(--text-secondary);">
+                    Discover Rwanda's finest fashion with virtual try-on technology
+                </p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+                    <button class="glass-morphism px-8 py-4 rounded-full font-semibold hover:scale-105 transition-all duration-300" style="color: var(--primary);">
+                        <i class="fas fa-magic mr-2"></i>
+                        Start Virtual Try-On
+                    </button>
+                    
+                    <button class="glass-morphism px-8 py-4 rounded-full font-semibold hover:scale-105 transition-all duration-300" style="color: var(--text-primary);">
+                        <i class="fas fa-play mr-2"></i>
+                        Watch Demo
+                    </button>
+                </div>
+
+                <!-- Featured Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
+                    <div class="glass-morphism p-6 rounded-xl text-center">
+                        <div class="text-3xl font-bold" style="color: var(--primary);">500+</div>
+                        <div style="color: var(--text-secondary);">Local Designers</div>
+                    </div>
+                    <div class="glass-morphism p-6 rounded-xl text-center">
+                        <div class="text-3xl font-bold" style="color: var(--primary);">99%</div>
+                        <div style="color: var(--text-secondary);">Size Accuracy</div>
+                    </div>
+                    <div class="glass-morphism p-6 rounded-xl text-center">
+                        <div class="text-3xl font-bold" style="color: var(--primary);">24h</div>
+                        <div style="color: var(--text-secondary);">Fast Delivery</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Hero -->
+
+    <!-- @COMPONENT: Smart Search [AI-powered search functionality] -->
+    <section class="py-20" style="background: var(--bg-secondary);">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: var(--text-primary);">
+                    Find Your Perfect Style
+                </h2>
+                <p class="text-lg" style="color: var(--text-secondary);">
+                    AI-powered search understands your preferences
+                </p>
+            </div>
+
+            <div class="search-container">
+                <div class="relative">
+                    <input 
+                        type="text" 
+                        placeholder="Search for dresses, traditional wear, accessories..." 
+                        class="search-input w-full py-6 px-8 pr-16 rounded-full text-lg focus:outline-none focus:ring-2 focus:ring-opacity-50"
+                        style="focus:ring-color: var(--primary);"
+                    >
+                    <button class="absolute right-4 top-1/2 transform -translate-y-1/2 glass-morphism p-3 rounded-full hover:scale-110 transition-all">
+                        <i class="fas fa-search" style="color: var(--primary);"></i>
+                    </button>
+                </div>
+
+                <!-- Search Suggestions -->
+                <div class="mt-6 flex flex-wrap justify-center gap-3">
+                    <span class="glass-morphism px-4 py-2 rounded-full text-sm cursor-pointer hover:scale-105 transition-all" style="color: var(--text-primary);">
+                        <i class="fas fa-star mr-1" style="color: var(--primary);"></i>
+                        Traditional Dresses
+                    </span>
+                    <span class="glass-morphism px-4 py-2 rounded-full text-sm cursor-pointer hover:scale-105 transition-all" style="color: var(--text-primary);">
+                        <i class="fas fa-crown mr-1" style="color: var(--primary);"></i>
+                        Wedding Attire
+                    </span>
+                    <span class="glass-morphism px-4 py-2 rounded-full text-sm cursor-pointer hover:scale-105 transition-all" style="color: var(--text-primary);">
+                        <i class="fas fa-briefcase mr-1" style="color: var(--primary);"></i>
+                        Professional Wear
+                    </span>
+                    <span class="glass-morphism px-4 py-2 rounded-full text-sm cursor-pointer hover:scale-105 transition-all" style="color: var(--text-primary);">
+                        <i class="fas fa-gem mr-1" style="color: var(--primary);"></i>
+                        Jewelry
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Smart Search -->
+
+    <!-- @COMPONENT: Featured Categories [exactly 3 category cards] -->
+    <section class="py-20" style="background: var(--bg-primary);">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: var(--text-primary);">
+                    Shop by Category
+                </h2>
+                <p class="text-lg" style="color: var(--text-secondary);">
+                    Curated collections for every occasion
+                </p>
+            </div>
+
+            <div class="category-grid grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                <!-- Category 1: Traditional Wear -->
+                <div class="category-card glass-morphism rounded-3xl overflow-hidden group cursor-pointer">
+                    <div class="relative h-80">
+                        <!-- Elegant traditional African fashion photography -->
+                        <img src="https://pixabay.com/get/g438aa68af52d6a95940f194d5f5613e76c829d26c46c6a363fbaacb218b1e496c1da8bf11a52152d1803890f9b62d36f1da1e3270b7b25e945986e21acf9dda3_1280.jpg" alt="Traditional African wear" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="product-overlay absolute inset-0"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">Traditional Wear</h3>
+                            <p class="text-gray-200 text-sm mb-4">Authentic Rwandan designs</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-semibold">Explore Collection</span>
+                                <div class="glass-morphism p-2 rounded-full">
+                                    <i class="fas fa-arrow-right text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category 2: Modern Fashion -->
+                <div class="category-card glass-morphism rounded-3xl overflow-hidden group cursor-pointer">
+                    <div class="relative h-80">
+                        <!-- Contemporary fashion photography with clean background -->
+                        <img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Modern fashion" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="product-overlay absolute inset-0"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">Modern Fashion</h3>
+                            <p class="text-gray-200 text-sm mb-4">Contemporary styles</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-semibold">Explore Collection</span>
+                                <div class="glass-morphism p-2 rounded-full">
+                                    <i class="fas fa-arrow-right text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category 3: Accessories -->
+                <div class="category-card glass-morphism rounded-3xl overflow-hidden group cursor-pointer">
+                    <div class="relative h-80">
+                        <!-- Sophisticated jewelry and accessories photography -->
+                        <img src="https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Fashion accessories" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="product-overlay absolute inset-0"></div>
+                        <div class="absolute bottom-6 left-6 right-6">
+                            <h3 class="text-2xl font-bold text-white mb-2">Accessories</h3>
+                            <p class="text-gray-200 text-sm mb-4">Jewelry & handbags</p>
+                            <div class="flex items-center justify-between">
+                                <span class="text-white font-semibold">Explore Collection</span>
+                                <div class="glass-morphism p-2 rounded-full">
+                                    <i class="fas fa-arrow-right text-white"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Try-On CTA -->
+            <div class="mt-16 text-center">
+                <div class="glass-morphism p-8 rounded-3xl max-w-2xl mx-auto">
+                    <div class="ai-badge inline-block px-4 py-2 text-white rounded-full mb-4">
+                        <i class="fas fa-magic mr-2"></i>
+                        AI POWERED
+                    </div>
+                    <h3 class="text-2xl font-bold mb-4" style="color: var(--text-primary);">
+                        Try Before You Buy
+                    </h3>
+                    <p class="mb-6" style="color: var(--text-secondary);">
+                        Use our AI virtual try-on to see how clothes fit you perfectly
+                    </p>
+                    <button class="glass-morphism px-8 py-4 rounded-full font-semibold hover:scale-105 transition-all duration-300" style="color: var(--primary);">
+                        Launch Try-On Studio
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- @END_COMPONENT: Featured Categories -->
+
+    <!-- @COMPONENT: Footer [navigation links, contact info, social media] -->
+    <footer class="py-16" style="background: var(--bg-secondary);">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+                <!-- Brand Column -->
+                <div class="md:col-span-1">
+                    <div class="text-2xl font-bold mb-4">
+                        <span style="color: var(--primary);">Nyambika</span>
+                        <div class="ai-badge inline-block px-2 py-1 text-xs text-white rounded-full ml-2">AI</div>
+                    </div>
+                    <p class="mb-6" style="color: var(--text-secondary);">
+                        Rwanda's premier AI-powered fashion platform, connecting local designers with global customers.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="glass-morphism p-3 rounded-full hover:scale-110 transition-all">
+                            <i class="fab fa-facebook-f" style="color: var(--primary);"></i>
+                        </a>
+                        <a href="#" class="glass-morphism p-3 rounded-full hover:scale-110 transition-all">
+                            <i class="fab fa-instagram" style="color: var(--primary);"></i>
+                        </a>
+                        <a href="#" class="glass-morphism p-3 rounded-full hover:scale-110 transition-all">
+                            <i class="fab fa-twitter" style="color: var(--primary);"></i>
+                        </a>
+                        <a href="#" class="glass-morphism p-3 rounded-full hover:scale-110 transition-all">
+                            <i class="fab fa-whatsapp" style="color: var(--primary);"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="font-semibold mb-4" style="color: var(--text-primary);">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Products</a></li>
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Try-On Studio</a></li>
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Size Guide</a></li>
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">About Us</a></li>
+                    </ul>
+                </div>
+
+                <!-- Customer Service -->
+                <div>
+                    <h4 class="font-semibold mb-4" style="color: var(--text-primary);">Customer Service</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Shipping Info</a></li>
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Returns</a></li>
+                        <li><a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">FAQ</a></li>
+                    </ul>
+                </div>
+
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="font-semibold mb-4" style="color: var(--text-primary);">Contact</h4>
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-phone w-4" style="color: var(--primary);"></i>
+                            <span style="color: var(--text-secondary);">+250 788 123 456</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-envelope w-4" style="color: var(--primary);"></i>
+                            <span style="color: var(--text-secondary);">hello@nyambika.rw</span>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <i class="fas fa-map-marker-alt w-4" style="color: var(--primary);"></i>
+                            <span style="color: var(--text-secondary);">Kigali, Rwanda</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-opacity-20 pt-8" style="border-color: var(--text-secondary);">
+                <div class="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+                    <div style="color: var(--text-secondary);">
+                        © 2024 Nyambika. All rights reserved. Made with ❤️ in Rwanda
+                    </div>
+                    <div class="flex space-x-6">
+                        <a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Privacy Policy</a>
+                        <a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Terms of Service</a>
+                        <a href="#" class="hover:text-opacity-70 transition-colors" style="color: var(--text-secondary);">Cookies</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- @END_COMPONENT: Footer -->
+
+    <script>
+        (function() {
+            // Theme Management
+            let currentTheme = localStorage.getItem('theme') || 
+                             (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            
+            function applyTheme(theme) {
+                document.documentElement.setAttribute('data-theme', theme);
+                localStorage.setItem('theme', theme);
+                currentTheme = theme;
+            }
+
+            function toggleTheme() {
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(newTheme);
+            }
+
+            // Mobile Menu Toggle
+            function toggleMobileMenu() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                mobileMenu.classList.toggle('active');
+            }
+
+            // Initialize theme
+            applyTheme(currentTheme);
+
+            // Make functions globally available
+            window.toggleTheme = toggleTheme;
+            window.toggleMobileMenu = toggleMobileMenu;
+
+            // System theme change detection
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (!localStorage.getItem('theme')) {
+                    applyTheme(e.matches ? 'dark' : 'light');
+                }
+            });
+
+            // Smooth scroll for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Enhanced search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('focus', function() {
+                    this.style.transform = 'scale(1.02)';
+                });
+                
+                searchInput.addEventListener('blur', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            }
+
+            // Category card interactions
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.filter = 'brightness(1.1)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.filter = 'brightness(1)';
+                });
+            });
+
+            // Intersection Observer for animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // Observe elements for scroll animations
+            document.querySelectorAll('.category-card, .glass-morphism').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                observer.observe(el);
+            });
+
+        })();
+    </script>
+</body>
+</html>

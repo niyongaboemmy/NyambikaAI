@@ -1,9 +1,12 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { z } from "zod";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { generateVirtualTryOn, analyzeFashionImage, generateSizeRecommendation } from "./openai";
+import { analyzeFashionImage, generateSizeRecommendation } from "./openai";
+import { generateVirtualTryOn } from "./tryon";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -23,19 +26,304 @@ import {
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
-  // Auth middleware (simplified for now)
+  // Auth middleware with JWT
   interface AuthenticatedRequest extends Express.Request {
     userId: string;
+    userRole: string;
   }
 
-  const requireAuth = (req: any, res: any, next: any) => {
-    const userId = req.headers['x-user-id']; // Simplified auth
-    if (!userId) {
+  const requireAuth = async (req: any, res: any, next: any) => {
+    const authHeader = req.headers.authorization;
+    const legacyUserId = req.headers['x-user-id'] as string | undefined; // Keep for backward compatibility
+    
+    // If legacy header is present, map it to a real DB user (create if missing)
+    if (legacyUserId && !authHeader) {
+      try {
+        const username = String(legacyUserId);
+        const email = `${username}@demo.local`;
+        let user = await storage.getUserByUsername(username);
+        if (!user) {
+          // Fallback by email just in case
+          user = await storage.getUserByEmail(email);
+        }
+        if (!user) {
+          const hashed = await bcrypt.hash('password', 10);
+          user = await storage.createUser({
+            username,
+            email,
+            password: hashed,
+            fullName: 'Demo User',
+            role: 'customer'
+          });
+        }
+        req.userId = user.id;
+        req.userRole = user.role || 'customer';
+        return next();
+      } catch (e) {
+        console.error('Demo auth provisioning failed:', e);
+        return res.status(500).json({ message: 'Authentication setup failed' });
+      }
+    }
+    
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: 'Authentication required' });
     }
-    req.userId = userId;
-    next();
+    
+    const token = authHeader.substring(7);
+    
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-secret') as any;
+      req.userId = decoded.userId;
+      req.userRole = decoded.role;
+      next();
+    } catch (error) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
   };
+
+  const requireRole = (roles: string[]) => {
+    return (req: any, res: any, next: any) => {
+      if (!roles.includes(req.userRole)) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+      next();
+    };
+  };
+
+  // Authentication routes
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const { email, password, name, role, phone } = req.body;
+      
+      // Validate input
+      if (!email || !password || !name || !role) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+      
+      if (!['customer', 'producer'].includes(role)) {
+        return res.status(400).json({ message: 'Invalid role' });
+      }
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
+      
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+      
+      // Create user
+      const userData = {
+        username: email, // Use email as username for now
+        email,
+        password: hashedPassword,
+        fullName: name,
+        role,
+        phone: phone || null
+      };
+      
+      const user = await storage.createUser(userData);
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, role: user.role },
+        process.env.JWT_SECRET || 'fallback-secret',
+        { expiresIn: '7d' }
+      );
+      
+      // Return user without password and map fullName to name
+      const { password: _, fullName, ...userWithoutPassword } = user;
+      const mappedUser = {
+        ...userWithoutPassword,
+        name: fullName || user.email.split('@')[0]
+      };
+      
+      res.status(201).json({
+        user: mappedUser,
+        token
+      });
+    } catch (error) {
+      console.error('Registration error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email and password are required' });
+      }
+      
+      // Find user by email
+      const user = await storage.getUserByEmail(email);
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      // Check password
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (!isValidPassword) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      // Generate JWT token
+      const token = jwt.sign(
+        { userId: user.id, role: user.role },
+        process.env.JWT_SECRET || 'fallback-secret',
+        { expiresIn: '7d' }
+      );
+      
+      // Return user without password and map fullName to name
+      const { password: _, fullName, ...userWithoutPassword } = user;
+      const mappedUser = {
+        ...userWithoutPassword,
+        name: fullName || user.email.split('@')[0]
+      };
+      
+      res.json({
+        user: mappedUser,
+        token
+      });
+    } catch (error) {
+      console.error('Login error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+  
+  app.get('/api/auth/me', requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUserById(req.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      const { password: _, fullName, ...userWithoutPassword } = user;
+      const mappedUser = {
+        ...userWithoutPassword,
+        name: fullName || user.email.split('@')[0]
+      };
+      res.json(mappedUser);
+    } catch (error) {
+      console.error('Get user error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Update product (admin only)
+  app.put('/api/products/:id', requireAuth, requireRole(['admin']), async (req: any, res) => {
+    try {
+      const updates = insertProductSchema.partial().parse(req.body);
+      const product = await storage.updateProduct(req.params.id, updates);
+      if (!product) return res.status(404).json({ message: 'Product not found' });
+      res.json(product);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error updating product:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Delete product (admin only)
+  app.delete('/api/products/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      await storage.deleteProduct(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/auth/profile', requireAuth, async (req: any, res) => {
+    try {
+      const { fullName, fullNameRw, phone, location, businessName, profileImage } = req.body;
+      
+      const updateData: any = {};
+      if (fullName !== undefined) updateData.fullName = fullName;
+      if (fullNameRw !== undefined) updateData.fullNameRw = fullNameRw;
+      if (phone !== undefined) updateData.phone = phone;
+      if (location !== undefined) updateData.location = location;
+      if (businessName !== undefined) updateData.businessName = businessName;
+      if (profileImage !== undefined) updateData.profileImage = profileImage;
+      
+      const user = await storage.updateUser(req.userId, updateData);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      
+      // Return user without password and map fullName to name
+      const { password: _, fullName: userFullName, ...userWithoutPassword } = user;
+      const mappedUser = {
+        ...userWithoutPassword,
+        name: userFullName || user.email.split('@')[0]
+      };
+      
+      res.json(mappedUser);
+    } catch (error) {
+      console.error('Update profile error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Demo users seeding route (for development)
+  app.post('/api/seed-demo-users', async (req, res) => {
+    try {
+      const demoUsers = [
+        {
+          username: 'customer@demo.com',
+          email: 'customer@demo.com',
+          password: await bcrypt.hash('password', 10),
+          fullName: 'Demo Customer',
+          role: 'customer',
+          phone: '+250781234567'
+        },
+        {
+          username: 'producer@demo.com',
+          email: 'producer@demo.com',
+          password: await bcrypt.hash('password', 10),
+          fullName: 'Demo Producer',
+          role: 'producer',
+          phone: '+250781234568',
+          businessName: 'Fashion House Rwanda'
+        },
+        {
+          username: 'admin@demo.com',
+          email: 'admin@demo.com',
+          password: await bcrypt.hash('password', 10),
+          fullName: 'Demo Admin',
+          role: 'admin',
+          phone: '+250781234569'
+        }
+      ];
+
+      const createdUsers = [];
+      for (const userData of demoUsers) {
+        try {
+          const existingUser = await storage.getUserByEmail(userData.email);
+          if (!existingUser) {
+            const user = await storage.createUser(userData);
+            const { password: _, ...userWithoutPassword } = user;
+            createdUsers.push(userWithoutPassword);
+          }
+        } catch (error) {
+          console.log(`User ${userData.email} might already exist`);
+        }
+      }
+
+      res.json({ 
+        message: 'Demo users seeded successfully',
+        users: createdUsers
+      });
+    } catch (error) {
+      console.error('Error seeding demo users:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
   // Categories routes
   app.get('/api/categories', async (req, res) => {
@@ -61,7 +349,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/categories', async (req, res) => {
+  app.post('/api/categories', requireAuth, requireRole(['admin']), async (req, res) => {
     try {
       const validatedData = insertCategorySchema.parse(req.body);
       const category = await storage.createCategory(validatedData);
@@ -75,15 +363,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put('/api/categories/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      const validatedData = insertCategorySchema.partial().parse(req.body);
+      const category = await storage.updateCategory(req.params.id, validatedData);
+      if (!category) {
+        return res.status(404).json({ message: 'Category not found' });
+      }
+      res.json(category);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error updating category:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.delete('/api/categories/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      await storage.deleteCategory(req.params.id);
+      res.status(204).send();
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   // Products routes
+  app.post('/api/products', requireAuth, requireRole(['producer', 'admin']), async (req: any, res) => {
+    try {
+      const { name, nameRw, description, price, categoryId, imageUrl, sizes, colors, stockQuantity } = req.body;
+      
+      if (!name || !nameRw || !description || !price || !categoryId || !imageUrl) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+      
+      const productData = {
+        name,
+        nameRw,
+        description,
+        price: price.toString(),
+        categoryId,
+        producerId: req.userId,
+        imageUrl,
+        sizes: sizes || [],
+        colors: colors || [],
+        stockQuantity: stockQuantity || 0,
+        inStock: (stockQuantity || 0) > 0,
+        isApproved: req.userRole === 'admin' // Auto-approve for admins
+      };
+      
+      const product = await storage.createProduct(productData);
+      res.status(201).json(product);
+    } catch (error) {
+      console.error('Error creating product:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   app.get('/api/products', async (req, res) => {
     try {
-      const { categoryId, search, limit, offset } = req.query;
+      const { categoryId, search, limit, offset, producerId } = req.query;
       const options = {
         categoryId: categoryId as string,
         search: search as string,
         limit: limit ? parseInt(limit as string) : undefined,
         offset: offset ? parseInt(offset as string) : undefined,
+        producerId: producerId as string,
       };
       
       const products = await storage.getProducts(options);
@@ -168,6 +515,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Validation error', errors: error.errors });
       }
       console.error('Error updating user:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Producers routes
+  app.get('/api/producers', async (req, res) => {
+    try {
+      const { limit } = req.query as any;
+      const producers = await storage.getProducers(limit ? parseInt(limit as string) : undefined);
+      const safe = producers.map((u: any) => {
+        const { password, ...rest } = u;
+        return rest;
+      });
+      res.json(safe);
+    } catch (error) {
+      console.error('Error fetching producers:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/producers/:id', async (req, res) => {
+    try {
+      const user = await storage.getUser(req.params.id);
+      if (!user || user.role !== 'producer') return res.status(404).json({ message: 'Producer not found' });
+      const { password, ...safe } = user as any;
+      res.json(safe);
+    } catch (error) {
+      console.error('Error fetching producer:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/producers/:id/products', async (req, res) => {
+    try {
+      const products = await storage.getProducts({ producerId: req.params.id });
+      res.json(products);
+    } catch (error) {
+      console.error('Error fetching producer products:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });
@@ -405,8 +790,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post('/api/try-on-sessions', requireAuth, async (req: any, res) => {
     try {
+      // If productId provided but doesn't exist, drop it to avoid FK violation
+      let body = { ...req.body } as any;
+      if (body.productId) {
+        const product = await storage.getProduct(body.productId);
+        if (!product) {
+          delete body.productId;
+        }
+      }
+
       const validatedData = insertTryOnSessionSchema.parse({
-        ...req.body,
+        ...body,
         userId: req.userId
       });
       const session = await storage.createTryOnSession(validatedData);
@@ -457,10 +851,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const user = await storage.getUser(session.userId!);
       const measurements = user?.measurements ? JSON.parse(user.measurements) : undefined;
 
-      // Process with AI
+      // Process with AI (allow overriding product image via request body)
+      const overrideImageUrl = req.body?.productImageUrl as string | undefined;
+      const productImageToUse = overrideImageUrl && typeof overrideImageUrl === 'string' && overrideImageUrl.length > 0
+        ? overrideImageUrl
+        : product.imageUrl;
+
       const result = await generateVirtualTryOn(
         session.customerImageUrl,
-        product.imageUrl,
+        productImageToUse,
         product.name,
         measurements
       );

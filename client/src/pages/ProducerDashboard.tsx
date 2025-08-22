@@ -1,126 +1,130 @@
-import { useState } from 'react';
-import { 
-  Package, 
-  DollarSign, 
-  TrendingUp, 
-  Users, 
-  Plus, 
-  Eye, 
-  Edit, 
+import { useState } from "react";
+import {
+  Package,
+  DollarSign,
+  TrendingUp,
+  Users,
+  Plus,
+  Eye,
+  Edit,
   MoreVertical,
   Calendar,
   CheckCircle,
   Clock,
-  AlertCircle
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+  AlertCircle,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "wouter";
 
 export default function ProducerDashboard() {
-  const [timeRange, setTimeRange] = useState('week');
+  const [timeRange, setTimeRange] = useState("week");
 
   const stats = [
     {
-      title: 'Total Products',
-      value: '24',
-      change: '+2 this week',
+      title: "Total Products",
+      value: "24",
+      change: "+2 this week",
       icon: Package,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/20'
+      color: "text-blue-600",
+      bgColor: "bg-blue-100 dark:bg-blue-900/20",
     },
     {
-      title: 'Revenue',
-      value: '2,450,000 RWF',
-      change: '+12% from last month',
+      title: "Revenue",
+      value: "2,450,000 RWF",
+      change: "+12% from last month",
       icon: DollarSign,
-      color: 'text-green-600',
-      bgColor: 'bg-green-100 dark:bg-green-900/20'
+      color: "text-green-600",
+      bgColor: "bg-green-100 dark:bg-green-900/20",
     },
     {
-      title: 'Orders',
-      value: '156',
-      change: '+8 today',
+      title: "Orders",
+      value: "156",
+      change: "+8 today",
       icon: TrendingUp,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/20'
+      color: "text-purple-600",
+      bgColor: "bg-purple-100 dark:bg-purple-900/20",
     },
     {
-      title: 'Customers',
-      value: '89',
-      change: '+5 new this week',
+      title: "Customers",
+      value: "89",
+      change: "+5 new this week",
       icon: Users,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/20'
-    }
+      color: "text-orange-600",
+      bgColor: "bg-orange-100 dark:bg-orange-900/20",
+    },
   ];
 
   const recentProducts = [
     {
-      id: '1',
-      name: 'Traditional Rwandan Dress',
-      nameRw: 'Ikoti Gakondo',
-      status: 'approved',
-      price: '45,000 RWF',
+      id: "1",
+      name: "Traditional Rwandan Dress",
+      nameRw: "Ikoti Gakondo",
+      status: "approved",
+      price: "45,000 RWF",
       stock: 12,
       orders: 8,
-      image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
+      image:
+        "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400",
     },
     {
-      id: '2',
-      name: 'Modern Ankara Blazer',
-      nameRw: 'Ikoti ya Ankara',
-      status: 'pending',
-      price: '65,000 RWF',
+      id: "2",
+      name: "Modern Ankara Blazer",
+      nameRw: "Ikoti ya Ankara",
+      status: "pending",
+      price: "65,000 RWF",
       stock: 8,
       orders: 3,
-      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
+      image:
+        "https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400",
     },
     {
-      id: '3',
-      name: 'Casual Cotton Shirt',
-      nameRw: 'Ishati ya Ipamba',
-      status: 'approved',
-      price: '25,000 RWF',
+      id: "3",
+      name: "Casual Cotton Shirt",
+      nameRw: "Ishati ya Ipamba",
+      status: "approved",
+      price: "25,000 RWF",
       stock: 20,
       orders: 15,
-      image: 'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
-    }
+      image:
+        "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400",
+    },
   ];
 
   const recentOrders = [
     {
-      id: 'ORD-001',
-      customerName: 'Marie Uwimana',
-      product: 'Traditional Dress',
-      amount: '45,000 RWF',
-      status: 'processing',
-      date: '2024-08-21'
+      id: "ORD-001",
+      customerName: "Marie Uwimana",
+      product: "Traditional Dress",
+      amount: "45,000 RWF",
+      status: "processing",
+      date: "2024-08-21",
     },
     {
-      id: 'ORD-002',
-      customerName: 'Jean Baptiste',
-      product: 'Ankara Blazer',
-      amount: '65,000 RWF',
-      status: 'shipped',
-      date: '2024-08-20'
+      id: "ORD-002",
+      customerName: "Jean Baptiste",
+      product: "Ankara Blazer",
+      amount: "65,000 RWF",
+      status: "shipped",
+      date: "2024-08-20",
     },
     {
-      id: 'ORD-003',
-      customerName: 'Grace Mukamana',
-      product: 'Cotton Shirt',
-      amount: '25,000 RWF',
-      status: 'delivered',
-      date: '2024-08-19'
-    }
+      id: "ORD-003",
+      customerName: "Grace Mukamana",
+      product: "Cotton Shirt",
+      amount: "25,000 RWF",
+      status: "delivered",
+      date: "2024-08-19",
+    },
   ];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'approved':
+      case "approved":
         return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'pending':
+      case "pending":
         return <Clock className="h-4 w-4 text-yellow-600" />;
-      case 'rejected':
+      case "rejected":
         return <AlertCircle className="h-4 w-4 text-red-600" />;
       default:
         return <Clock className="h-4 w-4 text-muted-foreground" />;
@@ -129,16 +133,16 @@ export default function ProducerDashboard() {
 
   const getOrderStatusBadge = (status: string) => {
     switch (status) {
-      case 'processing':
-        return 'info-badge';
-      case 'shipped':
-        return 'warning-badge';
-      case 'delivered':
-        return 'success-badge';
-      case 'cancelled':
-        return 'error-badge';
+      case "processing":
+        return "info-badge";
+      case "shipped":
+        return "warning-badge";
+      case "delivered":
+        return "success-badge";
+      case "cancelled":
+        return "error-badge";
       default:
-        return 'status-badge bg-muted text-muted-foreground';
+        return "status-badge bg-muted text-muted-foreground";
     }
   };
 
@@ -167,10 +171,12 @@ export default function ProducerDashboard() {
                 <option value="quarter">This Quarter</option>
                 <option value="year">This Year</option>
               </select>
-              <Button className="gradient-bg text-white hover:opacity-90 transition-opacity">
-                <Plus className="mr-2 h-4 w-4" />
-                Add Product
-              </Button>
+              <Link href="/product-registration">
+                <Button className="gradient-bg text-white hover:opacity-90 transition-opacity">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Product
+                </Button>
+              </Link>
             </div>
           </div>
 
@@ -208,7 +214,9 @@ export default function ProducerDashboard() {
             <Card className="floating-card">
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle className="gradient-text">Recent Products</CardTitle>
+                  <CardTitle className="gradient-text">
+                    Recent Products
+                  </CardTitle>
                   <Button variant="ghost" size="sm">
                     View All
                   </Button>
@@ -216,7 +224,10 @@ export default function ProducerDashboard() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {recentProducts.map((product) => (
-                  <div key={product.id} className="glassmorphism rounded-xl p-4">
+                  <div
+                    key={product.id}
+                    className="glassmorphism rounded-xl p-4"
+                  >
                     <div className="flex items-center space-x-4">
                       <img
                         src={product.image}
@@ -275,7 +286,9 @@ export default function ProducerDashboard() {
                           <h3 className="font-semibold text-foreground">
                             {order.id}
                           </h3>
-                          <span className={`${getOrderStatusBadge(order.status)}`}>
+                          <span
+                            className={`${getOrderStatusBadge(order.status)}`}
+                          >
                             {order.status}
                           </span>
                         </div>

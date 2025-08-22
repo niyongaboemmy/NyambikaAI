@@ -1,0 +1,11 @@
+fastapi==0.112.0
+uvicorn[standard]==0.30.5
+pydantic==2.8.2
+requests==2.32.3
+Pillow==10.4.0
+numpy==2.1.0
+opencv-python==4.10.0.84
+python-dotenv==1.0.1
+# Uncomment and pin according to your CUDA if you plan to run ClothFlow locally
+# torch==2.3.1
+# torchvision==0.18.1

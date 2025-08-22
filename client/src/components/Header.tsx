@@ -1,23 +1,50 @@
-import { useState } from 'react';
-import { Link } from 'wouter';
-import { useTheme } from '@/hooks/useTheme';
-import { ShoppingBag, User, Moon, Sun, Menu, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { Link, useLocation } from "wouter";
+import { useTheme } from "@/hooks/useTheme";
+import {
+  ShoppingBag,
+  User,
+  Moon,
+  Sun,
+  Menu,
+  X,
+  LogOut,
+  Settings,
+  Package,
+  BarChart3,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/contexts/AuthContext";
 
-export default function Header() {
+export default function HeaderOld() {
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [language, setLanguage] = useState('rw');
+  const [language, setLanguage] = useState("rw");
+  const { user, logout } = useAuth();
+  const [, setLocation] = useLocation();
 
   const toggleTheme = () => {
-    setTheme(theme === 'light' ? 'dark' : 'light');
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setLocation("/");
   };
 
   const navLinks = [
-    { href: '/', label: 'Ahabanza', en: 'Home' },
-    { href: '/products', label: 'Imyenda', en: 'Products' },
-    { href: '/try-on', label: 'Gerageza', en: 'Try-On' },
-    { href: '/profile', label: 'Profil', en: 'Profile' },
+    { href: "/", label: "Ahabanza", en: "Home" },
+    { href: "/products", label: "Imyenda", en: "Products" },
+    { href: "/try-on", label: "Gerageza", en: "Try-On" },
+    { href: "/profile", label: "Profil", en: "Profile" },
   ];
 
   return (
@@ -30,7 +57,7 @@ export default function Header() {
             </div>
             <span className="text-2xl font-bold gradient-text">Nyambika</span>
           </Link>
-          
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
@@ -39,14 +66,14 @@ export default function Header() {
                 href={link.href}
                 className="text-gray-700 dark:text-gray-300 hover:text-[rgb(var(--electric-blue-rgb))] transition-colors"
               >
-                {language === 'rw' ? link.label : link.en}
+                {language === "rw" ? link.label : link.en}
               </Link>
             ))}
           </div>
 
           <div className="flex items-center space-x-4">
             {/* Language Selector */}
-            <select 
+            <select
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
               className="glassmorphism rounded-lg px-3 py-2 text-sm bg-transparent border-0 focus:ring-2 focus:ring-[rgb(var(--electric-blue-rgb))]"
@@ -55,7 +82,7 @@ export default function Header() {
               <option value="en">🇬🇧 English</option>
               <option value="fr">🇫🇷 Français</option>
             </select>
-            
+
             {/* Theme Toggle */}
             <Button
               variant="ghost"
@@ -63,13 +90,13 @@ export default function Header() {
               onClick={toggleTheme}
               className="glassmorphism rounded-lg hover:scale-105 transition-all duration-300"
             >
-              {theme === 'light' ? (
+              {theme === "light" ? (
                 <Moon className="h-5 w-5 text-gray-700 dark:text-gray-300" />
               ) : (
                 <Sun className="h-5 w-5 text-gray-700 dark:text-gray-300" />
               )}
             </Button>
-            
+
             {/* Cart */}
             <Link href="/cart">
               <Button
@@ -83,17 +110,92 @@ export default function Header() {
                 </span>
               </Button>
             </Link>
-            
-            {/* Profile */}
-            <Link href="/profile">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="glassmorphism rounded-lg hover:scale-105 transition-all duration-300"
-              >
-                <User className="h-5 w-5 text-gray-700 dark:text-gray-300" />
-              </Button>
-            </Link>
+
+            {/* Profile/Auth */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="relative h-10 w-10 rounded-full glassmorphism hover:scale-105 transition-all duration-300"
+                  >
+                    <Avatar className="h-9 w-9">
+                      <AvatarImage src="" alt={user.name || user.email} />
+                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                        {user.name?.charAt(0)?.toUpperCase() ||
+                          user.email?.charAt(0)?.toUpperCase() ||
+                          "U"}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-56 glassmorphism"
+                  align="end"
+                  forceMount
+                >
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{user.name}</p>
+                      <p className="w-[200px] truncate text-sm text-muted-foreground">
+                        {user.email}
+                      </p>
+                      <p className="text-xs text-muted-foreground capitalize">
+                        {user.role}
+                      </p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setLocation("/profile")}>
+                    <User className="mr-2 h-4 w-4" />
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocation("/orders")}>
+                    <Package className="mr-2 h-4 w-4" />
+                    Orders
+                  </DropdownMenuItem>
+                  {user.role === "producer" && (
+                    <DropdownMenuItem
+                      onClick={() => setLocation("/producer-dashboard")}
+                    >
+                      <BarChart3 className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </DropdownMenuItem>
+                  )}
+                  {user.role === "admin" && (
+                    <DropdownMenuItem
+                      onClick={() => setLocation("/admin-dashboard")}
+                    >
+                      <Settings className="mr-2 h-4 w-4" />
+                      Admin Panel
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation("/login")}
+                  className="glassmorphism hover:scale-105 transition-all duration-300"
+                >
+                  Login
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setLocation("/register")}
+                  className="gradient-bg text-white hover:scale-105 transition-all duration-300"
+                >
+                  Sign Up
+                </Button>
+              </div>
+            )}
 
             {/* Mobile Menu Toggle */}
             <Button
@@ -102,7 +204,11 @@ export default function Header() {
               className="md:hidden"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
@@ -118,7 +224,7 @@ export default function Header() {
                   className="block text-gray-700 dark:text-gray-300 hover:text-[rgb(var(--electric-blue-rgb))] transition-colors"
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  {language === 'rw' ? link.label : link.en}
+                  {language === "rw" ? link.label : link.en}
                 </Link>
               ))}
             </div>

@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nyambika - AI-Powered Fashion Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rwanda-green': '#1E6B4C',
+                        'rwanda-gold': '#F4B942',
+                        'rwanda-terracotta': '#C4704A',
+                        'rwanda-cream': '#FAF7F2',
+                        'ai-blue': '#3B82F6',
+                        'ai-purple': '#8B5CF6'
+                    },
+                    fontFamily: {
+                        'inter': ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="font-inter bg-gray-50">
+
+    <!-- Mobile Navigation Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="flex items-center justify-between px-4 py-3">
+            <div class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-gradient-to-r from-rwanda-green to-rwanda-gold rounded-lg flex items-center justify-center">
+                    <i class="fas fa-tshirt text-white text-sm"></i>
+                </div>
+                <h1 class="text-xl font-bold text-gray-900">Nyambika</h1>
+                <span class="bg-ai-blue text-white text-xs px-2 py-1 rounded-full">AI</span>
+            </div>
+            <div class="flex items-center space-x-3">
+                <button class="relative p-2">
+                    <i class="fas fa-search text-gray-600"></i>
+                </button>
+                <button class="relative p-2">
+                    <i class="fas fa-shopping-bag text-gray-600"></i>
+                    <span class="absolute -top-1 -right-1 w-5 h-5 bg-rwanda-gold text-white text-xs rounded-full flex items-center justify-center">3</span>
+                </button>
+                <button class="p-2">
+                    <i class="fas fa-user-circle text-gray-600 text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- AI Feature Banner -->
+    <div class="bg-gradient-to-r from-ai-purple to-ai-blue text-white px-4 py-3 text-center">
+        <div class="flex items-center justify-center space-x-2">
+            <i class="fas fa-magic text-lg"></i>
+            <span class="font-semibold">Try clothes virtually with AI!</span>
+            <i class="fas fa-camera text-lg"></i>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="pb-20">
+        
+        <!-- Hero Section with Featured Try-On -->
+        <section class="bg-rwanda-cream px-4 py-6">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Virtual Try-On Experience</h2>
+                <p class="text-gray-600">See how clothes fit before you buy</p>
+            </div>
+            
+            <!-- Featured Try-On Showcase -->
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden mb-6">
+                <!-- Professional model wearing traditional Rwandan-inspired modern dress -->
+                <img src="https://pixabay.com/get/g24b0b8d679ff038f35cb3bfc96db9c61dcb2fd1bdb1d0aca91b53ed6451839a22edc0a20f7ff2601922bb7238b5ff055091dc8df046b02aa26f5038968363af9_1280.jpg" 
+                     alt="Fashion model wearing contemporary African-inspired dress" 
+                     class="w-full h-64 object-cover" />
+                <div class="p-4">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-lg">Traditional Fusion Dress</h3>
+                        <span class="text-rwanda-gold font-bold text-lg">$45</span>
+                    </div>
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-robot text-ai-blue text-sm"></i>
+                            <span class="text-sm text-ai-blue font-medium">95% fit confidence</span>
+                        </div>
+                        <div class="w-2 h-2 bg-gray-300 rounded-full"></div>
+                        <span class="text-sm text-gray-600">Size M recommended</span>
+                    </div>
+                    <button class="w-full bg-gradient-to-r from-ai-purple to-ai-blue text-white py-3 rounded-xl font-semibold flex items-center justify-center space-x-2 hover:shadow-lg transition-shadow">
+                        <i class="fas fa-camera"></i>
+                        <span>Try On Now</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="px-4 py-4">
+            <div class="grid grid-cols-2 gap-4">
+                <button class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center space-y-2">
+                    <div class="w-12 h-12 bg-rwanda-green/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-camera text-rwanda-green text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-900">Take Photo</span>
+                    <span class="text-xs text-gray-500">Instant try-on</span>
+                </button>
+                <button class="bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex flex-col items-center space-y-2">
+                    <div class="w-12 h-12 bg-ai-blue/10 rounded-full flex items-center justify-center">
+                        <i class="fas fa-ruler text-ai-blue text-xl"></i>
+                    </div>
+                    <span class="font-medium text-gray-900">Size Guide</span>
+                    <span class="text-xs text-gray-500">AI recommendations</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Product Categories -->
+        <section class="px-4 py-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Categories</h3>
+                <button class="text-rwanda-green font-medium text-sm">See all</button>
+            </div>
+            <div class="flex space-x-3 overflow-x-auto pb-2">
+                <button class="flex-shrink-0 bg-rwanda-green text-white px-4 py-2 rounded-full font-medium">
+                    <i class="fas fa-tshirt mr-2"></i>Dresses
+                </button>
+                <button class="flex-shrink-0 bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-full font-medium">
+                    <i class="fas fa-vest mr-2"></i>Tops
+                </button>
+                <button class="flex-shrink-0 bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-full font-medium">
+                    <i class="fas fa-hat-cowboy mr-2"></i>Accessories
+                </button>
+                <button class="flex-shrink-0 bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-full font-medium">
+                    <i class="fas fa-shoe-prints mr-2"></i>Shoes
+                </button>
+            </div>
+        </section>
+
+        <!-- Featured Products with Try-On -->
+        <section class="px-4 py-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Try-On Ready</h3>
+                <div class="flex items-center space-x-1 text-ai-blue">
+                    <i class="fas fa-magic text-sm"></i>
+                    <span class="text-sm font-medium">AI Powered</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Product Card 1 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="relative">
+                        <!-- Elegant African-print dress on hanger -->
+                        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                             alt="Colorful African-print dress hanging on display" 
+                             class="w-full h-40 object-cover" />
+                        <button class="absolute top-2 right-2 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center">
+                            <i class="far fa-heart text-white"></i>
+                        </button>
+                        <div class="absolute bottom-2 right-2 bg-ai-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                            <i class="fas fa-camera mr-1"></i>Try On
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-medium text-gray-900 mb-1">Kigali Print Dress</h4>
+                        <div class="flex items-center justify-between">
+                            <span class="text-rwanda-gold font-bold">$38</span>
+                            <div class="flex items-center space-x-1">
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-xs text-gray-600">4.8</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-2 text-xs text-ai-blue">
+                            <i class="fas fa-robot mr-1"></i>
+                            <span>AI size: M</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 2 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="relative">
+                        <!-- Modern blazer on hanger -->
+                        <img src="https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                             alt="Professional blazer hanging on clothing rack" 
+                             class="w-full h-40 object-cover" />
+                        <button class="absolute top-2 right-2 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center">
+                            <i class="fas fa-heart text-rwanda-gold"></i>
+                        </button>
+                        <div class="absolute bottom-2 right-2 bg-ai-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                            <i class="fas fa-camera mr-1"></i>Try On
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-medium text-gray-900 mb-1">Business Blazer</h4>
+                        <div class="flex items-center justify-between">
+                            <span class="text-rwanda-gold font-bold">$65</span>
+                            <div class="flex items-center space-x-1">
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-xs text-gray-600">4.9</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-2 text-xs text-ai-blue">
+                            <i class="fas fa-robot mr-1"></i>
+                            <span>AI size: L</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 3 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="relative">
+                        <!-- Traditional skirt on display -->
+                        <img src="https://images.unsplash.com/photo-1594633313593-bab3825d0caf?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=300" 
+                             alt="Traditional patterned skirt on clothing display" 
+                             class="w-full h-40 object-cover" />
+                        <button class="absolute top-2 right-2 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center">
+                            <i class="far fa-heart text-white"></i>
+                        </button>
+                        <div class="absolute bottom-2 right-2 bg-ai-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                            <i class="fas fa-camera mr-1"></i>Try On
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-medium text-gray-900 mb-1">Heritage Skirt</h4>
+                        <div class="flex items-center justify-between">
+                            <span class="text-rwanda-gold font-bold">$32</span>
+                            <div class="flex items-center space-x-1">
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-xs text-gray-600">4.7</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-2 text-xs text-ai-blue">
+                            <i class="fas fa-robot mr-1"></i>
+                            <span>AI size: S</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Card 4 -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <div class="relative">
+                        <!-- Contemporary jacket hanging -->
+                        <img src="https://pixabay.com/get/gfaa95258b969b7ac338cd3d29df51f175af4105e58bffdb5bc3aadaa45804a42fd2b9558d9a191c7abf5882811f48ae5b5b86f85e2a0784aa30fe86e7635a17e_1280.jpg" 
+                             alt="Stylish contemporary jacket on clothing hanger" 
+                             class="w-full h-40 object-cover" />
+                        <button class="absolute top-2 right-2 w-8 h-8 bg-black/20 rounded-full flex items-center justify-center">
+                            <i class="far fa-heart text-white"></i>
+                        </button>
+                        <div class="absolute bottom-2 right-2 bg-ai-blue text-white text-xs px-2 py-1 rounded-full font-medium">
+                            <i class="fas fa-camera mr-1"></i>Try On
+                        </div>
+                    </div>
+                    <div class="p-3">
+                        <h4 class="font-medium text-gray-900 mb-1">Urban Jacket</h4>
+                        <div class="flex items-center justify-between">
+                            <span class="text-rwanda-gold font-bold">$58</span>
+                            <div class="flex items-center space-x-1">
+                                <i class="fas fa-star text-yellow-400 text-xs"></i>
+                                <span class="text-xs text-gray-600">4.6</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center mt-2 text-xs text-ai-blue">
+                            <i class="fas fa-robot mr-1"></i>
+                            <span>AI size: M</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Try-On Demo Section -->
+        <section class="px-4 py-6 bg-white mx-4 rounded-2xl shadow-lg mb-6">
+            <div class="text-center mb-6">
+                <div class="inline-flex items-center space-x-2 bg-gradient-to-r from-ai-purple to-ai-blue text-white px-4 py-2 rounded-full mb-4">
+                    <i class="fas fa-magic"></i>
+                    <span class="font-semibold">AI Try-On Demo</span>
+                </div>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">See the Magic in Action</h3>
+                <p class="text-gray-600">Watch how our AI transforms your photo</p>
+            </div>
+
+            <!-- Before/After Comparison -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="text-center">
+                    <div class="bg-gray-100 rounded-xl p-4 mb-3">
+                        <!-- Young woman taking selfie for try-on -->
+                        <img src="https://pixabay.com/get/g262fbf482487e93544e3c783ee04b5046aacc83cdbbf6a2426abe1b3a9e7aa3ed9b0049df816bc131ec17660226cdde3c24dc5e5fe8149f09cc9981f70368ea0_1280.jpg" 
+                             alt="Young woman taking selfie in casual wear" 
+                             class="w-full h-32 object-cover rounded-lg" />
+                    </div>
+                    <span class="text-sm font-medium text-gray-700">Before</span>
+                    <div class="text-xs text-gray-500">Original photo</div>
+                </div>
+                <div class="text-center">
+                    <div class="bg-gradient-to-br from-ai-purple/10 to-ai-blue/10 rounded-xl p-4 mb-3 border-2 border-dashed border-ai-blue">
+                        <!-- Same woman virtually wearing elegant dress -->
+                        <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400" 
+                             alt="Woman wearing elegant dress showing virtual try-on result" 
+                             class="w-full h-32 object-cover rounded-lg" />
+                    </div>
+                    <span class="text-sm font-medium text-ai-blue">After</span>
+                    <div class="text-xs text-ai-blue">AI try-on result</div>
+                </div>
+            </div>
+
+            <!-- Processing Steps -->
+            <div class="space-y-3 mb-6">
+                <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-white text-xs"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">Photo analysis complete</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-white text-xs"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">Body measurements detected</span>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                        <i class="fas fa-check text-white text-xs"></i>
+                    </div>
+                    <span class="text-sm text-gray-700">Garment fitting applied</span>
+                </div>
+            </div>
+
+            <button class="w-full bg-gradient-to-r from-rwanda-green to-rwanda-gold text-white py-4 rounded-xl font-semibold flex items-center justify-center space-x-2 hover:shadow-lg transition-shadow">
+                <i class="fas fa-play"></i>
+                <span>Start Your Try-On</span>
+            </button>
+        </section>
+
+        <!-- Recent Try-Ons -->
+        <section class="px-4 py-4">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Your Recent Try-Ons</h3>
+                <button class="text-ai-blue font-medium text-sm">View all</button>
+            </div>
+            
+            <div class="flex space-x-4 overflow-x-auto pb-2">
+                <div class="flex-shrink-0 w-20">
+                    <div class="relative">
+                        <!-- Woman wearing virtual try-on outfit 1 -->
+                        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=250" 
+                             alt="Virtual try-on result showing woman in stylish outfit" 
+                             class="w-20 h-20 rounded-xl object-cover border-2 border-ai-blue" />
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-ai-blue rounded-full flex items-center justify-center">
+                            <i class="fas fa-magic text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-600 mt-1 block">2 hours ago</span>
+                </div>
+                
+                <div class="flex-shrink-0 w-20">
+                    <div class="relative">
+                        <!-- Woman wearing virtual try-on outfit 2 -->
+                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=250" 
+                             alt="Virtual try-on result showing woman in business attire" 
+                             class="w-20 h-20 rounded-xl object-cover border-2 border-green-400" />
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-green-400 rounded-full flex items-center justify-center">
+                            <i class="fas fa-shopping-cart text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-600 mt-1 block">1 day ago</span>
+                </div>
+                
+                <div class="flex-shrink-0 w-20">
+                    <div class="relative">
+                        <!-- Woman wearing virtual try-on outfit 3 -->
+                        <img src="https://pixabay.com/get/g1b134905e52acd25f224ea16ba7210426fc9bee85240671f36a83f28309f343ac3664a51d5d86dd4ba14c4eea54b39df9041b70ffae4b05d287c210194d49130_1280.jpg" 
+                             alt="Virtual try-on result showing woman in casual dress" 
+                             class="w-20 h-20 rounded-xl object-cover border-2 border-gray-200" />
+                        <div class="absolute -bottom-1 -right-1 w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
+                            <i class="fas fa-heart text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <span class="text-xs text-gray-600 mt-1 block">3 days ago</span>
+                </div>
+                
+                <div class="flex-shrink-0 w-20">
+                    <div class="relative">
+                        <!-- Woman wearing virtual try-on outfit 4 -->
+                        <img src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=200&h=250" 
+                             alt="Virtual try-on result showing woman in elegant evening wear" 
+                             class="w-20 h-20 rounded-xl object-cover border-2 border-gray-200" />
+                    </div>
+                    <span class="text-xs text-gray-600 mt-1 block">1 week ago</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Admin Dashboard Preview -->
+        <section class="px-4 py-6 bg-gray-900 text-white mx-4 rounded-2xl mb-6">
+            <div class="flex items-center space-x-3 mb-4">
+                <div class="w-8 h-8 bg-rwanda-gold rounded-lg flex items-center justify-center">
+                    <i class="fas fa-chart-line text-black"></i>
+                </div>
+                <h3 class="text-lg font-semibold">Admin Dashboard</h3>
+                <span class="bg-red-500 text-xs px-2 py-1 rounded-full">ADMIN</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="bg-white/10 rounded-xl p-3">
+                    <div class="text-2xl font-bold text-rwanda-gold">1,247</div>
+                    <div class="text-sm text-gray-300">Try-ons today</div>
+                </div>
+                <div class="bg-white/10 rounded-xl p-3">
+                    <div class="text-2xl font-bold text-green-400">94.2%</div>
+                    <div class="text-sm text-gray-300">AI accuracy</div>
+                </div>
+                <div class="bg-white/10 rounded-xl p-3">
+                    <div class="text-2xl font-bold text-ai-blue">₦2.3M</div>
+                    <div class="text-sm text-gray-300">Revenue</div>
+                </div>
+                <div class="bg-white/10 rounded-xl p-3">
+                    <div class="text-2xl font-bold text-purple-400">68%</div>
+                    <div class="text-sm text-gray-300">Conversion</div>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button class="bg-rwanda-gold text-black px-6 py-2 rounded-lg font-semibold text-sm">
+                    View Full Analytics
+                </button>
+            </div>
+        </section>
+
+        <!-- Payment Integration Preview -->
+        <section class="px-4 py-4">
+            <div class="bg-white rounded-2xl shadow-lg p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Checkout</h3>
+                    <div class="flex items-center space-x-1 text-green-600">
+                        <i class="fas fa-lock text-sm"></i>
+                        <span class="text-sm">Secure</span>
+                    </div>
+                </div>
+
+                <div class="space-y-4 mb-6">
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Subtotal</span>
+                        <span class="font-medium">$181.00</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-gray-600">Delivery</span>
+                        <span class="font-medium">$5.00</span>
+                    </div>
+                    <div class="border-t pt-2 flex items-center justify-between">
+                        <span class="font-semibold text-gray-900">Total</span>
+                        <span class="font-bold text-lg text-rwanda-gold">$186.00</span>
+                    </div>
+                </div>
+
+                <div class="space-y-3 mb-6">
+                    <div class="text-sm font-medium text-gray-700 mb-2">Payment Method</div>
+                    <button class="w-full flex items-center space-x-3 p-3 border-2 border-rwanda-gold rounded-xl bg-rwanda-gold/5">
+                        <div class="w-8 h-8 bg-rwanda-gold/20 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mobile-alt text-rwanda-gold"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <div class="font-medium text-gray-900">MTN Mobile Money</div>
+                            <div class="text-sm text-gray-600">**** **** 8492</div>
+                        </div>
+                        <i class="fas fa-check-circle text-rwanda-gold"></i>
+                    </button>
+                    <button class="w-full flex items-center space-x-3 p-3 border border-gray-200 rounded-xl">
+                        <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-mobile-alt text-gray-600"></i>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <div class="font-medium text-gray-900">Airtel Money</div>
+                            <div class="text-sm text-gray-600">Add payment method</div>
+                        </div>
+                    </button>
+                </div>
+
+                <button class="w-full bg-gradient-to-r from-rwanda-green to-rwanda-gold text-white py-4 rounded-xl font-semibold flex items-center justify-center space-x-2">
+                    <i class="fas fa-credit-card"></i>
+                    <span>Complete Purchase</span>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Virtual Try-On Camera Modal (Hidden by default) -->
+    <div id="tryOnModal" class="fixed inset-0 bg-black z-50 hidden">
+        <!-- Camera Interface -->
+        <div class="relative h-full">
+            <!-- Camera Viewport -->
+            <div class="flex-1 bg-gray-900 relative">
+                <!-- Professional camera interface with woman preparing for photo -->
+                <img src="https://images.unsplash.com/photo-1521572267360-ee0c2909d518?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1200" 
+                     alt="Camera interface showing woman preparing to take try-on photo" 
+                     class="w-full h-full object-cover" />
+                
+                <!-- Camera Overlay UI -->
+                <div class="absolute inset-0">
+                    <!-- Top Bar -->
+                    <div class="flex items-center justify-between p-4 bg-gradient-to-b from-black/50 to-transparent">
+                        <button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                            <i class="fas fa-times text-white"></i>
+                        </button>
+                        <div class="flex items-center space-x-2 bg-black/30 px-3 py-1 rounded-full">
+                            <i class="fas fa-magic text-ai-blue"></i>
+                            <span class="text-white text-sm font-medium">AI Try-On</span>
+                        </div>
+                        <button class="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                            <i class="fas fa-cog text-white"></i>
+                        </button>
+                    </div>
+
+                    <!-- Center Guide -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="border-2 border-white/50 border-dashed rounded-2xl w-64 h-80 flex items-center justify-center">
+                            <div class="text-center text-white">
+                                <i class="fas fa-user text-4xl mb-2 opacity-50"></i>
+                                <div class="text-sm font-medium">Position yourself here</div>
+                                <div class="text-xs opacity-75">for best AI results</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Controls -->
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6">
+                        <div class="flex items-center justify-center space-x-6">
+                            <button class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-image text-white"></i>
+                            </button>
+                            <button class="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                <i class="fas fa-camera text-gray-900 text-xl"></i>
+                            </button>
+                            <button class="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
+                                <i class="fas fa-sync-alt text-white"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- AI Tips -->
+                        <div class="mt-4 bg-black/30 rounded-xl p-3">
+                            <div class="flex items-center space-x-2 text-white text-sm">
+                                <i class="fas fa-lightbulb text-yellow-400"></i>
+                                <span class="font-medium">AI Tip:</span>
+                                <span>Stand straight, arms slightly away from body</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
+        <div class="flex items-center justify-around">
+            <button class="flex flex-col items-center py-2 text-rwanda-green">
+                <i class="fas fa-home text-lg mb-1"></i>
+                <span class="text-xs font-medium">Home</span>
+            </button>
+            <button class="flex flex-col items-center py-2 text-gray-500">
+                <i class="fas fa-search text-lg mb-1"></i>
+                <span class="text-xs">Search</span>
+            </button>
+            <button class="flex flex-col items-center py-2 text-gray-500 relative">
+                <div class="bg-gradient-to-r from-ai-purple to-ai-blue p-3 rounded-full -mt-4 shadow-lg">
+                    <i class="fas fa-camera text-white text-lg"></i>
+                </div>
+                <span class="text-xs mt-1 text-ai-blue font-medium">Try On</span>
+            </button>
+            <button class="flex flex-col items-center py-2 text-gray-500">
+                <i class="fas fa-heart text-lg mb-1"></i>
+                <span class="text-xs">Favorites</span>
+            </button>
+            <button class="flex flex-col items-center py-2 text-gray-500">
+                <i class="fas fa-user text-lg mb-1"></i>
+                <span class="text-xs">Profile</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- JavaScript for Interactive Elements -->
+    <script>
+        (function() {
+            // TODO: Implement business logic, API calls, and state management
+            
+            // Basic UI interactions for demonstration
+            const tryOnButtons = document.querySelectorAll('[class*="Try On"], [class*="camera"]');
+            const modal = document.getElementById('tryOnModal');
+            
+            // Handle try-on button clicks
+            tryOnButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    // TODO: Initialize camera, handle photo capture, process with AI
+                    console.log('Try-on feature clicked - integrate with AI service');
+                });
+            });
+
+            // Handle modal close
+            const closeButtons = document.querySelectorAll('.fa-times');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (modal) modal.classList.add('hidden');
+                });
+            });
+
+            // Simulate AI processing states
+            function simulateAIProcessing() {
+                // TODO: Replace with actual AI service integration
+                const states = ['Analyzing photo...', 'Detecting body measurements...', 'Applying garment...', 'Complete!'];
+                let currentState = 0;
+                
+                const interval = setInterval(() => {
+                    console.log(states[currentState]);
+                    currentState++;
+                    if (currentState >= states.length) {
+                        clearInterval(interval);
+                    }
+                }, 1500);
+            }
+
+            // Product interaction handlers
+            const productCards = document.querySelectorAll('[class*="product"], [class*="bg-white rounded-xl"]');
+            productCards.forEach(card => {
+                card.addEventListener('click', function(e) {
+                    if (!e.target.closest('button')) {
+                        // TODO: Navigate to product detail page
+                        console.log('Product clicked - implement navigation');
+                    }
+                });
+            });
+
+            // Favorites functionality
+            const heartButtons = document.querySelectorAll('.fa-heart');
+            heartButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    // TODO: Toggle favorite status, sync with backend
+                    this.classList.toggle('far');
+                    this.classList.toggle('fas');
+                    console.log('Favorite toggled');
+                });
+            });
+
+            // Shopping cart functionality
+            const cartButton = document.querySelector('.fa-shopping-bag');
+            if (cartButton) {
+                cartButton.addEventListener('click', function() {
+                    // TODO: Open cart drawer or navigate to cart page
+                    console.log('Cart clicked - implement cart functionality');
+                });
+            }
+
+            // Admin dashboard interactions
+            const adminButton = document.querySelector('button[class*="View Full Analytics"]');
+            if (adminButton) {
+                adminButton.addEventListener('click', function() {
+                    // TODO: Navigate to full admin dashboard
+                    console.log('Admin analytics clicked');
+                });
+            }
+
+            // Payment button
+            const paymentButton = document.querySelector('button[class*="Complete Purchase"]');
+            if (paymentButton) {
+                paymentButton.addEventListener('click', function() {
+                    // TODO: Process payment through mobile money integration
+                    console.log('Payment initiated - integrate with MTN/Airtel APIs');
+                });
+            }
+
+            // Initialize app
+            console.log('Nyambika AI Fashion Platform initialized');
+        })();
+    </script>
+
+</body>
+</html>

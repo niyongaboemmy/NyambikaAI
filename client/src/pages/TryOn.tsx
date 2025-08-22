@@ -1,9 +1,8 @@
-import { useState, useRef } from 'react';
-import { Camera, Upload, Download, Share2, RotateCcw, Zap } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { useState, useRef, useEffect } from "react";
+import { Camera, Upload, Download, Share2, RotateCcw, Zap } from "lucide-react";
+import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function TryOn() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -12,24 +11,52 @@ export default function TryOn() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(
+    null
+  );
+  const [product, setProduct] = useState<any | null>(null);
 
-  const sampleProducts = [
-    {
-      id: '1',
-      name: 'Summer Dress',
-      image: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
-    },
-    {
-      id: '2',
-      name: 'Casual Shirt',
-      image: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
-    },
-    {
-      id: '3',
-      name: 'Evening Gown',
-      image: 'https://images.unsplash.com/photo-1566479179817-c0e22ca41a80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400'
-    },
-  ];
+  // Helper: compress image to ~<2MB using canvas resize and JPEG quality
+  const compressDataUrl = async (dataUrl: string) => {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const image = new Image();
+      image.onload = () => resolve(image);
+      image.onerror = reject;
+      image.src = dataUrl;
+    });
+
+    const targetBytes = 2 * 1024 * 1024; // ~2MB
+    let quality = 0.85;
+    let maxDim = 1400;
+    let output = dataUrl;
+
+    for (let i = 0; i < 5; i++) {
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        const ratio = Math.min(maxDim / width, maxDim / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) break;
+      ctx.drawImage(img, 0, 0, width, height);
+
+      output = canvas.toDataURL("image/jpeg", quality);
+      const approxBytes = Math.ceil(
+        ((output.length - "data:image/jpeg;base64,".length) * 3) / 4
+      );
+      if (approxBytes <= targetBytes) break;
+
+      quality = Math.max(0.6, quality - 0.1);
+      maxDim = Math.max(800, Math.round(maxDim * 0.85));
+    }
+
+    return output;
+  };
 
   const startCamera = async () => {
     try {
@@ -39,79 +66,89 @@ export default function TryOn() {
         setIsCameraActive(true);
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      console.error("Error accessing camera:", error);
     }
   };
 
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach(track => track.stop());
+      stream.getTracks().forEach((track) => track.stop());
       setIsCameraActive(false);
     }
   };
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     if (videoRef.current) {
-      const canvas = document.createElement('canvas');
+      const canvas = document.createElement("canvas");
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(videoRef.current, 0, 0);
-        const imageUrl = canvas.toDataURL('image/jpeg');
-        setSelectedImage(imageUrl);
+        // Export with initial quality then compress further
+        const rawUrl = canvas.toDataURL("image/jpeg", 0.9);
+        const compressed = await compressDataUrl(rawUrl);
+        setSelectedImage(compressed);
         stopCamera();
       }
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (!file) return;
+    const dataUrl: string = await new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setSelectedImage(e.target?.result as string);
-      };
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
       reader.readAsDataURL(file);
-    }
+    });
+    const compressed = await compressDataUrl(dataUrl);
+    setSelectedImage(compressed);
   };
 
   const processImage = async () => {
-    if (!selectedImage) return;
-    
+    if (!selectedImage || !selectedProductId) return;
+
     setIsProcessing(true);
-    
+
     try {
       // Convert base64 to blob and back to clean base64
-      const base64Data = selectedImage.split(',')[1];
-      
+      const base64Data = selectedImage.split(",")[1];
+
       // Create try-on session
-      const sessionResponse = await fetch('/api/try-on-sessions', {
-        method: 'POST',
+      const token = localStorage.getItem("auth_token");
+      const sessionResponse = await fetch("/api/try-on-sessions", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'x-user-id': 'demo-user-1' // Demo authentication
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           customerImageUrl: selectedImage,
-          productId: sampleProducts[0].id, // Use first product for demo
-        })
+          productId: selectedProductId,
+        }),
       });
 
       if (!sessionResponse.ok) {
-        throw new Error('Failed to create try-on session');
+        throw new Error("Failed to create try-on session");
       }
 
       const session = await sessionResponse.json();
 
       // Process the try-on with AI
-      const processResponse = await fetch(`/api/try-on-sessions/${session.id}/process`, {
-        method: 'POST',
-        headers: {
-          'x-user-id': 'demo-user-1'
+      const processResponse = await fetch(
+        `/api/try-on-sessions/${session.id}/process`,
+        {
+          method: "POST",
+          headers: {
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
         }
-      });
+      );
 
       if (processResponse.ok) {
         const result = await processResponse.json();
@@ -126,7 +163,7 @@ export default function TryOn() {
         setProcessedImage(selectedImage);
       }
     } catch (error) {
-      console.error('Error processing image:', error);
+      console.error("Error processing image:", error);
       // Fallback to original image
       setProcessedImage(selectedImage);
     } finally {
@@ -141,10 +178,35 @@ export default function TryOn() {
     stopCamera();
   };
 
+  // Initialize selected product from URL (?productId=...)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get("productId");
+    if (pid) setSelectedProductId(pid);
+  }, []);
+
+  // Fetch selected product details
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!selectedProductId) return;
+      try {
+        const res = await fetch(`/api/products/${selectedProductId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setProduct(data);
+        } else {
+          setProduct(null);
+        }
+      } catch (e) {
+        console.error("Failed to load product:", e);
+        setProduct(null);
+      }
+    };
+    fetchProduct();
+  }, [selectedProductId]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
-      <Header />
-      
       <main className="pt-24 pb-12 px-4 md:px-6">
         <div className="max-w-7xl mx-auto">
           {/* Page Header */}
@@ -153,7 +215,8 @@ export default function TryOn() {
               AI Try-On Studio
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-300">
-              Reba uko imyenda ikubana mbere yo kugura / See how clothes look on you before buying
+              Reba uko imyenda ikubana mbere yo kugura / See how clothes look on
+              you before buying
             </p>
           </div>
 
@@ -165,7 +228,7 @@ export default function TryOn() {
                   <h2 className="text-2xl font-bold gradient-text mb-6">
                     Shyira Ifoto Yawe / Upload Your Photo
                   </h2>
-                  
+
                   {!selectedImage && !isCameraActive && (
                     <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl flex flex-col items-center justify-center space-y-6">
                       <div className="text-center space-y-4">
@@ -174,16 +237,16 @@ export default function TryOn() {
                           Take a photo or upload an image to get started
                         </p>
                       </div>
-                      
+
                       <div className="flex flex-col sm:flex-row gap-4">
-                        <Button 
+                        <Button
                           onClick={startCamera}
                           className="gradient-bg text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
                         >
                           <Camera className="mr-2 h-5 w-5" />
                           Fata Ifoto / Take Photo
                         </Button>
-                        <Button 
+                        <Button
                           onClick={() => fileInputRef.current?.click()}
                           variant="ghost"
                           className="glassmorphism px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
@@ -204,14 +267,14 @@ export default function TryOn() {
                         className="w-full aspect-[3/4] object-cover rounded-2xl"
                       />
                       <div className="flex justify-center gap-4">
-                        <Button 
+                        <Button
                           onClick={capturePhoto}
                           className="gradient-bg text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
                         >
                           <Camera className="mr-2 h-5 w-5" />
                           Capture
                         </Button>
-                        <Button 
+                        <Button
                           onClick={stopCamera}
                           variant="ghost"
                           className="glassmorphism px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
@@ -230,15 +293,15 @@ export default function TryOn() {
                         className="w-full aspect-[3/4] object-cover rounded-2xl"
                       />
                       <div className="flex justify-center gap-4">
-                        <Button 
+                        <Button
                           onClick={processImage}
                           disabled={isProcessing}
                           className="gradient-bg text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:scale-100"
                         >
                           <Zap className="mr-2 h-5 w-5" />
-                          {isProcessing ? 'Processing...' : 'Process with AI'}
+                          {isProcessing ? "Processing..." : "Process with AI"}
                         </Button>
-                        <Button 
+                        <Button
                           onClick={resetSession}
                           variant="ghost"
                           className="glassmorphism px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
@@ -267,7 +330,10 @@ export default function TryOn() {
                             Analyzing fit and generating virtual try-on
                           </p>
                           <div className="w-32 bg-gray-300 dark:bg-gray-600 rounded-full h-2 mt-4">
-                            <div className="gradient-bg h-2 rounded-full animate-pulse" style={{ width: '65%' }}></div>
+                            <div
+                              className="gradient-bg h-2 rounded-full animate-pulse"
+                              style={{ width: "65%" }}
+                            ></div>
                           </div>
                         </div>
                       </div>
@@ -282,20 +348,18 @@ export default function TryOn() {
                         className="w-full aspect-[3/4] object-cover rounded-2xl"
                       />
                       <div className="flex justify-center gap-4">
-                        <Button 
-                          className="gradient-bg text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
-                        >
+                        <Button className="gradient-bg text-white px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300">
                           <Download className="mr-2 h-5 w-5" />
                           Download
                         </Button>
-                        <Button 
+                        <Button
                           variant="ghost"
                           className="glassmorphism px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
                         >
                           <Share2 className="mr-2 h-5 w-5" />
                           Share
                         </Button>
-                        <Button 
+                        <Button
                           onClick={resetSession}
                           variant="ghost"
                           className="glassmorphism px-6 py-3 rounded-xl hover:scale-105 transition-all duration-300"
@@ -318,27 +382,54 @@ export default function TryOn() {
               </Card>
             </div>
 
-            {/* Product Selection Sidebar */}
+            {/* Product Sidebar (selected item) */}
             <div className="space-y-8">
               <Card className="floating-card p-6">
                 <CardContent className="p-0">
                   <h3 className="text-xl font-bold gradient-text mb-4">
-                    Hitamo Igicuruzwa / Select Product
+                    Selected Product
                   </h3>
-                  <div className="space-y-4">
-                    {sampleProducts.map((product) => (
-                      <div key={product.id} className="glassmorphism rounded-xl p-4 hover:scale-105 transition-all duration-300 cursor-pointer">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-32 object-cover rounded-lg mb-3"
-                        />
-                        <p className="font-semibold text-gray-800 dark:text-gray-200">
-                          {product.name}
-                        </p>
+                  {!selectedProductId && (
+                    <div className="glassmorphism rounded-xl p-4 text-sm text-gray-600 dark:text-gray-300">
+                      No product selected. Please start from Try-On product
+                      selection.
+                      <div className="mt-3">
+                        <a href="/try-on-start" className="underline">
+                          Go to Try-On selection
+                        </a>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  )}
+                  {selectedProductId && (
+                    <div className="glassmorphism rounded-xl p-4 border border-transparent">
+                      {product ? (
+                        <>
+                          <img
+                            src={product.imageUrl}
+                            alt={product.name}
+                            className="w-full h-32 object-cover rounded-lg mb-3"
+                          />
+                          <p className="font-semibold text-gray-800 dark:text-gray-200 line-clamp-2">
+                            {product.name}
+                          </p>
+                          {product.nameRw && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
+                              {product.nameRw}
+                            </p>
+                          )}
+                          <div className="mt-4">
+                            <Button asChild className="w-full gradient-bg text-white">
+                              <a href={`/product/${selectedProductId}`}>Continue to Product</a>
+                            </Button>
+                          </div>
+                        </>
+                      ) : (
+                        <p className="text-sm text-gray-500">
+                          Loading product...
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
