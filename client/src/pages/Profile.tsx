@@ -18,12 +18,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  const { open } = useLoginPrompt();
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState({
     name: "",
@@ -33,9 +35,14 @@ export default function Profile() {
     location: "",
   });
 
-  // Redirect if not authenticated
+  // Prompt login if not authenticated (avoid side effects during render)
+  useEffect(() => {
+    if (!isAuthenticated) {
+      open();
+    }
+  }, [isAuthenticated, open]);
+
   if (!isAuthenticated) {
-    setLocation("/login");
     return null;
   }
 

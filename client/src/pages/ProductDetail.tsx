@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useParams, useLocation } from "wouter";
+import { useParams, useLocation, useRoute } from "wouter";
 import {
   Heart,
   ShoppingCart,
@@ -24,6 +24,7 @@ import type { Product } from "@shared/schema";
 import Footer from "@/components/Footer";
 import TryOnWidget from "@/components/TryOnWidget";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ExtendedProduct extends Product {
   images?: string[];
@@ -37,6 +38,7 @@ interface ExtendedProduct extends Product {
 export default function ProductDetail() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
+  const { user } = useAuth();
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -46,6 +48,14 @@ export default function ProductDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { addItem } = useCart();
+
+  const handleBack = () => {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      window.history.back();
+    } else {
+      setLocation("/products");
+    }
+  };
 
   // Fetch product from API
   const {
@@ -60,28 +70,17 @@ export default function ProductDetail() {
       if (!response.ok) throw new Error("Failed to fetch product");
       const data = await response.json();
 
-      // Mock additional data for demo
+      // Build images array from main image and any additional images from backend
+      const images = [
+        data.imageUrl,
+        ...((data.additionalImages as string[] | undefined) || []),
+      ].filter(Boolean);
+
       return {
         ...data,
-        images: [
-          data.imageUrl,
-          "https://images.unsplash.com/photo-1566479179817-c0e22ca41a80?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000",
-          "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=1000",
-        ],
-        originalPrice:
-          typeof data.price === "number"
-            ? data.price * 1.4
-            : parseFloat(data.price) * 1.4,
-        discount: 29,
-        rating: 4.8,
-        reviewCount: 124,
-        measurements: {
-          XS: { chest: "82cm", waist: "66cm", length: "140cm" },
-          S: { chest: "86cm", waist: "70cm", length: "142cm" },
-          M: { chest: "90cm", waist: "74cm", length: "144cm" },
-          L: { chest: "94cm", waist: "78cm", length: "146cm" },
-          XL: { chest: "98cm", waist: "82cm", length: "148cm" },
-        },
+        images,
+        rating: data.rating ?? 0,
+        reviewCount: data.reviewCount ?? 0,
       };
     },
     enabled: !!id,
@@ -92,11 +91,19 @@ export default function ProductDetail() {
   const handleAddToCart = () => {
     if (!product) return;
     if (!selectedSize) {
-      toast({ title: "Size Required", description: "Please select a size first", variant: "destructive" });
+      toast({
+        title: "Size Required",
+        description: "Please select a size first",
+        variant: "destructive",
+      });
       return;
     }
     if (!selectedColor) {
-      toast({ title: "Color Required", description: "Please select a color first", variant: "destructive" });
+      toast({
+        title: "Color Required",
+        description: "Please select a color first",
+        variant: "destructive",
+      });
       return;
     }
     addItem(
@@ -105,13 +112,19 @@ export default function ProductDetail() {
         name: product.name,
         nameRw: product.nameRw,
         description: product.description,
-        price: typeof product.price === "number" ? product.price : parseFloat(product.price),
+        price:
+          typeof product.price === "number"
+            ? product.price
+            : parseFloat(product.price),
         image: product.imageUrl,
         size: selectedSize,
       },
       quantity
     );
-    toast({ title: "Added to cart", description: "Product added to your cart" });
+    toast({
+      title: "Added to cart",
+      description: "Product added to your cart",
+    });
   };
 
   const handleBuyNow = () => {
@@ -169,7 +182,7 @@ export default function ProductDetail() {
         <div className="flex justify-center items-center min-h-screen">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
-            <Button onClick={() => setLocation("/products")}>
+            <Button onClick={handleBack}>
               Back to Products
             </Button>
           </div>
@@ -187,13 +200,24 @@ export default function ProductDetail() {
           <div className="flex items-center justify-between mb-8">
             <Button
               variant="ghost"
-              onClick={() => setLocation("/products")}
+              onClick={handleBack}
               className="flex items-center gap-2 glassmorphism"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Products
             </Button>
             <div className="flex items-center gap-2">
+              {(user?.role === "admin" ||
+                (user?.role === "producer" &&
+                  product.producerId === user?.id)) && (
+                <Button
+                  variant="outline"
+                  className="glassmorphism"
+                  onClick={() => setLocation(`/product-edit/${id}`)}
+                >
+                  Edit Product
+                </Button>
+              )}
               <Button variant="ghost" size="icon" className="glassmorphism">
                 <Share2 className="h-4 w-4" />
               </Button>
@@ -220,7 +244,7 @@ export default function ProductDetail() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              {product.images && product.images.length > 1 && (
+              {product.images && product.images.length > 0 && (
                 <div className="grid grid-cols-4 gap-3">
                   {product.images.map((image, index) => (
                     <button
@@ -246,10 +270,10 @@ export default function ProductDetail() {
             {/* Product Info */}
             <div className="space-y-8">
               <div className="glassmorphism rounded-3xl p-8">
-                <h1 className="text-3xl md:text-4xl font-bold gradient-text mb-3">
+                <h1 className="text-2xl md:text-3xl font-bold gradient-text mb-2">
                   {product.name}
                 </h1>
-                <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
+                <p className="text-base text-gray-600 dark:text-gray-300 mb-5">
                   {product.nameRw}
                 </p>
                 <div className="flex items-center gap-4 mb-6">
@@ -257,7 +281,7 @@ export default function ProductDetail() {
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}
-                        className={`h-5 w-5 ${
+                        className={`h-4 w-4 ${
                           i < Math.floor(product.rating || 0)
                             ? "text-yellow-400 fill-current"
                             : "text-gray-300"
@@ -273,19 +297,21 @@ export default function ProductDetail() {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-4 mb-8">
-                  <span className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+                  <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                     {formatPrice(product.price)}
                   </span>
-                  {product.originalPrice && (
-                    <>
-                      <span className="text-xl text-gray-500 line-through">
-                        {formatPrice(product.originalPrice)}
-                      </span>
-                      <Badge variant="destructive" className="animate-pulse">
-                        -{product.discount}% OFF
-                      </Badge>
-                    </>
-                  )}
+                  <div className="grid grid-cols-12 gap-2">
+                    {product.originalPrice && (
+                      <div className="col-span-6 md:col-span-3 lg:col-span-2">
+                        <span className="text-lg text-gray-500 line-through">
+                          {formatPrice(product.originalPrice)}
+                        </span>
+                        <Badge variant="destructive" className="animate-pulse">
+                          -{product.discount}% OFF
+                        </Badge>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
@@ -295,18 +321,18 @@ export default function ProductDetail() {
 
               {/* Size Selection */}
               <div className="glassmorphism rounded-3xl p-6">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                   <span>Size Selection</span>
                   {selectedSize && (
                     <Badge variant="outline">{selectedSize}</Badge>
                   )}
                 </h3>
-                <div className="grid grid-cols-5 gap-3 mb-4">
+                <div className="grid grid-cols-12 gap-3 mb-4">
                   {product.sizes?.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`p-4 text-center border-2 rounded-xl transition-all duration-300 font-medium ${
+                      className={`col-span-6 md:col-span-3 lg:col-span-2 p-3 text-center border-2 rounded-xl transition-all duration-300 font-medium ${
                         selectedSize === size
                           ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 scale-105 shadow-lg"
                           : "border-gray-300 hover:border-blue-300 hover:scale-105 dark:border-gray-600 glassmorphism"
@@ -336,7 +362,7 @@ export default function ProductDetail() {
 
               {/* Color Selection */}
               <div className="glassmorphism rounded-3xl p-6">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                   <span>Color Selection</span>
                   {selectedColor && (
                     <Badge variant="outline">{selectedColor}</Badge>
@@ -347,7 +373,7 @@ export default function ProductDetail() {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`px-6 py-3 border-2 rounded-xl transition-all duration-300 font-medium ${
+                      className={`px-4 py-2.5 border-2 rounded-xl transition-all duration-300 font-medium ${
                         selectedColor === color
                           ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-300 scale-105 shadow-lg"
                           : "border-gray-300 hover:border-blue-300 hover:scale-105 dark:border-gray-600 glassmorphism"
@@ -361,7 +387,7 @@ export default function ProductDetail() {
 
               {/* AI Try-On Section */}
               <div className="glassmorphism rounded-3xl p-6">
-                <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
                   <Wand2 className="h-5 w-5 text-purple-500" />
                   AI Virtual Try-On
                 </h3>
@@ -369,13 +395,16 @@ export default function ProductDetail() {
                 {!showTryOn ? (
                   <Button
                     onClick={() => setShowTryOn(true)}
-                    className="w-full gradient-bg text-white py-3 rounded-xl hover:scale-105 transition-all duration-300"
+                    className="w-full gradient-bg text-white py-2.5 rounded-xl hover:scale-105 transition-all duration-300"
                   >
                     <Camera className="h-5 w-5 mr-2" />
                     Try On with AI
                   </Button>
                 ) : (
-                  <TryOnWidget productId={id!} productImageUrl={product.imageUrl} />
+                  <TryOnWidget
+                    productId={id!}
+                    productImageUrl={product.imageUrl}
+                  />
                 )}
               </div>
 
@@ -386,7 +415,7 @@ export default function ProductDetail() {
                     onClick={handleAddToCart}
                     disabled={!selectedSize || !selectedColor}
                     variant="outline"
-                    className="flex-1 glassmorphism border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 py-3 rounded-xl"
+                    className="flex-1 glassmorphism border-2 border-blue-500 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 py-2.5 rounded-xl"
                   >
                     <ShoppingCart className="h-4 w-4 mr-2" />
                     Add to Cart
@@ -394,7 +423,7 @@ export default function ProductDetail() {
                   <Button
                     onClick={handleBuyNow}
                     disabled={!selectedSize || !selectedColor}
-                    className="flex-1 gradient-bg text-white py-3 rounded-xl hover:scale-105 transition-all duration-300"
+                    className="flex-1 gradient-bg text-white py-2.5 rounded-xl hover:scale-105 transition-all duration-300"
                   >
                     Buy Now
                   </Button>

@@ -18,6 +18,8 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   hasRole: (role: string) => boolean;
+  requestPasswordReset: (email: string) => Promise<void>;
+  loginWithProvider: (provider: 'google' | 'facebook') => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -148,6 +150,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const requestPasswordReset = async (email: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to request password reset');
+      }
+
+      toast({
+        title: 'Password reset sent',
+        description: 'Check your email for a reset link.'
+      });
+    } catch (error: any) {
+      toast({
+        title: 'Password reset failed',
+        description: error.message,
+        variant: 'destructive'
+      });
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('auth_token');
     setUser(null);
@@ -155,6 +189,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       title: "Logged out",
       description: "You have been successfully logged out."
     });
+  };
+
+  // Initiate OAuth flow via backend routes (server handles redirect & callback)
+  const loginWithProvider = (provider: 'google' | 'facebook') => {
+    // Optional: allow overriding base URL via env
+    const base = import.meta?.env?.VITE_API_BASE_URL || '';
+    window.location.href = `${base}/api/auth/oauth/${provider}`;
   };
 
   const hasRole = (role: string): boolean => {
@@ -168,7 +209,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     register,
     logout,
     isAuthenticated: !!user,
-    hasRole
+    hasRole,
+    requestPasswordReset,
+    loginWithProvider,
   };
 
   return (

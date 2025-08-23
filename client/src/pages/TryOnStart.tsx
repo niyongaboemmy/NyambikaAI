@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,22 +7,53 @@ import TryOnWidget from "@/components/TryOnWidget";
 import Footer from "@/components/Footer";
 import type { Product, Category } from "@shared/schema";
 import { ArrowLeft, ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import ProductCard from "@/components/ProductCard";
+import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
 
 export default function TryOnStart() {
-  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<{
+    id: string;
+    imageUrl: string;
+  } | null>(null);
   const [search, setSearch] = useState("");
   const [categoryId, setCategoryId] = useState<string>("all");
-  const [page, setPage] = useState(1);
-  const pageSize = 12;
+  const [producerId, setProducerId] = useState<string>("all");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("relevance"); // relevance | price_asc | price_desc | newest
+  // infinite scroll
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
-  const { data: products } = useQuery<Product[]>({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const res = await fetch("/api/products");
-      if (!res.ok) throw new Error("Failed to load products");
-      return res.json();
-    },
-  });
+  const toggleFavorite = (productId: string) => {
+    setFavorites((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  // Initialize selected product from URL (?productId=...&productImageUrl=...)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get("productId");
+    const pimg = params.get("productImageUrl") || "";
+    if (pid)
+      setSelectedProductId({
+        id: pid,
+        imageUrl: pimg,
+      });
+  }, []);
+
+  // Server-side filtered infinite products (50/page)
+  const {
+    data: productsPages,
+    isLoading: isProductsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteProducts({ categoryId, producerId: producerId === "all" ? undefined : producerId, limit: 50 });
+  const products = (productsPages?.pages || []).flat();
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -31,23 +62,63 @@ export default function TryOnStart() {
       return res.json();
     },
   });
+  const { data: producers } = useQuery<any[]>({
+    queryKey: ["producers"],
+    queryFn: async () => {
+      const res = await fetch("/api/producers");
+      if (!res.ok) throw new Error("Failed to load producers");
+      return res.json();
+    },
+  });
 
-  const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    return (products || []).filter((p) => {
-      const matchCat = categoryId === "all" || p.categoryId === categoryId;
-      if (!term) return matchCat;
-      const inName = p.name?.toLowerCase().includes(term) || p.nameRw?.toLowerCase().includes(term);
-      return matchCat && inName;
+  // Observe sentinel for infinite load
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { root: null, rootMargin: "600px 0px", threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, products.length]);
+
+  // Local search across all keys on currently loaded products
+  const term = (search || "").trim().toLowerCase();
+  const min = minPrice ? parseFloat(minPrice) : null;
+  const max = maxPrice ? parseFloat(maxPrice) : null;
+  const locallyFilteredProducts = useMemo(() => {
+    let list = products.filter((p: any) => {
+      // text match
+      const textOk = !term
+        ? true
+        : Object.values(p).some((v) => {
+            if (v == null) return false;
+            const s = typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
+            return s && s.toLowerCase().includes(term);
+          });
+      // price
+      const priceNum = p?.price != null ? parseFloat(String(p.price)) : NaN;
+      const priceOk = (min == null || (!Number.isNaN(priceNum) && priceNum >= min)) &&
+                      (max == null || (!Number.isNaN(priceNum) && priceNum <= max));
+      return textOk && priceOk;
     });
-  }, [products, search, categoryId]);
+    if (sortBy === "price_asc") list = [...list].sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price));
+    if (sortBy === "price_desc") list = [...list].sort((a: any, b: any) => parseFloat(b.price) - parseFloat(a.price));
+    if (sortBy === "newest") list = [...list].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return list;
+  }, [products, term, min, max, sortBy]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const paged = useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return filtered.slice(start, start + pageSize);
-  }, [filtered, currentPage]);
+  // If search/category changes and no local results in current pages, auto fetch next page
+  useEffect(() => {
+    if (locallyFilteredProducts.length === 0 && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [search, categoryId, locallyFilteredProducts.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
@@ -56,26 +127,32 @@ export default function TryOnStart() {
           {/* Header actions */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <a href="/" className="flex items-center gap-2 glassmorphism px-3 py-2 rounded-xl text-sm">
+              <a
+                href="/"
+                className="flex items-center gap-2 glassmorphism px-3 py-2 rounded-xl text-sm"
+              >
                 <ArrowLeft className="h-4 w-4" /> Back Home
               </a>
-              <h1 className="text-2xl md:text-3xl font-bold gradient-text">AI Try-On: Select Product</h1>
+              <h1 className="text-xl md:text-2xl font-bold gradient-text">
+                AI Try-On: Select Product
+              </h1>
             </div>
           </div>
 
           {/* Filters */}
           <Card className="floating-card p-4">
             <CardContent className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <div className="col-span-1">
-                  <label className="text-sm font-semibold block mb-2">Search</label>
+                  <label className="text-sm font-semibold block mb-2">
+                    Search
+                  </label>
                   <div className="relative">
                     <Input
                       placeholder="Search by name..."
                       value={search}
                       onChange={(e) => {
                         setSearch(e.target.value);
-                        setPage(1);
                       }}
                       className="rounded-xl"
                     />
@@ -83,12 +160,13 @@ export default function TryOnStart() {
                   </div>
                 </div>
                 <div className="col-span-1">
-                  <label className="text-sm font-semibold block mb-2">Category</label>
+                  <label className="text-sm font-semibold block mb-2">
+                    Category
+                  </label>
                   <select
                     value={categoryId}
                     onChange={(e) => {
                       setCategoryId(e.target.value);
-                      setPage(1);
                     }}
                     className="w-full glassmorphism px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700"
                   >
@@ -100,9 +178,57 @@ export default function TryOnStart() {
                     ))}
                   </select>
                 </div>
+                <div className="col-span-1">
+                  <label className="text-sm font-semibold block mb-2">Company</label>
+                  <select
+                    value={producerId}
+                    onChange={(e) => setProducerId(e.target.value)}
+                    className="w-full glassmorphism px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700"
+                  >
+                    <option value="all">All Companies</option>
+                    {producers?.map((p: any) => (
+                      <option key={p.id} value={String(p.id)}>
+                        {p.businessName || p.name || p.email}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="col-span-1">
+                  <label className="text-sm font-semibold block mb-2">Price Range</label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      placeholder="Min"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(e.target.value)}
+                      className="rounded-xl"
+                    />
+                    <span className="text-muted-foreground">-</span>
+                    <Input
+                      type="number"
+                      placeholder="Max"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(e.target.value)}
+                      className="rounded-xl"
+                    />
+                  </div>
+                </div>
+                <div className="col-span-1">
+                  <label className="text-sm font-semibold block mb-2">Sort</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full glassmorphism px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700"
+                  >
+                    <option value="relevance">Relevance</option>
+                    <option value="price_asc">Price: Low to High</option>
+                    <option value="price_desc">Price: High to Low</option>
+                    <option value="newest">Newest</option>
+                  </select>
+                </div>
                 <div className="col-span-1 flex items-end">
                   <div className="text-sm text-gray-600 dark:text-gray-400">
-                    {filtered.length} results
+                    {locallyFilteredProducts.length} results shown
                   </div>
                 </div>
               </div>
@@ -113,56 +239,39 @@ export default function TryOnStart() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Product Grid */}
             <div className="lg:col-span-2 space-y-4">
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {paged.map((p) => (
-                  <button
+              <div className="grid grid-cols-8 gap-2">
+                {locallyFilteredProducts.map((p) => (
+                  <ProductCard
                     key={p.id}
-                    onClick={() => setSelectedProductId(String(p.id))}
-                    className={`group relative overflow-hidden rounded-2xl border transition-all hover:shadow-lg ${
-                      String(p.id) === selectedProductId
-                        ? "border-blue-500 ring-2 ring-blue-200"
-                        : "border-gray-200 dark:border-gray-700"
-                    }`}
-                    title={p.name}
-                  >
-                    <img src={p.imageUrl} alt={p.name} className="w-full h-40 object-cover" />
-                    <div className="p-3 text-left">
-                      <p className="font-semibold line-clamp-1">{p.name}</p>
-                      {p.nameRw && (
-                        <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-1">{p.nameRw}</p>
-                      )}
-                    </div>
-                  </button>
+                    product={p as Product}
+                    isFavorited={favorites.includes(String(p.id))}
+                    onToggleFavorite={toggleFavorite}
+                    onViewDetails={() => {}}
+                    hideActions
+                    onCardClick={() =>
+                      setSelectedProductId({
+                        id: String(p.id),
+                        imageUrl: p.imageUrl,
+                      })
+                    }
+                    selected={String(p.id) === selectedProductId?.id}
+                    hideDesc={true}
+                  />
                 ))}
-                {!paged.length && (
-                  <div className="col-span-full text-sm text-gray-500">No products match your filters.</div>
+                {!isProductsLoading && !locallyFilteredProducts.length && (
+                  <div className="col-span-full text-sm text-gray-500">
+                    No products match your filters.
+                  </div>
+                )}
+                {/* Sentinel */}
+                <div ref={loadMoreRef} className="col-span-full h-2" />
+                {isFetchingNextPage && (
+                  <div className="col-span-full flex justify-center py-4">
+                    Loading more...
+                  </div>
                 )}
               </div>
 
-              {/* Pagination */}
-              {totalPages > 1 && (
-                <div className="flex items-center justify-center gap-2">
-                  <Button
-                    variant="ghost"
-                    className="glassmorphism"
-                    disabled={currentPage === 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  >
-                    <ChevronLeft className="h-4 w-4" /> Prev
-                  </Button>
-                  <span className="text-sm">
-                    Page {currentPage} of {totalPages}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    className="glassmorphism"
-                    disabled={currentPage === totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  >
-                    Next <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
             </div>
 
             {/* Try-On widget */}
@@ -172,19 +281,29 @@ export default function TryOnStart() {
                   {!selectedProductId ? (
                     <div className="h-[520px] flex items-center justify-center text-center text-gray-600 dark:text-gray-300">
                       <div>
-                        <p className="text-lg font-semibold mb-2">Choose a product to begin</p>
-                        <p className="text-sm">Select an item from the grid to use AI Try-On</p>
+                        <p className="text-lg font-semibold mb-2">
+                          Choose a product to begin
+                        </p>
+                        <p className="text-sm">
+                          Select an item from the grid to use AI Try-On
+                        </p>
                       </div>
                     </div>
                   ) : (
-                    <TryOnWidget productId={selectedProductId} />
+                    <TryOnWidget
+                      productId={selectedProductId.id}
+                      productImageUrl={selectedProductId.imageUrl}
+                      onUnselectProduct={() => setSelectedProductId(null)}
+                    />
                   )}
                 </CardContent>
               </Card>
               {selectedProductId && (
                 <div>
                   <Button asChild className="w-full gradient-bg text-white">
-                    <a href={`/product/${selectedProductId}`}>Continue to Product</a>
+                    <a href={`/product/${selectedProductId.id}`}>
+                      Continue to Product
+                    </a>
                   </Button>
                 </div>
               )}

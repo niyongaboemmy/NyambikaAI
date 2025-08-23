@@ -7,6 +7,7 @@ import {
   CreditCard,
   Smartphone,
 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Link } from "wouter";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ export default function Cart() {
     subtotal,
     shipping,
     total,
+    isSyncing,
   } = useCart();
 
   const formatPrice = (price: number) => {
@@ -116,8 +118,14 @@ export default function Cart() {
                             size="icon"
                             onClick={() => removeItem(item.id, item.size)}
                             className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            disabled={isSyncing}
+                            aria-disabled={isSyncing}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            {isSyncing ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
 

@@ -21,6 +21,20 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Companies table for producer business details
+export const companies = pgTable("companies", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  producerId: varchar("producer_id").references(() => users.id).notNull().unique(),
+  tin: text("tin"),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  location: text("location").notNull(),
+  logoUrl: text("logo_url"),
+  websiteUrl: text("website_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const categories = pgTable("categories", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
@@ -39,6 +53,7 @@ export const products = pgTable("products", {
   categoryId: varchar("category_id").references(() => categories.id),
   producerId: varchar("producer_id").references(() => users.id), // seller/producer
   imageUrl: text("image_url").notNull(),
+  additionalImages: text("additional_images").array(),
   sizes: text("sizes").array(),
   colors: text("colors").array(),
   stockQuantity: integer("stock_quantity").default(0),
@@ -117,6 +132,11 @@ export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
 });
 
+export const insertCompanySchema = createInsertSchema(companies).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertCategorySchema = createInsertSchema(categories).omit({
   id: true,
   createdAt: true,
@@ -159,6 +179,9 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type Company = typeof companies.$inferSelect;
+export type InsertCompany = z.infer<typeof insertCompanySchema>;
 
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;

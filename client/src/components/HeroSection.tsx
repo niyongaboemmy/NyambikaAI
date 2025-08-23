@@ -1,15 +1,21 @@
 import { useState } from "react";
-import { Search, Camera, Play } from "lucide-react";
+import { Camera, ChevronsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+
+type Category = {
+  id: string;
+  name: string;
+  nameRw?: string;
+  imageUrl?: string | null;
+};
 
 export default function HeroSection() {
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const handleSearch = () => {
-    // TODO: Implement search functionality
-    console.log("Searching for:", searchQuery);
+  const handleExplore = () => {
+    const el = document.getElementById("home-products");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
@@ -17,9 +23,13 @@ export default function HeroSection() {
       id="home"
       className="min-h-screen flex items-center justify-center pt-20 px-4 md:px-6 relative overflow-hidden"
     >
-      {/* Animated background */}
+      {/* Animated background: layered gradient + soft blobs */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--electric-blue-rgb)/0.2)] via-[rgb(var(--coral-rgb)/0.1)] to-purple-500/20 animate-gradient-x"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-pink-500/10 to-purple-500/10" />
+        {/* Blobs */}
+        <div className="absolute -top-24 -left-24 h-80 w-80 bg-blue-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 -right-24 h-72 w-72 bg-pink-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 h-96 w-96 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="text-center max-w-4xl mx-auto">
@@ -38,31 +48,7 @@ export default function HeroSection() {
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="glassmorphism rounded-2xl p-2 max-w-2xl mx-auto mb-12 hover:scale-105 transition-all duration-300">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                placeholder="Shakisha imyenda ushaka... (Search for clothes...)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-transparent rounded-xl border-0 focus:ring-0 text-gray-700 dark:text-gray-300 placeholder-gray-400"
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              />
-            </div>
-            <Button
-              onClick={handleSearch}
-              className="gradient-bg text-white px-8 py-4 rounded-xl hover:scale-105 transition-all duration-300 font-semibold"
-            >
-              <Search className="mr-2 h-4 w-4" />
-              Shakisha
-            </Button>
-          </div>
-        </div>
-
-        {/* AI Try-On CTA */}
+        {/* CTAs: Try-On and Explore Products */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link href="/try-on/start">
             <Button
@@ -74,15 +60,79 @@ export default function HeroSection() {
             </Button>
           </Link>
           <Button
-            variant="ghost"
-            className="glassmorphism text-gray-700 dark:text-gray-300 px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg"
+            variant="secondary"
+            className="px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg"
             size="lg"
+            onClick={handleExplore}
           >
-            <Play className="mr-3 h-5 w-5" />
-            Reba Video
+            <ChevronsDown className="mr-3 h-5 w-5" />
+            Explore Products
           </Button>
         </div>
+
+        {/* Categories - horizontally scrolling */}
+        <CategoriesStrip />
       </div>
     </section>
+  );
+}
+
+function CategoriesStrip() {
+  const { data: categories = [], isLoading } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
+    queryFn: async () => {
+      const res = await fetch("/api/categories");
+      if (!res.ok) throw new Error("Failed to load categories");
+      return res.json();
+    },
+    staleTime: 60_000,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="mt-10 text-sm text-muted-foreground">Loading categories...</div>
+    );
+  }
+
+  if (!categories.length) return null;
+
+  return (
+    <div className="mt-10 px-1">
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h3 className="text-lg font-semibold">Browse by Category</h3>
+        <Link href="/products">
+          <span className="text-sm text-primary hover:underline cursor-pointer">View all</span>
+        </Link>
+      </div>
+      <div className="relative">
+        {/* Edge fade */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
+        <div className="overflow-x-auto scrollbar-hide">
+          <div className="flex gap-4 pb-3 pr-6 snap-x snap-mandatory">
+            {categories.map((c) => (
+              <Link key={c.id} href={`/products?category=${c.id}`}>
+                <div className="snap-start min-w-[180px] max-w-[200px] cursor-pointer group">
+                  <div className="rounded-2xl overflow-hidden border bg-card hover:shadow-md transition-all">
+                    <div className="h-28 w-full overflow-hidden">
+                      <img
+                        src={c.imageUrl || "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600"}
+                        alt={c.name}
+                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        loading="lazy"
+                      />
+                    </div>
+                    <div className="p-3">
+                      <div className="text-sm font-semibold truncate">{c.nameRw || c.name}</div>
+                      <div className="text-xs text-muted-foreground">Tap to explore</div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -42,12 +42,26 @@ def _placeholder_overlay(person_path: str, cloth_path: str, out_path: str) -> No
     face_anchor = os.getenv("CF_FACE_ANCHOR", "false").lower() in ("1", "true", "yes", "on")
     face_offset_y = _get_int_env("CF_FACE_OFFSET_Y", 20)
     face_width_mult = _get_float_env("CF_FACE_WIDTH_MULT", 2.0)
+    # Clamp face multiplier
+    if not (0.5 <= face_width_mult <= 4.0):
+        face_width_mult = max(0.5, min(4.0, face_width_mult))
+    max_rel_width = _get_float_env("CF_MAX_REL_WIDTH", 0.90)
+    # clamp safe range
+    if max_rel_width <= 0.0:
+        max_rel_width = 0.9
+    if max_rel_width > 1.0:
+        max_rel_width = 1.0
+    # Global final scale multiplier
+    global_scale_mult = _get_float_env("CF_GLOBAL_SCALE_MULT", 1.0)
+    if not (0.5 <= global_scale_mult <= 2.0):
+        global_scale_mult = max(0.5, min(2.0, global_scale_mult))
 
     # default target width from person width * scale
     target_w = max(1, int(person.width * scale))
 
     face_center = None
     face_width = None
+    body_box = None  # (x, y, w, h)
     if face_anchor:
         try:
             # detect face on the PERSON image (RGB -> BGR for cv2)
@@ -62,12 +76,41 @@ def _placeholder_overlay(person_path: str, cloth_path: str, out_path: str) -> No
                 face_width = w
                 # derive target width from face width
                 fw_target = int(w * max(0.5, face_width_mult))
-                # cap to 90% of person width
-                fw_target = min(fw_target, int(person.width * 0.9))
+                # cap to configured percent of person width
+                fw_target = min(fw_target, int(person.width * max_rel_width))
                 if fw_target > 0 and (fw_target < cloth.width or allow_upscale):
                     target_w = fw_target
         except Exception:
             pass
+
+    # If no face-based sizing applied, try HOG person detector to get body bbox
+    if face_center is None:
+        try:
+            hog = cv2.HOGDescriptor()
+            hog.setSVMDetector(cv2.HOGDescriptor_getDefaultPeopleDetector())
+            img_rgb = np.array(person.convert("RGB"))
+            img = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2BGR)
+            rects, _ = hog.detectMultiScale(img, winStride=(8, 8), padding=(8, 8), scale=1.05)
+            if len(rects) > 0:
+                # choose the largest detected person
+                bx, by, bw, bh = max(rects, key=lambda r: r[2] * r[3])
+                body_box = (int(bx), int(by), int(bw), int(bh))
+                # Width multiplier from env (default 0.6 of body bbox width)
+                body_width_mult = _get_float_env("CF_BODY_WIDTH_MULT", 0.6)
+                # Clamp body multiplier
+                if not (0.2 <= body_width_mult <= 2.0):
+                    body_width_mult = max(0.2, min(2.0, body_width_mult))
+                bw_target = int(bw * max(0.2, min(3.0, body_width_mult)))
+                bw_target = min(bw_target, int(person.width * max_rel_width))
+                if bw_target > 0 and (bw_target < cloth.width or allow_upscale):
+                    target_w = bw_target
+        except Exception:
+            pass
+
+    # Apply global scale multiplier then cap again to rel width BEFORE resizing
+    if global_scale_mult != 1.0:
+        target_w = int(target_w * global_scale_mult)
+        target_w = min(target_w, int(person.width * max_rel_width))
 
     # compute resized cloth
     if cloth.width != target_w:
@@ -82,10 +125,21 @@ def _placeholder_overlay(person_path: str, cloth_path: str, out_path: str) -> No
 
     # --- placement controls ---
     cw, ch = cloth_resized.size
-    # If face anchor available, place below face; else use fractional anchors
+    # If face anchor available, place below face; else if body bbox available, place near upper torso; else use fractional anchors
     if face_anchor and face_center is not None:
         anchor_x = face_center[0]
         anchor_y = (face_center[1] + (face_width or 0) // 2) + face_offset_y
+        offset_x = int(anchor_x - cw * 0.5)
+        offset_y = int(anchor_y)
+    elif body_box is not None:
+        bx, by, bw, bh = body_box
+        anchor_x = bx + bw * 0.5
+        # Place around upper chest: a fraction down from the top of the body box
+        # Use a slightly lower placement for full-body shots by default
+        body_ratio = bh / max(1.0, float(person.height))
+        default_frac = 0.35 if body_ratio > 0.75 else 0.30
+        body_offset_frac = _get_float_env("CF_BODY_OFFSET_Y_FRAC", default_frac)
+        anchor_y = by + max(0, min(1.0, body_offset_frac)) * bh
         offset_x = int(anchor_x - cw * 0.5)
         offset_y = int(anchor_y)
     else:

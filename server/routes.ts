@@ -7,6 +7,7 @@ import Stripe from "stripe";
 import { storage } from "./storage";
 import { analyzeFashionImage, generateSizeRecommendation } from "./openai";
 import { generateVirtualTryOn } from "./tryon";
+import crypto from "crypto";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -212,10 +213,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update product (admin only)
-  app.put('/api/products/:id', requireAuth, requireRole(['admin']), async (req: any, res) => {
+  // Update product (admin or owning producer)
+  app.put('/api/products/:id', requireAuth, async (req: any, res) => {
     try {
-      const updates = insertProductSchema.partial().parse(req.body);
+      const existing = await storage.getProduct(req.params.id);
+      if (!existing) return res.status(404).json({ message: 'Product not found' });
+
+      // Authorization: admin can update any, producer only their own
+      const isAdmin = req.userRole === 'admin';
+      const isOwner = req.userRole === 'producer' && existing.producerId === req.userId;
+      if (!isAdmin && !isOwner) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
+      // Validate updates
+      const parsed = insertProductSchema.partial().parse(req.body);
+
+      // Sanitize producer-only updates: cannot change producerId or isApproved
+      const updates: any = { ...parsed };
+      if (!isAdmin) {
+        delete updates.producerId;
+        delete updates.isApproved;
+      }
+
       const product = await storage.updateProduct(req.params.id, updates);
       if (!product) return res.status(404).json({ message: 'Product not found' });
       res.json(product);
@@ -228,9 +248,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Delete product (admin only)
-  app.delete('/api/products/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+  // Delete product (admin or owning producer)
+  app.delete('/api/products/:id', requireAuth, async (req: any, res) => {
     try {
+      const existing = await storage.getProduct(req.params.id);
+      if (!existing) return res.status(404).json({ message: 'Product not found' });
+
+      const isAdmin = req.userRole === 'admin';
+      const isOwner = req.userRole === 'producer' && existing.producerId === req.userId;
+      if (!isAdmin && !isOwner) {
+        return res.status(403).json({ message: 'Insufficient permissions' });
+      }
+
       await storage.deleteProduct(req.params.id);
       res.status(204).send();
     } catch (error) {
@@ -393,7 +422,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Products routes
   app.post('/api/products', requireAuth, requireRole(['producer', 'admin']), async (req: any, res) => {
     try {
-      const { name, nameRw, description, price, categoryId, imageUrl, sizes, colors, stockQuantity } = req.body;
+      const { name, nameRw, description, price, categoryId, imageUrl, sizes, colors, stockQuantity, additionalImages } = req.body;
       
       if (!name || !nameRw || !description || !price || !categoryId || !imageUrl) {
         return res.status(400).json({ message: 'Missing required fields' });
@@ -407,6 +436,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         categoryId,
         producerId: req.userId,
         imageUrl,
+        additionalImages: additionalImages || [],
         sizes: sizes || [],
         colors: colors || [],
         stockQuantity: stockQuantity || 0,
@@ -524,11 +554,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { limit } = req.query as any;
       const producers = await storage.getProducers(limit ? parseInt(limit as string) : undefined);
-      const safe = producers.map((u: any) => {
-        const { password, ...rest } = u;
-        return rest;
-      });
-      res.json(safe);
+      // Merge company metadata (name, logoUrl) for each producer
+      const withCompany = await Promise.all(
+        producers.map(async (u: any) => {
+          const { password, ...rest } = u;
+          try {
+            const company = await storage.getCompanyByProducerId(u.id);
+            return {
+              ...rest,
+              companyName: company?.name || null,
+              companyLogoUrl: company?.logoUrl || null,
+            };
+          } catch {
+            return { ...rest, companyName: null, companyLogoUrl: null };
+          }
+        })
+      );
+      res.json(withCompany);
     } catch (error) {
       console.error('Error fetching producers:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -553,6 +595,96 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(products);
     } catch (error) {
       console.error('Error fetching producer products:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Companies routes (Producer business details)
+  app.get('/api/companies/me', requireAuth, requireRole(['producer']), async (req: any, res) => {
+    try {
+      const company = await storage.getCompanyByProducerId(req.userId);
+      if (!company) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+      res.json(company);
+    } catch (error) {
+      console.error('Error fetching company:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.post('/api/companies', requireAuth, requireRole(['producer']), async (req: any, res) => {
+    try {
+      // Prevent creating multiple companies per producer
+      const existing = await storage.getCompanyByProducerId(req.userId);
+      if (existing) {
+        return res.status(409).json({ message: 'Company already exists. Use update instead.' });
+      }
+
+      const companyBodySchema = z.object({
+        tin: z.string().optional().nullable(),
+        name: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().min(3),
+        location: z.string().min(1),
+        logoUrl: z.string().url().optional().nullable(),
+        websiteUrl: z.string().url().optional().nullable(),
+      });
+
+      const body = companyBodySchema.parse(req.body);
+      const company = await storage.createCompany({
+        producerId: req.userId,
+        ...body,
+      } as any);
+      res.status(201).json(company);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error creating company:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  app.put('/api/companies', requireAuth, requireRole(['producer']), async (req: any, res) => {
+    try {
+      const companyBodyUpdateSchema = z.object({
+        tin: z.string().optional().nullable(),
+        name: z.string().min(1).optional(),
+        email: z.string().email().optional(),
+        phone: z.string().min(3).optional(),
+        location: z.string().min(1).optional(),
+        logoUrl: z.string().url().optional().nullable(),
+        websiteUrl: z.string().url().optional().nullable(),
+      });
+
+      const updates = companyBodyUpdateSchema.parse(req.body);
+      const updated = await storage.updateCompany(req.userId, updates as any);
+      if (!updated) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+      res.json(updated);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Error updating company:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // List companies (public)
+  app.get('/api/companies', async (req, res) => {
+    try {
+      const { producerId } = req.query as any;
+      if (producerId) {
+        const company = await storage.getCompanyByProducerId(String(producerId));
+        return res.json(company ? [company] : []);
+      }
+      const companies = await storage.getCompanies();
+      res.json(companies);
+    } catch (error) {
+      console.error('Error fetching companies:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
   });

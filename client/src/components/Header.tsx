@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 export default function HeaderOld() {
   const { theme, setTheme } = useTheme();
@@ -30,6 +31,7 @@ export default function HeaderOld() {
   const [language, setLanguage] = useState("rw");
   const { user, logout } = useAuth();
   const [, setLocation] = useLocation();
+  const { open } = useLoginPrompt();
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
@@ -182,7 +184,7 @@ export default function HeaderOld() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setLocation("/login")}
+                  onClick={() => open()}
                   className="glassmorphism hover:scale-105 transition-all duration-300"
                 >
                   Login

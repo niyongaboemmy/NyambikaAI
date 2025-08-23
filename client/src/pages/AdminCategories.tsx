@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useLocation } from 'wouter';
 import { Plus, Edit3, Trash2, ArrowLeft, Image } from 'lucide-react';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useLoginPrompt } from '@/contexts/LoginPromptContext';
 
 interface Category {
   id: string;
@@ -24,10 +25,18 @@ export default function AdminCategories() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { open } = useLoginPrompt();
 
-  // Protect admin route
+  // Protect admin route: open login modal if not authenticated, redirect home if not admin
+  useEffect(() => {
+    if (!isAuthenticated) {
+      open();
+    } else if (user?.role !== 'admin') {
+      setLocation('/');
+    }
+  }, [isAuthenticated, user, open, setLocation]);
+
   if (!isAuthenticated || user?.role !== 'admin') {
-    setLocation('/login');
     return null;
   }
 

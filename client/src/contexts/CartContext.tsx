@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Loader2 } from "lucide-react";
 
 export type CartItem = {
   id: string;
@@ -23,6 +24,7 @@ export type CartState = {
   subtotal: number;
   shipping: number;
   total: number;
+  isSyncing: boolean;
 };
 
 const CartContext = createContext<CartState | undefined>(undefined);
@@ -50,6 +52,12 @@ function writeToStorage(items: CartItem[]) {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => readFromStorage());
   const { isAuthenticated } = useAuth();
+  // Track in-flight server sync operations to avoid flicker during bursts
+  const [syncCounter, setSyncCounter] = useState(0);
+  const isSyncing = syncCounter > 0;
+
+  const beginSync = () => setSyncCounter((c) => c + 1);
+  const endSync = () => setSyncCounter((c) => Math.max(0, c - 1));
 
   useEffect(() => {
     writeToStorage(items);
@@ -82,11 +90,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const refreshFromServer = async () => {
     try {
       if (!isAuthenticated) return;
+      beginSync();
       const res = await fetch("/api/cart", { headers: getAuthHeaders() });
       if (!res.ok) return;
       const data = await res.json();
       setItems(mapServerToLocal(data));
     } catch {}
+    finally {
+      endSync();
+    }
   };
 
   // Hydrate on login/auth ready
@@ -130,6 +142,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         if (!isAuthenticated) return;
+        beginSync();
         await fetch("/api/cart", {
           method: "POST",
           headers: getAuthHeaders(),
@@ -141,6 +154,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         });
         await refreshFromServer();
       } catch {}
+      finally {
+        endSync();
+      }
     })();
   };
 
@@ -153,11 +169,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (!isAuthenticated) return;
         const target = items.find((it) => it.id === id && (it.size || "") === (size || ""));
         const serverId = target?.serverId;
+        beginSync();
         if (serverId) {
           await fetch(`/api/cart/${serverId}`, { method: "DELETE", headers: getAuthHeaders() });
         }
         await refreshFromServer();
       } catch {}
+      finally {
+        endSync();
+      }
     })();
   };
 
@@ -175,6 +195,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (!isAuthenticated) return;
         const target = items.find((it) => it.id === id && (it.size || "") === (size || ""));
         const serverId = target?.serverId;
+        beginSync();
         if (serverId) {
           await fetch(`/api/cart/${serverId}`, {
             method: "PUT",
@@ -186,6 +207,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
         await refreshFromServer();
       } catch {}
+      finally {
+        endSync();
+      }
     })();
   };
 
@@ -197,8 +221,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (isAuthenticated && items.length === 0) {
       (async () => {
         try {
+          beginSync();
           await fetch("/api/cart", { method: "DELETE", headers: getAuthHeaders() });
         } catch {}
+        finally {
+          endSync();
+        }
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -214,9 +242,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     subtotal,
     shipping,
     total,
+    isSyncing,
   };
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+  return (
+    <CartContext.Provider value={value}>
+      {children}
+      {isSyncing && (
+        <div className="fixed top-2 right-3 z-50 flex items-center gap-2 rounded-full border bg-background/90 backdrop-blur px-3 py-1 shadow">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          <span className="text-xs text-muted-foreground">Syncing cart…</span>
+        </div>
+      )}
+    </CartContext.Provider>
+  );
 }
 
 export function useCart() {

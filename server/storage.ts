@@ -8,8 +8,11 @@ import {
   favorites,
   tryOnSessions,
   reviews,
+  companies,
   type User,
   type InsertUser,
+  type Company,
+  type InsertCompany,
   type Product,
   type InsertProduct,
   type Category,
@@ -109,6 +112,15 @@ export interface IStorage {
 
   // Producers
   getProducers(limit?: number): Promise<User[]>;
+
+  // Companies
+  getCompanyByProducerId(producerId: string): Promise<Company | undefined>;
+  getCompanies(): Promise<Company[]>;
+  createCompany(company: InsertCompany): Promise<Company>;
+  updateCompany(
+    producerId: string,
+    updates: Partial<InsertCompany>
+  ): Promise<Company | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -504,6 +516,36 @@ export class DatabaseStorage implements IStorage {
       q = q.limit(limit);
     }
     return await q;
+  }
+
+  // Companies
+  async getCompanyByProducerId(producerId: string): Promise<Company | undefined> {
+    const [company] = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.producerId, producerId));
+    return company || undefined;
+  }
+
+  async getCompanies(): Promise<Company[]> {
+    return await db.select().from(companies).orderBy(asc(companies.name));
+  }
+
+  async createCompany(company: InsertCompany): Promise<Company> {
+    const [newCompany] = await db.insert(companies).values(company).returning();
+    return newCompany;
+  }
+
+  async updateCompany(
+    producerId: string,
+    updates: Partial<InsertCompany>
+  ): Promise<Company | undefined> {
+    const [updated] = await db
+      .update(companies)
+      .set(updates)
+      .where(eq(companies.producerId, producerId))
+      .returning();
+    return updated || undefined;
   }
 }
 

@@ -143,12 +143,20 @@ export async function generateVirtualTryOn(
         };
       }
 
+      // Heuristics: use face-anchored sizing so garment width follows face width.
+      // Tune faceWidthMult per product type if needed.
+      const type = (productType || "").toLowerCase();
+      const faceWidthMult =
+        type.includes("dress") ? 2.4 : type.includes("coat") ? 2.2 : type.includes("tshirt") || type.includes("shirt") ? 2.0 : 2.1;
       const res = await fetch(`${CLOTHFLOW_URL.replace(/\/$/, "")}/tryon`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           person: personInput,
           cloth: clothInput,
+          // Guide ClothFlow placeholder; defer all sizing to service .env unless UI explicitly sets
+          faceAnchor: true,
+          allowUpscale: true,
           // optional knobs can be added here depending on your ClothFlow server
         }),
       });
