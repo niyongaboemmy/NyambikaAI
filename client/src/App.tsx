@@ -18,7 +18,6 @@ import RoleBasedNavigation from "@/components/RoleBasedNavigation";
 import Home from "@/pages/Home";
 import Products from "@/pages/Products";
 import TryOn from "@/pages/TryOn";
-import TryOnStart from "@/pages/TryOnStart";
 import ProductDetail from "@/pages/ProductDetail";
 import Checkout from "@/pages/Checkout";
 import Profile from "@/pages/Profile";
@@ -36,6 +35,7 @@ import ProductEdit from "@/pages/ProductEdit";
 import Companies from "@/pages/Companies";
 import StorePage from "@/pages/StorePage";
 import Footer from "./components/Footer";
+import TryOnStart from "./pages/TryOnStart";
 
 function AdminRoute({
   component: Component,
@@ -108,19 +108,11 @@ function Router() {
         <Route path="/store/:companyId" component={StorePage} />
         <Route
           path="/try-on/start"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={TryOnStart} />
-            </Container>
-          )}
+          component={() => <ProtectedRoute component={TryOnStart} />}
         />
         <Route
           path="/try-on"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={TryOn} />
-            </Container>
-          )}
+          component={() => <ProtectedRoute component={TryOn} />}
         />
         <Route
           path="/product/:id"

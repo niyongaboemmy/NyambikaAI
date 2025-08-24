@@ -19,6 +19,7 @@ export type ProductCardProps = {
   onCardClick?: (productId: string) => void;
   selected?: boolean;
   hideDesc?: boolean;
+  compact?: boolean;
 };
 
 function formatPrice(price: string | number) {
@@ -47,6 +48,7 @@ export default function ProductCard({
   onCardClick,
   selected,
   hideDesc,
+  compact,
 }: ProductCardProps) {
   const canManage = !!(
     isAdmin ||
@@ -76,7 +78,10 @@ export default function ProductCard({
           : undefined
       }
     >
-      <div className="relative overflow-hidden py-3 md:py-5 lg:py-7 pb-2 md:pb-2 lg:pb-2">
+      <div className={cn(
+        "relative overflow-hidden pb-2 md:pb-2 lg:pb-2",
+        compact ? "py-2" : "py-3 md:py-5 lg:py-7"
+      )}>
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -158,7 +163,7 @@ export default function ProductCard({
         )}
       </div>
 
-      <div className="p-4 space-y-1 px-0.5 text-center">
+      <div className={cn("space-y-1 px-0.5 text-center", compact ? "p-2" : "p-4") }>
         <div
           className="cursor-pointer"
           onClick={(e) => {
@@ -166,16 +171,22 @@ export default function ProductCard({
             onViewDetails(product.id);
           }}
         >
-          <h3 className="text-xs md:text-sm font-bold text-gray-900 dark:text-gray-100 truncate leading-tight">
+          <h3 className={cn("font-bold text-gray-900 dark:text-gray-100 truncate leading-tight",
+            compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
+          )}>
             {product.name}
           </h3>
           {!hideDesc && (
-            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 truncate mb-2">
+            <p className={cn("text-gray-600 dark:text-gray-400 truncate mb-2",
+              compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
+            )}>
               {product.nameRw}
             </p>
           )}
           <div className="text-center">
-            <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <span className={cn("font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
+              compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
+            )}>
               {typeof product.price === "number"
                 ? formatPrice(product.price)
                 : formatPrice(Number(product.price))}

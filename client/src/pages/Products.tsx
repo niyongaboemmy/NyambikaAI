@@ -589,8 +589,6 @@ export default function Products() {
         </div>
       </main>
 
-      <Footer />
-
       {/* Edit Dialog */}
       <Dialog open={openEdit} onOpenChange={setOpenEdit}>
         <DialogContent>

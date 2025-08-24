@@ -61,7 +61,6 @@ export default function Producers() {
           ))}
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

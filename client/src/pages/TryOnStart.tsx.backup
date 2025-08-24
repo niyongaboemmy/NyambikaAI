@@ -1,0 +1,985 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import TryOnWidget from "@/components/TryOnWidget";
+import Footer from "@/components/Footer";
+import type { Product, Category } from "@shared/schema";
+import {
+  ArrowLeft,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  ChevronDown,
+  Sparkles,
+  Image,
+  Wand2,
+  Search,
+  Brain,
+  Zap,
+  Target,
+  Eye,
+  Layers,
+  Palette,
+  Shuffle,
+  TrendingUp,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import ProductCard from "@/components/ProductCard";
+import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
+
+export default function TryOnStart() {
+  const [selectedProductId, setSelectedProductId] = useState<{
+    id: string;
+    imageUrl: string;
+  } | null>(null);
+  const [search, setSearch] = useState("");
+  const [searchInput, setSearchInput] = useState("");
+  const [categoryId, setCategoryId] = useState<string>("all");
+  const [producerId, setProducerId] = useState<string>("all");
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("relevance");
+  const [showMoreFilters, setShowMoreFilters] = useState<boolean>(false);
+  
+  // AI-inspired interactive states
+  const [aiThinking, setAiThinking] = useState(false);
+  const [spotPos, setSpotPos] = useState<{ x: number; y: number }>({ x: -9999, y: -9999 });
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+  const [aiSuggestions, setAiSuggestions] = useState<string[]>([]);
+  const [showAiHints, setShowAiHints] = useState(true);
+  
+  // Density (compact vs comfortable)
+  const [dense, setDense] = useState<boolean>(() => {
+    try {
+      const v = localStorage.getItem('ny-density');
+      return v ? v === 'compact' : true;
+    } catch {
+      return true;
+    }
+  });
+  useEffect(() => {
+    try { localStorage.setItem('ny-density', dense ? 'compact' : 'comfortable'); } catch {}
+  }, [dense]);
+
+  // Responsive columns for virtualized grid
+  const [viewportWidth, setViewportWidth] = useState<number>(
+    typeof window !== "undefined" ? window.innerWidth : 1024
+  );
+  useEffect(() => {
+    const onResize = () => setViewportWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+  const itemsPerRow = useMemo(() => {
+    if (viewportWidth >= 1536) return 7; // 2xl
+    if (viewportWidth >= 1280) return 6; // xl
+    if (viewportWidth >= 1024) return 5; // lg
+    if (viewportWidth >= 768) return 4;  // md
+    if (viewportWidth >= 640) return 3;  // sm
+    return 2;                             // base
+  }, [viewportWidth]);
+  const [isCategorySheetOpen, setIsCategorySheetOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+  const [categorySearch, setCategorySearch] = useState<string>("");
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
+  const [favorites, setFavorites] = useState<string[]>([]);
+
+  const toggleFavorite = (productId: string) => {
+    setFavorites((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
+  // AI-powered suggestions simulation
+  useEffect(() => {
+    if (searchInput.length > 2) {
+      setAiThinking(true);
+      const timer = setTimeout(() => {
+        setAiSuggestions([
+          `${searchInput} - trending now`,
+          `Similar to ${searchInput}`,
+          `${searchInput} - best sellers`,
+        ]);
+        setAiThinking(false);
+      }, 800);
+      return () => clearTimeout(timer);
+    } else {
+      setAiSuggestions([]);
+    }
+  }, [searchInput]);
+
+  // Initialize selected product from URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get("productId");
+    const pimg = params.get("productImageUrl") || "";
+    if (pid)
+      setSelectedProductId({
+        id: pid,
+        imageUrl: pimg,
+      });
+  }, []);
+
+  // Server-side filtered infinite products (50/page)
+  const {
+    data: productsPages,
+    isLoading: isProductsLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteProducts({
+    categoryId,
+    producerId: producerId === "all" ? undefined : producerId,
+    limit: 50,
+  });
+  const products = (productsPages?.pages || []).flat();
+
+  // Debounce search input into search
+  useEffect(() => {
+    const t = setTimeout(() => setSearch(searchInput), 250);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
+  // Suggestions from loaded products
+  const suggestions = useMemo<string[]>(() => {
+    const q = searchInput.trim().toLowerCase();
+    if (q.length < 2) return [];
+    const names = Array.from(
+      new Set(
+        (products as any[])
+          .map((p: any) => String(p?.name || ""))
+          .filter((s: string) => !!s)
+      )
+    ) as string[];
+    return names.filter((n: string) => n.toLowerCase().includes(q)).slice(0, 6);
+  }, [products, searchInput]);
+  const { data: categories } = useQuery<Category[]>({
+    queryKey: ["categories"],
+    queryFn: async () => {
+      const res = await fetch("/api/categories");
+      if (!res.ok) throw new Error("Failed to load categories");
+      return res.json();
+    },
+  });
+  const { data: producers } = useQuery<any[]>({
+    queryKey: ["producers"],
+    queryFn: async () => {
+      const res = await fetch("/api/producers");
+      if (!res.ok) throw new Error("Failed to load producers");
+      return res.json();
+    },
+  });
+
+  // Observe sentinel for infinite load
+  useEffect(() => {
+    const el = loadMoreRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { root: null, rootMargin: "600px 0px", threshold: 0 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, products.length]);
+
+  // Local search across all keys on currently loaded products
+  const term = (search || "").trim().toLowerCase();
+  const min = minPrice ? parseFloat(minPrice) : null;
+  const max = maxPrice ? parseFloat(maxPrice) : null;
+  const locallyFilteredProducts = useMemo(() => {
+    let list = products.filter((p: any) => {
+      // text match
+      const textOk = !term
+        ? true
+        : Object.values(p).some((v) => {
+            if (v == null) return false;
+            const s =
+              typeof v === "string"
+                ? v
+                : typeof v === "number"
+                ? String(v)
+                : "";
+            return s && s.toLowerCase().includes(term);
+          });
+      // price
+      const priceNum = p?.price != null ? parseFloat(String(p.price)) : NaN;
+      const priceOk =
+        (min == null || (!Number.isNaN(priceNum) && priceNum >= min)) &&
+        (max == null || (!Number.isNaN(priceNum) && priceNum <= max));
+      return textOk && priceOk;
+    });
+    if (sortBy === "price_asc")
+      list = [...list].sort(
+        (a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)
+      );
+    if (sortBy === "price_desc")
+      list = [...list].sort(
+        (a: any, b: any) => parseFloat(b.price) - parseFloat(a.price)
+      );
+    if (sortBy === "newest")
+      list = [...list].sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    return list;
+  }, [products, term, min, max, sortBy]);
+
+  // Virtualization setup (window-based row virtualizer)
+  const totalRows = Math.ceil(locallyFilteredProducts.length / itemsPerRow);
+  const estimateRow = dense ? 220 : 280; // adjust estimate for density
+  const virtualizer = useWindowVirtualizer({
+    count: totalRows,
+    estimateSize: () => estimateRow,
+    overscan: 6,
+  });
+  const virtualItems = virtualizer.getVirtualItems();
+
+  // If search/category changes and no local results in current pages, auto fetch next page
+  useEffect(() => {
+    if (
+      locallyFilteredProducts.length === 0 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
+      fetchNextPage();
+    }
+  }, [
+    search,
+    categoryId,
+    locallyFilteredProducts.length,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
+      <main className="pt-24 pb-12 px-4 md:px-6 flex flex-col gap-2">
+        <div className="space-y-6">
+          {/* Header actions */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <a
+                href="/"
+                className="flex items-center gap-2 glassmorphism px-3 py-2 rounded-xl text-sm"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back Home
+              </a>
+              <h1 className="text-xl md:text-2xl font-bold gradient-text">
+                AI Try-On: Select Product
+              </h1>
+            </div>
+          </div>
+          {/* Hero with AI spotlight */}
+          <div
+            className="relative overflow-hidden rounded-3xl border border-gray-200 dark:border-gray-800 bg-[radial-gradient(800px_200px_at_0%_0%,rgba(99,102,241,0.18),transparent),radial-gradient(800px_200px_at_100%_120%,rgba(236,72,153,0.18),transparent)] p-6 md:p-10"
+            onMouseMove={(e) => {
+              const rect = (e.currentTarget as HTMLDivElement).getBoundingClientRect();
+              setSpotPos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+            }}
+            onMouseLeave={() => setSpotPos({ x: -9999, y: -9999 })}
+          >
+            <div className="max-w-3xl">
+              <h2 className="text-2xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-rose-500 bg-clip-text text-transparent">
+                Try outfits in seconds with AI
+              </h2>
+              <p className="mt-3 text-sm md:text-base text-slate-600 dark:text-slate-300">
+                Pick a category, choose a product, and preview it on your photo. Smart search and filters help you find the perfect match faster.
+              </p>
+              <div className="mt-5 flex gap-3">
+                <a
+                  href="#tryon-steps"
+                  className="inline-flex items-center gap-2 gradient-bg text-white px-4 py-2 rounded-xl shadow"
+                >
+                  <Wand2 className="h-4 w-4" /> Start now
+                </a>
+                <button
+                  className="glassmorphism px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700"
+                  onClick={() => {
+                    const first = locallyFilteredProducts[0];
+                    if (first)
+                      setSelectedProductId({
+                        id: String(first.id),
+                        imageUrl: first.imageUrl,
+                      });
+                    setCurrentStep(2);
+                  }}
+                >
+                  Quick pick
+                </button>
+              </div>
+            </div>
+            {/* Cursor spotlight */}
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{
+                background: `radial-gradient(180px 180px at ${spotPos.x}px ${spotPos.y}px, rgba(99,102,241,0.18), transparent 60%)`,
+              }}
+            />
+            <div className="pointer-events-none absolute -right-10 -bottom-10 h-56 w-56 rounded-full bg-gradient-to-br from-indigo-400/30 to-fuchsia-400/30 blur-2xl" />
+          </div>
+        </div>
+
+        {/* AI-inspired stepper */}
+        <div
+          id="tryon-steps"
+          className="relative overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800 bg-gradient-to-r from-indigo-50 via-blue-50 to-fuchsia-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800"
+        >
+          <div
+            className="absolute inset-0 pointer-events-none opacity-60"
+            style={{
+              background:
+                "radial-gradient(1200px 300px at 20% -20%, rgba(99,102,241,.25), transparent), radial-gradient(1000px 300px at 80% 120%, rgba(236,72,153,.20), transparent)",
+            }}
+          />
+          <div className="relative grid grid-cols-2">
+            <div
+              className={`flex items-center gap-3 px-4 py-3 md:px-6 ${
+                currentStep === 1 ? "backdrop-blur-sm" : ""
+              }`}
+            >
+              <div
+                className={`h-7 w-7 rounded-full flex items-center justify-center text-white text-xs ${
+                  currentStep === 1
+                    ? "bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow"
+                    : "bg-gray-300 dark:bg-gray-700"
+                }`}
+              >
+                1
+              </div>
+              <div className="flex items-center gap-2 text-sm md:text-base font-medium">
+                <Image
+                  className={`h-4 w-4 ${
+                    currentStep === 1
+                      ? "text-indigo-600 dark:text-indigo-400"
+                      : "text-gray-500"
+                  }`}
+                />
+                Choose Category
+              </div>
+            </div>
+            <div
+              className={`flex items-center gap-3 px-4 py-3 md:px-6 justify-end md:justify-start ${
+                currentStep === 2 ? "backdrop-blur-sm" : ""
+              }`}
+            >
+              <div
+                className={`h-7 w-7 rounded-full flex items-center justify-center text-white text-xs ${
+                  currentStep === 2
+                    ? "bg-gradient-to-br from-indigo-500 to-fuchsia-500 shadow"
+                    : "bg-gray-300 dark:bg-gray-700"
+                }`}
+              >
+                2
+              </div>
+              <div className="flex items-center gap-2 text-sm md:text-base font-medium">
+                <Sparkles
+                  className={`h-4 w-4 ${
+                    currentStep === 2
+                      ? "text-fuchsia-600 dark:text-fuchsia-400"
+                      : "text-gray-500"
+                  }`}
+                />
+                Pick Product
+              </div>
+            </div>
+          </div>
+          <motion.div
+            className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-fuchsia-500"
+            initial={false}
+            animate={{ width: currentStep === 1 ? "50%" : "100%" }}
+            transition={{ type: "spring", stiffness: 120, damping: 20 }}
+          />
+        </div>
+
+        {/* AI Copilot guidance */}
+        <Card className="floating-card p-3">
+          <CardContent className="p-0">
+            <div className="flex items-center gap-3 text-sm">
+              <div className="h-6 w-6 rounded-full bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white flex items-center justify-center font-semibold">
+                AI
+              </div>
+              <p className="text-slate-600 dark:text-slate-300">
+                {currentStep === 1 && (
+                  <>Pick a category to narrow down styles. You can switch anytime — I’ll keep your place.</>
+                )}
+                {currentStep === 2 && !selectedProductId && (
+                  <>Hover to preview, click to select. Tip: Use search or chips to jump between trends fast.</>
+                )}
+                {currentStep === 2 && selectedProductId && (
+                  <>Great choice! Upload a photo in the widget to preview instantly. You can swap items anytime.</>
+                )}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step-specific header/cards */}
+        {currentStep === 1 && (
+          <Card className="floating-card p-4">
+            <CardContent className="p-0">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-sm font-semibold">Choose a category</h2>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setCurrentStep(2)}
+                  >
+                    Skip
+                  </Button>
+                  <Sheet
+                    open={isCategorySheetOpen}
+                    onOpenChange={setIsCategorySheetOpen}
+                  >
+                    <SheetTrigger asChild>
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="rounded-full"
+                      >
+                        All Categories
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[75vh]">
+                      <SheetHeader>
+                        <SheetTitle>All Categories</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-4">
+                        <div className="mb-3">
+                          <Input
+                            placeholder="Search categories..."
+                            value={categorySearch}
+                            onChange={(e) => setCategorySearch(e.target.value)}
+                            className="rounded-xl"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                          <motion.button
+                            onClick={() => {
+                              setCategoryId("all");
+                              setIsCategorySheetOpen(false);
+                              setCurrentStep(2);
+                            }}
+                            className={`group relative overflow-hidden rounded-2xl p-3 text-left border ${
+                              categoryId === "all"
+                                ? "border-indigo-500 shadow bg-indigo-50"
+                                : "glassmorphism border-gray-200 dark:border-gray-700"
+                            }`}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <div className="relative z-10 text-sm font-medium">
+                              All
+                            </div>
+                            <div className="absolute inset-0 bg-gradient-to-br from-indigo-200/40 to-fuchsia-200/40" />
+                          </motion.button>
+                          {categories
+                            ?.filter((c) =>
+                              c.name
+                                .toLowerCase()
+                                .includes(categorySearch.toLowerCase())
+                            )
+                            .map((c) => {
+                              const img =
+                                (c as any).imageUrl ||
+                                (c as any).coverUrl ||
+                                "https://images.unsplash.com/photo-1520975922284-7b6836c57a97?w=600&q=60&auto=format&fit=crop";
+                              return (
+                                <motion.button
+                                  key={c.id}
+                                  onClick={() => {
+                                    setCategoryId(String(c.id));
+                                    setIsCategorySheetOpen(false);
+                                    setCurrentStep(2);
+                                  }}
+                                  className={`group relative overflow-hidden rounded-2xl p-0 text-left border ${
+                                    String(c.id) === categoryId
+                                      ? "border-indigo-500 shadow"
+                                      : "border-gray-200 dark:border-gray-800"
+                                  }`}
+                                  whileHover={{ scale: 1.015 }}
+                                  whileTap={{ scale: 0.985 }}
+                                >
+                                  <div className="aspect-[4/3] w-full">
+                                    <img
+                                      src={img}
+                                      alt={c.name}
+                                      className="h-full w-full object-cover"
+                                    />
+                                  </div>
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                  <div className="absolute bottom-2 left-2 right-2 text-white drop-shadow font-medium">
+                                    {c.name}
+                                  </div>
+                                </motion.button>
+                              );
+                            })}
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              </div>
+              {/* Featured categories grid */}
+              <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                {categories?.slice(0, 12).map((c) => {
+                  const img =
+                    (c as any).imageUrl ||
+                    (c as any).coverUrl ||
+                    "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=60&auto=format&fit=crop";
+                  return (
+                    <motion.button
+                      key={c.id}
+                      onClick={() => {
+                        setCategoryId(String(c.id));
+                        setCurrentStep(2);
+                      }}
+                      className={`group relative rounded-2xl text-left`}
+                      whileHover={{ y: -3, rotate: -0.25, boxShadow: '0 10px 30px rgba(79,70,229,0.18)' }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <div className="p-[2px] rounded-2xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-rose-500">
+                        <div className={`relative rounded-[14px] overflow-hidden ${String(c.id)===categoryId ? 'ring-2 ring-indigo-400' : ''} bg-white dark:bg-slate-900`}>
+                          <div className="aspect-square">
+                            <img src={img} alt={c.name} className="h-full w-full object-cover" />
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                          <div className="absolute bottom-2 left-2 right-2 text-white drop-shadow font-semibold">{c.name}</div>
+                        </div>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Main content: Step 2 grid + widget */}
+        {currentStep === 2 && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Product Grid */}
+            <div className="lg:col-span-2 space-y-4">
+              {/* Step 2 toolbar */}
+              <div className="sticky top-20 z-10 flex flex-col md:flex-row md:items-center gap-3 justify-between rounded-2xl border border-gray-200 dark:border-gray-800 p-3 glassmorphism backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() => setCurrentStep(1)}
+                  >
+                    <ChevronLeft className="h-4 w-4" /> Back to categories
+                  </Button>
+                </div>
+                <div className="flex-1 flex items-center gap-3">
+                  <div className="relative w-full">
+                    <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                      <Search className="h-4 w-4" />
+                    </div>
+                    <Input
+                      placeholder="Search products..."
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      className="pl-9 rounded-xl"
+                    />
+                    <Popover
+                      open={!!(suggestions.length && searchInput.length >= 2)}
+                    >
+                      <PopoverTrigger asChild>
+                        <span />
+                      </PopoverTrigger>
+                      <PopoverContent align="start" className="p-0 w-[min(640px,90vw)]">
+                        <ul className="max-h-64 overflow-auto " role="listbox">
+                          {suggestions.map((s: string) => (
+                            <li key={s}>
+                              <button
+                                className="w-full text-left px-3 py-2 hover:bg-muted"
+                                onClick={() => {
+                                  setSearchInput(s);
+                                  setSearch(s);
+                                }}
+                              >
+                                {s}
+                        <motion.button
+                          onClick={() => {
+                            setCategoryId("all");
+                            setIsCategorySheetOpen(false);
+                            setCurrentStep(2);
+                          }}
+                          className={`group relative overflow-hidden rounded-2xl p-3 text-left border ${
+                            categoryId === "all"
+                              ? "border-indigo-500 shadow bg-indigo-50"
+                              : "glassmorphism border-gray-200 dark:border-gray-700"
+                          }`}
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <div className="relative z-10 text-sm font-medium">
+                            All
+                          </div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-indigo-200/40 to-fuchsia-200/40" />
+                        </motion.button>
+                        {categories
+                          ?.filter((c) =>
+                            c.name
+                              .toLowerCase()
+                              .includes(categorySearch.toLowerCase())
+                          )
+                          .map((c) => {
+                            const img =
+                              (c as any).imageUrl ||
+                              (c as any).coverUrl ||
+                              "https://images.unsplash.com/photo-1520975922284-7b6836c57a97?w=600&q=60&auto=format&fit=crop";
+                            return (
+                              <motion.button
+                                key={c.id}
+                                onClick={() => {
+                                  setCategoryId(String(c.id));
+                                  setIsCategorySheetOpen(false);
+                                  setCurrentStep(2);
+                                }}
+                                className={`group relative overflow-hidden rounded-2xl p-0 text-left border ${
+                                  String(c.id) === categoryId
+                                    ? "border-indigo-500 shadow"
+                                    : "border-gray-200 dark:border-gray-800"
+                                }`}
+                                whileHover={{ scale: 1.015 }}
+                                whileTap={{ scale: 0.985 }}
+                              >
+                                <div className="aspect-[4/3] w-full">
+                                  <img
+                                    src={img}
+                                    alt={c.name}
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                <div className="absolute bottom-2 left-2 right-2 text-white drop-shadow font-medium">
+                                  {c.name}
+                                </div>
+                              </motion.button>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </div>
+            {/* Featured categories grid */}
+            <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+              {categories?.slice(0, 12).map((c) => {
+                const img =
+                  (c as any).imageUrl ||
+                  (c as any).coverUrl ||
+                  "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600&q=60&auto=format&fit=crop";
+                return (
+                  <motion.button
+                    key={c.id}
+                    onClick={() => {
+                      setCategoryId(String(c.id));
+                      setCurrentStep(2);
+                    }}
+                    className={`group relative rounded-2xl text-left`}
+                    whileHover={{ y: -3, rotate: -0.25, boxShadow: '0 10px 30px rgba(79,70,229,0.18)' }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <div className="p-[2px] rounded-2xl bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-rose-500">
+                      <div className={`relative rounded-[14px] overflow-hidden ${String(c.id)===categoryId ? 'ring-2 ring-indigo-400' : ''} bg-white dark:bg-slate-900`}>
+                        <div className="aspect-square">
+                          <img src={img} alt={c.name} className="h-full w-full object-cover" />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                        <div className="absolute bottom-2 left-2 right-2 text-white drop-shadow font-semibold">{c.name}</div>
+                      </div>
+                    </div>
+                  </motion.button>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Main content: Step 2 grid + widget */}
+      {currentStep === 2 && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Product Grid */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Step 2 toolbar */}
+            <div className="sticky top-20 z-10 flex flex-col md:flex-row md:items-center gap-3 justify-between rounded-2xl border border-gray-200 dark:border-gray-800 p-3 glassmorphism backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60">
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full"
+                  onClick={() => setCurrentStep(1)}
+                >
+                  <ChevronLeft className="h-4 w-4" /> Back to categories
+                </Button>
+              </div>
+              <div className="flex-1 flex items-center gap-3">
+                <div className="relative w-full">
+                  <div className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+                    <Search className="h-4 w-4" />
+                  </div>
+                  <Input
+                    placeholder="Search products..."
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className="pl-9 rounded-xl"
+                  />
+                  <Popover
+                    open={!!(suggestions.length && searchInput.length >= 2)}
+                  >
+                    <PopoverTrigger asChild>
+                      <span />
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="p-0 w-[min(640px,90vw)]">
+                      <ul className="max-h-64 overflow-auto " role="listbox">
+                        {suggestions.map((s: string) => (
+                          <li key={s}>
+                            <button
+                              className="w-full text-left px-3 py-2 hover:bg-muted"
+                              onClick={() => {
+                                setSearchInput(s);
+                                setSearch(s);
+                              }}
+                            >
+                              {s}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                {/* Density toggle */}
+                <div className="hidden md:flex items-center gap-1 rounded-xl border border-gray-200 dark:border-gray-700 p-1 glassmorphism">
+                  <button
+                    className={`px-2.5 py-1 rounded-lg text-xs ${dense ? 'bg-indigo-600 text-white' : 'hover:bg-muted'}`}
+                    onClick={() => setDense(true)}
+                    aria-pressed={dense}
+                  >
+                    Compact
+                  </button>
+                  <button
+                    className={`px-2.5 py-1 rounded-lg text-xs ${!dense ? 'bg-indigo-600 text-white' : 'hover:bg-muted'}`}
+                    onClick={() => setDense(false)}
+                    aria-pressed={!dense}
+                  >
+                    Comfortable
+                  </button>
+                </div>
+                <select
+                  value={producerId}
+                  onChange={(e) => setProducerId(e.target.value)}
+                  className="min-w-[140px] glassmorphism px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700"
+                >
+                  <option value="all">All Producers</option>
+                  {producers?.map((p: any) => (
+                    <option key={p.id} value={String(p.id)}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {/* Quick category chips */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                  categoryId === "all"
+                    ? "bg-indigo-600 text-white border-indigo-600"
+                    : "border-gray-200 dark:border-gray-700 hover:border-indigo-400"
+                }`}
+                onClick={() => setCategoryId("all")}
+              >
+                All
+              </button>
+              {categories?.slice(0, 6).map((c) => (
+                <button
+                  key={c.id}
+                  className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                    String(c.id) === categoryId
+                      ? "bg-indigo-600 text-white border-indigo-600"
+                      : "border-gray-200 dark:border-gray-700 hover:border-indigo-400"
+                  }`}
+                  onClick={() => setCategoryId(String(c.id))}
+                >
+                  {c.name}
+                </button>
+              ))}
+            </div>
+            {/* Product Grid */}
+            {isProductsLoading ? (
+              <div className={`grid gap-2 ${
+                viewportWidth >= 1536 ? 'grid-cols-7' :
+                viewportWidth >= 1280 ? 'grid-cols-6' :
+                viewportWidth >= 1024 ? 'grid-cols-5' :
+                viewportWidth >= 768 ? 'grid-cols-4' :
+                viewportWidth >= 640 ? 'grid-cols-3' : 'grid-cols-2'
+              }`}>
+                {Array.from({ length: itemsPerRow * 3 }, (_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="aspect-square bg-gray-200 dark:bg-gray-700 rounded-2xl" />
+                    <div className="mt-2 h-4 bg-gray-200 dark:bg-gray-700 rounded" />
+                    <div className="mt-1 h-3 bg-gray-200 dark:bg-gray-700 rounded w-3/4" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ height: virtualizer.getTotalSize(), position: 'relative' }}>
+                {virtualItems.map((vi) => {
+                  const startIndex = vi.index * itemsPerRow;
+                  const rowItems = locallyFilteredProducts.slice(startIndex, startIndex + itemsPerRow);
+                  return (
+                    <div
+                      key={vi.key}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        height: `${vi.size}px`,
+                        transform: `translateY(${vi.start}px)`,
+                      }}
+                    >
+                      <div className={`grid gap-2 h-full ${
+                        viewportWidth >= 1536 ? 'grid-cols-7' :
+                        viewportWidth >= 1280 ? 'grid-cols-6' :
+                        viewportWidth >= 1024 ? 'grid-cols-5' :
+                        viewportWidth >= 768 ? 'grid-cols-4' :
+                        viewportWidth >= 640 ? 'grid-cols-3' : 'grid-cols-2'
+                      }`}>
+                        {rowItems.map((p) => (
+                          <motion.div key={p.id} className="relative" whileHover={{ y: -2 }}>
+                            <ProductCard
+                              product={p as Product}
+                              isFavorited={favorites.includes(String(p.id))}
+                              onToggleFavorite={toggleFavorite}
+                              onViewDetails={() => {}}
+                              hideActions
+                              onCardClick={() =>
+                                setSelectedProductId({ id: String(p.id), imageUrl: p.imageUrl })
+                <CardContent className="p-0">
+                  {!selectedProductId ? (
+                    <div className="h-[520px] flex items-center justify-center text-center text-gray-600 dark:text-gray-300">
+                      <div>
+                        <p className="text-lg font-semibold mb-2">
+                          Choose a product to begin
+                        </p>
+                        <p className="text-sm">
+                          Select an item from the grid to use AI Try-On
+                        </p>
+                        <div className="mt-4">
+                          <Button
+                            disabled={!locallyFilteredProducts.length}
+                            onClick={() => {
+                              const first = locallyFilteredProducts[0];
+                              if (first) {
+                                setSelectedProductId({
+                                  id: String(first.id),
+                                  imageUrl: first.imageUrl,
+                                });
+                              }
+                            }}
+                          >
+                            Pick for me
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <TryOnWidget
+                      productId={selectedProductId!.id}
+                      productImageUrl={selectedProductId!.imageUrl}
+                      onUnselectProduct={() => setSelectedProductId(null)}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+              {selectedProductId && (
+                <div>
+                  <Button asChild className="w-full gradient-bg text-white">
+                    <a href={`/product/${selectedProductId.id}`}>
+                      Continue to Product
+                    </a>
+                  </Button>
+                </div>
+              )}
+
+              {/* AI Assist placeholder */}
+              <Card className="floating-card p-6">
+                <CardContent className="p-0 space-y-4">
+                  <div>
+                    <p className="text-sm font-semibold">AI Assist</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      Personalized picks and smart prompts
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      searchInput
+                        ? `Like "${searchInput}" but cheaper`
+                        : "Comfy everyday picks",
+                      categoryId !== "all"
+                        ? "Show trending in this category"
+                        : "Best sellers today",
+                      "Match my last viewed",
+                    ].map((t) => (
+                      <button
+                        key={t}
+                        className="text-xs px-3 py-1 rounded-full border border-gray-200 dark:border-gray-800 glassmorphism hover:border-indigo-400"
+                        onClick={() => {
+                          setSearchInput(
+                            String(t).replace(/^Like \"|\" but cheaper$/g, "")
+                          );
+                        }}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="aspect-square rounded-xl border border-dashed border-gray-200 dark:border-gray-800 flex items-center justify-center text-xs text-gray-500"
+                      >
+                        Soon
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+}

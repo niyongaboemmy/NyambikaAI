@@ -744,8 +744,6 @@ export default function ProductRegistration() {
           </form>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

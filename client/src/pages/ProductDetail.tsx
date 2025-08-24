@@ -42,7 +42,10 @@ export default function ProductDetail() {
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [showTryOn, setShowTryOn] = useState(false);
+  const [tryOnControls, setTryOnControls] = useState<{
+    open: () => void;
+    close: () => void;
+  } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -171,7 +174,6 @@ export default function ProductDetail() {
             <span className="text-lg">Loading product...</span>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -185,7 +187,6 @@ export default function ProductDetail() {
             <Button onClick={handleBack}>Back to Products</Button>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }
@@ -384,27 +385,12 @@ export default function ProductDetail() {
               </div>
 
               {/* AI Try-On Section */}
-              <div className="glassmorphism rounded-3xl p-6">
-                <h3 className="text-lg font-semibold mb-3 flex items-center gap-2">
-                  <Wand2 className="h-5 w-5 text-purple-500" />
-                  AI Virtual Try-On
-                </h3>
-
-                {!showTryOn ? (
-                  <Button
-                    onClick={() => setShowTryOn(true)}
-                    className="w-full gradient-bg text-white py-2.5 rounded-xl hover:scale-105 transition-all duration-300"
-                  >
-                    <Camera className="h-5 w-5 mr-2" />
-                    Try On with AI
-                  </Button>
-                ) : (
-                  <TryOnWidget
-                    productId={id!}
-                    productImageUrl={product.imageUrl}
-                  />
-                )}
-              </div>
+              <TryOnWidget
+                productId={id!}
+                productImageUrl={product.imageUrl}
+                autoOpenFullscreen={false}
+                onRegisterControls={setTryOnControls}
+              />
 
               {/* Action Buttons */}
               <div className="space-y-4">
@@ -449,8 +435,6 @@ export default function ProductDetail() {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

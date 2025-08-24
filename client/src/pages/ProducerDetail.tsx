@@ -164,7 +164,6 @@ export default function ProducerDetail() {
           </div>
         )}
       </main>
-      <Footer />
     </div>
   );
 }

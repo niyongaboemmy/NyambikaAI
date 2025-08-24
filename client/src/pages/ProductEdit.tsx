@@ -784,8 +784,6 @@ export default function ProductEdit() {
           </form>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 }

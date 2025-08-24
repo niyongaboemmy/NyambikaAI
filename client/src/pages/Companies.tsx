@@ -288,7 +288,6 @@ export default function Companies() {
           )}
         </div>
       </main>
-      <Footer />
     </div>
   );
 }
