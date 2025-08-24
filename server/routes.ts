@@ -213,6 +213,245 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Google OAuth 2.0
+  app.get('/api/auth/oauth/google', async (req, res) => {
+    try {
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/oauth/google/callback`;
+      const state = req.query.state?.toString() || '';
+      if (!clientId) {
+        return res.status(500).json({ message: 'Google OAuth not configured: missing GOOGLE_CLIENT_ID' });
+      }
+
+      const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'openid email profile',
+        access_type: 'offline',
+        include_granted_scopes: 'true',
+      });
+      if (state) params.set('state', state);
+
+      const authorizeUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+      res.redirect(authorizeUrl);
+    } catch (error) {
+      console.error('Google OAuth init error:', error);
+      res.status(500).json({ message: 'Failed to initiate Google OAuth' });
+    }
+  });
+
+  app.get('/api/auth/oauth/google/callback', async (req, res) => {
+    try {
+      const code = req.query.code as string | undefined;
+      if (!code) {
+        return res.status(400).send('Missing authorization code');
+      }
+
+      const clientId = process.env.GOOGLE_CLIENT_ID!;
+      const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
+      const redirectUri = process.env.GOOGLE_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/oauth/google/callback`;
+      if (!clientId || !clientSecret) {
+        return res.status(500).send('Google OAuth not configured');
+      }
+
+      // Exchange code for tokens
+      const tokenResp = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+          grant_type: 'authorization_code',
+        }),
+      } as any);
+
+      if (!tokenResp.ok) {
+        const txt = await tokenResp.text();
+        console.error('Google token exchange failed:', txt);
+        return res.status(502).send('Failed to exchange code');
+      }
+      const tokenJson: any = await tokenResp.json();
+      const accessToken = tokenJson.access_token as string;
+
+      // Fetch user info
+      const userInfoResp = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      } as any);
+      if (!userInfoResp.ok) {
+        const txt = await userInfoResp.text();
+        console.error('Failed to fetch Google user info:', txt);
+        return res.status(502).send('Failed to fetch user info');
+      }
+      const profile: any = await userInfoResp.json();
+
+      const email: string = profile.email;
+      const name: string = profile.name || (email ? email.split('@')[0] : 'Google User');
+
+      // Upsert user
+      let user = await storage.getUserByEmail(email);
+      if (!user) {
+        const randomPassword = crypto.randomBytes(16).toString('hex');
+        const hashed = await bcrypt.hash(randomPassword, 10);
+        user = await storage.createUser({
+          username: email,
+          email,
+          password: hashed,
+          fullName: name,
+          role: 'customer',
+        } as any);
+      }
+
+      // Issue JWT
+      const token = jwt.sign(
+        { userId: user.id, role: user.role },
+        process.env.JWT_SECRET || 'fallback-secret',
+        { expiresIn: '7d' }
+      );
+
+      // Determine frontend base URL - if FRONTEND_URL is set, use it; otherwise use current request origin
+      const frontendBase = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+
+      // Return HTML that sets localStorage and redirects
+      const html = `<!doctype html>
+<html><head><meta charset="utf-8"><script>
+try {
+  localStorage.setItem('auth_token', ${JSON.stringify(token)});
+  window.location.replace(${JSON.stringify(frontendBase)});
+} catch (e) {
+  document.write('Login successful. Please return to the app.');
+}
+</script></head><body></body></html>`;
+      res.setHeader('Content-Type', 'text/html');
+      res.send(html);
+    } catch (error) {
+      console.error('Google OAuth callback error:', error);
+      res.status(500).send('Authentication failed');
+    }
+  });
+
+  // Facebook OAuth 2.0
+  app.get('/api/auth/oauth/facebook', async (req, res) => {
+    try {
+      const clientId = process.env.FACEBOOK_APP_ID;
+      const redirectUri = process.env.FACEBOOK_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/oauth/facebook/callback`;
+      const state = req.query.state?.toString() || '';
+      if (!clientId) {
+        return res.status(500).json({ message: 'Facebook OAuth not configured: missing FACEBOOK_APP_ID' });
+      }
+
+      const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'email,public_profile',
+      });
+      if (state) params.set('state', state);
+
+      const authorizeUrl = `https://www.facebook.com/v18.0/dialog/oauth?${params.toString()}`;
+      res.redirect(authorizeUrl);
+    } catch (error) {
+      console.error('Facebook OAuth init error:', error);
+      res.status(500).json({ message: 'Failed to initiate Facebook OAuth' });
+    }
+  });
+
+  app.get('/api/auth/oauth/facebook/callback', async (req, res) => {
+    try {
+      const code = req.query.code as string | undefined;
+      if (!code) {
+        return res.status(400).send('Missing authorization code');
+      }
+
+      const clientId = process.env.FACEBOOK_APP_ID!;
+      const clientSecret = process.env.FACEBOOK_APP_SECRET!;
+      const redirectUri = process.env.FACEBOOK_REDIRECT_URI || `${req.protocol}://${req.get('host')}/api/auth/oauth/facebook/callback`;
+      if (!clientId || !clientSecret) {
+        return res.status(500).send('Facebook OAuth not configured');
+      }
+
+      // Exchange code for access token
+      const tokenResp = await fetch('https://graph.facebook.com/v18.0/oauth/access_token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          code,
+          client_id: clientId,
+          client_secret: clientSecret,
+          redirect_uri: redirectUri,
+        }),
+      } as any);
+
+      if (!tokenResp.ok) {
+        const txt = await tokenResp.text();
+        console.error('Facebook token exchange failed:', txt);
+        return res.status(502).send('Failed to exchange code');
+      }
+      const tokenJson: any = await tokenResp.json();
+      const accessToken = tokenJson.access_token as string;
+
+      // Fetch user info
+      const userInfoResp = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`, {
+        headers: { 'Content-Type': 'application/json' },
+      } as any);
+      if (!userInfoResp.ok) {
+        const txt = await userInfoResp.text();
+        console.error('Failed to fetch Facebook user info:', txt);
+        return res.status(502).send('Failed to fetch user info');
+      }
+      const profile: any = await userInfoResp.json();
+
+      const email: string = profile.email;
+      const name: string = profile.name || (email ? email.split('@')[0] : 'Facebook User');
+
+      if (!email) {
+        return res.status(400).send('Email permission required');
+      }
+
+      // Upsert user
+      let user = await storage.getUserByEmail(email);
+      if (!user) {
+        const randomPassword = crypto.randomBytes(16).toString('hex');
+        const hashed = await bcrypt.hash(randomPassword, 10);
+        user = await storage.createUser({
+          username: email,
+          email,
+          password: hashed,
+          fullName: name,
+          role: 'customer',
+        } as any);
+      }
+
+      // Issue JWT
+      const token = jwt.sign(
+        { userId: user.id, role: user.role },
+        process.env.JWT_SECRET || 'fallback-secret',
+        { expiresIn: '7d' }
+      );
+
+      // Determine frontend base URL - if FRONTEND_URL is set, use it; otherwise use current request origin
+      const frontendBase = process.env.FRONTEND_URL || `${req.protocol}://${req.get('host')}`;
+
+      // Return HTML that sets localStorage and redirects
+      const html = `<!doctype html>
+<html><head><meta charset="utf-8"><script>
+try {
+  localStorage.setItem('auth_token', ${JSON.stringify(token)});
+  window.location.replace(${JSON.stringify(frontendBase)});
+} catch (e) {
+  document.write('Login successful. Please return to the app.');
+}
+</script></head><body></body></html>`;
+      res.setHeader('Content-Type', 'text/html');
+      res.send(html);
+    } catch (error) {
+      console.error('Facebook OAuth callback error:', error);
+      res.status(500).send('Authentication failed');
+    }
+  });
+
   // Update product (admin or owning producer)
   app.put('/api/products/:id', requireAuth, async (req: any, res) => {
     try {
@@ -670,6 +909,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       console.error('Error updating company:', error);
       res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Get company by ID for store page (must be before generic /api/companies route)
+  app.get('/api/companies/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const company = await storage.getCompanyById(id);
+      
+      if (!company) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+      
+      res.json(company);
+    } catch (error) {
+      console.error('Error fetching company:', error);
+      res.status(500).json({ message: 'Failed to fetch company' });
+    }
+  });
+
+  // Get products by company ID for store page
+  app.get('/api/companies/:id/products', async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      // First verify company exists
+      const company = await storage.getCompanyById(id);
+      if (!company) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+      
+      // Get products with category information for this company
+      const companyProducts = await storage.getProductsByCompanyId(id);
+      
+      res.json(companyProducts);
+    } catch (error) {
+      console.error('Error fetching company products:', error);
+      res.status(500).json({ message: 'Failed to fetch company products' });
     }
   });
 

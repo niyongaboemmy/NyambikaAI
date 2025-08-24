@@ -83,7 +83,7 @@ export default function ProducerDetail() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="pt-24 pb-12 px-4 md:px-6 max-w-7xl mx-auto">
+      <main className="pt-24 pb-12 px-4 md:px-6  ">
         {isProducerLoading ? (
           <div className="flex items-center gap-6 mb-8">
             <Skeleton className="w-20 h-20 rounded-full" />
@@ -95,7 +95,9 @@ export default function ProducerDetail() {
           </div>
         ) : isProducerError ? (
           <div className="mb-8 rounded-md border border-destructive/30 bg-destructive/10 p-4 text-destructive">
-            <p className="text-sm font-medium">Failed to load producer details.</p>
+            <p className="text-sm font-medium">
+              Failed to load producer details.
+            </p>
           </div>
         ) : (
           producer && (
@@ -156,7 +158,9 @@ export default function ProducerDetail() {
         ) : (
           <div className="flex items-center gap-2 text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm">No products found for this producer.</span>
+            <span className="text-sm">
+              No products found for this producer.
+            </span>
           </div>
         )}
       </main>

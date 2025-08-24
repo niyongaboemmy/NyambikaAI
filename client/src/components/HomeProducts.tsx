@@ -164,8 +164,11 @@ export default function HomeProducts() {
   };
 
   return (
-    <section id="home-products" className="pt-10 pb-12 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
+    <section
+      id="home-products"
+      className="pt-10 pb-12"
+    >
+      <div className=" ">
         {/* Header with Search toggle and Add Product if admin/producer */}
         <div className="flex items-center justify-between mb-3">
           <div>
@@ -202,19 +205,11 @@ export default function HomeProducts() {
             >
               <Search className="h-6 w-6" />
             </button>
-            {(isAdmin || isProducer) && (
-              <Button
-                onClick={() => setLocation("/product-registration")}
-                className="gradient-bg text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" /> Add Product
-              </Button>
-            )}
           </div>
         </div>
 
         {/* Instagram Stories - Companies selector */}
-        <div className="mb-5">
+        <div className="mb-1.5">
           <div className="overflow-x-auto scrollbar-hide">
             <div className="flex items-start gap-3 pb-2 min-w-max px-1 pt-2">
               {/* All Brands */}
@@ -368,16 +363,18 @@ export default function HomeProducts() {
           />
         )}
 
-        {/* Products Grid */}
+        {/* Products Grid - Instagram Style */}
         {productsLoading ? (
-          <div className="flex justify-center items-center py-16">
-            <div className="flex items-center gap-3">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="text-lg">Loading products...</span>
-            </div>
+          <div className="grid grid-cols-12 gap-2 md:gap-3 px-4 lg:px-0">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <div
+                key={i}
+                className="col-span-6 md:col-span-4 lg:col-span-2 aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg"
+              />
+            ))}
           </div>
         ) : (
-          <div className="grid grid-cols-12 gap-1 md:gap-2">
+          <div className="grid grid-cols-12 gap-2 md:gap-3">
             {locallyFilteredProducts.map((product: Product) => (
               <ProductCard
                 key={product.id}
@@ -385,13 +382,14 @@ export default function HomeProducts() {
                 isFavorited={favorites.includes(product.id)}
                 onToggleFavorite={toggleFavorite}
                 onViewDetails={onViewDetails}
+                hideDesc={true}
               />
             ))}
             {/* Sentinel */}
             <div ref={loadMoreRef} className="col-span-full h-2" />
             {isFetchingNextPage && (
-              <div className="col-span-full flex justify-center py-6">
-                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <div className="col-span-full flex justify-center py-4">
+                <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
               </div>
             )}
           </div>

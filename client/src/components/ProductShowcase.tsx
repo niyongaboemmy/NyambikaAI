@@ -52,7 +52,7 @@ export default function ProductShowcase() {
 
   return (
     <section id="products" className="py-20 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
+      <div className=" ">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
             Imyenda Nziza Cyane
@@ -66,13 +66,15 @@ export default function ProductShowcase() {
           {products.map((p) => (
             <ProductCard
               key={p.id}
-              product={{
-                id: p.id,
-                name: p.name,
-                nameRw: p.description,
-                imageUrl: p.image,
-                price: Number(p.price), // Change demo prices to numeric values
-              } as any}
+              product={
+                {
+                  id: p.id,
+                  name: p.name,
+                  nameRw: p.description,
+                  imageUrl: p.image,
+                  price: Number(p.price), // Change demo prices to numeric values
+                } as any
+              }
               isFavorited={favorites.includes(p.id)}
               onToggleFavorite={toggleFavorite}
               onViewDetails={(pid) => setLocation(`/product/${pid}`)}

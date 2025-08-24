@@ -1,7 +1,7 @@
 import React from "react";
 import type { Product } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { Heart, Pencil, Trash } from "lucide-react";
+import { Check, Heart, Pencil, SendToBack, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ProductCardProps = {
@@ -56,8 +56,8 @@ export default function ProductCard({
   return (
     <div
       className={cn(
-        "col-span-12 md:col-span-4 lg:col-span-2 group floating-card p-2 pb-3 neumorphism rounded-xl",
-        selected && "ring-2 ring-blue-200 border-blue-500",
+        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1",
+        selected && "ring-2 ring-blue-400 shadow-blue-200/50",
         containerClassName
       )}
       onClick={onCardClick ? () => onCardClick(product.id) : undefined}
@@ -76,12 +76,12 @@ export default function ProductCard({
           : undefined
       }
     >
-      <div className="relative overflow-hidden rounded-2xl mb-0">
+      <div className="relative overflow-hidden py-3 md:py-5 lg:py-7 pb-2 md:pb-2 lg:pb-2">
         <img
           src={product.imageUrl}
           alt={product.name}
           loading="lazy"
-          className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500 cursor-pointer"
+          className="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src =
               "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500";
@@ -99,20 +99,20 @@ export default function ProductCard({
             onToggleFavorite(product.id);
           }}
           className={cn(
-            "absolute top-2 right-2 glassmorphism rounded-full p-2",
-            isFavorited ? "text-red-500" : "text-gray-600 dark:text-gray-300"
+            "absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200",
+            isFavorited ? "text-red-500 opacity-100" : "text-gray-700"
           )}
         >
           <Heart className={cn("h-4 w-4", isFavorited && "fill-current")} />
         </Button>
 
         {canManage && (
-          <div className="absolute top-2 left-2 z-10 flex items-center gap-2">
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
             {onEdit && (
               <Button
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 rounded-full glassmorphism"
+                className="h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm border-none"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(product.id);
@@ -120,14 +120,14 @@ export default function ProductCard({
                 aria-label="Edit product"
                 title="Edit"
               >
-                <Pencil className="h-4 w-4" />
+                <Pencil className="h-4 w-4 text-gray-700" />
               </Button>
             )}
             {onDelete && (
               <Button
                 size="icon"
                 variant="destructive"
-                className="h-8 w-8 rounded-full"
+                className="h-8 w-8 rounded-full bg-red-500/90 hover:bg-red-500 shadow-lg"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(product.id);
@@ -143,14 +143,12 @@ export default function ProductCard({
 
         {!hideActions && (
           <div className="absolute inset-0 hidden sm:flex items-center justify-center z-10 pointer-events-none">
-            {/* Soft gradient backdrop for contrast */}
-            {/* <div className="absolute inset-x-6 bottom-6 top-6 rounded-2xl bg-gradient-to-t from-black/25 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" /> */}
             <Button
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails(product.id);
               }}
-              className="pointer-events-auto gradient-bg text-white px-4 py-2 rounded-xl shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+              className="pointer-events-auto bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-full font-medium shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105"
               aria-label="View details"
               title="View details"
             >
@@ -160,33 +158,30 @@ export default function ProductCard({
         )}
       </div>
 
-      <div
-        className="space-y-0 text-center cursor-pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          onViewDetails(product.id);
-        }}
-      >
-        <div>
-          <h3 className="text-base font-bold text-gray-800 dark:text-gray-200 truncate">
+      <div className="p-4 space-y-1 px-0.5 text-center">
+        <div
+          className="cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            onViewDetails(product.id);
+          }}
+        >
+          <h3 className="text-xs md:text-sm font-bold text-gray-900 dark:text-gray-100 truncate leading-tight">
             {product.name}
           </h3>
           {!hideDesc && (
-            <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 truncate mb-2">
               {product.nameRw}
             </p>
           )}
+          <div className="text-center">
+            <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              {typeof product.price === "number"
+                ? formatPrice(product.price)
+                : formatPrice(Number(product.price))}
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col items-center justify-center">
-          <span className="text-sm font-bold text-[rgb(var(--electric-blue-rgb))]">
-            {typeof product.price === "number"
-              ? formatPrice(product.price)
-              : formatPrice(Number(product.price))}
-          </span>
-          {false && !hideActions && null}
-        </div>
-
-        {false && canManage && null}
       </div>
     </div>
   );

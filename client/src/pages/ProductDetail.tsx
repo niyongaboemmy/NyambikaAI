@@ -182,9 +182,7 @@ export default function ProductDetail() {
         <div className="flex justify-center items-center min-h-screen">
           <div className="text-center">
             <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
-            <Button onClick={handleBack}>
-              Back to Products
-            </Button>
+            <Button onClick={handleBack}>Back to Products</Button>
           </div>
         </div>
         <Footer />
@@ -195,7 +193,7 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
       <main className="pt-24 pb-12 px-4 md:px-6">
-        <div className="max-w-7xl mx-auto">
+        <div className=" ">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
             <Button

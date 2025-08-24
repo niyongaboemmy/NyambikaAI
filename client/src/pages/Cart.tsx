@@ -55,7 +55,7 @@ export default function Cart() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
       <main className="pt-24 pb-12 px-4 md:px-6">
-        <div className="max-w-7xl mx-auto">
+        <div className=" ">
           {/* Page Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-6xl font-bold gradient-text mb-4">

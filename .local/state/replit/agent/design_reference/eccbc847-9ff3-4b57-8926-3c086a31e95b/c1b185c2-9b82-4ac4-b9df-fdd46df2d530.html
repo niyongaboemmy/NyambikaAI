@@ -1,816 +1,1173 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nyambika - AI-Powered Fashion Platform</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Sans+Pro:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Sans+Pro:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
     <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'inter': ['Inter', 'sans-serif'],
-            'source': ['Source Sans Pro', 'sans-serif'],
-          },
-          colors: {
-            'charcoal': '#1a1a1a',
-            'gold': '#d4af37',
-            'ivory': '#f8f6f0',
-            'terracotta': '#c4704e',
-            'emerald': '#50c878',
-            'burgundy': '#800020',
-          },
-          animation: {
-            'float': 'float 6s ease-in-out infinite',
-            'shimmer': 'shimmer 2s linear infinite',
-            'magnetic': 'magnetic 0.3s ease-out',
-            'glow': 'glow 2s ease-in-out infinite alternate',
-            'slide-up': 'slideUp 0.6s ease-out forwards',
-            'fade-in': 'fadeIn 0.8s ease-out forwards',
-          },
-          keyframes: {
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-20px)' },
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+              source: ["Source Sans Pro", "sans-serif"],
             },
-            shimmer: {
-              '0%': { transform: 'translateX(-100%)' },
-              '100%': { transform: 'translateX(100%)' },
+            colors: {
+              charcoal: "#1a1a1a",
+              gold: "#d4af37",
+              ivory: "#f8f6f0",
+              terracotta: "#c4704e",
+              emerald: "#50c878",
+              burgundy: "#800020",
             },
-            magnetic: {
-              '0%': { transform: 'scale(1) rotate(0deg)' },
-              '100%': { transform: 'scale(1.05) rotate(1deg)' },
+            animation: {
+              float: "float 6s ease-in-out infinite",
+              shimmer: "shimmer 2s linear infinite",
+              magnetic: "magnetic 0.3s ease-out",
+              glow: "glow 2s ease-in-out infinite alternate",
+              "slide-up": "slideUp 0.6s ease-out forwards",
+              "fade-in": "fadeIn 0.8s ease-out forwards",
             },
-            glow: {
-              '0%': { boxShadow: '0 0 20px rgba(212, 175, 55, 0.3)' },
-              '100%': { boxShadow: '0 0 30px rgba(212, 175, 55, 0.6)' },
+            keyframes: {
+              float: {
+                "0%, 100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-20px)" },
+              },
+              shimmer: {
+                "0%": { transform: "translateX(-100%)" },
+                "100%": { transform: "translateX(100%)" },
+              },
+              magnetic: {
+                "0%": { transform: "scale(1) rotate(0deg)" },
+                "100%": { transform: "scale(1.05) rotate(1deg)" },
+              },
+              glow: {
+                "0%": { boxShadow: "0 0 20px rgba(212, 175, 55, 0.3)" },
+                "100%": { boxShadow: "0 0 30px rgba(212, 175, 55, 0.6)" },
+              },
+              slideUp: {
+                "0%": { transform: "translateY(60px)", opacity: "0" },
+                "100%": { transform: "translateY(0)", opacity: "1" },
+              },
+              fadeIn: {
+                "0%": { opacity: "0" },
+                "100%": { opacity: "1" },
+              },
             },
-            slideUp: {
-              '0%': { transform: 'translateY(60px)', opacity: '0' },
-              '100%': { transform: 'translateY(0)', opacity: '1' },
+            backdropBlur: {
+              xs: "2px",
             },
-            fadeIn: {
-              '0%': { opacity: '0' },
-              '100%': { opacity: '1' },
-            },
-          },
-          backdropBlur: {
-            'xs': '2px',
           },
         },
-      },
-    };
+      };
     </script>
-    
-    <style>
-        .glassmorphism {
-            background: rgba(248, 246, 240, 0.25);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        
-        .gradient-gold {
-            background: linear-gradient(135deg, #d4af37 0%, #f4d03f 50%, #d4af37 100%);
-        }
-        
-        .gradient-terracotta {
-            background: linear-gradient(135deg, #c4704e 0%, #e67e22 50%, #c4704e 100%);
-        }
-        
-        .text-gradient {
-            background: linear-gradient(135deg, #d4af37 0%, #c4704e 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .magnetic-hover:hover {
-            animation: magnetic 0.3s ease-out forwards;
-        }
-        
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        
-        .parallax-scroll {
-            transform: translateZ(0);
-            will-change: transform;
-        }
-        
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-    </style>
-</head>
 
-<body class="font-source bg-white text-charcoal overflow-x-hidden">
+    <style>
+      .glassmorphism {
+        background: rgba(248, 246, 240, 0.25);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .gradient-gold {
+        background: linear-gradient(
+          135deg,
+          #d4af37 0%,
+          #f4d03f 50%,
+          #d4af37 100%
+        );
+      }
+
+      .gradient-terracotta {
+        background: linear-gradient(
+          135deg,
+          #c4704e 0%,
+          #e67e22 50%,
+          #c4704e 100%
+        );
+      }
+
+      .text-gradient {
+        background: linear-gradient(135deg, #d4af37 0%, #c4704e 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .magnetic-hover:hover {
+        animation: magnetic 0.3s ease-out forwards;
+      }
+
+      .skeleton {
+        background: linear-gradient(
+          90deg,
+          #f0f0f0 25%,
+          #e0e0e0 50%,
+          #f0f0f0 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+
+      .parallax-scroll {
+        transform: translateZ(0);
+        will-change: transform;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body class="font-source bg-white text-charcoal overflow-x-hidden">
     <!-- Loading Screen -->
-    <div id="loadingScreen" class="fixed inset-0 bg-charcoal z-50 flex items-center justify-center">
-        <div class="text-center">
-            <div class="animate-pulse">
-                <h1 class="text-6xl font-inter font-bold text-gold mb-4">Nyambika</h1>
-                <div class="w-32 h-1 bg-gold mx-auto rounded-full animate-glow"></div>
-            </div>
-            <p class="text-ivory mt-6 text-lg">Crafting your premium experience...</p>
+    <div
+      id="loadingScreen"
+      class="fixed inset-0 bg-charcoal z-50 flex items-center justify-center"
+    >
+      <div class="text-center">
+        <div class="animate-pulse">
+          <h1 class="text-6xl font-inter font-bold text-gold mb-4">Nyambika</h1>
+          <div class="w-32 h-1 bg-gold mx-auto rounded-full animate-glow"></div>
         </div>
+        <p class="text-ivory mt-6 text-lg">
+          Crafting your premium experience...
+        </p>
+      </div>
     </div>
 
     <!-- Navigation Header -->
-    <nav class="fixed top-0 w-full glassmorphism z-40 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-6 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-8">
-                    <h1 class="text-2xl font-inter font-bold text-gradient">Nyambika</h1>
-                    <div class="hidden md:flex space-x-6">
-                        <a href="#" class="text-charcoal hover:text-gold transition-colors duration-300 magnetic-hover">Collections</a>
-                        <a href="#" class="text-charcoal hover:text-gold transition-colors duration-300 magnetic-hover">AI Try-On</a>
-                        <a href="#" class="text-charcoal hover:text-gold transition-colors duration-300 magnetic-hover">About</a>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <div class="relative">
-                        <input type="text" placeholder="Search premium fashion..." 
-                               class="w-64 hidden md:block px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gold transition-all duration-300">
-                        <i class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hidden md:block"></i>
-                    </div>
-                    <i class="fas fa-search text-charcoal hover:text-gold transition-colors cursor-pointer md:hidden"></i>
-                    <i class="fas fa-heart text-charcoal hover:text-gold transition-colors cursor-pointer magnetic-hover"></i>
-                    <i class="fas fa-shopping-bag text-charcoal hover:text-gold transition-colors cursor-pointer magnetic-hover"></i>
-                    <div class="w-8 h-8 bg-gradient-gold rounded-full cursor-pointer magnetic-hover"></div>
-                </div>
+    <nav
+      class="fixed top-0 w-full glassmorphism z-40 transition-all duration-300"
+      id="navbar"
+    >
+      <div class="px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-8">
+            <h1 class="text-2xl font-inter font-bold text-gradient">
+              Nyambika
+            </h1>
+            <div class="hidden md:flex space-x-6">
+              <a
+                href="#"
+                class="text-charcoal hover:text-gold transition-colors duration-300 magnetic-hover"
+                >Collections</a
+              >
+              <a
+                href="#"
+                class="text-charcoal hover:text-gold transition-colors duration-300 magnetic-hover"
+                >AI Try-On</a
+              >
+              <a
+                href="#"
+                class="text-charcoal hover:text-gold transition-colors duration-300 magnetic-hover"
+                >About</a
+              >
             </div>
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <div class="relative">
+              <input
+                type="text"
+                placeholder="Search premium fashion..."
+                class="w-64 hidden md:block px-4 py-2 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-gold transition-all duration-300"
+              />
+              <i
+                class="fas fa-search absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hidden md:block"
+              ></i>
+            </div>
+            <i
+              class="fas fa-search text-charcoal hover:text-gold transition-colors cursor-pointer md:hidden"
+            ></i>
+            <i
+              class="fas fa-heart text-charcoal hover:text-gold transition-colors cursor-pointer magnetic-hover"
+            ></i>
+            <i
+              class="fas fa-shopping-bag text-charcoal hover:text-gold transition-colors cursor-pointer magnetic-hover"
+            ></i>
+            <div
+              class="w-8 h-8 bg-gradient-gold rounded-full cursor-pointer magnetic-hover"
+            ></div>
+          </div>
         </div>
+      </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="relative h-screen flex items-center justify-center overflow-hidden">
-        <!-- Modern fashion model in contemporary setting with dramatic lighting -->
-        <div class="absolute inset-0 bg-cover bg-center parallax-scroll" 
-             style="background-image: linear-gradient(rgba(26, 26, 26, 0.4), rgba(26, 26, 26, 0.4)), url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');">
+    <section
+      class="relative h-screen flex items-center justify-center overflow-hidden"
+    >
+      <!-- Modern fashion model in contemporary setting with dramatic lighting -->
+      <div
+        class="absolute inset-0 bg-cover bg-center parallax-scroll"
+        style="
+          background-image: linear-gradient(
+              rgba(26, 26, 26, 0.4),
+              rgba(26, 26, 26, 0.4)
+            ),
+            url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2070&q=80');
+        "
+      ></div>
+
+      <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+        <h1
+          class="text-5xl md:text-7xl font-inter font-bold text-white mb-6 animate-slide-up"
+        >
+          Redefining <span class="text-gradient">Fashion</span> in Rwanda
+        </h1>
+        <p class="text-xl md:text-2xl text-ivory mb-8 animate-fade-in">
+          AI-powered virtual try-on meets premium craftsmanship. Experience the
+          future of fashion today.
+        </p>
+        <div
+          class="flex flex-col md:flex-row gap-4 justify-center animate-fade-in"
+        >
+          <button
+            class="px-8 py-4 gradient-gold text-charcoal font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 magnetic-hover"
+          >
+            <i class="fas fa-camera mr-2"></i>Try AI Virtual Fitting
+          </button>
+          <button
+            class="px-8 py-4 glassmorphism text-white font-semibold rounded-full hover:bg-white hover:text-charcoal transition-all duration-300 magnetic-hover"
+          >
+            Explore Collections
+          </button>
         </div>
-        
-        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
-            <h1 class="text-5xl md:text-7xl font-inter font-bold text-white mb-6 animate-slide-up">
-                Redefining <span class="text-gradient">Fashion</span> in Rwanda
-            </h1>
-            <p class="text-xl md:text-2xl text-ivory mb-8 animate-fade-in">
-                AI-powered virtual try-on meets premium craftsmanship. Experience the future of fashion today.
-            </p>
-            <div class="flex flex-col md:flex-row gap-4 justify-center animate-fade-in">
-                <button class="px-8 py-4 gradient-gold text-charcoal font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 magnetic-hover">
-                    <i class="fas fa-camera mr-2"></i>Try AI Virtual Fitting
-                </button>
-                <button class="px-8 py-4 glassmorphism text-white font-semibold rounded-full hover:bg-white hover:text-charcoal transition-all duration-300 magnetic-hover">
-                    Explore Collections
-                </button>
-            </div>
-        </div>
-        
-        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
-            <i class="fas fa-chevron-down text-white text-2xl"></i>
-        </div>
+      </div>
+
+      <div
+        class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce"
+      >
+        <i class="fas fa-chevron-down text-white text-2xl"></i>
+      </div>
     </section>
 
     <!-- AI Try-On Feature Section -->
     <section class="py-20 bg-gradient-to-br from-ivory to-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6">
-                    Revolutionary <span class="text-gradient">AI Try-On</span>
-                </h2>
-                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
-                    Experience clothes before you buy them. Our advanced AI technology creates realistic virtual fittings tailored to your body shape and measurements.
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 gap-12 items-center">
-                <div class="glassmorphism p-8 rounded-3xl">
-                    <div class="relative">
-                        <!-- High-end fashion model in contemporary setting -->
-                        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=720&h=900" 
-                             alt="AI Try-On Demo" 
-                             class="w-full rounded-2xl shadow-2xl">
-                        <div class="absolute inset-0 bg-gradient-to-t from-charcoal/60 to-transparent rounded-2xl"></div>
-                        <div class="absolute bottom-6 left-6 text-white">
-                            <h3 class="text-2xl font-bold mb-2">Virtual Fitting Room</h3>
-                            <p class="text-ivory">Real-time visualization</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="space-y-8">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 gradient-gold rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-camera text-charcoal text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-charcoal mb-2">Quick Photo Capture</h3>
-                            <p class="text-gray-600">One-click photo capture with automatic body measurement detection.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 gradient-terracotta rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-brain text-white text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-charcoal mb-2">AI-Powered Fitting</h3>
-                            <p class="text-gray-600">Advanced machine learning algorithms trained on Rwandan demographics.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-emerald rounded-full flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-ruler text-white text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold text-charcoal mb-2">Size Recommendations</h3>
-                            <p class="text-gray-600">Intelligent size suggestions based on your measurements and preferences.</p>
-                        </div>
-                    </div>
-                    
-                    <button class="w-full md:w-auto px-8 py-4 gradient-gold text-charcoal font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 magnetic-hover">
-                        Try It Now - It's Free
-                    </button>
-                </div>
-            </div>
+      <div class="px-6">
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6"
+          >
+            Revolutionary <span class="text-gradient">AI Try-On</span>
+          </h2>
+          <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            Experience clothes before you buy them. Our advanced AI technology
+            creates realistic virtual fittings tailored to your body shape and
+            measurements.
+          </p>
         </div>
+
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div class="glassmorphism p-8 rounded-3xl">
+            <div class="relative">
+              <!-- High-end fashion model in contemporary setting -->
+              <img
+                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=720&h=900"
+                alt="AI Try-On Demo"
+                class="w-full rounded-2xl shadow-2xl"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-charcoal/60 to-transparent rounded-2xl"
+              ></div>
+              <div class="absolute bottom-6 left-6 text-white">
+                <h3 class="text-2xl font-bold mb-2">Virtual Fitting Room</h3>
+                <p class="text-ivory">Real-time visualization</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-8">
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-12 h-12 gradient-gold rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-camera text-charcoal text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-charcoal mb-2">
+                  Quick Photo Capture
+                </h3>
+                <p class="text-gray-600">
+                  One-click photo capture with automatic body measurement
+                  detection.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-12 h-12 gradient-terracotta rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-brain text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-charcoal mb-2">
+                  AI-Powered Fitting
+                </h3>
+                <p class="text-gray-600">
+                  Advanced machine learning algorithms trained on Rwandan
+                  demographics.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-12 h-12 bg-emerald rounded-full flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-ruler text-white text-xl"></i>
+              </div>
+              <div>
+                <h3 class="text-2xl font-bold text-charcoal mb-2">
+                  Size Recommendations
+                </h3>
+                <p class="text-gray-600">
+                  Intelligent size suggestions based on your measurements and
+                  preferences.
+                </p>
+              </div>
+            </div>
+
+            <button
+              class="w-full md:w-auto px-8 py-4 gradient-gold text-charcoal font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 magnetic-hover"
+            >
+              Try It Now - It's Free
+            </button>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Featured Collections -->
     <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6">
-                    Premium <span class="text-gradient">Collections</span>
-                </h2>
-                <p class="text-xl text-gray-600">Discover handcrafted pieces that celebrate Rwandan artistry and contemporary design.</p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Collection Card 1 -->
-                <div class="group cursor-pointer magnetic-hover">
-                    <div class="relative overflow-hidden rounded-3xl shadow-xl">
-                        <!-- Luxury fashion photography with dramatic lighting -->
-                        <img src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000" 
-                             alt="Heritage Collection" 
-                             class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent group-hover:from-gold/80 transition-all duration-500"></div>
-                        <div class="absolute bottom-6 left-6 text-white">
-                            <h3 class="text-2xl font-bold mb-2">Heritage Collection</h3>
-                            <p class="text-ivory">Traditional meets modern</p>
-                            <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <button class="px-6 py-2 glassmorphism rounded-full text-white hover:bg-white hover:text-charcoal transition-all duration-300">
-                                    Explore <i class="fas fa-arrow-right ml-2"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Collection Card 2 -->
-                <div class="group cursor-pointer magnetic-hover">
-                    <div class="relative overflow-hidden rounded-3xl shadow-xl">
-                        <!-- Premium clothing items on minimal backgrounds -->
-                        <img src="https://images.unsplash.com/photo-1571945153237-4929e783af4a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000" 
-                             alt="Contemporary Line" 
-                             class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent group-hover:from-terracotta/80 transition-all duration-500"></div>
-                        <div class="absolute bottom-6 left-6 text-white">
-                            <h3 class="text-2xl font-bold mb-2">Contemporary Line</h3>
-                            <p class="text-ivory">Urban sophistication</p>
-                            <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <button class="px-6 py-2 glassmorphism rounded-full text-white hover:bg-white hover:text-charcoal transition-all duration-300">
-                                    Explore <i class="fas fa-arrow-right ml-2"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Collection Card 3 -->
-                <div class="group cursor-pointer magnetic-hover">
-                    <div class="relative overflow-hidden rounded-3xl shadow-xl">
-                        <!-- Luxury fashion photography with dramatic lighting -->
-                        <img src="https://pixabay.com/get/gff793ba4d0d2a15c929cfcdfe577f6ecce19772d057864df8b4a330c0e70fdfe31c46e54d4a4ef812d9de2f71053f13166cc4a91299fc5fedcebd257fe157ec3_1280.jpg" 
-                             alt="Artisan Crafted" 
-                             class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700">
-                        <div class="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent group-hover:from-emerald/80 transition-all duration-500"></div>
-                        <div class="absolute bottom-6 left-6 text-white">
-                            <h3 class="text-2xl font-bold mb-2">Artisan Crafted</h3>
-                            <p class="text-ivory">Handmade excellence</p>
-                            <div class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <button class="px-6 py-2 glassmorphism rounded-full text-white hover:bg-white hover:text-charcoal transition-all duration-300">
-                                    Explore <i class="fas fa-arrow-right ml-2"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <div class="px-6">
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6"
+          >
+            Premium <span class="text-gradient">Collections</span>
+          </h2>
+          <p class="text-xl text-gray-600">
+            Discover handcrafted pieces that celebrate Rwandan artistry and
+            contemporary design.
+          </p>
         </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Collection Card 1 -->
+          <div class="group cursor-pointer magnetic-hover">
+            <div class="relative overflow-hidden rounded-3xl shadow-xl">
+              <!-- Luxury fashion photography with dramatic lighting -->
+              <img
+                src="https://images.unsplash.com/photo-1581044777550-4cfa60707c03?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000"
+                alt="Heritage Collection"
+                class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent group-hover:from-gold/80 transition-all duration-500"
+              ></div>
+              <div class="absolute bottom-6 left-6 text-white">
+                <h3 class="text-2xl font-bold mb-2">Heritage Collection</h3>
+                <p class="text-ivory">Traditional meets modern</p>
+                <div
+                  class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                  <button
+                    class="px-6 py-2 glassmorphism rounded-full text-white hover:bg-white hover:text-charcoal transition-all duration-300"
+                  >
+                    Explore <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collection Card 2 -->
+          <div class="group cursor-pointer magnetic-hover">
+            <div class="relative overflow-hidden rounded-3xl shadow-xl">
+              <!-- Premium clothing items on minimal backgrounds -->
+              <img
+                src="https://images.unsplash.com/photo-1571945153237-4929e783af4a?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000"
+                alt="Contemporary Line"
+                class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent group-hover:from-terracotta/80 transition-all duration-500"
+              ></div>
+              <div class="absolute bottom-6 left-6 text-white">
+                <h3 class="text-2xl font-bold mb-2">Contemporary Line</h3>
+                <p class="text-ivory">Urban sophistication</p>
+                <div
+                  class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                  <button
+                    class="px-6 py-2 glassmorphism rounded-full text-white hover:bg-white hover:text-charcoal transition-all duration-300"
+                  >
+                    Explore <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Collection Card 3 -->
+          <div class="group cursor-pointer magnetic-hover">
+            <div class="relative overflow-hidden rounded-3xl shadow-xl">
+              <!-- Luxury fashion photography with dramatic lighting -->
+              <img
+                src="https://pixabay.com/get/gff793ba4d0d2a15c929cfcdfe577f6ecce19772d057864df8b4a330c0e70fdfe31c46e54d4a4ef812d9de2f71053f13166cc4a91299fc5fedcebd257fe157ec3_1280.jpg"
+                alt="Artisan Crafted"
+                class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-transparent to-transparent group-hover:from-emerald/80 transition-all duration-500"
+              ></div>
+              <div class="absolute bottom-6 left-6 text-white">
+                <h3 class="text-2xl font-bold mb-2">Artisan Crafted</h3>
+                <p class="text-ivory">Handmade excellence</p>
+                <div
+                  class="mt-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                >
+                  <button
+                    class="px-6 py-2 glassmorphism rounded-full text-white hover:bg-white hover:text-charcoal transition-all duration-300"
+                  >
+                    Explore <i class="fas fa-arrow-right ml-2"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Product Showcase -->
     <section class="py-20 bg-gradient-to-br from-gray-50 to-ivory">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6">
-                    Featured <span class="text-gradient">Products</span>
-                </h2>
-                <div class="flex justify-center space-x-6 mb-8">
-                    <button class="px-6 py-2 gradient-gold text-charcoal rounded-full font-semibold">All</button>
-                    <button class="px-6 py-2 text-gray-600 hover:text-charcoal transition-colors magnetic-hover">Dresses</button>
-                    <button class="px-6 py-2 text-gray-600 hover:text-charcoal transition-colors magnetic-hover">Accessories</button>
-                    <button class="px-6 py-2 text-gray-600 hover:text-charcoal transition-colors magnetic-hover">Shoes</button>
-                </div>
-            </div>
-            
-            <div class="grid md:grid-cols-4 gap-8">
-                <!-- Product Card 1 -->
-                <div class="group cursor-pointer">
-                    <div class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover">
-                        <!-- Premium clothing items on minimal backgrounds -->
-                        <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                             alt="Elegant Summer Dress" 
-                             class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300">
-                        
-                        <div class="space-y-2">
-                            <h3 class="text-xl font-bold text-charcoal">Elegant Summer Dress</h3>
-                            <p class="text-gray-600">Handwoven cotton blend</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-2xl font-bold text-gradient">$89</span>
-                                <div class="flex items-center space-x-2">
-                                    <button class="w-8 h-8 rounded-full border-2 border-gold hover:bg-gold transition-colors"></button>
-                                    <button class="w-8 h-8 rounded-full bg-terracotta hover:scale-110 transition-transform"></button>
-                                </div>
-                            </div>
-                            <button class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                                <i class="fas fa-camera mr-2"></i>Try On
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Product Card 2 -->
-                <div class="group cursor-pointer">
-                    <div class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover">
-                        <!-- Premium clothing items on minimal backgrounds -->
-                        <img src="https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                             alt="Traditional Pattern Blazer" 
-                             class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300">
-                        
-                        <div class="space-y-2">
-                            <h3 class="text-xl font-bold text-charcoal">Traditional Pattern Blazer</h3>
-                            <p class="text-gray-600">Premium wool blend</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-2xl font-bold text-gradient">$145</span>
-                                <div class="flex items-center space-x-2">
-                                    <button class="w-8 h-8 rounded-full bg-charcoal hover:scale-110 transition-transform"></button>
-                                    <button class="w-8 h-8 rounded-full bg-burgundy hover:scale-110 transition-transform"></button>
-                                </div>
-                            </div>
-                            <button class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                                <i class="fas fa-camera mr-2"></i>Try On
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Product Card 3 -->
-                <div class="group cursor-pointer">
-                    <div class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover">
-                        <!-- Premium clothing items on minimal backgrounds -->
-                        <img src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                             alt="Artisan Leather Bag" 
-                             class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300">
-                        
-                        <div class="space-y-2">
-                            <h3 class="text-xl font-bold text-charcoal">Artisan Leather Bag</h3>
-                            <p class="text-gray-600">Handcrafted leather</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-2xl font-bold text-gradient">$67</span>
-                                <div class="flex items-center space-x-2">
-                                    <button class="w-8 h-8 rounded-full bg-amber-600 hover:scale-110 transition-transform"></button>
-                                    <button class="w-8 h-8 rounded-full bg-stone-800 hover:scale-110 transition-transform"></button>
-                                </div>
-                            </div>
-                            <button class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                                <i class="fas fa-heart mr-2"></i>Add to Favorites
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Product Card 4 -->
-                <div class="group cursor-pointer">
-                    <div class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover">
-                        <!-- Premium clothing items on minimal backgrounds -->
-                        <img src="https://images.unsplash.com/photo-1515347619252-60a4bf4fff4f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                             alt="Contemporary Sandals" 
-                             class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300">
-                        
-                        <div class="space-y-2">
-                            <h3 class="text-xl font-bold text-charcoal">Contemporary Sandals</h3>
-                            <p class="text-gray-600">Eco-friendly materials</p>
-                            <div class="flex items-center justify-between">
-                                <span class="text-2xl font-bold text-gradient">$54</span>
-                                <div class="flex items-center space-x-2">
-                                    <button class="w-8 h-8 rounded-full bg-emerald hover:scale-110 transition-transform"></button>
-                                    <button class="w-8 h-8 rounded-full bg-amber-700 hover:scale-110 transition-transform"></button>
-                                </div>
-                            </div>
-                            <button class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0">
-                                <i class="fas fa-camera mr-2"></i>Try On
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="text-center mt-12">
-                <button class="px-8 py-4 gradient-terracotta text-white font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 magnetic-hover">
-                    View All Products
-                </button>
-            </div>
+      <div class="px-6">
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6"
+          >
+            Featured <span class="text-gradient">Products</span>
+          </h2>
+          <div class="flex justify-center space-x-6 mb-8">
+            <button
+              class="px-6 py-2 gradient-gold text-charcoal rounded-full font-semibold"
+            >
+              All
+            </button>
+            <button
+              class="px-6 py-2 text-gray-600 hover:text-charcoal transition-colors magnetic-hover"
+            >
+              Dresses
+            </button>
+            <button
+              class="px-6 py-2 text-gray-600 hover:text-charcoal transition-colors magnetic-hover"
+            >
+              Accessories
+            </button>
+            <button
+              class="px-6 py-2 text-gray-600 hover:text-charcoal transition-colors magnetic-hover"
+            >
+              Shoes
+            </button>
+          </div>
         </div>
+
+        <div class="grid md:grid-cols-4 gap-8">
+          <!-- Product Card 1 -->
+          <div class="group cursor-pointer">
+            <div
+              class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover"
+            >
+              <!-- Premium clothing items on minimal backgrounds -->
+              <img
+                src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+                alt="Elegant Summer Dress"
+                class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300"
+              />
+
+              <div class="space-y-2">
+                <h3 class="text-xl font-bold text-charcoal">
+                  Elegant Summer Dress
+                </h3>
+                <p class="text-gray-600">Handwoven cotton blend</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold text-gradient">$89</span>
+                  <div class="flex items-center space-x-2">
+                    <button
+                      class="w-8 h-8 rounded-full border-2 border-gold hover:bg-gold transition-colors"
+                    ></button>
+                    <button
+                      class="w-8 h-8 rounded-full bg-terracotta hover:scale-110 transition-transform"
+                    ></button>
+                  </div>
+                </div>
+                <button
+                  class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0"
+                >
+                  <i class="fas fa-camera mr-2"></i>Try On
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 2 -->
+          <div class="group cursor-pointer">
+            <div
+              class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover"
+            >
+              <!-- Premium clothing items on minimal backgrounds -->
+              <img
+                src="https://images.unsplash.com/photo-1564584217132-2271feaeb3c5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+                alt="Traditional Pattern Blazer"
+                class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300"
+              />
+
+              <div class="space-y-2">
+                <h3 class="text-xl font-bold text-charcoal">
+                  Traditional Pattern Blazer
+                </h3>
+                <p class="text-gray-600">Premium wool blend</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold text-gradient">$145</span>
+                  <div class="flex items-center space-x-2">
+                    <button
+                      class="w-8 h-8 rounded-full bg-charcoal hover:scale-110 transition-transform"
+                    ></button>
+                    <button
+                      class="w-8 h-8 rounded-full bg-burgundy hover:scale-110 transition-transform"
+                    ></button>
+                  </div>
+                </div>
+                <button
+                  class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0"
+                >
+                  <i class="fas fa-camera mr-2"></i>Try On
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 3 -->
+          <div class="group cursor-pointer">
+            <div
+              class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover"
+            >
+              <!-- Premium clothing items on minimal backgrounds -->
+              <img
+                src="https://images.unsplash.com/photo-1551698618-1dfe5d97d256?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+                alt="Artisan Leather Bag"
+                class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300"
+              />
+
+              <div class="space-y-2">
+                <h3 class="text-xl font-bold text-charcoal">
+                  Artisan Leather Bag
+                </h3>
+                <p class="text-gray-600">Handcrafted leather</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold text-gradient">$67</span>
+                  <div class="flex items-center space-x-2">
+                    <button
+                      class="w-8 h-8 rounded-full bg-amber-600 hover:scale-110 transition-transform"
+                    ></button>
+                    <button
+                      class="w-8 h-8 rounded-full bg-stone-800 hover:scale-110 transition-transform"
+                    ></button>
+                  </div>
+                </div>
+                <button
+                  class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0"
+                >
+                  <i class="fas fa-heart mr-2"></i>Add to Favorites
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 4 -->
+          <div class="group cursor-pointer">
+            <div
+              class="glassmorphism rounded-3xl p-6 hover:shadow-2xl transition-all duration-500 magnetic-hover"
+            >
+              <!-- Premium clothing items on minimal backgrounds -->
+              <img
+                src="https://images.unsplash.com/photo-1515347619252-60a4bf4fff4f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+                alt="Contemporary Sandals"
+                class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-300"
+              />
+
+              <div class="space-y-2">
+                <h3 class="text-xl font-bold text-charcoal">
+                  Contemporary Sandals
+                </h3>
+                <p class="text-gray-600">Eco-friendly materials</p>
+                <div class="flex items-center justify-between">
+                  <span class="text-2xl font-bold text-gradient">$54</span>
+                  <div class="flex items-center space-x-2">
+                    <button
+                      class="w-8 h-8 rounded-full bg-emerald hover:scale-110 transition-transform"
+                    ></button>
+                    <button
+                      class="w-8 h-8 rounded-full bg-amber-700 hover:scale-110 transition-transform"
+                    ></button>
+                  </div>
+                </div>
+                <button
+                  class="w-full mt-4 px-4 py-2 gradient-gold text-charcoal rounded-full font-semibold opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0"
+                >
+                  <i class="fas fa-camera mr-2"></i>Try On
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="text-center mt-12">
+          <button
+            class="px-8 py-4 gradient-terracotta text-white font-semibold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all duration-300 magnetic-hover"
+          >
+            View All Products
+          </button>
+        </div>
+      </div>
     </section>
 
     <!-- Mobile App Section -->
     <section class="py-20 bg-charcoal text-white relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10">
-            <!-- Modern tech interfaces with glowing elements -->
-            <img src="https://images.unsplash.com/photo-1558655146-d09347e92766?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2064&q=80" 
-                 alt="Tech Interface Background" 
-                 class="w-full h-full object-cover">
-        </div>
-        
-        <div class="max-w-7xl mx-auto px-6 relative z-10">
-            <div class="grid md:grid-cols-2 gap-12 items-center">
+      <div class="absolute inset-0 opacity-10">
+        <!-- Modern tech interfaces with glowing elements -->
+        <img
+          src="https://images.unsplash.com/photo-1558655146-d09347e92766?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=2064&q=80"
+          alt="Tech Interface Background"
+          class="w-full h-full object-cover"
+        />
+      </div>
+
+      <div class="px-6 relative z-10">
+        <div class="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 class="text-4xl md:text-5xl font-inter font-bold mb-6">
+              Fashion at Your <span class="text-gradient">Fingertips</span>
+            </h2>
+            <p class="text-xl text-ivory mb-8">
+              Download our mobile app for the complete Nyambika experience. Try
+              on clothes with AI, discover new collections, and shop seamlessly
+              on-the-go.
+            </p>
+
+            <div class="space-y-4 mb-8">
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-12 h-12 gradient-gold rounded-full flex items-center justify-center"
+                >
+                  <i class="fas fa-mobile-alt text-charcoal text-xl"></i>
+                </div>
                 <div>
-                    <h2 class="text-4xl md:text-5xl font-inter font-bold mb-6">
-                        Fashion at Your <span class="text-gradient">Fingertips</span>
-                    </h2>
-                    <p class="text-xl text-ivory mb-8">
-                        Download our mobile app for the complete Nyambika experience. Try on clothes with AI, discover new collections, and shop seamlessly on-the-go.
-                    </p>
-                    
-                    <div class="space-y-4 mb-8">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 gradient-gold rounded-full flex items-center justify-center">
-                                <i class="fas fa-mobile-alt text-charcoal text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold">Mobile-First Design</h3>
-                                <p class="text-ivory">Optimized for touch interactions and one-handed use</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 gradient-terracotta rounded-full flex items-center justify-center">
-                                <i class="fas fa-wifi text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold">Offline Support</h3>
-                                <p class="text-ivory">Browse and save favorites even without internet</p>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 bg-emerald rounded-full flex items-center justify-center">
-                                <i class="fas fa-bell text-white text-xl"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-bold">Smart Notifications</h3>
-                                <p class="text-ivory">Get alerts for new arrivals and exclusive offers</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <button class="flex items-center justify-center px-6 py-3 glassmorphism rounded-xl hover:bg-white hover:text-charcoal transition-all duration-300 magnetic-hover">
-                            <i class="fab fa-apple text-2xl mr-3"></i>
-                            <div class="text-left">
-                                <p class="text-xs">Download on the</p>
-                                <p class="text-lg font-semibold">App Store</p>
-                            </div>
-                        </button>
-                        
-                        <button class="flex items-center justify-center px-6 py-3 glassmorphism rounded-xl hover:bg-white hover:text-charcoal transition-all duration-300 magnetic-hover">
-                            <i class="fab fa-google-play text-2xl mr-3"></i>
-                            <div class="text-left">
-                                <p class="text-xs">Get it on</p>
-                                <p class="text-lg font-semibold">Google Play</p>
-                            </div>
-                        </button>
-                    </div>
+                  <h3 class="text-xl font-bold">Mobile-First Design</h3>
+                  <p class="text-ivory">
+                    Optimized for touch interactions and one-handed use
+                  </p>
                 </div>
-                
-                <div class="relative">
-                    <!-- Modern tech interfaces with glowing elements -->
-                    <div class="relative mx-auto w-72 h-96 glassmorphism rounded-3xl p-6 animate-float">
-                        <img src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=700" 
-                             alt="Nyambika Mobile App Interface" 
-                             class="w-full h-full object-cover rounded-2xl">
-                        <div class="absolute inset-0 bg-gradient-to-t from-charcoal/60 to-transparent rounded-2xl"></div>
-                        <div class="absolute bottom-6 left-6">
-                            <h3 class="text-white font-bold text-lg">Nyambika Mobile</h3>
-                            <p class="text-ivory text-sm">Try, Buy, Love</p>
-                        </div>
-                    </div>
+              </div>
+
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-12 h-12 gradient-terracotta rounded-full flex items-center justify-center"
+                >
+                  <i class="fas fa-wifi text-white text-xl"></i>
                 </div>
+                <div>
+                  <h3 class="text-xl font-bold">Offline Support</h3>
+                  <p class="text-ivory">
+                    Browse and save favorites even without internet
+                  </p>
+                </div>
+              </div>
+
+              <div class="flex items-center space-x-4">
+                <div
+                  class="w-12 h-12 bg-emerald rounded-full flex items-center justify-center"
+                >
+                  <i class="fas fa-bell text-white text-xl"></i>
+                </div>
+                <div>
+                  <h3 class="text-xl font-bold">Smart Notifications</h3>
+                  <p class="text-ivory">
+                    Get alerts for new arrivals and exclusive offers
+                  </p>
+                </div>
+              </div>
             </div>
+
+            <div class="flex flex-col sm:flex-row gap-4">
+              <button
+                class="flex items-center justify-center px-6 py-3 glassmorphism rounded-xl hover:bg-white hover:text-charcoal transition-all duration-300 magnetic-hover"
+              >
+                <i class="fab fa-apple text-2xl mr-3"></i>
+                <div class="text-left">
+                  <p class="text-xs">Download on the</p>
+                  <p class="text-lg font-semibold">App Store</p>
+                </div>
+              </button>
+
+              <button
+                class="flex items-center justify-center px-6 py-3 glassmorphism rounded-xl hover:bg-white hover:text-charcoal transition-all duration-300 magnetic-hover"
+              >
+                <i class="fab fa-google-play text-2xl mr-3"></i>
+                <div class="text-left">
+                  <p class="text-xs">Get it on</p>
+                  <p class="text-lg font-semibold">Google Play</p>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <div class="relative">
+            <!-- Modern tech interfaces with glowing elements -->
+            <div
+              class="relative mx-auto w-72 h-96 glassmorphism rounded-3xl p-6 animate-float"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=700"
+                alt="Nyambika Mobile App Interface"
+                class="w-full h-full object-cover rounded-2xl"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-charcoal/60 to-transparent rounded-2xl"
+              ></div>
+              <div class="absolute bottom-6 left-6">
+                <h3 class="text-white font-bold text-lg">Nyambika Mobile</h3>
+                <p class="text-ivory text-sm">Try, Buy, Love</p>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Testimonials Section -->
     <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6">
-                    What Our <span class="text-gradient">Customers Say</span>
-                </h2>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-8">
-                <!-- Testimonial 1 -->
-                <div class="glassmorphism rounded-3xl p-8 text-center magnetic-hover">
-                    <!-- High-end fashion models in contemporary settings -->
-                    <img src="https://pixabay.com/get/g1d6f9b4eab2785bb008c158a1ecfd3a0a9f66ada899bbb150e981a2ce08140f4d30854f0dbcec2f1d8a8f1c6b4a2f6fc35803207a22ec48c3f4c25c939c59e51_1280.jpg" 
-                         alt="Customer Testimonial" 
-                         class="w-20 h-20 rounded-full mx-auto mb-6 shadow-lg">
-                    
-                    <div class="mb-4">
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                    </div>
-                    
-                    <p class="text-gray-600 mb-6 italic">
-                        "The AI try-on feature is incredible! I can see exactly how clothes will look on me before buying. It's like having a personal fitting room at home."
-                    </p>
-                    
-                    <div>
-                        <h4 class="text-lg font-bold text-charcoal">Marie Uwimana</h4>
-                        <p class="text-gray-500">Fashion Enthusiast</p>
-                    </div>
-                </div>
-                
-                <!-- Testimonial 2 -->
-                <div class="glassmorphism rounded-3xl p-8 text-center magnetic-hover">
-                    <!-- High-end fashion models in contemporary settings -->
-                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" 
-                         alt="Customer Testimonial" 
-                         class="w-20 h-20 rounded-full mx-auto mb-6 shadow-lg">
-                    
-                    <div class="mb-4">
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                    </div>
-                    
-                    <p class="text-gray-600 mb-6 italic">
-                        "As a seller, Nyambika has transformed my business. The platform makes it easy to showcase my designs and reach customers across Rwanda."
-                    </p>
-                    
-                    <div>
-                        <h4 class="text-lg font-bold text-charcoal">Jean Baptiste</h4>
-                        <p class="text-gray-500">Local Designer</p>
-                    </div>
-                </div>
-                
-                <!-- Testimonial 3 -->
-                <div class="glassmorphism rounded-3xl p-8 text-center magnetic-hover">
-                    <!-- High-end fashion models in contemporary settings -->
-                    <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150" 
-                         alt="Customer Testimonial" 
-                         class="w-20 h-20 rounded-full mx-auto mb-6 shadow-lg">
-                    
-                    <div class="mb-4">
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                        <i class="fas fa-star text-gold text-lg"></i>
-                    </div>
-                    
-                    <p class="text-gray-600 mb-6 italic">
-                        "The quality of products is exceptional and the delivery is always on time. Nyambika has become my go-to platform for premium fashion."
-                    </p>
-                    
-                    <div>
-                        <h4 class="text-lg font-bold text-charcoal">Grace Mukamana</h4>
-                        <p class="text-gray-500">Business Professional</p>
-                    </div>
-                </div>
-            </div>
+      <div class="px-6">
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-inter font-bold text-charcoal mb-6"
+          >
+            What Our <span class="text-gradient">Customers Say</span>
+          </h2>
         </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Testimonial 1 -->
+          <div class="glassmorphism rounded-3xl p-8 text-center magnetic-hover">
+            <!-- High-end fashion models in contemporary settings -->
+            <img
+              src="https://pixabay.com/get/g1d6f9b4eab2785bb008c158a1ecfd3a0a9f66ada899bbb150e981a2ce08140f4d30854f0dbcec2f1d8a8f1c6b4a2f6fc35803207a22ec48c3f4c25c939c59e51_1280.jpg"
+              alt="Customer Testimonial"
+              class="w-20 h-20 rounded-full mx-auto mb-6 shadow-lg"
+            />
+
+            <div class="mb-4">
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+            </div>
+
+            <p class="text-gray-600 mb-6 italic">
+              "The AI try-on feature is incredible! I can see exactly how
+              clothes will look on me before buying. It's like having a personal
+              fitting room at home."
+            </p>
+
+            <div>
+              <h4 class="text-lg font-bold text-charcoal">Marie Uwimana</h4>
+              <p class="text-gray-500">Fashion Enthusiast</p>
+            </div>
+          </div>
+
+          <!-- Testimonial 2 -->
+          <div class="glassmorphism rounded-3xl p-8 text-center magnetic-hover">
+            <!-- High-end fashion models in contemporary settings -->
+            <img
+              src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
+              alt="Customer Testimonial"
+              class="w-20 h-20 rounded-full mx-auto mb-6 shadow-lg"
+            />
+
+            <div class="mb-4">
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+            </div>
+
+            <p class="text-gray-600 mb-6 italic">
+              "As a seller, Nyambika has transformed my business. The platform
+              makes it easy to showcase my designs and reach customers across
+              Rwanda."
+            </p>
+
+            <div>
+              <h4 class="text-lg font-bold text-charcoal">Jean Baptiste</h4>
+              <p class="text-gray-500">Local Designer</p>
+            </div>
+          </div>
+
+          <!-- Testimonial 3 -->
+          <div class="glassmorphism rounded-3xl p-8 text-center magnetic-hover">
+            <!-- High-end fashion models in contemporary settings -->
+            <img
+              src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=150&h=150"
+              alt="Customer Testimonial"
+              class="w-20 h-20 rounded-full mx-auto mb-6 shadow-lg"
+            />
+
+            <div class="mb-4">
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+              <i class="fas fa-star text-gold text-lg"></i>
+            </div>
+
+            <p class="text-gray-600 mb-6 italic">
+              "The quality of products is exceptional and the delivery is always
+              on time. Nyambika has become my go-to platform for premium
+              fashion."
+            </p>
+
+            <div>
+              <h4 class="text-lg font-bold text-charcoal">Grace Mukamana</h4>
+              <p class="text-gray-500">Business Professional</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Footer -->
     <footer class="bg-charcoal text-white py-16">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div>
-                    <h3 class="text-2xl font-inter font-bold text-gradient mb-6">Nyambika</h3>
-                    <p class="text-ivory mb-6">Revolutionizing fashion in Rwanda through AI-powered technology and premium craftsmanship.</p>
-                    <div class="flex space-x-4">
-                        <i class="fab fa-facebook text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"></i>
-                        <i class="fab fa-instagram text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"></i>
-                        <i class="fab fa-twitter text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"></i>
-                        <i class="fab fa-linkedin text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"></i>
-                    </div>
-                </div>
-                
-                <div>
-                    <h4 class="text-xl font-bold mb-6">Shop</h4>
-                    <ul class="space-y-3 text-ivory">
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Collections</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">New Arrivals</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Best Sellers</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Sale</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-xl font-bold mb-6">Features</h4>
-                    <ul class="space-y-3 text-ivory">
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">AI Try-On</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Size Guide</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Mobile App</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Seller Portal</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="text-xl font-bold mb-6">Support</h4>
-                    <ul class="space-y-3 text-ivory">
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Help Center</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Contact Us</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Shipping Info</a></li>
-                        <li><a href="#" class="hover:text-gold transition-colors magnetic-hover">Returns</a></li>
-                    </ul>
-                </div>
+      <div class="px-6">
+        <div class="grid md:grid-cols-4 gap-8">
+          <div>
+            <h3 class="text-2xl font-inter font-bold text-gradient mb-6">
+              Nyambika
+            </h3>
+            <p class="text-ivory mb-6">
+              Revolutionizing fashion in Rwanda through AI-powered technology
+              and premium craftsmanship.
+            </p>
+            <div class="flex space-x-4">
+              <i
+                class="fab fa-facebook text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"
+              ></i>
+              <i
+                class="fab fa-instagram text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"
+              ></i>
+              <i
+                class="fab fa-twitter text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"
+              ></i>
+              <i
+                class="fab fa-linkedin text-2xl hover:text-gold transition-colors cursor-pointer magnetic-hover"
+              ></i>
             </div>
-            
-            <div class="border-t border-gray-700 mt-12 pt-8">
-                <div class="flex flex-col md:flex-row justify-between items-center">
-                    <p class="text-ivory text-center md:text-left">© 2024 Nyambika. All rights reserved.</p>
-                    <div class="flex space-x-6 mt-4 md:mt-0">
-                        <a href="#" class="text-ivory hover:text-gold transition-colors magnetic-hover">Privacy Policy</a>
-                        <a href="#" class="text-ivory hover:text-gold transition-colors magnetic-hover">Terms of Service</a>
-                        <a href="#" class="text-ivory hover:text-gold transition-colors magnetic-hover">Cookies</a>
-                    </div>
-                </div>
-            </div>
+          </div>
+
+          <div>
+            <h4 class="text-xl font-bold mb-6">Shop</h4>
+            <ul class="space-y-3 text-ivory">
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Collections</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >New Arrivals</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Best Sellers</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Sale</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-xl font-bold mb-6">Features</h4>
+            <ul class="space-y-3 text-ivory">
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >AI Try-On</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Size Guide</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Mobile App</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Seller Portal</a
+                >
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-xl font-bold mb-6">Support</h4>
+            <ul class="space-y-3 text-ivory">
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Help Center</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Contact Us</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Shipping Info</a
+                >
+              </li>
+              <li>
+                <a
+                  href="#"
+                  class="hover:text-gold transition-colors magnetic-hover"
+                  >Returns</a
+                >
+              </li>
+            </ul>
+          </div>
         </div>
+
+        <div class="border-t border-gray-700 mt-12 pt-8">
+          <div class="flex flex-col md:flex-row justify-between items-center">
+            <p class="text-ivory text-center md:text-left">
+              © 2024 Nyambika. All rights reserved.
+            </p>
+            <div class="flex space-x-6 mt-4 md:mt-0">
+              <a
+                href="#"
+                class="text-ivory hover:text-gold transition-colors magnetic-hover"
+                >Privacy Policy</a
+              >
+              <a
+                href="#"
+                class="text-ivory hover:text-gold transition-colors magnetic-hover"
+                >Terms of Service</a
+              >
+              <a
+                href="#"
+                class="text-ivory hover:text-gold transition-colors magnetic-hover"
+                >Cookies</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
     </footer>
 
     <!-- Mobile Bottom Navigation -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white glassmorphism border-t border-gray-200 z-40 md:hidden">
-        <div class="flex justify-around py-3">
-            <button class="flex flex-col items-center space-y-1 text-charcoal magnetic-hover">
-                <i class="fas fa-home text-xl"></i>
-                <span class="text-xs">Home</span>
-            </button>
-            <button class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover">
-                <i class="fas fa-search text-xl"></i>
-                <span class="text-xs">Search</span>
-            </button>
-            <button class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover">
-                <i class="fas fa-camera text-xl"></i>
-                <span class="text-xs">Try On</span>
-            </button>
-            <button class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover">
-                <i class="fas fa-heart text-xl"></i>
-                <span class="text-xs">Favorites</span>
-            </button>
-            <button class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover">
-                <i class="fas fa-user text-xl"></i>
-                <span class="text-xs">Profile</span>
-            </button>
-        </div>
+    <div
+      class="fixed bottom-0 left-0 right-0 bg-white glassmorphism border-t border-gray-200 z-40 md:hidden"
+    >
+      <div class="flex justify-around py-3">
+        <button
+          class="flex flex-col items-center space-y-1 text-charcoal magnetic-hover"
+        >
+          <i class="fas fa-home text-xl"></i>
+          <span class="text-xs">Home</span>
+        </button>
+        <button
+          class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover"
+        >
+          <i class="fas fa-search text-xl"></i>
+          <span class="text-xs">Search</span>
+        </button>
+        <button
+          class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover"
+        >
+          <i class="fas fa-camera text-xl"></i>
+          <span class="text-xs">Try On</span>
+        </button>
+        <button
+          class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover"
+        >
+          <i class="fas fa-heart text-xl"></i>
+          <span class="text-xs">Favorites</span>
+        </button>
+        <button
+          class="flex flex-col items-center space-y-1 text-gray-500 magnetic-hover"
+        >
+          <i class="fas fa-user text-xl"></i>
+          <span class="text-xs">Profile</span>
+        </button>
+      </div>
     </div>
 
     <script>
-        // Loading screen animation
-        window.addEventListener('load', function() {
-            setTimeout(() => {
-                const loadingScreen = document.getElementById('loadingScreen');
-                loadingScreen.style.opacity = '0';
-                setTimeout(() => {
-                    loadingScreen.style.display = 'none';
-                }, 500);
-            }, 2000);
-        });
+      // Loading screen animation
+      window.addEventListener("load", function () {
+        setTimeout(() => {
+          const loadingScreen = document.getElementById("loadingScreen");
+          loadingScreen.style.opacity = "0";
+          setTimeout(() => {
+            loadingScreen.style.display = "none";
+          }, 500);
+        }, 2000);
+      });
 
-        // Navbar scroll effect
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 100) {
-                navbar.classList.add('backdrop-blur-md', 'bg-white/80');
-            } else {
-                navbar.classList.remove('backdrop-blur-md', 'bg-white/80');
-            }
-        });
-
-        // Parallax scroll effect
-        window.addEventListener('scroll', function() {
-            const parallaxElements = document.querySelectorAll('.parallax-scroll');
-            parallaxElements.forEach(element => {
-                const scrolled = window.pageYOffset;
-                const rate = scrolled * -0.5;
-                element.style.transform = `translateY(${rate}px)`;
-            });
-        });
-
-        // Magnetic cursor effect (for desktop)
-        if (window.innerWidth > 768) {
-            const magneticElements = document.querySelectorAll('.magnetic-hover');
-            
-            magneticElements.forEach(element => {
-                element.addEventListener('mouseenter', function() {
-                    this.style.transition = 'transform 0.3s ease-out';
-                    this.style.transform = 'scale(1.05)';
-                });
-                
-                element.addEventListener('mouseleave', function() {
-                    this.style.transform = 'scale(1)';
-                });
-            });
+      // Navbar scroll effect
+      window.addEventListener("scroll", function () {
+        const navbar = document.getElementById("navbar");
+        if (window.scrollY > 100) {
+          navbar.classList.add("backdrop-blur-md", "bg-white/80");
+        } else {
+          navbar.classList.remove("backdrop-blur-md", "bg-white/80");
         }
+      });
 
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
+      // Parallax scroll effect
+      window.addEventListener("scroll", function () {
+        const parallaxElements = document.querySelectorAll(".parallax-scroll");
+        parallaxElements.forEach((element) => {
+          const scrolled = window.pageYOffset;
+          const rate = scrolled * -0.5;
+          element.style.transform = `translateY(${rate}px)`;
         });
+      });
 
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+      // Magnetic cursor effect (for desktop)
+      if (window.innerWidth > 768) {
+        const magneticElements = document.querySelectorAll(".magnetic-hover");
 
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate-slide-up');
-                }
-            });
-        }, observerOptions);
+        magneticElements.forEach((element) => {
+          element.addEventListener("mouseenter", function () {
+            this.style.transition = "transform 0.3s ease-out";
+            this.style.transform = "scale(1.05)";
+          });
 
-        // Observe elements for scroll animations
-        document.querySelectorAll('section > div > div').forEach(el => {
-            observer.observe(el);
+          element.addEventListener("mouseleave", function () {
+            this.style.transform = "scale(1)";
+          });
         });
+      }
 
-        // TODO: Implement business logic for:
-        // - AI try-on functionality with camera capture and ML processing
-        // - Product search and filtering with real-time results
-        // - User authentication and account management
-        // - Shopping cart and checkout process
-        // - Payment gateway integration (MTN Mobile Money, Airtel Money, PayPal)
-        // - Order tracking and delivery management
-        // - Push notifications and email alerts
-        // - Seller dashboard and product management
-        // - Admin panel for platform management
-        // - Real-time inventory updates
-        // - Multi-language support (Kinyarwanda, French, English)
-        // - Offline functionality for mobile app
-        // - API integration with backend services
-        // - State management for user sessions and shopping cart
-        // - Image optimization and lazy loading
-        // - Error handling and recovery mechanisms
-        // - Performance monitoring and analytics
-        // - A/B testing for UI improvements
-        // - Social sharing and referral system
-        // - Wishlist and favorites management
+      // Smooth scroll for anchor links
+      document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+        anchor.addEventListener("click", function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute("href"));
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        });
+      });
+
+      // Intersection Observer for animations
+      const observerOptions = {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-slide-up");
+          }
+        });
+      }, observerOptions);
+
+      // Observe elements for scroll animations
+      document.querySelectorAll("section > div > div").forEach((el) => {
+        observer.observe(el);
+      });
+
+      // TODO: Implement business logic for:
+      // - AI try-on functionality with camera capture and ML processing
+      // - Product search and filtering with real-time results
+      // - User authentication and account management
+      // - Shopping cart and checkout process
+      // - Payment gateway integration (MTN Mobile Money, Airtel Money, PayPal)
+      // - Order tracking and delivery management
+      // - Push notifications and email alerts
+      // - Seller dashboard and product management
+      // - Admin panel for platform management
+      // - Real-time inventory updates
+      // - Multi-language support (Kinyarwanda, French, English)
+      // - Offline functionality for mobile app
+      // - API integration with backend services
+      // - State management for user sessions and shopping cart
+      // - Image optimization and lazy loading
+      // - Error handling and recovery mechanisms
+      // - Performance monitoring and analytics
+      // - A/B testing for UI improvements
+      // - Social sharing and referral system
+      // - Wishlist and favorites management
     </script>
-</body>
+  </body>
 </html>

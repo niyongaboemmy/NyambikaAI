@@ -1,48 +1,57 @@
-import { useState } from 'react';
-import { useLocation } from 'wouter';
-import { Camera, Upload, Sparkles, Ruler, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { Camera, Upload, Sparkles, Ruler, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function AITryOnStudio() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [, setLocation] = useLocation();
 
   const handleTakePhoto = () => {
-    setLocation('/try-on/start');
+    setLocation("/try-on/start");
   };
 
   const handleUploadPhoto = () => {
-    setLocation('/try-on/start');
+    setLocation("/try-on/start");
   };
 
   const features = [
     {
       icon: Sparkles,
       title: "Ubusobanuro bw'AI",
-      description: "Advanced AI technology provides realistic clothing visualization on your body"
+      description:
+        "Advanced AI technology provides realistic clothing visualization on your body",
     },
     {
       icon: Ruler,
       title: "Ibipimo by'Ukuri",
-      description: "Get accurate size recommendations based on your measurements and body type"
+      description:
+        "Get accurate size recommendations based on your measurements and body type",
     },
     {
       icon: Clock,
       title: "Byihuse Cyane",
-      description: "Real-time processing provides instant results in just a few seconds"
-    }
+      description:
+        "Real-time processing provides instant results in just a few seconds",
+    },
   ];
 
   return (
-    <section id="tryon" className="py-20 px-4 md:px-6 bg-gradient-to-br from-slate-100 to-white dark:from-slate-800 dark:to-background">
-      <div className="max-w-7xl mx-auto">
+    <section
+      id="tryon"
+      className="py-20 px-4 md:px-6 bg-gradient-to-br from-slate-100 to-white dark:from-slate-800 dark:to-background"
+    >
+      <div className=" ">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">
             AI Try-On Studio
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Koresha tekinoloji ya AI kugira ngo urebe uko imyenda ikubana mbere yo kugura
-            <span className="block text-lg mt-2">Use AI technology to see how clothes look on you before buying</span>
+            Koresha tekinoloji ya AI kugira ngo urebe uko imyenda ikubana mbere
+            yo kugura
+            <span className="block text-lg mt-2">
+              Use AI technology to see how clothes look on you before buying
+            </span>
           </p>
         </div>
 
@@ -50,7 +59,7 @@ export default function AITryOnStudio() {
           {/* Try-On Interface */}
           <div className="glassmorphism rounded-3xl p-8 neumorphism">
             <div className="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden">
-              <img 
+              <img
                 src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000"
                 alt="AI Try-On Preview"
                 className="w-full h-full object-cover rounded-2xl"
@@ -69,9 +78,9 @@ export default function AITryOnStudio() {
                 </>
               )}
             </div>
-            
+
             <div className="space-y-4">
-              <Button 
+              <Button
                 onClick={handleTakePhoto}
                 disabled={isProcessing}
                 className="w-full gradient-bg text-white py-4 rounded-xl font-semibold hover:scale-105 transition-all duration-300"
@@ -79,7 +88,7 @@ export default function AITryOnStudio() {
                 <Camera className="mr-3 h-5 w-5" />
                 Fata Ifoto / Take Photo
               </Button>
-              <Button 
+              <Button
                 onClick={handleUploadPhoto}
                 disabled={isProcessing}
                 variant="ghost"

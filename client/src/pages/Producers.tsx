@@ -24,7 +24,7 @@ export default function Producers() {
 
   return (
     <div className="min-h-screen bg-background">
-      <main className="pt-24 pb-12 px-4 md:px-6 max-w-7xl mx-auto">
+      <main className="pt-24 pb-12 px-4 md:px-6  ">
         <h1 className="text-3xl font-bold mb-6">Producers</h1>
         {isLoading && <p>Loading producers...</p>}
         {error && <p>Failed to load producers</p>}
@@ -44,10 +44,14 @@ export default function Producers() {
                         {p.businessName || p.fullName}
                       </h3>
                       {p.fullNameRw && (
-                        <p className="text-sm text-muted-foreground">{p.fullNameRw}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {p.fullNameRw}
+                        </p>
                       )}
                       {p.location && (
-                        <p className="text-sm text-muted-foreground">{p.location}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {p.location}
+                        </p>
                       )}
                     </div>
                   </div>

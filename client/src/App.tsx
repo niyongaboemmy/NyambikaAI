@@ -7,8 +7,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { LoginPromptProvider, } from "@/contexts/LoginPromptContext";
+import { LoginPromptProvider } from "@/contexts/LoginPromptContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { CompanyProvider } from "@/contexts/CompanyContext";
 import CompanyModal from "@/components/CompanyModal";
@@ -33,6 +34,8 @@ import NotFound from "@/pages/not-found";
 import ProductRegistration from "@/pages/ProductRegistration";
 import ProductEdit from "@/pages/ProductEdit";
 import Companies from "@/pages/Companies";
+import StorePage from "@/pages/StorePage";
+import Footer from "./components/Footer";
 
 function AdminRoute({
   component: Component,
@@ -51,56 +54,218 @@ function AdminRoute({
 }
 
 function Router() {
+  // Local layout wrapper to apply a consistent container on most routes
+  const Container = ({ children }: { children: React.ReactNode }) => (
+    <div className="container mx-auto px-3 md:px-0">{children}</div>
+  );
+
   return (
-    <Switch>
-      <Route path="/" component={Home} />
-      <Route path="/register" component={Register} />
-      <Route path="/forgot-password" component={ForgotPassword} />
+    <>
+      <Switch>
+        <Route
+          path="/"
+          component={() => (
+            <Container>
+              <Home />
+            </Container>
+          )}
+        />
+        <Route
+          path="/register"
+          component={() => (
+            <Container>
+              <Register />
+            </Container>
+          )}
+        />
+        <Route
+          path="/forgot-password"
+          component={() => (
+            <Container>
+              <ForgotPassword />
+            </Container>
+          )}
+        />
 
-      {/* Protected routes */}
-      <Route path="/products" component={() => <ProtectedRoute component={Products} />} />
-      <Route path="/companies" component={() => <ProtectedRoute component={Companies} />} />
-      <Route path="/try-on/start" component={() => <ProtectedRoute component={TryOnStart} />} />
-      <Route path="/try-on" component={() => <ProtectedRoute component={TryOn} />} />
-      <Route path="/product/:id" component={() => <ProtectedRoute component={ProductDetail} />} />
-      <Route path="/checkout" component={() => <ProtectedRoute component={Checkout} />} />
-      <Route path="/profile" component={() => <ProtectedRoute component={Profile} />} />
-      <Route path="/cart" component={() => <ProtectedRoute component={Cart} />} />
-      <Route path="/orders" component={() => <ProtectedRoute component={Orders} />} />
-      <Route path="/product-registration" component={() => <ProtectedRoute component={ProductRegistration} />} />
-      <Route path="/product-edit/:id" component={() => <ProtectedRoute component={ProductEdit} />} />
+        {/* Protected routes */}
+        <Route
+          path="/products"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Products} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/companies"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Companies} />
+            </Container>
+          )}
+        />
+        {/* Store page should NOT be wrapped to allow full-bleed design */}
+        <Route path="/store/:companyId" component={StorePage} />
+        <Route
+          path="/try-on/start"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={TryOnStart} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/try-on"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={TryOn} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/product/:id"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={ProductDetail} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/checkout"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Checkout} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/profile"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Profile} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/cart"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Cart} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/orders"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Orders} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/product-registration"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={ProductRegistration} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/product-edit/:id"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={ProductEdit} />
+            </Container>
+          )}
+        />
 
-      {/* Producer Routes (protected) */}
-      <Route path="/producer-dashboard" component={() => <ProtectedRoute component={ProducerDashboard} />} />
-      <Route path="/producer-products" component={() => <ProtectedRoute component={Products} />} />
-      <Route path="/producer-orders" component={() => <ProtectedRoute component={Profile} />} />
-      <Route path="/producer-analytics" component={() => <ProtectedRoute component={Profile} />} />
+        {/* Producer Routes (protected) */}
+        <Route
+          path="/producer-dashboard"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={ProducerDashboard} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/producer-products"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Products} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/producer-orders"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Profile} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/producer-analytics"
+          component={() => (
+            <Container>
+              <ProtectedRoute component={Profile} />
+            </Container>
+          )}
+        />
 
-      {/* Admin Routes (protected) */}
-      <Route
-        path="/admin-dashboard"
-        component={() => <AdminRoute component={AdminDashboard} />}
-      />
-      <Route
-        path="/admin-users"
-        component={() => <AdminRoute component={Profile} />}
-      />
-      <Route
-        path="/admin-products"
-        component={() => <AdminRoute component={Products} />}
-      />
-      <Route
-        path="/admin-orders"
-        component={() => <AdminRoute component={Orders} />}
-      />
-      <Route
-        path="/admin-categories"
-        component={() => <AdminRoute component={AdminCategories} />}
-      />
+        {/* Admin Routes (protected) */}
+        <Route
+          path="/admin-dashboard"
+          component={() => (
+            <Container>
+              <AdminRoute component={AdminDashboard} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/admin-users"
+          component={() => (
+            <Container>
+              <AdminRoute component={Profile} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/admin-products"
+          component={() => (
+            <Container>
+              <AdminRoute component={Products} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/admin-orders"
+          component={() => (
+            <Container>
+              <AdminRoute component={Orders} />
+            </Container>
+          )}
+        />
+        <Route
+          path="/admin-categories"
+          component={() => (
+            <Container>
+              <AdminRoute component={AdminCategories} />
+            </Container>
+          )}
+        />
 
-      {/* Fallback to 404 */}
-      <Route component={NotFound} />
-    </Switch>
+        {/* Fallback to 404 */}
+        <Route
+          component={() => (
+            <Container>
+              <NotFound />
+            </Container>
+          )}
+        />
+      </Switch>
+      <Footer />
+    </>
   );
 }
 
@@ -112,10 +277,18 @@ function AuthPromptOnStart() {
   // Only prompt once per session unless user logs in
   React.useEffect(() => {
     if (isLoading) return;
-    const onAuthPromptShown = sessionStorage.getItem("auth_prompt_shown") === "1";
-    const isAuthRoute = location === "/register" || location === "/forgot-password";
+    const onAuthPromptShown =
+      sessionStorage.getItem("auth_prompt_shown") === "1";
+    const isAuthRoute =
+      location === "/register" || location === "/forgot-password";
     const isHome = location === "/";
-    if (!isAuthenticated && !isAuthRoute && !isHome && !isOpen && !onAuthPromptShown) {
+    if (
+      !isAuthenticated &&
+      !isAuthRoute &&
+      !isHome &&
+      !isOpen &&
+      !onAuthPromptShown
+    ) {
       open();
       sessionStorage.setItem("auth_prompt_shown", "1");
     }
@@ -124,7 +297,11 @@ function AuthPromptOnStart() {
   return null;
 }
 
-function ProtectedRoute({ component: Component }: { component: React.ComponentType<any> }) {
+function ProtectedRoute({
+  component: Component,
+}: {
+  component: React.ComponentType<any>;
+}) {
   const { isAuthenticated, isLoading } = useAuth();
   const { open } = useLoginPrompt();
   React.useEffect(() => {
@@ -141,22 +318,24 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        <TooltipProvider>
-          <AuthProvider>
-            <LoginPromptProvider>
-              <CompanyProvider>
-                <CartProvider>
-                  <RoleBasedNavigation />
-                  <Router />
-                  <AuthPromptOnStart />
-                  <CompanyModal />
-                  <LoginModal />
-                  <Toaster />
-                </CartProvider>
-              </CompanyProvider>
-            </LoginPromptProvider>
-          </AuthProvider>
-        </TooltipProvider>
+        <LanguageProvider>
+          <TooltipProvider>
+            <AuthProvider>
+              <LoginPromptProvider>
+                <CompanyProvider>
+                  <CartProvider>
+                    <RoleBasedNavigation />
+                    <Router />
+                    <AuthPromptOnStart />
+                    <CompanyModal />
+                    <LoginModal />
+                    <Toaster />
+                  </CartProvider>
+                </CompanyProvider>
+              </LoginPromptProvider>
+            </AuthProvider>
+          </TooltipProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );

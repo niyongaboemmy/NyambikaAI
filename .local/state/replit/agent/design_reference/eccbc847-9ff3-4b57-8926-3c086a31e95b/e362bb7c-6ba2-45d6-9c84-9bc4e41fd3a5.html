@@ -1,657 +1,994 @@
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nyambika - AI Fashion Platform Rwanda</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'inter': ['Inter', 'sans-serif'],
-                    },
-                    colors: {
-                        'electric-blue': '#3B82F6',
-                        'coral': '#FF6B6B',
-                        'deep-purple': '#6366F1',
-                        'gold': '#F59E0B',
-                        'dark-bg': '#0F172A',
-                        'dark-card': '#1E293B',
-                    },
-                    animation: {
-                        'gradient-x': 'gradient-x 15s ease infinite',
-                        'gradient-y': 'gradient-y 15s ease infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    },
-                    keyframes: {
-                        'gradient-x': {
-                            '0%, 100%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'left center'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'right center'
-                            },
-                        },
-                        'gradient-y': {
-                            '0%, 100%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'center top'
-                            },
-                            '50%': {
-                                'background-size': '200% 200%',
-                                'background-position': 'center bottom'
-                            },
-                        },
-                        'float': {
-                            '0%, 100%': { transform: 'translateY(0px)' },
-                            '50%': { transform: 'translateY(-10px)' },
-                        }
-                    },
-                    backdropBlur: {
-                        xs: '2px',
-                    }
-                }
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
             },
-            darkMode: 'class',
-        }
+            colors: {
+              "electric-blue": "#3B82F6",
+              coral: "#FF6B6B",
+              "deep-purple": "#6366F1",
+              gold: "#F59E0B",
+              "dark-bg": "#0F172A",
+              "dark-card": "#1E293B",
+            },
+            animation: {
+              "gradient-x": "gradient-x 15s ease infinite",
+              "gradient-y": "gradient-y 15s ease infinite",
+              float: "float 6s ease-in-out infinite",
+              "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+            },
+            keyframes: {
+              "gradient-x": {
+                "0%, 100%": {
+                  "background-size": "200% 200%",
+                  "background-position": "left center",
+                },
+                "50%": {
+                  "background-size": "200% 200%",
+                  "background-position": "right center",
+                },
+              },
+              "gradient-y": {
+                "0%, 100%": {
+                  "background-size": "200% 200%",
+                  "background-position": "center top",
+                },
+                "50%": {
+                  "background-size": "200% 200%",
+                  "background-position": "center bottom",
+                },
+              },
+              float: {
+                "0%, 100%": { transform: "translateY(0px)" },
+                "50%": { transform: "translateY(-10px)" },
+              },
+            },
+            backdropBlur: {
+              xs: "2px",
+            },
+          },
+        },
+        darkMode: "class",
+      };
     </script>
     <style>
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .glassmorphism-dark {
-            background: rgba(30, 41, 59, 0.15);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(100, 116, 139, 0.2);
-        }
-        .neumorphism {
-            box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1), -8px -8px 16px rgba(255, 255, 255, 0.9);
-        }
-        .neumorphism-dark {
-            box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.3), -8px -8px 16px rgba(30, 41, 59, 0.3);
-        }
-        .gradient-text {
-            background: linear-gradient(135deg, #3B82F6, #FF6B6B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .gradient-text-dark {
-            background: linear-gradient(135deg, #6366F1, #F59E0B);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
+      .glassmorphism {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+      .glassmorphism-dark {
+        background: rgba(30, 41, 59, 0.15);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(100, 116, 139, 0.2);
+      }
+      .neumorphism {
+        box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.1),
+          -8px -8px 16px rgba(255, 255, 255, 0.9);
+      }
+      .neumorphism-dark {
+        box-shadow: 8px 8px 16px rgba(0, 0, 0, 0.3),
+          -8px -8px 16px rgba(30, 41, 59, 0.3);
+      }
+      .gradient-text {
+        background: linear-gradient(135deg, #3b82f6, #ff6b6b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .gradient-text-dark {
+        background: linear-gradient(135deg, #6366f1, #f59e0b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
     </style>
-</head>
-<body class="font-inter bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-dark-bg dark:via-slate-900 dark:to-slate-800 transition-all duration-500">
-    
+  </head>
+  <body
+    class="font-inter bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-dark-bg dark:via-slate-900 dark:to-slate-800 transition-all duration-500"
+  >
     <!-- @COMPONENT: Header [Mobile-first navigation with theme toggle] -->
     <header class="fixed top-0 left-0 right-0 z-50 px-4 py-3 md:px-6">
-        <nav class="glassmorphism dark:glassmorphism-dark rounded-2xl px-4 py-3 mx-auto max-w-7xl">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold flex items-center justify-center">
-                        <i class="fas fa-tshirt text-white text-lg"></i>
-                    </div>
-                    <span class="text-2xl font-bold gradient-text dark:gradient-text-dark">Nyambika</span>
-                </div>
-                
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors">Ahabanza</a>
-                    <a href="#products" class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors">Imyenda</a>
-                    <a href="#tryon" class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors">Gerageza</a>
-                    <a href="#about" class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors">Abo turi</a>
-                </div>
-
-                <div class="flex items-center space-x-4">
-                    <!-- Language Selector -->
-                    <select class="glassmorphism dark:glassmorphism-dark rounded-lg px-3 py-2 text-sm bg-transparent border-0 focus:ring-2 focus:ring-electric-blue dark:focus:ring-deep-purple">
-                        <option value="rw" data-mock="true">🇷🇼 Kinyarwanda</option>
-                        <option value="en" data-mock="true">🇬🇧 English</option>
-                        <option value="fr" data-mock="true">🇫🇷 Français</option>
-                    </select>
-                    
-                    <!-- Theme Toggle -->
-                    <button id="theme-toggle" class="glassmorphism dark:glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300">
-                        <i class="fas fa-moon text-gray-700 dark:text-gray-300"></i>
-                    </button>
-                    
-                    <!-- Cart -->
-                    <button class="relative glassmorphism dark:glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300">
-                        <i class="fas fa-shopping-bag text-gray-700 dark:text-gray-300"></i>
-                        <span class="absolute -top-1 -right-1 bg-coral text-white text-xs rounded-full w-5 h-5 flex items-center justify-center" data-mock="true">3</span>
-                    </button>
-                    
-                    <!-- Profile -->
-                    <button class="glassmorphism dark:glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300">
-                        <i class="fas fa-user text-gray-700 dark:text-gray-300"></i>
-                    </button>
-                </div>
+      <nav
+        class="glassmorphism dark:glassmorphism-dark rounded-2xl px-4 py-3 mx-auto max-w-7xl"
+      >
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div
+              class="w-10 h-10 rounded-xl bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold flex items-center justify-center"
+            >
+              <i class="fas fa-tshirt text-white text-lg"></i>
             </div>
-        </nav>
+            <span
+              class="text-2xl font-bold gradient-text dark:gradient-text-dark"
+              >Nyambika</span
+            >
+          </div>
+
+          <!-- Desktop Navigation -->
+          <div class="hidden md:flex items-center space-x-8">
+            <a
+              href="#home"
+              class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors"
+              >Ahabanza</a
+            >
+            <a
+              href="#products"
+              class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors"
+              >Imyenda</a
+            >
+            <a
+              href="#tryon"
+              class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors"
+              >Gerageza</a
+            >
+            <a
+              href="#about"
+              class="text-gray-700 dark:text-gray-300 hover:text-electric-blue dark:hover:text-deep-purple transition-colors"
+              >Abo turi</a
+            >
+          </div>
+
+          <div class="flex items-center space-x-4">
+            <!-- Language Selector -->
+            <select
+              class="glassmorphism dark:glassmorphism-dark rounded-lg px-3 py-2 text-sm bg-transparent border-0 focus:ring-2 focus:ring-electric-blue dark:focus:ring-deep-purple"
+            >
+              <option value="rw" data-mock="true">🇷🇼 Kinyarwanda</option>
+              <option value="en" data-mock="true">🇬🇧 English</option>
+              <option value="fr" data-mock="true">🇫🇷 Français</option>
+            </select>
+
+            <!-- Theme Toggle -->
+            <button
+              id="theme-toggle"
+              class="glassmorphism dark:glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300"
+            >
+              <i class="fas fa-moon text-gray-700 dark:text-gray-300"></i>
+            </button>
+
+            <!-- Cart -->
+            <button
+              class="relative glassmorphism dark:glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300"
+            >
+              <i
+                class="fas fa-shopping-bag text-gray-700 dark:text-gray-300"
+              ></i>
+              <span
+                class="absolute -top-1 -right-1 bg-coral text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                data-mock="true"
+                >3</span
+              >
+            </button>
+
+            <!-- Profile -->
+            <button
+              class="glassmorphism dark:glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300"
+            >
+              <i class="fas fa-user text-gray-700 dark:text-gray-300"></i>
+            </button>
+          </div>
+        </div>
+      </nav>
     </header>
     <!-- @END_COMPONENT: Header -->
 
     <!-- @COMPONENT: HeroSection [Animated gradient background with search] -->
-    <section id="home" class="min-h-screen flex items-center justify-center pt-20 px-4 md:px-6">
-        <div class="text-center max-w-4xl mx-auto">
-            <!-- Animated background -->
-            <div class="absolute inset-0 -z-10">
-                <div class="absolute inset-0 bg-gradient-to-br from-electric-blue/20 via-coral/10 to-purple-500/20 dark:from-deep-purple/20 dark:via-gold/10 dark:to-blue-500/20 animate-gradient-x"></div>
-            </div>
-            
-            <div class="animate-float">
-                <h1 class="text-5xl md:text-7xl font-bold mb-6 gradient-text dark:gradient-text-dark">
-                    Imyenda nziza<br/>
-                    <span class="text-4xl md:text-6xl">n'ubwiza bw'AI</span>
-                </h1>
-                <p class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-                    Gukoresha tekinoloji ya AI kugira ngo ubona imyenda ikwiriye<br/>
-                    <span class="text-lg md:text-xl opacity-75">AI-powered fashion platform for Rwanda</span>
-                </p>
-            </div>
-
-            <!-- Search Bar -->
-            <div class="glassmorphism dark:glassmorphism-dark rounded-2xl p-2 max-w-2xl mx-auto mb-12 hover:scale-105 transition-all duration-300">
-                <div class="flex items-center space-x-4">
-                    <div class="flex-1 relative">
-                        <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" placeholder="Shakisha imyenda ushaka... (Search for clothes...)" 
-                               class="w-full pl-12 pr-4 py-4 bg-transparent rounded-xl focus:outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400"
-                               data-mock="true">
-                    </div>
-                    <button class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-8 py-4 rounded-xl hover:scale-105 transition-all duration-300 font-semibold">
-                        <i class="fas fa-search mr-2"></i>Shakisha
-                    </button>
-                </div>
-            </div>
-
-            <!-- AI Try-On CTA -->
-            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <button class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg neumorphism">
-                    <i class="fas fa-camera mr-3"></i>Gerageza AI Try-On
-                </button>
-                <button class="glassmorphism dark:glassmorphism-dark text-gray-700 dark:text-gray-300 px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg">
-                    <i class="fas fa-play mr-3"></i>Reba Video
-                </button>
-            </div>
+    <section
+      id="home"
+      class="min-h-screen flex items-center justify-center pt-20 px-4 md:px-6"
+    >
+      <div class="text-center max-w-4xl mx-auto">
+        <!-- Animated background -->
+        <div class="absolute inset-0 -z-10">
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-electric-blue/20 via-coral/10 to-purple-500/20 dark:from-deep-purple/20 dark:via-gold/10 dark:to-blue-500/20 animate-gradient-x"
+          ></div>
         </div>
+
+        <div class="animate-float">
+          <h1
+            class="text-5xl md:text-7xl font-bold mb-6 gradient-text dark:gradient-text-dark"
+          >
+            Imyenda nziza<br />
+            <span class="text-4xl md:text-6xl">n'ubwiza bw'AI</span>
+          </h1>
+          <p
+            class="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed"
+          >
+            Gukoresha tekinoloji ya AI kugira ngo ubona imyenda ikwiriye<br />
+            <span class="text-lg md:text-xl opacity-75"
+              >AI-powered fashion platform for Rwanda</span
+            >
+          </p>
+        </div>
+
+        <!-- Search Bar -->
+        <div
+          class="glassmorphism dark:glassmorphism-dark rounded-2xl p-2 max-w-2xl mx-auto mb-12 hover:scale-105 transition-all duration-300"
+        >
+          <div class="flex items-center space-x-4">
+            <div class="flex-1 relative">
+              <i
+                class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"
+              ></i>
+              <input
+                type="text"
+                placeholder="Shakisha imyenda ushaka... (Search for clothes...)"
+                class="w-full pl-12 pr-4 py-4 bg-transparent rounded-xl focus:outline-none text-gray-700 dark:text-gray-300 placeholder-gray-400"
+                data-mock="true"
+              />
+            </div>
+            <button
+              class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-8 py-4 rounded-xl hover:scale-105 transition-all duration-300 font-semibold"
+            >
+              <i class="fas fa-search mr-2"></i>Shakisha
+            </button>
+          </div>
+        </div>
+
+        <!-- AI Try-On CTA -->
+        <div
+          class="flex flex-col sm:flex-row gap-4 justify-center items-center"
+        >
+          <button
+            class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg neumorphism"
+          >
+            <i class="fas fa-camera mr-3"></i>Gerageza AI Try-On
+          </button>
+          <button
+            class="glassmorphism dark:glassmorphism-dark text-gray-700 dark:text-gray-300 px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg"
+          >
+            <i class="fas fa-play mr-3"></i>Reba Video
+          </button>
+        </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: HeroSection -->
 
     <!-- @COMPONENT: CategoryCards [3 interactive category cards] -->
     <section class="py-20 px-4 md:px-6">
-        <div class="max-w-7xl mx-auto">
-            <h2 class="text-4xl md:text-5xl font-bold text-center mb-16 gradient-text dark:gradient-text-dark">
-                Hitamo Icyakunze
-                <span class="block text-2xl md:text-3xl mt-2 text-gray-600 dark:text-gray-300">Choose Your Style</span>
-            </h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Women's Fashion -->
-                <div class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-8 hover:scale-105 transition-all duration-500 cursor-pointer neumorphism hover:neumorphism-dark">
-                    <!-- Modern fashion model in artistic pose for women's clothing -->
-                    <img src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-                         alt="Women's Fashion" 
-                         class="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500">
-                    <div class="text-center">
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200">Imyenda y'Abagore</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4">Women's Fashion Collection</p>
-                        <div class="flex justify-center items-center space-x-2 text-electric-blue dark:text-deep-purple">
-                            <span class="font-semibold">Reba Byinshi</span>
-                            <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"></i>
-                        </div>
-                    </div>
-                </div>
+      <div class=" ">
+        <h2
+          class="text-4xl md:text-5xl font-bold text-center mb-16 gradient-text dark:gradient-text-dark"
+        >
+          Hitamo Icyakunze
+          <span
+            class="block text-2xl md:text-3xl mt-2 text-gray-600 dark:text-gray-300"
+            >Choose Your Style</span
+          >
+        </h2>
 
-                <!-- Men's Fashion -->
-                <div class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-8 hover:scale-105 transition-all duration-500 cursor-pointer neumorphism hover:neumorphism-dark">
-                    <!-- Contemporary male fashion model in artistic pose -->
-                    <img src="https://pixabay.com/get/gf6ad1a86d9a715e944ecf662cd8b4785fa8d7a1d80347b8afbca77d487cc33215e58cccb1b60362209c117ef0a439cd07d187ba183b591d6d3f67044492f3d0c_1280.jpg" 
-                         alt="Men's Fashion" 
-                         class="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500">
-                    <div class="text-center">
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200">Imyenda y'Abagabo</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4">Men's Fashion Collection</p>
-                        <div class="flex justify-center items-center space-x-2 text-electric-blue dark:text-deep-purple">
-                            <span class="font-semibold">Reba Byinshi</span>
-                            <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Accessories -->
-                <div class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-8 hover:scale-105 transition-all duration-500 cursor-pointer neumorphism hover:neumorphism-dark">
-                    <!-- Luxury fashion accessories with premium styling -->
-                    <img src="https://images.unsplash.com/photo-1523779105320-d1cd346ff52b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600" 
-                         alt="Fashion Accessories" 
-                         class="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500">
-                    <div class="text-center">
-                        <h3 class="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200">Ibikoresho</h3>
-                        <p class="text-gray-600 dark:text-gray-400 mb-4">Accessories & More</p>
-                        <div class="flex justify-center items-center space-x-2 text-electric-blue dark:text-deep-purple">
-                            <span class="font-semibold">Reba Byinshi</span>
-                            <i class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <!-- Women's Fashion -->
+          <div
+            class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-8 hover:scale-105 transition-all duration-500 cursor-pointer neumorphism hover:neumorphism-dark"
+          >
+            <!-- Modern fashion model in artistic pose for women's clothing -->
+            <img
+              src="https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"
+              alt="Women's Fashion"
+              class="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div class="text-center">
+              <h3
+                class="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200"
+              >
+                Imyenda y'Abagore
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Women's Fashion Collection
+              </p>
+              <div
+                class="flex justify-center items-center space-x-2 text-electric-blue dark:text-deep-purple"
+              >
+                <span class="font-semibold">Reba Byinshi</span>
+                <i
+                  class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"
+                ></i>
+              </div>
             </div>
+          </div>
+
+          <!-- Men's Fashion -->
+          <div
+            class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-8 hover:scale-105 transition-all duration-500 cursor-pointer neumorphism hover:neumorphism-dark"
+          >
+            <!-- Contemporary male fashion model in artistic pose -->
+            <img
+              src="https://pixabay.com/get/gf6ad1a86d9a715e944ecf662cd8b4785fa8d7a1d80347b8afbca77d487cc33215e58cccb1b60362209c117ef0a439cd07d187ba183b591d6d3f67044492f3d0c_1280.jpg"
+              alt="Men's Fashion"
+              class="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div class="text-center">
+              <h3
+                class="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200"
+              >
+                Imyenda y'Abagabo
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Men's Fashion Collection
+              </p>
+              <div
+                class="flex justify-center items-center space-x-2 text-electric-blue dark:text-deep-purple"
+              >
+                <span class="font-semibold">Reba Byinshi</span>
+                <i
+                  class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"
+                ></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accessories -->
+          <div
+            class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-8 hover:scale-105 transition-all duration-500 cursor-pointer neumorphism hover:neumorphism-dark"
+          >
+            <!-- Luxury fashion accessories with premium styling -->
+            <img
+              src="https://images.unsplash.com/photo-1523779105320-d1cd346ff52b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=600"
+              alt="Fashion Accessories"
+              class="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div class="text-center">
+              <h3
+                class="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200"
+              >
+                Ibikoresho
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                Accessories & More
+              </p>
+              <div
+                class="flex justify-center items-center space-x-2 text-electric-blue dark:text-deep-purple"
+              >
+                <span class="font-semibold">Reba Byinshi</span>
+                <i
+                  class="fas fa-arrow-right group-hover:translate-x-2 transition-transform duration-300"
+                ></i>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: CategoryCards -->
 
     <!-- @COMPONENT: AITryOnStudio [Immersive try-on experience] -->
-    <section id="tryon" class="py-20 px-4 md:px-6 bg-gradient-to-br from-slate-100 to-white dark:from-slate-800 dark:to-dark-bg">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text dark:gradient-text-dark">
-                    AI Try-On Studio
-                </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                    Koresha tekinoloji ya AI kugira ngo urebe uko imyenda ikubana mbere yo kugura
-                    <span class="block text-lg mt-2">Use AI technology to see how clothes look on you before buying</span>
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                <!-- Try-On Interface -->
-                <div class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 neumorphism">
-                    <div class="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden">
-                        <!-- High-end fashion photography with cinematic lighting -->
-                        <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000" 
-                             alt="AI Try-On Preview" 
-                             class="w-full h-full object-cover rounded-2xl">
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-                        <div class="absolute bottom-4 left-4 right-4">
-                            <div class="glassmorphism rounded-xl p-3">
-                                <p class="text-white text-sm">AI Processing...</p>
-                                <div class="w-full bg-white/20 rounded-full h-1 mt-2">
-                                    <div class="bg-coral h-1 rounded-full animate-pulse" style="width: 65%"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-4">
-                        <button class="w-full bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white py-4 rounded-xl font-semibold hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-camera mr-3"></i>Fata Ifoto / Take Photo
-                        </button>
-                        <button class="w-full glassmorphism dark:glassmorphism-dark text-gray-700 dark:text-gray-300 py-4 rounded-xl font-semibold hover:scale-105 transition-all duration-300">
-                            <i class="fas fa-upload mr-3"></i>Shyiramo Ifoto / Upload Photo
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Features List -->
-                <div class="space-y-8">
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-magic text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Ubusobanuro bw'AI</h3>
-                            <p class="text-gray-600 dark:text-gray-400">Advanced AI technology provides realistic clothing visualization on your body</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-ruler text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Ibipimo by'Ukuri</h3>
-                            <p class="text-gray-600 dark:text-gray-400">Get accurate size recommendations based on your measurements and body type</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start space-x-4">
-                        <div class="w-12 h-12 bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-xl flex items-center justify-center flex-shrink-0">
-                            <i class="fas fa-clock text-white"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2">Byihuse Cyane</h3>
-                            <p class="text-gray-600 dark:text-gray-400">Real-time processing provides instant results in just a few seconds</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <section
+      id="tryon"
+      class="py-20 px-4 md:px-6 bg-gradient-to-br from-slate-100 to-white dark:from-slate-800 dark:to-dark-bg"
+    >
+      <div class=" ">
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-bold mb-6 gradient-text dark:gradient-text-dark"
+          >
+            AI Try-On Studio
+          </h2>
+          <p class="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+            Koresha tekinoloji ya AI kugira ngo urebe uko imyenda ikubana mbere
+            yo kugura
+            <span class="block text-lg mt-2"
+              >Use AI technology to see how clothes look on you before
+              buying</span
+            >
+          </p>
         </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <!-- Try-On Interface -->
+          <div
+            class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 neumorphism"
+          >
+            <div
+              class="aspect-[3/4] bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 rounded-2xl flex items-center justify-center mb-6 relative overflow-hidden"
+            >
+              <!-- High-end fashion photography with cinematic lighting -->
+              <img
+                src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000"
+                alt="AI Try-On Preview"
+                class="w-full h-full object-cover rounded-2xl"
+              />
+              <div
+                class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"
+              ></div>
+              <div class="absolute bottom-4 left-4 right-4">
+                <div class="glassmorphism rounded-xl p-3">
+                  <p class="text-white text-sm">AI Processing...</p>
+                  <div class="w-full bg-white/20 rounded-full h-1 mt-2">
+                    <div
+                      class="bg-coral h-1 rounded-full animate-pulse"
+                      style="width: 65%"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-4">
+              <button
+                class="w-full bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white py-4 rounded-xl font-semibold hover:scale-105 transition-all duration-300"
+              >
+                <i class="fas fa-camera mr-3"></i>Fata Ifoto / Take Photo
+              </button>
+              <button
+                class="w-full glassmorphism dark:glassmorphism-dark text-gray-700 dark:text-gray-300 py-4 rounded-xl font-semibold hover:scale-105 transition-all duration-300"
+              >
+                <i class="fas fa-upload mr-3"></i>Shyiramo Ifoto / Upload Photo
+              </button>
+            </div>
+          </div>
+
+          <!-- Features List -->
+          <div class="space-y-8">
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-magic text-white"></i>
+              </div>
+              <div>
+                <h3
+                  class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2"
+                >
+                  Ubusobanuro bw'AI
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  Advanced AI technology provides realistic clothing
+                  visualization on your body
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-ruler text-white"></i>
+              </div>
+              <div>
+                <h3
+                  class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2"
+                >
+                  Ibipimo by'Ukuri
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  Get accurate size recommendations based on your measurements
+                  and body type
+                </p>
+              </div>
+            </div>
+
+            <div class="flex items-start space-x-4">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-xl flex items-center justify-center flex-shrink-0"
+              >
+                <i class="fas fa-clock text-white"></i>
+              </div>
+              <div>
+                <h3
+                  class="text-xl font-bold text-gray-800 dark:text-gray-200 mb-2"
+                >
+                  Byihuse Cyane
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400">
+                  Real-time processing provides instant results in just a few
+                  seconds
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: AITryOnStudio -->
 
     <!-- @COMPONENT: ProductShowcase [Featured products with modern cards] -->
     <section id="products" class="py-20 px-4 md:px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text dark:gradient-text-dark">
-                    Imyenda Nziza Cyane
-                </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-300">
-                    Featured Fashion Collections
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                <!-- @MAP: products.map(product => ( -->
-                <!-- Product Card 1 -->
-                <div class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism">
-                    <!-- High-end fashion photography with cinematic lighting -->
-                    <img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                         alt="Fashion Item 1" 
-                         class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500">
-                    <div class="space-y-3">
-                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200" data-mock="true">Elegant Dress</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm" data-mock="true">Premium cotton blend</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-electric-blue dark:text-deep-purple" data-mock="true">45,000 RWF</span>
-                            <button class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product Card 2 -->
-                <div class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism">
-                    <!-- Contemporary fashion model in artistic pose -->
-                    <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                         alt="Fashion Item 2" 
-                         class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500">
-                    <div class="space-y-3">
-                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200" data-mock="true">Casual Shirt</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm" data-mock="true">100% organic cotton</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-electric-blue dark:text-deep-purple" data-mock="true">25,000 RWF</span>
-                            <button class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product Card 3 -->
-                <div class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism">
-                    <!-- Luxury fashion accessories with premium styling -->
-                    <img src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                         alt="Fashion Item 3" 
-                         class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500">
-                    <div class="space-y-3">
-                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200" data-mock="true">Designer Bag</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm" data-mock="true">Genuine leather</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-electric-blue dark:text-deep-purple" data-mock="true">65,000 RWF</span>
-                            <button class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product Card 4 -->
-                <div class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism">
-                    <!-- High-end fashion photography with cinematic lighting -->
-                    <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500" 
-                         alt="Fashion Item 4" 
-                         class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500">
-                    <div class="space-y-3">
-                        <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200" data-mock="true">Sneakers</h3>
-                        <p class="text-gray-600 dark:text-gray-400 text-sm" data-mock="true">Limited edition</p>
-                        <div class="flex items-center justify-between">
-                            <span class="text-xl font-bold text-electric-blue dark:text-deep-purple" data-mock="true">55,000 RWF</span>
-                            <button class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <!-- @END_MAP )) -->
-            </div>
-
-            <div class="text-center mt-12">
-                <button class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg">
-                    Reba Imyenda Yose / View All Products
-                </button>
-            </div>
+      <div class=" ">
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-bold mb-6 gradient-text dark:gradient-text-dark"
+          >
+            Imyenda Nziza Cyane
+          </h2>
+          <p class="text-xl text-gray-600 dark:text-gray-300">
+            Featured Fashion Collections
+          </p>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- @MAP: products.map(product => ( -->
+          <!-- Product Card 1 -->
+          <div
+            class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism"
+          >
+            <!-- High-end fashion photography with cinematic lighting -->
+            <img
+              src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+              alt="Fashion Item 1"
+              class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div class="space-y-3">
+              <h3
+                class="text-lg font-bold text-gray-800 dark:text-gray-200"
+                data-mock="true"
+              >
+                Elegant Dress
+              </h3>
+              <p
+                class="text-gray-600 dark:text-gray-400 text-sm"
+                data-mock="true"
+              >
+                Premium cotton blend
+              </p>
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-xl font-bold text-electric-blue dark:text-deep-purple"
+                  data-mock="true"
+                  >45,000 RWF</span
+                >
+                <button
+                  class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 2 -->
+          <div
+            class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism"
+          >
+            <!-- Contemporary fashion model in artistic pose -->
+            <img
+              src="https://images.unsplash.com/photo-1551028719-00167b16eac5?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+              alt="Fashion Item 2"
+              class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div class="space-y-3">
+              <h3
+                class="text-lg font-bold text-gray-800 dark:text-gray-200"
+                data-mock="true"
+              >
+                Casual Shirt
+              </h3>
+              <p
+                class="text-gray-600 dark:text-gray-400 text-sm"
+                data-mock="true"
+              >
+                100% organic cotton
+              </p>
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-xl font-bold text-electric-blue dark:text-deep-purple"
+                  data-mock="true"
+                  >25,000 RWF</span
+                >
+                <button
+                  class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 3 -->
+          <div
+            class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism"
+          >
+            <!-- Luxury fashion accessories with premium styling -->
+            <img
+              src="https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+              alt="Fashion Item 3"
+              class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div class="space-y-3">
+              <h3
+                class="text-lg font-bold text-gray-800 dark:text-gray-200"
+                data-mock="true"
+              >
+                Designer Bag
+              </h3>
+              <p
+                class="text-gray-600 dark:text-gray-400 text-sm"
+                data-mock="true"
+              >
+                Genuine leather
+              </p>
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-xl font-bold text-electric-blue dark:text-deep-purple"
+                  data-mock="true"
+                  >65,000 RWF</span
+                >
+                <button
+                  class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 4 -->
+          <div
+            class="group glassmorphism dark:glassmorphism-dark rounded-3xl p-6 hover:scale-105 transition-all duration-500 neumorphism"
+          >
+            <!-- High-end fashion photography with cinematic lighting -->
+            <img
+              src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=400&h=500"
+              alt="Fashion Item 4"
+              class="w-full h-64 object-cover rounded-2xl mb-4 group-hover:scale-105 transition-transform duration-500"
+            />
+            <div class="space-y-3">
+              <h3
+                class="text-lg font-bold text-gray-800 dark:text-gray-200"
+                data-mock="true"
+              >
+                Sneakers
+              </h3>
+              <p
+                class="text-gray-600 dark:text-gray-400 text-sm"
+                data-mock="true"
+              >
+                Limited edition
+              </p>
+              <div class="flex items-center justify-between">
+                <span
+                  class="text-xl font-bold text-electric-blue dark:text-deep-purple"
+                  data-mock="true"
+                  >55,000 RWF</span
+                >
+                <button
+                  class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-4 py-2 rounded-xl hover:scale-105 transition-all duration-300"
+                >
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <!-- @END_MAP )) -->
+        </div>
+
+        <div class="text-center mt-12">
+          <button
+            class="bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg"
+          >
+            Reba Imyenda Yose / View All Products
+          </button>
+        </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: ProductShowcase -->
 
     <!-- @COMPONENT: PaymentMethods [Mobile money integration] -->
-    <section class="py-20 px-4 md:px-6 bg-gradient-to-br from-slate-100 to-white dark:from-slate-800 dark:to-dark-bg">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold mb-6 gradient-text dark:gradient-text-dark">
-                    Uburyo bwo Kwishyura
-                </h2>
-                <p class="text-xl text-gray-600 dark:text-gray-300">
-                    Secure & Convenient Payment Options
-                </p>
-            </div>
-
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                <!-- MTN Mobile Money -->
-                <div class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism">
-                    <div class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-mobile-alt text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">MTN MoMo</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Mobile Money</p>
-                </div>
-
-                <!-- Airtel Money -->
-                <div class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism">
-                    <div class="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-mobile-alt text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Airtel Money</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Mobile Money</p>
-                </div>
-
-                <!-- PayPal -->
-                <div class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism">
-                    <div class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fab fa-paypal text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">PayPal</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">International</p>
-                </div>
-
-                <!-- Bank Cards -->
-                <div class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism">
-                    <div class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                        <i class="fas fa-credit-card text-white text-2xl"></i>
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">Bank Cards</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">Visa, Mastercard</p>
-                </div>
-            </div>
+    <section
+      class="py-20 px-4 md:px-6 bg-gradient-to-br from-slate-100 to-white dark:from-slate-800 dark:to-dark-bg"
+    >
+      <div class=" ">
+        <div class="text-center mb-16">
+          <h2
+            class="text-4xl md:text-5xl font-bold mb-6 gradient-text dark:gradient-text-dark"
+          >
+            Uburyo bwo Kwishyura
+          </h2>
+          <p class="text-xl text-gray-600 dark:text-gray-300">
+            Secure & Convenient Payment Options
+          </p>
         </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <!-- MTN Mobile Money -->
+          <div
+            class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism"
+          >
+            <div
+              class="w-16 h-16 bg-yellow-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-mobile-alt text-white text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">
+              MTN MoMo
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Mobile Money
+            </p>
+          </div>
+
+          <!-- Airtel Money -->
+          <div
+            class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism"
+          >
+            <div
+              class="w-16 h-16 bg-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-mobile-alt text-white text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">
+              Airtel Money
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Mobile Money
+            </p>
+          </div>
+
+          <!-- PayPal -->
+          <div
+            class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism"
+          >
+            <div
+              class="w-16 h-16 bg-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fab fa-paypal text-white text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">
+              PayPal
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              International
+            </p>
+          </div>
+
+          <!-- Bank Cards -->
+          <div
+            class="glassmorphism dark:glassmorphism-dark rounded-3xl p-8 text-center hover:scale-105 transition-all duration-300 neumorphism"
+          >
+            <div
+              class="w-16 h-16 bg-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4"
+            >
+              <i class="fas fa-credit-card text-white text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-gray-200">
+              Bank Cards
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">
+              Visa, Mastercard
+            </p>
+          </div>
+        </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: PaymentMethods -->
 
     <!-- @COMPONENT: Footer [Modern footer with social links] -->
-    <footer class="py-20 px-4 md:px-6 bg-gradient-to-br from-gray-900 to-slate-900 dark:from-dark-bg dark:to-slate-900">
-        <div class="max-w-7xl mx-auto">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-                <!-- Brand -->
-                <div class="space-y-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold flex items-center justify-center">
-                            <i class="fas fa-tshirt text-white text-xl"></i>
-                        </div>
-                        <span class="text-3xl font-bold text-white">Nyambika</span>
-                    </div>
-                    <p class="text-gray-400 text-lg">
-                        AI-powered fashion platform<br/>
-                        for Rwanda's clothing sector
-                    </p>
-                    <div class="flex space-x-4">
-                        <button class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300">
-                            <i class="fab fa-facebook text-white"></i>
-                        </button>
-                        <button class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300">
-                            <i class="fab fa-twitter text-white"></i>
-                        </button>
-                        <button class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300">
-                            <i class="fab fa-instagram text-white"></i>
-                        </button>
-                        <button class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300">
-                            <i class="fab fa-linkedin text-white"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Quick Links -->
-                <div>
-                    <h3 class="text-xl font-bold text-white mb-6">Quick Links</h3>
-                    <div class="space-y-3">
-                        <a href="#home" class="block text-gray-400 hover:text-white transition-colors">Ahabanza</a>
-                        <a href="#products" class="block text-gray-400 hover:text-white transition-colors">Imyenda</a>
-                        <a href="#tryon" class="block text-gray-400 hover:text-white transition-colors">AI Try-On</a>
-                        <a href="#about" class="block text-gray-400 hover:text-white transition-colors">Abo turi</a>
-                    </div>
-                </div>
-
-                <!-- Support -->
-                <div>
-                    <h3 class="text-xl font-bold text-white mb-6">Support</h3>
-                    <div class="space-y-3">
-                        <a href="#" class="block text-gray-400 hover:text-white transition-colors">Help Center</a>
-                        <a href="#" class="block text-gray-400 hover:text-white transition-colors">Size Guide</a>
-                        <a href="#" class="block text-gray-400 hover:text-white transition-colors">Returns</a>
-                        <a href="#" class="block text-gray-400 hover:text-white transition-colors">Contact</a>
-                    </div>
-                </div>
-
-                <!-- Contact -->
-                <div>
-                    <h3 class="text-xl font-bold text-white mb-6">Contact</h3>
-                    <div class="space-y-3">
-                        <p class="text-gray-400">
-                            <i class="fas fa-phone mr-3"></i>
-                            +250 788 123 456
-                        </p>
-                        <p class="text-gray-400">
-                            <i class="fas fa-envelope mr-3"></i>
-                            info@nyambika.rw
-                        </p>
-                        <p class="text-gray-400">
-                            <i class="fas fa-map-marker-alt mr-3"></i>
-                            Kigali, Rwanda
-                        </p>
-                    </div>
-                </div>
+    <footer
+      class="py-20 px-4 md:px-6 bg-gradient-to-br from-gray-900 to-slate-900 dark:from-dark-bg dark:to-slate-900"
+    >
+      <div class=" ">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+          <!-- Brand -->
+          <div class="space-y-4">
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-12 h-12 rounded-xl bg-gradient-to-br from-electric-blue to-coral dark:from-deep-purple dark:to-gold flex items-center justify-center"
+              >
+                <i class="fas fa-tshirt text-white text-xl"></i>
+              </div>
+              <span class="text-3xl font-bold text-white">Nyambika</span>
             </div>
-
-            <div class="border-t border-gray-700 pt-8 text-center">
-                <p class="text-gray-400">
-                    © 2024 Nyambika. All rights reserved. Made with ❤️ in Rwanda
-                </p>
+            <p class="text-gray-400 text-lg">
+              AI-powered fashion platform<br />
+              for Rwanda's clothing sector
+            </p>
+            <div class="flex space-x-4">
+              <button
+                class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300"
+              >
+                <i class="fab fa-facebook text-white"></i>
+              </button>
+              <button
+                class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300"
+              >
+                <i class="fab fa-twitter text-white"></i>
+              </button>
+              <button
+                class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300"
+              >
+                <i class="fab fa-instagram text-white"></i>
+              </button>
+              <button
+                class="glassmorphism-dark rounded-lg p-3 hover:scale-105 transition-all duration-300"
+              >
+                <i class="fab fa-linkedin text-white"></i>
+              </button>
             </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div>
+            <h3 class="text-xl font-bold text-white mb-6">Quick Links</h3>
+            <div class="space-y-3">
+              <a
+                href="#home"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >Ahabanza</a
+              >
+              <a
+                href="#products"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >Imyenda</a
+              >
+              <a
+                href="#tryon"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >AI Try-On</a
+              >
+              <a
+                href="#about"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >Abo turi</a
+              >
+            </div>
+          </div>
+
+          <!-- Support -->
+          <div>
+            <h3 class="text-xl font-bold text-white mb-6">Support</h3>
+            <div class="space-y-3">
+              <a
+                href="#"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >Help Center</a
+              >
+              <a
+                href="#"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >Size Guide</a
+              >
+              <a
+                href="#"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >Returns</a
+              >
+              <a
+                href="#"
+                class="block text-gray-400 hover:text-white transition-colors"
+                >Contact</a
+              >
+            </div>
+          </div>
+
+          <!-- Contact -->
+          <div>
+            <h3 class="text-xl font-bold text-white mb-6">Contact</h3>
+            <div class="space-y-3">
+              <p class="text-gray-400">
+                <i class="fas fa-phone mr-3"></i>
+                +250 788 123 456
+              </p>
+              <p class="text-gray-400">
+                <i class="fas fa-envelope mr-3"></i>
+                info@nyambika.rw
+              </p>
+              <p class="text-gray-400">
+                <i class="fas fa-map-marker-alt mr-3"></i>
+                Kigali, Rwanda
+              </p>
+            </div>
+          </div>
         </div>
+
+        <div class="border-t border-gray-700 pt-8 text-center">
+          <p class="text-gray-400">
+            © 2024 Nyambika. All rights reserved. Made with ❤️ in Rwanda
+          </p>
+        </div>
+      </div>
     </footer>
     <!-- @END_COMPONENT: Footer -->
 
     <!-- @COMPONENT: FloatingActionButton [Quick access to try-on] -->
-    <button class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-all duration-300 z-40 animate-pulse-slow">
-        <i class="fas fa-camera text-xl"></i>
+    <button
+      class="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-electric-blue to-coral dark:from-deep-purple dark:to-gold rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-all duration-300 z-40 animate-pulse-slow"
+    >
+      <i class="fas fa-camera text-xl"></i>
     </button>
     <!-- @END_COMPONENT: FloatingActionButton -->
 
     <script>
-        // TODO: Implement business logic, API calls, and state management
-        
-        (() => {
-            // Theme Toggle Functionality
-            const themeToggle = document.getElementById('theme-toggle');
-            const html = document.documentElement;
-            
-            // Check for saved theme preference or default to 'light'
-            const currentTheme = localStorage.getItem('theme') || 'light';
-            html.classList.toggle('dark', currentTheme === 'dark');
-            
-            themeToggle.addEventListener('click', () => {
-                const isDark = html.classList.contains('dark');
-                html.classList.toggle('dark');
-                localStorage.setItem('theme', isDark ? 'light' : 'dark');
-                
-                // Update icon
-                const icon = themeToggle.querySelector('i');
-                icon.className = isDark ? 'fas fa-moon text-gray-700 dark:text-gray-300' : 'fas fa-sun text-gray-700 dark:text-gray-300';
-            });
+      // TODO: Implement business logic, API calls, and state management
 
-            // Smooth scrolling for navigation links
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-            });
+      (() => {
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById("theme-toggle");
+        const html = document.documentElement;
 
-            // Intersection Observer for animations
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
+        // Check for saved theme preference or default to 'light'
+        const currentTheme = localStorage.getItem("theme") || "light";
+        html.classList.toggle("dark", currentTheme === "dark");
 
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.transform = 'translateY(0)';
-                        entry.target.style.opacity = '1';
-                    }
-                });
-            }, observerOptions);
+        themeToggle.addEventListener("click", () => {
+          const isDark = html.classList.contains("dark");
+          html.classList.toggle("dark");
+          localStorage.setItem("theme", isDark ? "light" : "dark");
 
-            // Observe all sections for scroll animations
-            document.querySelectorAll('section').forEach(section => {
-                section.style.transform = 'translateY(20px)';
-                section.style.opacity = '0';
-                section.style.transition = 'all 0.6s ease-out';
-                observer.observe(section);
-            });
+          // Update icon
+          const icon = themeToggle.querySelector("i");
+          icon.className = isDark
+            ? "fas fa-moon text-gray-700 dark:text-gray-300"
+            : "fas fa-sun text-gray-700 dark:text-gray-300";
+        });
 
-            // Auto theme switching based on time (6 AM - 6 PM = light mode)
-            const autoThemeSwitch = () => {
-                const hour = new Date().getHours();
-                const shouldBeDark = hour < 6 || hour >= 18;
-                const currentTheme = localStorage.getItem('theme');
-                
-                if (!currentTheme) { // Only auto-switch if no manual preference
-                    html.classList.toggle('dark', shouldBeDark);
-                }
-            };
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+          anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute("href"));
+            if (target) {
+              target.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+              });
+            }
+          });
+        });
 
-            // Check theme on load and every hour
-            autoThemeSwitch();
-            setInterval(autoThemeSwitch, 3600000); // 1 hour
+        // Intersection Observer for animations
+        const observerOptions = {
+          threshold: 0.1,
+          rootMargin: "0px 0px -50px 0px",
+        };
 
-            // Parallax effect for hero section
-            window.addEventListener('scroll', () => {
-                const scrolled = window.pageYOffset;
-                const hero = document.querySelector('#home');
-                if (hero) {
-                    hero.style.transform = `translateY(${scrolled * 0.5}px)`;
-                }
-            });
-        })();
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.style.transform = "translateY(0)";
+              entry.target.style.opacity = "1";
+            }
+          });
+        }, observerOptions);
+
+        // Observe all sections for scroll animations
+        document.querySelectorAll("section").forEach((section) => {
+          section.style.transform = "translateY(20px)";
+          section.style.opacity = "0";
+          section.style.transition = "all 0.6s ease-out";
+          observer.observe(section);
+        });
+
+        // Auto theme switching based on time (6 AM - 6 PM = light mode)
+        const autoThemeSwitch = () => {
+          const hour = new Date().getHours();
+          const shouldBeDark = hour < 6 || hour >= 18;
+          const currentTheme = localStorage.getItem("theme");
+
+          if (!currentTheme) {
+            // Only auto-switch if no manual preference
+            html.classList.toggle("dark", shouldBeDark);
+          }
+        };
+
+        // Check theme on load and every hour
+        autoThemeSwitch();
+        setInterval(autoThemeSwitch, 3600000); // 1 hour
+
+        // Parallax effect for hero section
+        window.addEventListener("scroll", () => {
+          const scrolled = window.pageYOffset;
+          const hero = document.querySelector("#home");
+          if (hero) {
+            hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+          }
+        });
+      })();
     </script>
-</body>
+  </body>
 </html>

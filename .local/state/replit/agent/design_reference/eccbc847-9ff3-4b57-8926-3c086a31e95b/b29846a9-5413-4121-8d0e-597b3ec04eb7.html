@@ -1,448 +1,618 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nyambika - AI Fashion Discovery</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <script>
-    tailwind.config = {
+      tailwind.config = {
         theme: {
-            extend: {
-                fontFamily: {
-                    'inter': ['Inter', 'sans-serif'],
-                },
-                colors: {
-                    primary: {
-                        500: '#6366F1',
-                        600: '#4F46E5',
-                        700: '#4338CA'
-                    },
-                    accent: {
-                        500: '#F472B6',
-                        600: '#EC4899'
-                    }
-                },
-                animation: {
-                    'float': 'float 6s ease-in-out infinite',
-                    'gradient': 'gradient 15s ease infinite',
-                    'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                    'magnetic': 'magnetic 0.3s ease-out',
-                },
-                backdropBlur: {
-                    'xs': '2px',
-                }
-            }
-        }
-    };
+          extend: {
+            fontFamily: {
+              inter: ["Inter", "sans-serif"],
+            },
+            colors: {
+              primary: {
+                500: "#6366F1",
+                600: "#4F46E5",
+                700: "#4338CA",
+              },
+              accent: {
+                500: "#F472B6",
+                600: "#EC4899",
+              },
+            },
+            animation: {
+              float: "float 6s ease-in-out infinite",
+              gradient: "gradient 15s ease infinite",
+              "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              magnetic: "magnetic 0.3s ease-out",
+            },
+            backdropBlur: {
+              xs: "2px",
+            },
+          },
+        },
+      };
     </script>
     <style>
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
         }
-        
-        @keyframes gradient {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
+        50% {
+          transform: translateY(-20px);
         }
-        
-        @keyframes magnetic {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .gradient-mesh {
-            background: linear-gradient(-45deg, #6366F1, #F472B6, #06B6D4, #8B5CF6);
-            background-size: 400% 400%;
-            animation: gradient 15s ease infinite;
-        }
-        
-        .glassmorphism {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .neumorphism {
-            background: #ffffff;
-            box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
-        }
-        
-        .magnetic-effect:hover {
-            animation: magnetic 0.3s ease-out;
-        }
-        
-        .search-glassmorphism {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
-        
-        .card-hover {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 32px 64px rgba(99, 102, 241, 0.15);
-        }
+      }
 
-        .gradient-text {
-            background: linear-gradient(135deg, #6366F1, #F472B6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+      @keyframes gradient {
+        0%,
+        100% {
+          background-position: 0% 50%;
         }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+
+      @keyframes magnetic {
+        0% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      .gradient-mesh {
+        background: linear-gradient(-45deg, #6366f1, #f472b6, #06b6d4, #8b5cf6);
+        background-size: 400% 400%;
+        animation: gradient 15s ease infinite;
+      }
+
+      .glassmorphism {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .neumorphism {
+        background: #ffffff;
+        box-shadow: 20px 20px 60px #d9d9d9, -20px -20px 60px #ffffff;
+      }
+
+      .magnetic-effect:hover {
+        animation: magnetic 0.3s ease-out;
+      }
+
+      .search-glassmorphism {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+      }
+
+      .card-hover {
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .card-hover:hover {
+        transform: translateY(-12px) scale(1.02);
+        box-shadow: 0 32px 64px rgba(99, 102, 241, 0.15);
+      }
+
+      .gradient-text {
+        background: linear-gradient(135deg, #6366f1, #f472b6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
     </style>
-</head>
-<body class="font-inter bg-white text-gray-900 overflow-x-hidden">
-
+  </head>
+  <body class="font-inter bg-white text-gray-900 overflow-x-hidden">
     <!-- @COMPONENT: FloatingNavigation -->
-    <nav class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 glassmorphism rounded-full px-8 py-4 transition-all duration-500">
-        <!-- @STATE: isMenuOpen:boolean = false -->
-        <div class="flex items-center justify-between space-x-8">
-            <div class="text-2xl font-bold gradient-text">Nyambika</div>
-            
-            <div class="hidden md:flex items-center space-x-6">
-                <a href="#" class="text-sm font-medium hover:text-primary-600 transition-colors">Discover</a>
-                <a href="#" class="text-sm font-medium hover:text-primary-600 transition-colors">Try-On</a>
-                <a href="#" class="text-sm font-medium hover:text-primary-600 transition-colors">Profile</a>
-            </div>
-            
-            <div class="flex items-center space-x-4">
-                <button class="p-2 rounded-full hover:bg-white/20 transition-colors magnetic-effect">
-                    <i class="fas fa-search text-gray-700"></i>
-                </button>
-                <button class="p-2 rounded-full hover:bg-white/20 transition-colors magnetic-effect">
-                    <i class="fas fa-shopping-bag text-gray-700"></i>
-                </button>
-                <button class="md:hidden p-2 rounded-full hover:bg-white/20 transition-colors">
-                    <i class="fas fa-bars text-gray-700"></i>
-                </button>
-            </div>
+    <nav
+      class="fixed top-6 left-1/2 transform -translate-x-1/2 z-50 glassmorphism rounded-full px-8 py-4 transition-all duration-500"
+    >
+      <!-- @STATE: isMenuOpen:boolean = false -->
+      <div class="flex items-center justify-between space-x-8">
+        <div class="text-2xl font-bold gradient-text">Nyambika</div>
+
+        <div class="hidden md:flex items-center space-x-6">
+          <a
+            href="#"
+            class="text-sm font-medium hover:text-primary-600 transition-colors"
+            >Discover</a
+          >
+          <a
+            href="#"
+            class="text-sm font-medium hover:text-primary-600 transition-colors"
+            >Try-On</a
+          >
+          <a
+            href="#"
+            class="text-sm font-medium hover:text-primary-600 transition-colors"
+            >Profile</a
+          >
         </div>
+
+        <div class="flex items-center space-x-4">
+          <button
+            class="p-2 rounded-full hover:bg-white/20 transition-colors magnetic-effect"
+          >
+            <i class="fas fa-search text-gray-700"></i>
+          </button>
+          <button
+            class="p-2 rounded-full hover:bg-white/20 transition-colors magnetic-effect"
+          >
+            <i class="fas fa-shopping-bag text-gray-700"></i>
+          </button>
+          <button
+            class="md:hidden p-2 rounded-full hover:bg-white/20 transition-colors"
+          >
+            <i class="fas fa-bars text-gray-700"></i>
+          </button>
+        </div>
+      </div>
     </nav>
     <!-- @END_COMPONENT: FloatingNavigation -->
 
     <!-- Background Gradient Mesh -->
-    <div class="fixed inset-0 gradient-mesh opacity-5 pointer-events-none"></div>
-    
+    <div
+      class="fixed inset-0 gradient-mesh opacity-5 pointer-events-none"
+    ></div>
+
     <!-- @COMPONENT: HeroSection -->
-    <section class="relative min-h-screen flex items-center justify-center px-6 pt-24">
-        <div class="max-w-7xl mx-auto w-full">
-            <div class="grid lg:grid-cols-2 gap-16 items-center">
-                
-                <!-- Hero Content -->
-                <div class="text-center lg:text-left space-y-8 animate-float">
-                    <div class="space-y-4">
-                        <h1 class="text-5xl lg:text-7xl font-light leading-tight">
-                            Fashion
-                            <span class="gradient-text font-semibold block">Reimagined</span>
-                        </h1>
-                        <p class="text-xl lg:text-2xl text-gray-600 font-light leading-relaxed max-w-lg">
-                            Experience AI-powered virtual try-ons for Rwanda's finest fashion collections
-                        </p>
-                    </div>
-                    
-                    <!-- AI Try-On CTA -->
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <button class="group relative bg-primary-500 text-white px-10 py-4 rounded-full font-medium text-lg shadow-2xl hover:shadow-primary-500/25 transition-all duration-300 magnetic-effect overflow-hidden">
-                            <span class="relative z-10 flex items-center justify-center space-x-2">
-                                <i class="fas fa-camera text-xl"></i>
-                                <span>Try On Now</span>
-                            </span>
-                            <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </button>
-                        
-                        <button class="glassmorphism px-10 py-4 rounded-full font-medium text-lg hover:bg-white/20 transition-all duration-300 magnetic-effect">
-                            <span class="flex items-center justify-center space-x-2">
-                                <i class="fas fa-play text-primary-500"></i>
-                                <span>Watch Demo</span>
-                            </span>
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Hero Visual -->
-                <div class="relative">
-                    <div class="relative z-10">
-                        <!-- Modern fashion model showcasing minimalist outfit in studio setting -->
-                        <img src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000" 
-                             alt="Fashion model in minimalist outfit" 
-                             class="w-full h-auto rounded-3xl shadow-2xl max-w-lg mx-auto">
-                    </div>
-                    
-                    <!-- Floating AI Elements -->
-                    <div class="absolute -top-8 -right-8 glassmorphism rounded-2xl p-6 animate-pulse-slow">
-                        <div class="flex items-center space-x-3">
-                            <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                            <span class="text-sm font-medium">AI Active</span>
-                        </div>
-                    </div>
-                    
-                    <div class="absolute -bottom-8 -left-8 glassmorphism rounded-2xl p-6">
-                        <div class="text-center">
-                            <div class="text-2xl font-bold gradient-text">98%</div>
-                            <div class="text-xs text-gray-600">Fit Accuracy</div>
-                        </div>
-                    </div>
-                </div>
+    <section
+      class="relative min-h-screen flex items-center justify-center px-6 pt-24"
+    >
+      <div class="w-full">
+        <div class="grid lg:grid-cols-2 gap-16 items-center">
+          <!-- Hero Content -->
+          <div class="text-center lg:text-left space-y-8 animate-float">
+            <div class="space-y-4">
+              <h1 class="text-5xl lg:text-7xl font-light leading-tight">
+                Fashion
+                <span class="gradient-text font-semibold block"
+                  >Reimagined</span
+                >
+              </h1>
+              <p
+                class="text-xl lg:text-2xl text-gray-600 font-light leading-relaxed max-w-lg"
+              >
+                Experience AI-powered virtual try-ons for Rwanda's finest
+                fashion collections
+              </p>
             </div>
+
+            <!-- AI Try-On CTA -->
+            <div
+              class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start"
+            >
+              <button
+                class="group relative bg-primary-500 text-white px-10 py-4 rounded-full font-medium text-lg shadow-2xl hover:shadow-primary-500/25 transition-all duration-300 magnetic-effect overflow-hidden"
+              >
+                <span
+                  class="relative z-10 flex items-center justify-center space-x-2"
+                >
+                  <i class="fas fa-camera text-xl"></i>
+                  <span>Try On Now</span>
+                </span>
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                ></div>
+              </button>
+
+              <button
+                class="glassmorphism px-10 py-4 rounded-full font-medium text-lg hover:bg-white/20 transition-all duration-300 magnetic-effect"
+              >
+                <span class="flex items-center justify-center space-x-2">
+                  <i class="fas fa-play text-primary-500"></i>
+                  <span>Watch Demo</span>
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Hero Visual -->
+          <div class="relative">
+            <div class="relative z-10">
+              <!-- Modern fashion model showcasing minimalist outfit in studio setting -->
+              <img
+                src="https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&h=1000"
+                alt="Fashion model in minimalist outfit"
+                class="w-full h-auto rounded-3xl shadow-2xl max-w-lg mx-auto"
+              />
+            </div>
+
+            <!-- Floating AI Elements -->
+            <div
+              class="absolute -top-8 -right-8 glassmorphism rounded-2xl p-6 animate-pulse-slow"
+            >
+              <div class="flex items-center space-x-3">
+                <div
+                  class="w-3 h-3 bg-green-500 rounded-full animate-pulse"
+                ></div>
+                <span class="text-sm font-medium">AI Active</span>
+              </div>
+            </div>
+
+            <div
+              class="absolute -bottom-8 -left-8 glassmorphism rounded-2xl p-6"
+            >
+              <div class="text-center">
+                <div class="text-2xl font-bold gradient-text">98%</div>
+                <div class="text-xs text-gray-600">Fit Accuracy</div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: HeroSection -->
 
     <!-- @COMPONENT: IntelligentSearchBar -->
     <section class="py-16 px-6">
-        <div class="max-w-4xl mx-auto">
-            <div class="search-glassmorphism rounded-3xl p-8 neumorphism">
-                <div class="flex items-center space-x-4">
-                    <div class="flex-1 relative">
-                        <input type="text" 
-                               placeholder="Search for styles, colors, or describe what you're looking for..."
-                               class="w-full bg-transparent text-lg font-light py-4 px-6 focus:outline-none placeholder-gray-500"
-                               data-mock="true">
-                        <button class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-primary-500 text-white p-3 rounded-full hover:bg-primary-600 transition-colors magnetic-effect">
-                            <i class="fas fa-search"></i>
-                        </button>
-                    </div>
-                    
-                    <!-- Voice Search -->
-                    <button class="bg-accent-500 text-white p-4 rounded-full hover:bg-accent-600 transition-colors magnetic-effect">
-                        <i class="fas fa-microphone text-lg"></i>
-                    </button>
-                    
-                    <!-- Visual Search -->
-                    <button class="bg-primary-500 text-white p-4 rounded-full hover:bg-primary-600 transition-colors magnetic-effect">
-                        <i class="fas fa-camera text-lg"></i>
-                    </button>
-                </div>
-                
-                <!-- Quick Filters -->
-                <div class="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-200">
-                    <span class="text-sm text-gray-600 font-medium">Popular:</span>
-                    <button class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors">Traditional</button>
-                    <button class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors">Modern</button>
-                    <button class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors">Formal</button>
-                    <button class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors">Casual</button>
-                </div>
+      <div class="max-w-4xl mx-auto">
+        <div class="search-glassmorphism rounded-3xl p-8 neumorphism">
+          <div class="flex items-center space-x-4">
+            <div class="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Search for styles, colors, or describe what you're looking for..."
+                class="w-full bg-transparent text-lg font-light py-4 px-6 focus:outline-none placeholder-gray-500"
+                data-mock="true"
+              />
+              <button
+                class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-primary-500 text-white p-3 rounded-full hover:bg-primary-600 transition-colors magnetic-effect"
+              >
+                <i class="fas fa-search"></i>
+              </button>
             </div>
+
+            <!-- Voice Search -->
+            <button
+              class="bg-accent-500 text-white p-4 rounded-full hover:bg-accent-600 transition-colors magnetic-effect"
+            >
+              <i class="fas fa-microphone text-lg"></i>
+            </button>
+
+            <!-- Visual Search -->
+            <button
+              class="bg-primary-500 text-white p-4 rounded-full hover:bg-primary-600 transition-colors magnetic-effect"
+            >
+              <i class="fas fa-camera text-lg"></i>
+            </button>
+          </div>
+
+          <!-- Quick Filters -->
+          <div class="flex flex-wrap gap-3 mt-6 pt-6 border-t border-gray-200">
+            <span class="text-sm text-gray-600 font-medium">Popular:</span>
+            <button
+              class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors"
+            >
+              Traditional
+            </button>
+            <button
+              class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors"
+            >
+              Modern
+            </button>
+            <button
+              class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors"
+            >
+              Formal
+            </button>
+            <button
+              class="px-4 py-2 bg-gray-100 hover:bg-primary-50 hover:text-primary-600 rounded-full text-sm font-medium transition-colors"
+            >
+              Casual
+            </button>
+          </div>
         </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: IntelligentSearchBar -->
 
     <!-- @COMPONENT: FeaturedCategories -->
     <section class="py-20 px-6">
-        <div class="max-w-7xl mx-auto">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl lg:text-5xl font-light mb-6">
-                    Discover <span class="gradient-text font-semibold">Collections</span>
-                </h2>
-                <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto">
-                    Curated selections from Rwanda's most talented designers and artisans
-                </p>
-            </div>
-            
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- @MAP: featuredCategories.map(category => ( -->
-                
-                <!-- Traditional Wear Category -->
-                <div class="group relative overflow-hidden rounded-3xl card-hover cursor-pointer">
-                    <!-- Traditional Rwandan clothing with modern styling in contemporary setting -->
-                    <img src="https://pixabay.com/get/g9781db7d21143c97f8f7c0aeef7e6728e099b78b8374bb8779e266a5b07246644e2d52eed10376173c7d6d6a3e10ea6399878bbebb34552e354b658f3be35292_1280.jpg" 
-                         alt="Traditional Rwandan fashion" 
-                         class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    <div class="absolute bottom-6 left-6 right-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        <div class="glassmorphism rounded-2xl p-6 text-white">
-                            <h3 class="text-2xl font-semibold mb-2">Traditional</h3>
-                            <p class="text-white/80 text-sm mb-4">Heritage meets contemporary design</p>
-                            <div class="flex items-center text-sm font-medium">
-                                <span>Explore Collection</span>
-                                <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Modern Wear Category -->
-                <div class="group relative overflow-hidden rounded-3xl card-hover cursor-pointer">
-                    <!-- Contemporary African fashion with modern cuts and fabrics -->
-                    <img src="https://images.unsplash.com/photo-1516762689617-e1cffcef479d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=800" 
-                         alt="Modern African fashion" 
-                         class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    <div class="absolute bottom-6 left-6 right-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        <div class="glassmorphism rounded-2xl p-6 text-white">
-                            <h3 class="text-2xl font-semibold mb-2">Modern</h3>
-                            <p class="text-white/80 text-sm mb-4">Contemporary African elegance</p>
-                            <div class="flex items-center text-sm font-medium">
-                                <span>Explore Collection</span>
-                                <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Accessories Category -->
-                <div class="group relative overflow-hidden rounded-3xl card-hover cursor-pointer">
-                    <!-- Elegant African jewelry and accessories displayed on minimal background -->
-                    <img src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=800" 
-                         alt="African jewelry and accessories" 
-                         class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700">
-                    
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    
-                    <div class="absolute bottom-6 left-6 right-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
-                        <div class="glassmorphism rounded-2xl p-6 text-white">
-                            <h3 class="text-2xl font-semibold mb-2">Accessories</h3>
-                            <p class="text-white/80 text-sm mb-4">Handcrafted details that complete your look</p>
-                            <div class="flex items-center text-sm font-medium">
-                                <span>Explore Collection</span>
-                                <i class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- @END_MAP )) -->
-            </div>
+      <div class=" ">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl lg:text-5xl font-light mb-6">
+            Discover
+            <span class="gradient-text font-semibold">Collections</span>
+          </h2>
+          <p class="text-xl text-gray-600 font-light max-w-2xl mx-auto">
+            Curated selections from Rwanda's most talented designers and
+            artisans
+          </p>
         </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <!-- @MAP: featuredCategories.map(category => ( -->
+
+          <!-- Traditional Wear Category -->
+          <div
+            class="group relative overflow-hidden rounded-3xl card-hover cursor-pointer"
+          >
+            <!-- Traditional Rwandan clothing with modern styling in contemporary setting -->
+            <img
+              src="https://pixabay.com/get/g9781db7d21143c97f8f7c0aeef7e6728e099b78b8374bb8779e266a5b07246644e2d52eed10376173c7d6d6a3e10ea6399878bbebb34552e354b658f3be35292_1280.jpg"
+              alt="Traditional Rwandan fashion"
+              class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            ></div>
+
+            <div
+              class="absolute bottom-6 left-6 right-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+            >
+              <div class="glassmorphism rounded-2xl p-6 text-white">
+                <h3 class="text-2xl font-semibold mb-2">Traditional</h3>
+                <p class="text-white/80 text-sm mb-4">
+                  Heritage meets contemporary design
+                </p>
+                <div class="flex items-center text-sm font-medium">
+                  <span>Explore Collection</span>
+                  <i
+                    class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Modern Wear Category -->
+          <div
+            class="group relative overflow-hidden rounded-3xl card-hover cursor-pointer"
+          >
+            <!-- Contemporary African fashion with modern cuts and fabrics -->
+            <img
+              src="https://images.unsplash.com/photo-1516762689617-e1cffcef479d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=800"
+              alt="Modern African fashion"
+              class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            ></div>
+
+            <div
+              class="absolute bottom-6 left-6 right-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+            >
+              <div class="glassmorphism rounded-2xl p-6 text-white">
+                <h3 class="text-2xl font-semibold mb-2">Modern</h3>
+                <p class="text-white/80 text-sm mb-4">
+                  Contemporary African elegance
+                </p>
+                <div class="flex items-center text-sm font-medium">
+                  <span>Explore Collection</span>
+                  <i
+                    class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accessories Category -->
+          <div
+            class="group relative overflow-hidden rounded-3xl card-hover cursor-pointer"
+          >
+            <!-- Elegant African jewelry and accessories displayed on minimal background -->
+            <img
+              src="https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=600&h=800"
+              alt="African jewelry and accessories"
+              class="w-full h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+            />
+
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            ></div>
+
+            <div
+              class="absolute bottom-6 left-6 right-6 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300"
+            >
+              <div class="glassmorphism rounded-2xl p-6 text-white">
+                <h3 class="text-2xl font-semibold mb-2">Accessories</h3>
+                <p class="text-white/80 text-sm mb-4">
+                  Handcrafted details that complete your look
+                </p>
+                <div class="flex items-center text-sm font-medium">
+                  <span>Explore Collection</span>
+                  <i
+                    class="fas fa-arrow-right ml-2 transform group-hover:translate-x-1 transition-transform"
+                  ></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- @END_MAP )) -->
+        </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: FeaturedCategories -->
 
     <!-- @COMPONENT: AITryOnCTA -->
     <section class="py-20 px-6">
-        <div class="max-w-6xl mx-auto">
-            <div class="glassmorphism rounded-3xl p-12 lg:p-16 text-center relative overflow-hidden">
-                <!-- Background Pattern -->
-                <div class="absolute inset-0 opacity-5">
-                    <div class="absolute top-10 left-10 w-32 h-32 bg-primary-500 rounded-full"></div>
-                    <div class="absolute bottom-10 right-10 w-24 h-24 bg-accent-500 rounded-full"></div>
-                    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-400 rounded-full"></div>
-                </div>
-                
-                <div class="relative z-10 max-w-4xl mx-auto">
-                    <div class="mb-12">
-                        <div class="inline-flex items-center space-x-3 bg-white/50 rounded-full px-6 py-3 mb-8">
-                            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                            <span class="text-sm font-medium">AI Technology Powered</span>
-                        </div>
-                        
-                        <h2 class="text-4xl lg:text-6xl font-light mb-6 leading-tight">
-                            See How You Look
-                            <span class="gradient-text font-semibold block">Before You Buy</span>
-                        </h2>
-                        
-                        <p class="text-xl lg:text-2xl text-gray-600 font-light leading-relaxed mb-12">
-                            Revolutionary AI technology lets you virtually try on any item instantly. 
-                            No guesswork, perfect fit every time.
-                        </p>
-                    </div>
-                    
-                    <!-- CTA Buttons -->
-                    <div class="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                        <button class="group relative bg-primary-500 text-white px-12 py-5 rounded-full font-semibold text-xl shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 magnetic-effect overflow-hidden">
-                            <span class="relative z-10 flex items-center justify-center space-x-3">
-                                <i class="fas fa-magic text-2xl"></i>
-                                <span>Start Virtual Try-On</span>
-                            </span>
-                            <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        </button>
-                        
-                        <div class="flex items-center space-x-4 text-gray-600">
-                            <div class="flex -space-x-2">
-                                <div class="w-10 h-10 bg-gray-300 rounded-full border-2 border-white"></div>
-                                <div class="w-10 h-10 bg-gray-400 rounded-full border-2 border-white"></div>
-                                <div class="w-10 h-10 bg-gray-500 rounded-full border-2 border-white"></div>
-                            </div>
-                            <div class="text-left">
-                                <div class="font-semibold text-gray-900">2,000+</div>
-                                <div class="text-sm">Happy Customers</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <div class="max-w-6xl mx-auto">
+        <div
+          class="glassmorphism rounded-3xl p-12 lg:p-16 text-center relative overflow-hidden"
+        >
+          <!-- Background Pattern -->
+          <div class="absolute inset-0 opacity-5">
+            <div
+              class="absolute top-10 left-10 w-32 h-32 bg-primary-500 rounded-full"
+            ></div>
+            <div
+              class="absolute bottom-10 right-10 w-24 h-24 bg-accent-500 rounded-full"
+            ></div>
+            <div
+              class="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-400 rounded-full"
+            ></div>
+          </div>
+
+          <div class="relative z-10 max-w-4xl mx-auto">
+            <div class="mb-12">
+              <div
+                class="inline-flex items-center space-x-3 bg-white/50 rounded-full px-6 py-3 mb-8"
+              >
+                <div
+                  class="w-2 h-2 bg-green-500 rounded-full animate-pulse"
+                ></div>
+                <span class="text-sm font-medium">AI Technology Powered</span>
+              </div>
+
+              <h2 class="text-4xl lg:text-6xl font-light mb-6 leading-tight">
+                See How You Look
+                <span class="gradient-text font-semibold block"
+                  >Before You Buy</span
+                >
+              </h2>
+
+              <p
+                class="text-xl lg:text-2xl text-gray-600 font-light leading-relaxed mb-12"
+              >
+                Revolutionary AI technology lets you virtually try on any item
+                instantly. No guesswork, perfect fit every time.
+              </p>
             </div>
+
+            <!-- CTA Buttons -->
+            <div
+              class="flex flex-col sm:flex-row gap-6 justify-center items-center"
+            >
+              <button
+                class="group relative bg-primary-500 text-white px-12 py-5 rounded-full font-semibold text-xl shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 magnetic-effect overflow-hidden"
+              >
+                <span
+                  class="relative z-10 flex items-center justify-center space-x-3"
+                >
+                  <i class="fas fa-magic text-2xl"></i>
+                  <span>Start Virtual Try-On</span>
+                </span>
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-primary-600 to-accent-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                ></div>
+              </button>
+
+              <div class="flex items-center space-x-4 text-gray-600">
+                <div class="flex -space-x-2">
+                  <div
+                    class="w-10 h-10 bg-gray-300 rounded-full border-2 border-white"
+                  ></div>
+                  <div
+                    class="w-10 h-10 bg-gray-400 rounded-full border-2 border-white"
+                  ></div>
+                  <div
+                    class="w-10 h-10 bg-gray-500 rounded-full border-2 border-white"
+                  ></div>
+                </div>
+                <div class="text-left">
+                  <div class="font-semibold text-gray-900">2,000+</div>
+                  <div class="text-sm">Happy Customers</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
     <!-- @END_COMPONENT: AITryOnCTA -->
 
     <!-- @COMPONENT: FloatingActionButton -->
     <div class="fixed bottom-8 right-8 z-40">
-        <button class="group bg-primary-500 text-white p-4 rounded-full shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 magnetic-effect">
-            <i class="fas fa-headset text-xl group-hover:scale-110 transition-transform"></i>
-        </button>
-        <div class="absolute bottom-full right-0 mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-            <div class="bg-gray-900 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap">
-                Need help? Chat with us!
-            </div>
+      <button
+        class="group bg-primary-500 text-white p-4 rounded-full shadow-2xl hover:shadow-primary-500/30 transition-all duration-300 magnetic-effect"
+      >
+        <i
+          class="fas fa-headset text-xl group-hover:scale-110 transition-transform"
+        ></i>
+      </button>
+      <div
+        class="absolute bottom-full right-0 mb-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
+      >
+        <div
+          class="bg-gray-900 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap"
+        >
+          Need help? Chat with us!
         </div>
+      </div>
     </div>
     <!-- @END_COMPONENT: FloatingActionButton -->
 
     <!-- Language Selector (Mobile) -->
     <div class="fixed bottom-8 left-8 z-40 md:hidden">
-        <button class="glassmorphism p-3 rounded-full text-gray-700 hover:bg-white/30 transition-colors">
-            <i class="fas fa-globe text-lg"></i>
-        </button>
+      <button
+        class="glassmorphism p-3 rounded-full text-gray-700 hover:bg-white/30 transition-colors"
+      >
+        <i class="fas fa-globe text-lg"></i>
+      </button>
     </div>
 
     <script>
-        // TODO: Implement business logic, API calls, and state management
-        
-        (function() {
-            // Magnetic effect for buttons
-            document.addEventListener('DOMContentLoaded', function() {
-                const magneticElements = document.querySelectorAll('.magnetic-effect');
-                
-                magneticElements.forEach(element => {
-                    element.addEventListener('mouseenter', function() {
-                        this.style.transform = 'scale(1.05)';
-                    });
-                    
-                    element.addEventListener('mouseleave', function() {
-                        this.style.transform = 'scale(1)';
-                    });
-                });
+      // TODO: Implement business logic, API calls, and state management
 
-                // Floating navigation scroll effect
-                const nav = document.querySelector('nav');
-                let lastScrollY = window.scrollY;
-                
-                window.addEventListener('scroll', function() {
-                    if (window.scrollY > lastScrollY && window.scrollY > 100) {
-                        nav.style.transform = 'translate(-50%, -100px)';
-                        nav.style.opacity = '0.9';
-                    } else {
-                        nav.style.transform = 'translate(-50%, 0)';
-                        nav.style.opacity = '1';
-                    }
-                    lastScrollY = window.scrollY;
-                });
+      (function () {
+        // Magnetic effect for buttons
+        document.addEventListener("DOMContentLoaded", function () {
+          const magneticElements =
+            document.querySelectorAll(".magnetic-effect");
 
-                // Parallax scroll effects
-                window.addEventListener('scroll', function() {
-                    const scrolled = window.pageYOffset;
-                    const parallaxElements = document.querySelectorAll('.animate-float');
-                    
-                    parallaxElements.forEach(element => {
-                        const speed = 0.5;
-                        element.style.transform = `translateY(${scrolled * speed}px)`;
-                    });
-                });
+          magneticElements.forEach((element) => {
+            element.addEventListener("mouseenter", function () {
+              this.style.transform = "scale(1.05)";
             });
-        })();
-    </script>
 
-</body>
+            element.addEventListener("mouseleave", function () {
+              this.style.transform = "scale(1)";
+            });
+          });
+
+          // Floating navigation scroll effect
+          const nav = document.querySelector("nav");
+          let lastScrollY = window.scrollY;
+
+          window.addEventListener("scroll", function () {
+            if (window.scrollY > lastScrollY && window.scrollY > 100) {
+              nav.style.transform = "translate(-50%, -100px)";
+              nav.style.opacity = "0.9";
+            } else {
+              nav.style.transform = "translate(-50%, 0)";
+              nav.style.opacity = "1";
+            }
+            lastScrollY = window.scrollY;
+          });
+
+          // Parallax scroll effects
+          window.addEventListener("scroll", function () {
+            const scrolled = window.pageYOffset;
+            const parallaxElements =
+              document.querySelectorAll(".animate-float");
+
+            parallaxElements.forEach((element) => {
+              const speed = 0.5;
+              element.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+          });
+        });
+      })();
+    </script>
+  </body>
 </html>

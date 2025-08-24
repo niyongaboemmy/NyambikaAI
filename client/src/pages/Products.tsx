@@ -335,7 +335,7 @@ export default function Products() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
       <main className="pt-24 pb-12 px-4 md:px-6">
-        <div className="max-w-7xl mx-auto">
+        <div className=" ">
           {/* Instagram-style Header */}
           <div className="flex items-center justify-between mb-3">
             <div>
@@ -503,7 +503,11 @@ export default function Products() {
               value={searchQuery}
               onChange={setSearchQuery}
               onCancel={handleSearchToggle}
-              placeholder={selectedCompany ? `Search ${selectedCompany.name}...` : "Search products..."}
+              placeholder={
+                selectedCompany
+                  ? `Search ${selectedCompany.name}...`
+                  : "Search products..."
+              }
               resultsCount={locallyFilteredProducts.length}
               stickyTopClass="top-20"
             />
@@ -511,7 +515,10 @@ export default function Products() {
 
           {/* Clear Selected Company Bar - Sticky when scrolling */}
           {selectedCompany && (
-            <SelectedCompanyBar company={selectedCompany} onClear={() => handleCompanySelect(null)} />
+            <SelectedCompanyBar
+              company={selectedCompany}
+              onClear={() => handleCompanySelect(null)}
+            />
           )}
 
           {/* Instagram-style Products Grid */}

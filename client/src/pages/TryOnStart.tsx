@@ -52,7 +52,11 @@ export default function TryOnStart() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteProducts({ categoryId, producerId: producerId === "all" ? undefined : producerId, limit: 50 });
+  } = useInfiniteProducts({
+    categoryId,
+    producerId: producerId === "all" ? undefined : producerId,
+    limit: 50,
+  });
   const products = (productsPages?.pages || []).flat();
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["categories"],
@@ -98,32 +102,59 @@ export default function TryOnStart() {
         ? true
         : Object.values(p).some((v) => {
             if (v == null) return false;
-            const s = typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
+            const s =
+              typeof v === "string"
+                ? v
+                : typeof v === "number"
+                ? String(v)
+                : "";
             return s && s.toLowerCase().includes(term);
           });
       // price
       const priceNum = p?.price != null ? parseFloat(String(p.price)) : NaN;
-      const priceOk = (min == null || (!Number.isNaN(priceNum) && priceNum >= min)) &&
-                      (max == null || (!Number.isNaN(priceNum) && priceNum <= max));
+      const priceOk =
+        (min == null || (!Number.isNaN(priceNum) && priceNum >= min)) &&
+        (max == null || (!Number.isNaN(priceNum) && priceNum <= max));
       return textOk && priceOk;
     });
-    if (sortBy === "price_asc") list = [...list].sort((a: any, b: any) => parseFloat(a.price) - parseFloat(b.price));
-    if (sortBy === "price_desc") list = [...list].sort((a: any, b: any) => parseFloat(b.price) - parseFloat(a.price));
-    if (sortBy === "newest") list = [...list].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    if (sortBy === "price_asc")
+      list = [...list].sort(
+        (a: any, b: any) => parseFloat(a.price) - parseFloat(b.price)
+      );
+    if (sortBy === "price_desc")
+      list = [...list].sort(
+        (a: any, b: any) => parseFloat(b.price) - parseFloat(a.price)
+      );
+    if (sortBy === "newest")
+      list = [...list].sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
     return list;
   }, [products, term, min, max, sortBy]);
 
   // If search/category changes and no local results in current pages, auto fetch next page
   useEffect(() => {
-    if (locallyFilteredProducts.length === 0 && hasNextPage && !isFetchingNextPage) {
+    if (
+      locallyFilteredProducts.length === 0 &&
+      hasNextPage &&
+      !isFetchingNextPage
+    ) {
       fetchNextPage();
     }
-  }, [search, categoryId, locallyFilteredProducts.length, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  }, [
+    search,
+    categoryId,
+    locallyFilteredProducts.length,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  ]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
       <main className="pt-24 pb-12 px-4 md:px-6">
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="  space-y-6">
           {/* Header actions */}
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -179,7 +210,9 @@ export default function TryOnStart() {
                   </select>
                 </div>
                 <div className="col-span-1">
-                  <label className="text-sm font-semibold block mb-2">Company</label>
+                  <label className="text-sm font-semibold block mb-2">
+                    Company
+                  </label>
                   <select
                     value={producerId}
                     onChange={(e) => setProducerId(e.target.value)}
@@ -194,7 +227,9 @@ export default function TryOnStart() {
                   </select>
                 </div>
                 <div className="col-span-1">
-                  <label className="text-sm font-semibold block mb-2">Price Range</label>
+                  <label className="text-sm font-semibold block mb-2">
+                    Price Range
+                  </label>
                   <div className="flex items-center gap-2">
                     <Input
                       type="number"
@@ -214,7 +249,9 @@ export default function TryOnStart() {
                   </div>
                 </div>
                 <div className="col-span-1">
-                  <label className="text-sm font-semibold block mb-2">Sort</label>
+                  <label className="text-sm font-semibold block mb-2">
+                    Sort
+                  </label>
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
@@ -271,7 +308,6 @@ export default function TryOnStart() {
                   </div>
                 )}
               </div>
-
             </div>
 
             {/* Try-On widget */}

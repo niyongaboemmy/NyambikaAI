@@ -115,7 +115,9 @@ export interface IStorage {
 
   // Companies
   getCompanyByProducerId(producerId: string): Promise<Company | undefined>;
+  getCompanyById(id: string): Promise<Company | undefined>;
   getCompanies(): Promise<Company[]>;
+  getProductsByCompanyId(companyId: string): Promise<any[]>;
   createCompany(company: InsertCompany): Promise<Company>;
   updateCompany(
     producerId: string,
@@ -546,6 +548,38 @@ export class DatabaseStorage implements IStorage {
       .where(eq(companies.producerId, producerId))
       .returning();
     return updated || undefined;
+  }
+
+  async getCompanyById(id: string): Promise<Company | undefined> {
+    const [company] = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, id));
+    return company || undefined;
+  }
+
+  async getProductsByCompanyId(companyId: string): Promise<any[]> {
+    const companyProducts = await db
+      .select({
+        id: products.id,
+        name: products.name,
+        nameRw: products.nameRw,
+        description: products.description,
+        price: products.price,
+        imageUrl: products.imageUrl,
+        categoryId: products.categoryId,
+        categoryName: categories.name,
+        inStock: products.inStock,
+        sizes: products.sizes,
+        colors: products.colors,
+      })
+      .from(products)
+      .leftJoin(categories, eq(products.categoryId, categories.id))
+      .leftJoin(companies, eq(products.producerId, companies.producerId))
+      .where(eq(companies.id, companyId))
+      .orderBy(asc(products.name));
+    
+    return companyProducts;
   }
 }
 

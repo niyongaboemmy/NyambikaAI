@@ -68,11 +68,15 @@ export default function BestProducts() {
 
   return (
     <section id="best-products" className="py-16 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
+      <div className=" ">
         <div className="flex items-end justify-between mb-8">
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold gradient-text">Best Products</h2>
-            <p className="text-sm text-muted-foreground mt-1">Top picks loved by our community</p>
+            <h2 className="text-3xl md:text-4xl font-bold gradient-text">
+              Best Products
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Top picks loved by our community
+            </p>
           </div>
           <Button
             className="rounded-full gradient-bg text-white px-5"
@@ -86,13 +90,15 @@ export default function BestProducts() {
           {products.slice(0, 6).map((p) => (
             <ProductCard
               key={p.id}
-              product={{
-                id: p.id,
-                name: p.name,
-                nameRw: p.description,
-                imageUrl: p.image,
-                price: Number(p.price),
-              } as any}
+              product={
+                {
+                  id: p.id,
+                  name: p.name,
+                  nameRw: p.description,
+                  imageUrl: p.image,
+                  price: Number(p.price),
+                } as any
+              }
               isFavorited={favorites.includes(p.id)}
               onToggleFavorite={toggleFavorite}
               onViewDetails={(pid) => setLocation(`/product/${pid}`)}

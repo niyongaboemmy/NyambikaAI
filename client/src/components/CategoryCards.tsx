@@ -1,6 +1,6 @@
-import { Link } from 'wouter';
-import { ArrowRight } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { Link } from "wouter";
+import { ArrowRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 
 type Category = {
   id: string;
@@ -12,33 +12,45 @@ type Category = {
 
 export default function CategoryCards() {
   const { data: categories = [], isLoading } = useQuery<Category[]>({
-    queryKey: ['/api/categories'],
+    queryKey: ["/api/categories"],
     queryFn: async () => {
-      const res = await fetch('/api/categories');
-      if (!res.ok) throw new Error('Failed to load categories');
+      const res = await fetch("/api/categories");
+      if (!res.ok) throw new Error("Failed to load categories");
       return res.json();
     },
   });
 
   return (
     <section className="py-20 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto">
+      <div className=" ">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 gradient-text">
           Hitamo Icyakunze
-          <span className="block text-2xl md:text-3xl mt-2 text-gray-600 dark:text-gray-300">Choose Your Style</span>
+          <span className="block text-2xl md:text-3xl mt-2 text-gray-600 dark:text-gray-300">
+            Choose Your Style
+          </span>
         </h2>
 
         {isLoading ? (
-          <div className="text-center text-muted-foreground py-10">Loading categories...</div>
+          <div className="text-center text-muted-foreground py-10">
+            Loading categories...
+          </div>
         ) : categories.length === 0 ? (
-          <div className="text-center text-muted-foreground py-10">No categories available yet</div>
+          <div className="text-center text-muted-foreground py-10">
+            No categories available yet
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {categories.map((category) => (
-              <Link key={category.id} href={`/products?category=${category.id}`}>
+              <Link
+                key={category.id}
+                href={`/products?category=${category.id}`}
+              >
                 <div className="group floating-card p-8 cursor-pointer neumorphism">
                   <img
-                    src={category.imageUrl || 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600'}
+                    src={
+                      category.imageUrl ||
+                      "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600"
+                    }
                     alt={category.name}
                     className="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500"
                   />
