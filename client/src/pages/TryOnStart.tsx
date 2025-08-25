@@ -12,8 +12,35 @@ import {
   Brain,
 } from "lucide-react";
 import { Input } from "../components/ui/input";
+import { Skeleton } from "../components/ui/skeleton";
 import { useInfiniteProducts } from "../hooks/useInfiniteProducts";
 import TryOnWidget from "../components/TryOnWidget";
+
+// Type definitions
+interface Category {
+  id: string | number;
+  name: string;
+  imageUrl?: string;
+}
+
+interface Company {
+  id: string | number;
+  name: string;
+  logoUrl?: string;
+  productCount?: number;
+}
+
+interface Product {
+  id: string | number;
+  name: string;
+  imageUrl?: string;
+  price?: number;
+  description?: string;
+  categoryId?: string | number;
+  companyId?: string | number;
+  category?: Category;
+  company?: Company;
+}
 
 // Add CSS for animated gradients, custom scrollbar, and dark theme support
 const styles = `
@@ -148,40 +175,38 @@ export default function TryOnStart() {
     },
   });
 
-  // Filtered data with performance optimization and client-side search
+  // Filtered data with performance optimization
+  const categories = allCategories || [];
   const filteredCategories = useMemo(() => {
-    if (!allCategories) return [];
-    return allCategories.filter(
-      (category: any) =>
-        !categorySearch ||
-        category.name.toLowerCase().includes(categorySearch.toLowerCase())
+    if (!categorySearch) return categories;
+    return categories.filter((category: Category) =>
+      category.name.toLowerCase().includes(categorySearch.toLowerCase())
     );
-  }, [allCategories, categorySearch]);
-
-  const displayCategories = useMemo(() => {
-    return filteredCategories.slice(0, 50);
-  }, [filteredCategories]);
+  }, [categories, categorySearch]);
 
   const filteredCompanies = useMemo(() => {
-    if (!companies) return [];
-    return companies.filter(
-      (company: any) =>
-        !debouncedCompanySearch ||
-        company.name
-          .toLowerCase()
-          .includes(debouncedCompanySearch.toLowerCase())
+    if (!companySearch) return companies || [];
+    return (companies || []).filter((company: Company) =>
+      company.name.toLowerCase().includes(companySearch.toLowerCase())
     );
-  }, [companies, debouncedCompanySearch]);
+  }, [companies, companySearch]);
+
+  // Display variables for categories and companies
+  const displayCategories = useMemo(() => {
+    return filteredCategories;
+  }, [filteredCategories]);
 
   const displayCompanies = useMemo(() => {
     return filteredCompanies.slice(0, displayLimit);
   }, [filteredCompanies, displayLimit]);
 
-  const hasMoreCompanies = filteredCompanies.length > displayLimit;
+  const hasMoreCompanies = useMemo(() => {
+    return filteredCompanies.length > displayLimit;
+  }, [filteredCompanies, displayLimit]);
 
   // Optimized product filtering with memoization (client-side only)
   const filteredProducts = useMemo(() => {
-    return products.filter((product: any) => {
+    return products.filter((product: Product) => {
       // Filter by selected category
       if (categoryId && categoryId !== "all") {
         const productCategoryId = product.categoryId || product.category?.id;
@@ -221,8 +246,92 @@ export default function TryOnStart() {
     setDisplayLimit((prev) => prev + 20);
   }, []);
 
+  // Show loading skeleton if any data is still loading
+  if (productsLoading || categoriesLoading || companiesLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-gray-950 dark:to-black relative overflow-hidden pt-10">
+        <style>{styles}</style>
+        <div className="container mx-auto px-3 md:px-0">
+          {/* AI-Motivated Animated Background */}
+          <div className="fixed inset-0 pointer-events-none">
+            <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" />
+            <div
+              className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-bounce"
+              style={{ animationDuration: "3s" }}
+            />
+          </div>
+
+          <main className="relative z-10 pt-10 sm:pt-12">
+            {/* Compact Hero Header for Categories */}
+            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+                ✨ AI Try-On
+              </div>
+              <div className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-md mx-auto px-4">
+                🚀 Smart fashion discovery powered by AI
+              </div>
+            </div>
+
+            {/* Category Search Skeleton */}
+            <div className="mb-3">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-50" />
+                <div className="relative bg-white/90 dark:bg-violet-800/10 backdrop-blur-sm rounded-2xl border border-blue-200/30 shadow-xl shadow-blue-500/10">
+                  <Skeleton className="h-12 w-full rounded-2xl" />
+                </div>
+              </div>
+            </div>
+
+            {/* Categories Grid Skeleton - Matching actual layout */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 p-2">
+              {[...Array(16)].map((_, index) => (
+                <div
+                  key={index}
+                  className="group relative p-3 rounded-2xl bg-gradient-to-br from-white/90 dark:from-black/50 to-blue-50/50 dark:to-black/50 border border-blue-200/30 dark:border-none backdrop-blur-sm overflow-hidden"
+                >
+                  {/* AI Glow Effect */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10 animate-pulse rounded-2xl" />
+
+                  {/* Neural Network Pattern */}
+                  <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-30 animate-pulse" />
+                  <div
+                    className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-20 animate-pulse"
+                    style={{ animationDelay: "0.5s" }}
+                  />
+
+                  <div className="relative z-10">
+                    {/* Category Image Skeleton */}
+                    <div className="w-16 h-16 mx-auto mb-2 rounded-2xl overflow-hidden bg-gradient-to-br from-gray-100 to-blue-50 dark:from-gray-700 dark:to-gray-600 shadow-lg animate-pulse">
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Sparkles
+                          className="h-5 w-5 text-blue-400 animate-spin"
+                          style={{ animationDuration: "2s" }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Category Name Skeleton */}
+                    <div className="h-4 bg-gradient-to-r from-gray-200 to-blue-100 dark:from-gray-600 dark:to-gray-500 rounded-lg animate-pulse mb-1" />
+
+                    {/* AI Ready Badge Skeleton */}
+                    <div className="mt-1 flex justify-center">
+                      <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-purple-100/50 dark:from-blue-800/50 dark:to-purple-800/50 rounded-full animate-pulse">
+                        <div className="h-3 w-12 bg-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-600 dark:to-purple-600 rounded" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-indigo-900 relative overflow-hidden transition-colors duration-300 pt-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-gray-950 dark:to-black relative overflow-hidden pt-10">
+      <style>{styles}</style>
       <div className="container mx-auto px-3 md:px-0">
         {/* AI-Motivated Animated Background */}
         <div className="fixed inset-0 pointer-events-none">
@@ -422,7 +531,7 @@ export default function TryOnStart() {
 
                       {/* Category-specific subtitle */}
                       {allCategories?.find(
-                        (c: any) => String(c.id) === categoryId
+                        (c: Category) => String(c.id) === categoryId
                       ) && (
                         <motion.p
                           className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium px-2 sm:px-0"
@@ -435,7 +544,7 @@ export default function TryOnStart() {
                           </span>
                           {
                             allCategories.find(
-                              (c: any) => String(c.id) === categoryId
+                              (c: Category) => String(c.id) === categoryId
                             )?.name
                           }{" "}
                           <span className="hidden sm:inline">Specialist</span>
@@ -447,7 +556,7 @@ export default function TryOnStart() {
 
                   {/* Enhanced Category Chip with AI Processing Indicator */}
                   {allCategories?.find(
-                    (c: any) => String(c.id) === categoryId
+                    (c: Category) => String(c.id) === categoryId
                   ) && (
                     <motion.div
                       className="group relative bg-gradient-to-r from-blue-50/80 to-purple-50/80 hover:from-blue-100/90 hover:to-purple-100/90 dark:from-indigo-900/40 dark:to-purple-900/40 dark:hover:from-indigo-800/50 dark:hover:to-purple-800/50 px-2 sm:px-4 py-2 rounded-xl border border-blue-200/50 hover:border-blue-400/70 dark:border-indigo-400/30 dark:hover:border-indigo-400/50 shadow-lg hover:shadow-xl shadow-blue-500/10 hover:shadow-blue-500/20 dark:shadow-indigo-500/10 dark:hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
@@ -464,12 +573,12 @@ export default function TryOnStart() {
                         <div className="relative">
                           <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 shadow-lg border-2 border-blue-200/50 group-hover:border-blue-400/70 dark:border-indigo-400/30 dark:group-hover:border-indigo-400/50 transition-colors">
                             {allCategories.find(
-                              (c: any) => String(c.id) === categoryId
+                              (c: Category) => String(c.id) === categoryId
                             )?.imageUrl ? (
                               <img
                                 src={
                                   allCategories.find(
-                                    (c: any) => String(c.id) === categoryId
+                                    (c: Category) => String(c.id) === categoryId
                                   )?.imageUrl!
                                 }
                                 alt="Category"
@@ -507,7 +616,7 @@ export default function TryOnStart() {
                           <h2 className="font-semibold text-sm bg-gradient-to-r from-blue-700 to-purple-700 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                             {
                               allCategories.find(
-                                (c: any) => String(c.id) === categoryId
+                                (c: Category) => String(c.id) === categoryId
                               )?.name
                             }
                           </h2>
@@ -544,12 +653,12 @@ export default function TryOnStart() {
                     transition={{ duration: 0.5 }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-50" />
-                    <div className="relative bg-white/90 dark:bg-violet-800/10 dark:text-white backdrop-blur-sm rounded-2xl border border-blue-200/30 shadow-xl shadow-blue-500/10">
+                    <div className="relative bg-white/90 dark:bg-violet-800/10 dark:text-white backdrop-blur-sm rounded-xl border border-blue-200/30">
                       <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
                       <Input
                         value={categorySearch}
                         onChange={(e) => setCategorySearch(e.target.value)}
-                        placeholder="🔍 Discover categories with AI..."
+                        placeholder="Discover categories with AI..."
                         className="pl-12 pr-10 py-3 bg-transparent border-0 text-gray-800 dark:text-white placeholder:text-gray-500 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
                       />
                       {categorySearch && (
@@ -648,12 +757,12 @@ export default function TryOnStart() {
                       </motion.button>
                     </motion.div>
                   ) : (
-                    displayCategories.map((c: any, index: number) => {
+                    displayCategories.map((c: Category, index: number) => {
                       return (
                         <motion.button
                           key={c.id}
                           onClick={() => handleCategorySelect(String(c.id))}
-                          className="group relative p-3 rounded-2xl bg-gradient-to-br from-white/90 dark:from-blue-900/50 to-blue-50/50 dark:to-violet-900/50 dark:text-white border border-blue-200/30 dark:border-none hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/20 hover:from-blue-50/80 hover:to-purple-50/60 transition-all duration-500 backdrop-blur-sm overflow-hidden"
+                          className="group relative p-3 rounded-2xl bg-gradient-to-br from-white/90 dark:from-blue-900/50 to-white dark:to-violet-900/50 dark:text-white border border-blue-200/30 dark:border-none hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/20 hover:from-blue-50/80 hover:to-purple-50/60 transition-all duration-500 backdrop-blur-sm overflow-hidden"
                           whileHover={{ scale: 1.08, y: -8, rotateY: 5 }}
                           whileTap={{ scale: 0.95 }}
                           initial={{ opacity: 0, y: 20, rotateX: -10 }}
@@ -777,7 +886,7 @@ export default function TryOnStart() {
                       <span className="text-xs text-gray-500 truncate">
                         {selectedCompanyId
                           ? displayCompanies.find(
-                              (c: any) => String(c.id) === selectedCompanyId
+                              (c: Company) => String(c.id) === selectedCompanyId
                             )?.name || "Selected"
                           : `${displayCompanies.length} available`}
                       </span>
@@ -827,7 +936,7 @@ export default function TryOnStart() {
                                   setCompanySearch(e.target.value)
                                 }
                                 placeholder="Search brands..."
-                                className="pl-10 pr-8 py-2 bg-white/80 dark:bg-gray-800/50 border dark:border-none border-blue-200/50 text-gray-800 placeholder:text-gray-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400/50 transition-all duration-200"
+                                className="pl-10 pr-8 py-2 bg-white/80 dark:bg-gray-800/50 border dark:border-none border-blue-200/50 text-gray-800 dark:text-white placeholder:text-gray-500 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400/50 transition-all duration-200"
                               />
                               {companySearch && (
                                 <button
@@ -950,7 +1059,7 @@ export default function TryOnStart() {
                               </motion.div>
                             ) : (
                               displayCompanies.map(
-                                (company: any, index: number) => (
+                                (company: Company, index: number) => (
                                   <motion.button
                                     key={company.id}
                                     onClick={() => {
@@ -995,7 +1104,7 @@ export default function TryOnStart() {
                                     </h4>
 
                                     {/* Product Count */}
-                                    {(company as any).productCount && (
+                                    {company.productCount && (
                                       <div
                                         className={`text-xs px-1 py-0.5 rounded-full text-center ${
                                           selectedCompanyId ===
@@ -1004,7 +1113,7 @@ export default function TryOnStart() {
                                             : "bg-gray-100 text-gray-600 group-hover:bg-blue-100 group-hover:text-blue-700"
                                         }`}
                                       >
-                                        {(company as any).productCount} products
+                                        {company.productCount} products
                                       </div>
                                     )}
 
@@ -1162,7 +1271,7 @@ export default function TryOnStart() {
                     ) : (
                       filteredProducts
                         .slice(0, 50) // Show more products for better UX
-                        .map((product: any, index: number) => (
+                        .map((product: Product, index: number) => (
                           <motion.div
                             key={product.id}
                             className="group cursor-pointer bg-white/90 rounded-xl border border-gray-200/50 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 overflow-hidden"
@@ -1172,7 +1281,7 @@ export default function TryOnStart() {
                             onClick={() =>
                               setSelectedProductId({
                                 id: String(product.id),
-                                imageUrl: product.imageUrl,
+                                imageUrl: product.imageUrl || "",
                               })
                             }
                             initial={{ opacity: 0, y: 10 }}
@@ -1199,7 +1308,7 @@ export default function TryOnStart() {
                               </h3>
                               {product.price && (
                                 <p className="text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text font-semibold text-xs mt-1">
-                                  ${product.price}
+                                  RF {product.price}
                                 </p>
                               )}
                             </div>

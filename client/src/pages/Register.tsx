@@ -7,6 +7,7 @@ import {
   Lock,
   Mail,
   Phone,
+  KeyRound,
   ArrowLeft,
   UserCheck,
   CheckCircle2,
@@ -299,57 +300,139 @@ export default function Register() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-white to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800 pt-10">
-      <main className="max-w-md mx-auto px-4 py-12 md:py-16">
-        <Card className="floating-card">
-          <CardHeader className="text-center relative">
-            <CardTitle className="text-3xl gradient-text mb-2">
-              Join NyambikaAI
-            </CardTitle>
-            <p className="text-gray-600 dark:text-gray-400 text-sm">
-              Create your account to start shopping or selling
-            </p>
-          </CardHeader>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/30 dark:from-gray-950 dark:via-slate-950 dark:to-indigo-950/50 pt-20 relative overflow-hidden">
+      {/* AI-Inspired Background */}
+      <div className="fixed inset-0 pointer-events-none">
+        <motion.div 
+          className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-blue-400/10 via-purple-400/10 to-pink-400/10 rounded-full blur-3xl"
+          animate={{
+            y: [0, -20, 0],
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.6, 0.3]
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        <motion.div 
+          className="absolute bottom-20 right-10 w-40 h-40 bg-gradient-to-r from-cyan-400/10 via-blue-400/10 to-indigo-400/10 rounded-full blur-3xl"
+          animate={{
+            y: [0, 15, 0],
+            x: [0, -10, 0],
+            scale: [1, 0.9, 1]
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        />
+        {/* Animated particles */}
+        {[...Array(4)].map((_, i) => (
+          <motion.div
+            key={i}
+            className={`absolute w-1 h-1 rounded-full ${
+              i % 2 === 0 ? 'bg-blue-400/30' : 'bg-purple-400/30'
+            } blur-sm`}
+            style={{
+              left: `${20 + (i * 20)}%`,
+              top: `${30 + (i * 15)}%`
+            }}
+            animate={{
+              y: [0, -50, 0],
+              opacity: [0, 1, 0],
+              scale: [0, 1, 0]
+            }}
+            transition={{
+              duration: 4 + i,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.5
+            }}
+          />
+        ))}
+      </div>
+      
+      <main className="max-w-md mx-auto px-4 py-8 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <Card className="backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/20 dark:border-gray-700/30 shadow-2xl shadow-blue-500/10 dark:shadow-blue-400/5">
+            <CardHeader className="text-center relative">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+              >
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+                  ✨ Join NyambikaAI
+                </CardTitle>
+                <p className="text-gray-600 dark:text-gray-300 text-sm">
+                  Create your AI-powered fashion account
+                </p>
+              </motion.div>
+            </CardHeader>
           <CardContent>
             <form
               onSubmit={handleSubmit}
               onKeyDown={handleFormKeyDown}
               className="space-y-5"
             >
-              {/* Step indicator + Back (for Step 2) */}
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              {/* Enhanced Step indicator */}
+              <motion.div 
+                className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-pink-50/50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-xl border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
+              >
                 {step === 2 && (
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
                     onClick={() => setStep(1)}
-                    className="bg-secondary"
+                    className="bg-white/60 dark:bg-gray-800/60 hover:bg-white dark:hover:bg-gray-700 border border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm"
                   >
                     <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Back
                   </Button>
                 )}
-                <div>
-                  <div className="text-lg font-bold text-blue-700">
-                    {formData.role === "customer" ? "Customer" : "Producer"}{" "}
-                    Account
+                <div className="flex-1">
+                  <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                    {formData.role === "customer" ? "🛍️ Customer" : "🏭 Producer"} Account
                   </div>
-                  <div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     {step === 1
-                      ? "Step 1 of 2: Choose account type"
-                      : "Step 2 of 2: Account details"}
+                      ? "Step 1 of 2: Choose your role"
+                      : "Step 2 of 2: Complete your profile"}
                   </div>
                 </div>
-              </div>
-              {/* Progress (Step 2 only) */}
+              </motion.div>
+              {/* Enhanced Progress (Step 2 only) */}
               {step === 2 && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Setup progress</span>
-                    <span>{progressPct}%</span>
+                <motion.div 
+                  className="space-y-3 p-3 bg-gradient-to-r from-green-50/50 via-blue-50/50 to-purple-50/50 dark:from-green-900/20 dark:via-blue-900/20 dark:to-purple-900/20 rounded-xl border border-green-200/30 dark:border-green-700/30 backdrop-blur-sm"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">🚀 Setup Progress</span>
+                    <span className="font-bold text-green-600 dark:text-green-400">{progressPct}%</span>
                   </div>
-                  <Progress value={progressPct} />
-                </div>
+                  <div className="relative">
+                    <Progress value={progressPct} className="h-2" />
+                    <motion.div
+                      className="absolute top-0 left-0 h-2 bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${progressPct}%` }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                    />
+                  </div>
+                </motion.div>
               )}
               {/* Account Type Tabs (simple) */}
               {step === 1 && (
@@ -436,14 +519,22 @@ export default function Register() {
                     transition={{ duration: 0.2 }}
                     className="mt-2"
                   >
-                    <Button
-                      type="button"
-                      className="w-full text-white py-3 bg-gradient-to-r from-rose-500 via-fuchsia-500 to-indigo-600 hover:from-rose-600 hover:via-fuchsia-600 hover:to-indigo-700"
-                      onClick={() => setStep(2)}
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      Continue as{" "}
-                      {formData.role === "customer" ? "Customer" : "Producer"}
-                    </Button>
+                      <Button
+                        type="button"
+                        className="w-full text-white py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 relative overflow-hidden"
+                        onClick={() => setStep(2)}
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          <span>🚀</span>
+                          Continue as {formData.role === "customer" ? "Customer" : "Producer"}
+                        </span>
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                      </Button>
+                    </motion.div>
                     <p className="mt-2 text-center text-xs text-muted-foreground">
                       You can change this choice above at any time.
                     </p>
@@ -457,330 +548,206 @@ export default function Register() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -8 }}
                     transition={{ duration: 0.2 }}
-                    className="flex flex-col gap-2"
+                    className="flex flex-col gap-5"
                   >
-                    <div className="space-y-5">
-                      <Label htmlFor="name">Full Name *</Label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="name"
-                          name="name"
-                          type="text"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          onBlur={handleBlur}
-                          placeholder="Your full name"
-                          className="pl-10 glassmorphism border-0"
-                          autoComplete="name"
-                          aria-invalid={Boolean(errors.name)}
-                          aria-describedby={
-                            errors.name ? "name-error" : undefined
-                          }
-                          ref={nameRef}
-                          required
-                        />
-                        {nameValid && (
-                          <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-emerald-600" />
-                        )}
-                      </div>
-                      {errors.name && (
-                        <p
-                          id="name-error"
-                          className="text-sm text-red-600 dark:text-red-400"
-                        >
-                          {errors.name}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email Address *</Label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="email"
-                          name="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          onBlur={handleBlur}
-                          placeholder="your@email.com"
-                          className="pl-10 glassmorphism border-0"
-                          autoComplete="email"
-                          aria-invalid={Boolean(errors.email)}
-                          aria-describedby={
-                            errors.email ? "email-error" : undefined
-                          }
-                          ref={emailRef}
-                          required
-                        />
-                        {emailValid && (
-                          <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-emerald-600" />
-                        )}
-                      </div>
-                      {errors.email && (
-                        <p
-                          id="email-error"
-                          className="text-sm text-red-600 dark:text-red-400"
-                        >
-                          {errors.email}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">
-                        Phone Number (with country code)
+                    {/* Enhanced Form Inputs */}
+                    <motion.div 
+                      className="space-y-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.5, duration: 0.4 }}
+                    >
+                      <Label htmlFor="name" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <User className="h-4 w-4 text-blue-500" /> Full Name
                       </Label>
-                      <div className="flex items-center gap-2">
-                        <Select value={dialCode} onValueChange={setDialCode}>
-                          <SelectTrigger className="w-36 glassmorphism border-0">
-                            <SelectValue placeholder="Country" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {countryOptions.map((c) => (
-                              <SelectItem
-                                key={c.code}
-                                value={c.dial}
-                              >{`${c.name} (${c.dial})`}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <div className="relative flex-1">
-                          <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                      <div className="relative group">
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500" />
+                        <div className="relative">
                           <Input
-                            id="phone"
-                            name="phone"
-                            type="tel"
-                            inputMode="numeric"
-                            value={formData.phone}
+                            id="name"
+                            name="name"
+                            value={formData.name}
                             onChange={handleInputChange}
-                            onBlur={handleBlur}
-                            placeholder="7XX XXX XXX"
-                            className="pl-10 glassmorphism border-0"
-                            autoComplete="tel-national"
-                            aria-invalid={Boolean(errors.phone)}
-                            aria-describedby={
-                              errors.phone ? "phone-error" : "phone-hint"
-                            }
-                            ref={phoneRef}
+                            placeholder="Enter your full name"
+                            required
+                            className="h-10 pl-10 pr-4 bg-gradient-to-br from-white/90 via-blue-50/60 to-purple-50/40 dark:from-gray-900/90 dark:via-blue-950/60 dark:to-purple-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-blue-400/70 dark:focus:border-blue-500/70 focus:ring-2 focus:ring-blue-500/15 transition-all duration-300 shadow-md shadow-blue-500/5 group-hover:shadow-blue-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
                           />
-                          {phoneValid && (
-                            <CheckCircle2 className="absolute right-3 top-3 h-4 w-4 text-emerald-600" />
-                          )}
-                        </div>
-                      </div>
-                      {errors.phone ? (
-                        <p
-                          id="phone-error"
-                          className="text-sm text-red-600 dark:text-red-400"
-                        >
-                          {errors.phone}
-                        </p>
-                      ) : (
-                        <p
-                          id="phone-hint"
-                          className="text-xs text-muted-foreground"
-                        >
-                          Full number: {fullPhonePreview}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="password">Password *</Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="password"
-                          name="password"
-                          type={showPassword ? "text" : "password"}
-                          value={formData.password}
-                          onChange={handleInputChange}
-                          onBlur={handleBlur}
-                          onKeyDown={(e) =>
-                            setCapsLockPwd(
-                              (
-                                e as React.KeyboardEvent<HTMLInputElement>
-                              ).getModifierState("CapsLock")
-                            )
-                          }
-                          onKeyUp={(e) =>
-                            setCapsLockPwd(
-                              (
-                                e as React.KeyboardEvent<HTMLInputElement>
-                              ).getModifierState("CapsLock")
-                            )
-                          }
-                          placeholder="Create a password"
-                          className="pl-10 pr-10 glassmorphism border-0"
-                          ref={passwordRef}
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-400" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-400" />
-                          )}
-                        </Button>
-                      </div>
-                      {errors.password && (
-                        <p className="text-sm text-red-600 dark:text-red-400">
-                          {errors.password}
-                        </p>
-                      )}
-                      {capsLockPwd && (
-                        <p className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
-                          <AlertTriangle className="h-3.5 w-3.5" /> Caps Lock is
-                          on
-                        </p>
-                      )}
-                      {/* Password strength meter */}
-                      {formData.password && (
-                        <div className="space-y-1">
-                          <div className="h-2 w-full bg-gray-200 dark:bg-gray-800 rounded">
-                            <div
-                              className={`h-2 rounded transition-all ${
-                                passwordStrength <= 2
-                                  ? "bg-red-500 w-1/4"
-                                  : passwordStrength === 3
-                                  ? "bg-yellow-500 w-1/2"
-                                  : passwordStrength === 4
-                                  ? "bg-blue-500 w-3/4"
-                                  : "bg-green-500 w-full"
-                              }`}
-                            />
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
+                            <User className="h-4 w-4" />
                           </div>
-                          <p className="text-xs text-gray-500">
-                            {passwordStrength <= 2
-                              ? "Weak"
-                              : passwordStrength === 3
-                              ? "Fair"
-                              : passwordStrength === 4
-                              ? "Good"
-                              : "Strong"}{" "}
-                            password
-                          </p>
-                          {/* Password checklist */}
-                          <ul className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
-                            <li
-                              className={`flex items-center gap-1 ${
-                                pwdReq.minLength
-                                  ? "text-emerald-600"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              <Check className="h-3 w-3" /> 8+ characters
-                            </li>
-                            <li
-                              className={`flex items-center gap-1 ${
-                                pwdReq.digit
-                                  ? "text-emerald-600"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              <Check className="h-3 w-3" /> 1 number
-                            </li>
-                            <li
-                              className={`flex items-center gap-1 ${
-                                pwdReq.upper
-                                  ? "text-emerald-600"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              <Check className="h-3 w-3" /> Uppercase
-                            </li>
-                            <li
-                              className={`flex items-center gap-1 ${
-                                pwdReq.lower
-                                  ? "text-emerald-600"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              <Check className="h-3 w-3" /> Lowercase
-                            </li>
-                            <li
-                              className={`flex items-center gap-1 ${
-                                pwdReq.special
-                                  ? "text-emerald-600"
-                                  : "text-muted-foreground"
-                              }`}
-                            >
-                              <Check className="h-3 w-3" /> Symbol
-                            </li>
-                          </ul>
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
                         </div>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">
-                        Confirm Password *
-                      </Label>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                        <Input
-                          id="confirmPassword"
-                          name="confirmPassword"
-                          type={showConfirmPassword ? "text" : "password"}
-                          value={formData.confirmPassword}
-                          onChange={handleInputChange}
-                          onBlur={handleBlur}
-                          onKeyDown={(e) =>
-                            setCapsLockConfirm(
-                              (
-                                e as React.KeyboardEvent<HTMLInputElement>
-                              ).getModifierState("CapsLock")
-                            )
-                          }
-                          onKeyUp={(e) =>
-                            setCapsLockConfirm(
-                              (
-                                e as React.KeyboardEvent<HTMLInputElement>
-                              ).getModifierState("CapsLock")
-                            )
-                          }
-                          placeholder="Confirm your password"
-                          className="pl-10 pr-10 glassmorphism border-0"
-                          ref={confirmRef}
-                          required
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                        >
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-4 w-4 text-gray-400" />
-                          ) : (
-                            <Eye className="h-4 w-4 text-gray-400" />
-                          )}
-                        </Button>
                       </div>
-                      {errors.confirmPassword && (
-                        <p className="text-sm text-red-600 dark:text-red-400">
-                          {errors.confirmPassword}
-                        </p>
-                      )}
-                      {capsLockConfirm && (
-                        <p className="flex items-center gap-2 text-xs text-amber-600 dark:text-amber-400">
-                          <AlertTriangle className="h-3.5 w-3.5" /> Caps Lock is
-                          on
-                        </p>
-                      )}
-                    </div>
+                    </motion.div>
+
+                    <motion.div 
+                      className="space-y-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6, duration: 0.4 }}
+                    >
+                      <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <Mail className="h-4 w-4 text-purple-500" /> Email Address
+                      </Label>
+                      <div className="relative group">
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-blue-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500" />
+                        <div className="relative">
+                          <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            value={formData.email}
+                            onChange={handleInputChange}
+                            placeholder="Enter your email address"
+                            required
+                            className="h-10 pl-10 pr-4 bg-gradient-to-br from-white/90 via-purple-50/60 to-pink-50/40 dark:from-gray-900/90 dark:via-purple-950/60 dark:to-pink-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-purple-400/70 dark:focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/15 transition-all duration-300 shadow-md shadow-purple-500/5 group-hover:shadow-purple-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
+                          />
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 pointer-events-none">
+                            <Mail className="h-4 w-4" />
+                          </div>
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div 
+                      className="space-y-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.7, duration: 0.4 }}
+                    >
+                      <Label htmlFor="phone" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-green-500" /> Phone Number
+                      </Label>
+                      <div className="flex gap-3 group">
+                        <div className="relative">
+                          <Select
+                            value="+1"
+                            onValueChange={(value) => {
+                              // Handle country code change
+                            }}
+                          >
+                            <SelectTrigger className="w-28 h-12 bg-gradient-to-r from-white/80 to-green-50/50 dark:from-gray-800/80 dark:to-green-900/20 border-2 border-gray-200/60 dark:border-gray-600/60 rounded-xl backdrop-blur-sm focus:border-green-400 dark:focus:border-green-500 focus:ring-4 focus:ring-green-500/10 transition-all duration-300 hover:border-green-300 dark:hover:border-green-600">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-600/50">
+                              <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                              <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                              <SelectItem value="+33">🇫🇷 +33</SelectItem>
+                              <SelectItem value="+49">🇩🇪 +49</SelectItem>
+                              <SelectItem value="+250">🇷🇼 +250</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="relative flex-1">
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-400/20 via-emerald-400/20 to-cyan-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500" />
+                          <div className="relative">
+                            <Input
+                              id="phone"
+                              name="phone"
+                              type="tel"
+                              value={formData.phone}
+                              onChange={handleInputChange}
+                              placeholder="123-456-7890"
+                              className="h-10 pl-10 pr-4 bg-gradient-to-br from-white/90 via-green-50/60 to-emerald-50/40 dark:from-gray-900/90 dark:via-green-950/60 dark:to-emerald-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-green-400/70 dark:focus:border-green-500/70 focus:ring-2 focus:ring-green-500/15 transition-all duration-300 shadow-md shadow-green-500/5 group-hover:shadow-green-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
+                            />
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-green-500 pointer-events-none">
+                              <Phone className="h-4 w-4" />
+                            </div>
+                            <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500/5 via-emerald-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div 
+                      className="space-y-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8, duration: 0.4 }}
+                    >
+                      <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <Lock className="h-4 w-4 text-red-500" /> Password
+                      </Label>
+                      <div className="relative group">
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-400/20 via-orange-400/20 to-yellow-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500" />
+                        <div className="relative">
+                          <Input
+                            id="password"
+                            name="password"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={handleInputChange}
+                            placeholder="Create a strong password"
+                            required
+                            className="h-10 pl-10 pr-11 bg-gradient-to-br from-white/90 via-red-50/60 to-orange-50/40 dark:from-gray-900/90 dark:via-red-950/60 dark:to-orange-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-red-400/70 dark:focus:border-red-500/70 focus:ring-2 focus:ring-red-500/15 transition-all duration-300 shadow-md shadow-red-500/5 group-hover:shadow-red-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
+                          />
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500 pointer-events-none">
+                            <Lock className="h-4 w-4" />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
+                            onClick={() => setShowPassword(!showPassword)}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                            ) : (
+                              <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                            )}
+                          </Button>
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500/5 via-orange-500/5 to-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    <motion.div 
+                      className="space-y-3"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.9, duration: 0.4 }}
+                    >
+                      <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                        <KeyRound className="h-4 w-4 text-orange-500" /> Confirm Password
+                      </Label>
+                      <div className="relative group">
+                        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-400/20 via-amber-400/20 to-red-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-500" />
+                        <div className="relative">
+                          <Input
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.confirmPassword}
+                            onChange={handleInputChange}
+                            placeholder="Confirm your password"
+                            required
+                            className="h-10 pl-10 pr-11 bg-gradient-to-br from-white/90 via-orange-50/60 to-amber-50/40 dark:from-gray-900/90 dark:via-orange-950/60 dark:to-amber-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-orange-400/70 dark:focus:border-orange-500/70 focus:ring-2 focus:ring-orange-500/15 transition-all duration-300 shadow-md shadow-orange-500/5 group-hover:shadow-orange-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
+                          />
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-orange-500 pointer-events-none">
+                            <KeyRound className="h-4 w-4" />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
+                            onClick={() =>
+                              setShowConfirmPassword(!showConfirmPassword)
+                            }
+                          >
+                            {showConfirmPassword ? (
+                              <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                            ) : (
+                              <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                            )}
+                          </Button>
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-orange-500/5 via-amber-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                        </div>
+                      </div>
+                    </motion.div>
+
                     {/* Terms & conditions */}
                     <div className="space-y-2">
                       <div className="flex items-start gap-3">
@@ -823,27 +790,40 @@ export default function Register() {
                         </p>
                       )}
 
-                    <Button
-                      type="submit"
-                      disabled={
-                        isLoading ||
-                        !formData.name ||
-                        !formData.email ||
-                        !formData.password ||
-                        formData.password !== formData.confirmPassword ||
-                        !termsAccepted
-                      }
-                      className="w-full text-white text-lg py-3 bg-gradient-to-r from-rose-500 via-fuchsia-500 to-indigo-600 hover:from-rose-600 hover:via-fuchsia-600 hover:to-indigo-700 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500 disabled:opacity-60"
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      {isLoading ? (
-                        <>
-                          <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                          Creating account...
-                        </>
-                      ) : (
-                        "Create account"
-                      )}
-                    </Button>
+                      <Button
+                        type="submit"
+                        disabled={
+                          isLoading ||
+                          !formData.name ||
+                          !formData.email ||
+                          !formData.password ||
+                          formData.password !== formData.confirmPassword ||
+                          !termsAccepted
+                        }
+                        className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                      >
+                        {isLoading ? (
+                          <>
+                            <motion.div 
+                              className="h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"
+                              animate={{ rotate: 360 }}
+                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            />
+                            Creating your AI account...
+                          </>
+                        ) : (
+                          <span className="relative z-10 flex items-center justify-center gap-2">
+                            <span>✨</span>
+                            Create AI Account
+                          </span>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                      </Button>
+                    </motion.div>
 
                     {/* Social sign-in */}
                     <div className="space-y-3">
@@ -934,6 +914,7 @@ export default function Register() {
             </form>
           </CardContent>
         </Card>
+        </motion.div>
       </main>
     </div>
   );

@@ -152,28 +152,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.post('/api/auth/login', async (req, res) => {
     try {
+      console.log('Login attempt:', { body: req.body });
+      
       const { email, password } = req.body;
       
       if (!email || !password) {
+        console.log('Missing email or password');
         return res.status(400).json({ message: 'Email and password are required' });
       }
       
       // Find user by email
+      console.log('Looking for user with email:', email);
       const user = await storage.getUserByEmail(email);
+      console.log('User found:', user ? 'Yes' : 'No');
+      
       if (!user) {
+        console.log('User not found');
         return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      
+      // Check if user has password field
+      if (!user.password) {
+        console.error('User found but no password field:', user);
+        return res.status(500).json({ message: 'User account configuration error' });
       }
       
       // Check password
+      console.log('Comparing passwords...');
       const isValidPassword = await bcrypt.compare(password, user.password);
+      console.log('Password valid:', isValidPassword);
+      
       if (!isValidPassword) {
+        console.log('Invalid password');
         return res.status(401).json({ message: 'Invalid credentials' });
       }
       
+      // Check JWT_SECRET
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret || jwtSecret === 'your_jwt_secret_here_change_in_production') {
+        console.error('JWT_SECRET not properly configured');
+        return res.status(500).json({ message: 'Server configuration error' });
+      }
+      
       // Generate JWT token
+      console.log('Generating JWT token...');
       const token = jwt.sign(
-        { userId: user.id, role: user.role },
-        process.env.JWT_SECRET || 'fallback-secret',
+        { userId: user.id, role: user.role || 'customer' },
+        jwtSecret,
         { expiresIn: '7d' }
       );
       
@@ -181,16 +206,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, fullName, ...userWithoutPassword } = user;
       const mappedUser = {
         ...userWithoutPassword,
-        name: fullName || user.email.split('@')[0]
+        name: fullName || user.fullName || user.username || user.email.split('@')[0]
       };
+      
+      console.log('Login successful for user:', mappedUser.id);
       
       res.json({
         user: mappedUser,
         token
       });
     } catch (error) {
-      console.error('Login error:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      const err = error as Error;
+      console.error('Login error details:', {
+        message: err.message,
+        stack: err.stack,
+        name: err.name
+      });
+      res.status(500).json({ 
+        message: 'Internal server error',
+        ...(process.env.NODE_ENV === 'development' && { error: err.message })
+      });
     }
   });
   

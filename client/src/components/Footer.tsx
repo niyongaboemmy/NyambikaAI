@@ -110,10 +110,10 @@ export default function Footer() {
                   Try outfits virtually
                 </span>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+              <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight">
                 Experience AI Try‑On for Your Next Look
               </h2>
-              <p className="mt-2 text-gray-300 max-w-2xl">
+              <p className="mt-2 text-gray-300 max-w-2xl text-sm">
                 Upload your photo, get instant smart fits, and shop confidently
                 with Nyambika’s AI.
               </p>
@@ -121,14 +121,14 @@ export default function Footer() {
             <div className="shrink-0 flex items-center gap-3">
               <Button
                 asChild
-                className="bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20"
+                className="bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20 dark:text-white"
               >
                 <Link href="/try-on">Start AI Try‑On</Link>
               </Button>
               <Button
                 asChild
                 variant="ghost"
-                className="text-white hover:bg-white/10"
+                className="text-white bg-gray-500/10 hover:bg-white/10 hover:text-white"
               >
                 <Link href="/products">Browse Products</Link>
               </Button>

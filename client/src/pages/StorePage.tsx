@@ -362,7 +362,7 @@ export default function StorePage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-transparent">
       {/* Enhanced Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 pt-8">
         <div className="absolute inset-0 bg-black/20" />
@@ -382,12 +382,12 @@ export default function StorePage() {
             style={{ animationDelay: "3s" }}
           />
         </div>
-        <div className="px-3 md:px-6 py-16 pb-10 relative z-10">
-          <div className="text-center text-white space-y-0">
-            <div className="flex flex-col md:flex-row justify-center items-center space-x-3 ">
+        <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative z-10">
+          <div className="text-center text-white space-y-4 sm:space-y-0">
+            <div className="flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
               <div className="relative group">
                 {company.logoUrl ? (
-                  <div className="w-20 h-20 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl transition-transform group-hover:scale-110">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl transition-transform group-hover:scale-110">
                     <img
                       src={company.logoUrl}
                       alt={`${company.name} logo`}
@@ -395,14 +395,14 @@ export default function StorePage() {
                     />
                   </div>
                 ) : (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-r from-white/20 to-white/10 border-4 border-white/20 flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
-                    <Package className="w-10 h-10 text-white" />
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-white/20 to-white/10 border-4 border-white/20 flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
+                    <Package className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
                 )}
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
               </div>
-              <div className="flex flex-col md:flex-row items-center space-x-2">
-                <h1 className="text-2xl md:text-4xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent">
+              <div className="flex flex-col sm:flex-row items-center sm:space-x-2 space-y-2 sm:space-y-0">
+                <h1 className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent text-center sm:text-left">
                   {company.name}
                 </h1>
                 <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg animate-pulse">
@@ -412,30 +412,31 @@ export default function StorePage() {
               </div>
             </div>
 
-            <div className="flex justify-center items-center space-x-6 text-white/90">
+            <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6 text-white/90">
               <div className="flex items-center space-x-2 hover:text-white transition-colors">
                 <MapPin className="w-4 h-4" />
-                <span>{company.location}</span>
+                <span className="text-sm sm:text-base">{company.location}</span>
               </div>
               <div className="flex items-center space-x-2 hover:text-white transition-colors">
                 <Phone className="w-4 h-4" />
-                <span>{company.phone}</span>
+                <span className="text-sm sm:text-base">{company.phone}</span>
               </div>
             </div>
 
-            <div className="flex justify-center space-x-4 pt-4">
+            <div className="flex flex-row justify-center space-x-4 pt-4">
               <Button
                 variant="secondary"
-                className="bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 shadow-lg"
+                className="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
                 // onClick={handleShare}
               >
                 <Share2 className="w-4 h-4 mr-2" />
-                Share Store
+                <span className="hidden sm:inline">Share Store</span>
+                <span className="sm:hidden">Share</span>
               </Button>
               {company.websiteUrl && (
                 <Button
                   variant="secondary"
-                  className="bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 backdrop-blur-sm transition-all duration-300 hover:scale-105 shadow-lg"
+                  className="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
                   onClick={() =>
                     window.open(
                       company.websiteUrl,
@@ -445,7 +446,8 @@ export default function StorePage() {
                   }
                 >
                   <ExternalLink className="w-4 h-4 mr-2" />
-                  Visit Website
+                  <span className="hidden sm:inline">Visit Website</span>
+                  <span className="sm:hidden">Website</span>
                 </Button>
               )}
             </div>
@@ -454,67 +456,67 @@ export default function StorePage() {
       </div>
 
       {/* Mini Stats Section */}
-      <div className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
-        <div className="px-3 md:px-6 py-3">
+      <div className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900/10">
+        <div className="px-4 sm:px-6 md:px-6 py-3">
           <div className="flex justify-center">
-            <div className="flex items-center gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-6 py-3 shadow-lg">
-              <div className="flex items-center gap-2 group hover:scale-105 transition-transform">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
-                  <Package className="w-4 h-4 text-white" />
+            <div className="flex items-center gap-3 sm:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-4 sm:px-6 py-3 shadow-lg overflow-x-auto">
+              <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                  <Package className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  <div className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">
                     {(products || []).length}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1 hidden sm:block">
                     Products
                   </div>
                 </div>
               </div>
 
-              <div className="w-px h-8 bg-gray-200 dark:bg-gray-600" />
+              <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
 
-              <div className="flex items-center gap-2 group hover:scale-105 transition-transform">
-                <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                  <Grid className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                  <Grid className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  <div className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">
                     {categories.length}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1 hidden sm:block">
                     Categories
                   </div>
                 </div>
               </div>
 
-              <div className="w-px h-8 bg-gray-200 dark:bg-gray-600" />
+              <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
 
-              <div className="flex items-center gap-2 group hover:scale-105 transition-transform">
-                <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  <div className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">
                     {(products || []).filter((p) => p.inStock).length}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1 hidden sm:block">
                     Available
                   </div>
                 </div>
               </div>
 
-              <div className="w-px h-8 bg-gray-200 dark:bg-gray-600" />
+              <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
 
-              <div className="flex items-center gap-2 group hover:scale-105 transition-transform">
-                <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
-                  <Star className="w-4 h-4 text-white" />
+              <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                  <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  <div className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">
                     4.8
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1">
+                  <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1 hidden sm:block">
                     Rating
                   </div>
                 </div>
@@ -525,139 +527,137 @@ export default function StorePage() {
       </div>
 
       {/* Categories Section */}
-      <div className="container mx-auto px-3 md:px-0 bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-blue-900/30 py-4">
-        <div className="px-3 md:px-2">
-          <div className="text-center mb-4">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
-              Shop by Category
-            </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Discover products from {company?.name || "this store"} across
-              different categories
-            </p>
-          </div>
-
-          {categoriesLoading ? (
-            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex flex-col items-center space-y-1">
-                  <Skeleton className="w-12 h-12 rounded-full" />
-                  <Skeleton className="w-16 h-3" />
-                </div>
-              ))}
+      <div className="bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900/30 py-4">
+        <div className="container mx-auto px-3 md:px-0">
+          <div className="px-3 md:px-2">
+            <div className="text-center mb-4">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-1">
+                Shop by Category
+              </h2>
             </div>
-          ) : (
-            <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-4">
-              {/* All Categories Button */}
-              <button
-                onClick={() => setSelectedCategory("all")}
-                className={`group flex flex-col items-center space-y-2 p-2 rounded-xl transition-all duration-300 hover:scale-105 ${
-                  selectedCategory === "all"
-                    ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
-                    : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:shadow-lg"
-                }`}
-              >
-                <div
-                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    selectedCategory === "all"
-                      ? "bg-white/20 backdrop-blur-sm"
-                      : "bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30"
-                  }`}
-                >
-                  <Grid3X3
-                    className={`w-6 h-6 ${
-                      selectedCategory === "all"
-                        ? "text-white"
-                        : "text-blue-600 dark:text-blue-400"
-                    }`}
-                  />
-                </div>
-                <span
-                  className={`text-xs font-medium text-center ${
-                    selectedCategory === "all"
-                      ? "text-white"
-                      : "text-gray-700 dark:text-gray-300"
-                  }`}
-                >
-                  All
-                </span>
-                {selectedCategory === "all" && (
-                  <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                )}
-              </button>
 
-              {/* Category Buttons */}
-              {categories.map((category) => {
-                const categoryData = allCategories.find(
-                  (c) => c.name === category
-                );
-                return (
-                  <button
-                    key={category}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`group flex flex-col items-center space-y-2 p-2 rounded-xl transition-all duration-300 hover:scale-105 ${
-                      selectedCategory === category
-                        ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
-                        : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:shadow-lg"
+            {categoriesLoading ? (
+              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center space-y-1">
+                    <Skeleton className="w-12 h-12 rounded-full" />
+                    <Skeleton className="w-16 h-3" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+                {/* All Categories Button */}
+                <button
+                  onClick={() => setSelectedCategory("all")}
+                  className={`group flex flex-col items-center space-y-2 p-2 rounded-xl transition-all duration-300 hover:scale-105 ${
+                    selectedCategory === "all"
+                      ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
+                      : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:shadow-lg"
+                  }`}
+                >
+                  <div
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      selectedCategory === "all"
+                        ? "bg-white/20 backdrop-blur-sm"
+                        : "bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30"
                     }`}
                   >
-                    <div
-                      className={`w-12 h-12 rounded-full overflow-hidden transition-all duration-300 ${
-                        selectedCategory === category
-                          ? "ring-2 ring-white/30"
-                          : "ring-1 ring-transparent group-hover:ring-blue-200 dark:group-hover:ring-blue-800"
-                      }`}
-                    >
-                      {categoryData?.imageUrl ? (
-                        <img
-                          src={categoryData.imageUrl}
-                          alt={category}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div
-                          className={`w-full h-full flex items-center justify-center ${
-                            selectedCategory === category
-                              ? "bg-white/20 backdrop-blur-sm"
-                              : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600"
-                          }`}
-                        >
-                          <Package
-                            className={`w-6 h-6 ${
-                              selectedCategory === category
-                                ? "text-white"
-                                : "text-gray-500 dark:text-gray-400"
-                            }`}
-                          />
-                        </div>
-                      )}
-                    </div>
-                    <span
-                      className={`text-xs font-medium text-center leading-tight ${
-                        selectedCategory === category
+                    <Grid3X3
+                      className={`w-5 h-5 sm:w-6 sm:h-6 ${
+                        selectedCategory === "all"
                           ? "text-white"
-                          : "text-gray-700 dark:text-gray-300"
+                          : "text-blue-600 dark:text-blue-400"
+                      }`}
+                    />
+                  </div>
+                  <span
+                    className={`text-xs font-medium text-center ${
+                      selectedCategory === "all"
+                        ? "text-white"
+                        : "text-gray-700 dark:text-gray-300"
+                    }`}
+                  >
+                    All
+                  </span>
+                  {selectedCategory === "all" && (
+                    <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                  )}
+                </button>
+
+                {/* Category Buttons */}
+                {categories.map((category) => {
+                  const categoryData = allCategories.find(
+                    (c) => c.name === category
+                  );
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => setSelectedCategory(category)}
+                      className={`group flex flex-col items-center space-y-2 p-2 rounded-xl transition-all duration-300 hover:scale-105 ${
+                        selectedCategory === category
+                          ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
+                          : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:shadow-lg"
                       }`}
                     >
-                      {category.length > 8
-                        ? category.substring(0, 8) + "..."
-                        : category}
-                    </span>
-                    {selectedCategory === category && (
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+                      <div
+                        className={`w-12 h-12 rounded-full overflow-hidden transition-all duration-300 ${
+                          selectedCategory === category
+                            ? "ring-2 ring-white/30"
+                            : "ring-1 ring-transparent group-hover:ring-blue-200 dark:group-hover:ring-blue-800"
+                        }`}
+                      >
+                        {categoryData?.imageUrl ? (
+                          <img
+                            src={categoryData.imageUrl}
+                            alt={category}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className={`w-full h-full flex items-center justify-center ${
+                              selectedCategory === category
+                                ? "bg-white/20 backdrop-blur-sm"
+                                : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600"
+                            }`}
+                          >
+                            <Package
+                              className={`w-6 h-6 ${
+                                selectedCategory === category
+                                  ? "text-white"
+                                  : "text-gray-500 dark:text-gray-400"
+                              }`}
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <span
+                        className={`text-xs font-medium text-center leading-tight ${
+                          selectedCategory === category
+                            ? "text-white"
+                            : "text-gray-700 dark:text-gray-300"
+                        }`}
+                      >
+                        {category.length > 8
+                          ? category.substring(0, 8) + "..."
+                          : category}
+                      </span>
+                      {selectedCategory === category && (
+                        <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Smart Search and Filter Section with Gradient Background */}
-      <div className="container mx-auto px-3 md:px-0 bg-gradient-to-r from-white via-blue-50 to-purple-50 dark:from-gray-800 dark:via-blue-900/30 dark:to-purple-900/30 border-b border-gray-200 dark:border-gray-700 shadow-sm">
-        <div className="px-3 md:px-6 py-2">
-          <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+      <div className="bg-gradient-to-r from-white via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900/30 dark:to-gray-900/30 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="container mx-auto px-3 md:px-0 py-2 pt-0 flex flex-col md:flex-row md:items-center gap-2">
+          <div className="flex flex-col gap-4">
             {/* Comparison Bar */}
             {compareList.size > 0 && (
               <div className="w-full mb-4 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white">
@@ -691,98 +691,106 @@ export default function StorePage() {
                 </div>
               </div>
             )}
-            {/* Enhanced Search with Gradient Border */}
-            <div className="flex-1 max-w-md">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity" />
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
-                <Input
-                  placeholder="Search products with AI..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-white/80 backdrop-blur-sm border-2 border-transparent hover:border-blue-200 focus:border-blue-400 transition-all duration-300"
-                />
-              </div>
-            </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-3 items-center">
-              <Select
-                value={selectedCategory}
-                onValueChange={setSelectedCategory}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <div className="grid grid-cols-2 sm:flex gap-3 flex-1">
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
+                >
+                  <SelectTrigger className="w-full sm:w-40">
+                    <SelectValue placeholder="Category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Categories</SelectItem>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={priceRange} onValueChange={setPriceRange}>
+                  <SelectTrigger className="w-full sm:w-36">
+                    <SelectValue placeholder="Price" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Prices</SelectItem>
+                    <SelectItem value="low">Under 50K</SelectItem>
+                    <SelectItem value="medium">50K - 200K</SelectItem>
+                    <SelectItem value="high">Over 200K</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-full sm:w-36">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="name">Name A-Z</SelectItem>
+                    <SelectItem value="price-low">
+                      Price: Low to High
                     </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                    <SelectItem value="price-high">
+                      Price: High to Low
+                    </SelectItem>
+                    <SelectItem value="newest">Featured</SelectItem>
+                  </SelectContent>
+                </Select>
 
-              <Select value={priceRange} onValueChange={setPriceRange}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Price" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Prices</SelectItem>
-                  <SelectItem value="low">Under 50K</SelectItem>
-                  <SelectItem value="medium">50K - 200K</SelectItem>
-                  <SelectItem value="high">Over 200K</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="Sort by" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="name">Name A-Z</SelectItem>
-                  <SelectItem value="price-low">Price: Low to High</SelectItem>
-                  <SelectItem value="price-high">Price: High to Low</SelectItem>
-                  <SelectItem value="newest">Featured</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <div className="flex border rounded-lg">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("grid")}
-                  className="rounded-r-none"
-                >
-                  <Grid className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "list" ? "default" : "ghost"}
-                  size="sm"
-                  onClick={() => setViewMode("list")}
-                  className="rounded-l-none"
-                >
-                  <List className="w-4 h-4" />
-                </Button>
+                <div className="flex border rounded-lg col-span-2 sm:col-span-1 justify-center sm:justify-start">
+                  <Button
+                    variant={viewMode === "grid" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("grid")}
+                    className="rounded-r-none flex-1 sm:flex-none"
+                  >
+                    <Grid className="w-4 h-4" />
+                    <span className="ml-1 sm:hidden">Grid</span>
+                  </Button>
+                  <Button
+                    variant={viewMode === "list" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setViewMode("list")}
+                    className="rounded-l-none flex-1 sm:flex-none"
+                  >
+                    <List className="w-4 h-4" />
+                    <span className="ml-1 sm:hidden">List</span>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Results Summary */}
-          <div className="mt-4 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
-            <span>
-              Showing {filteredAndSortedProducts.length} of{" "}
-              {(products || []).length} products
-              {searchQuery && ` for "${searchQuery}"`}
-            </span>
-            {filteredAndSortedProducts.length > 0 && (
-              <span>
-                {filteredAndSortedProducts.filter((p) => p.inStock).length}{" "}
-                available
-              </span>
-            )}
+          {/* Enhanced Search with Gradient Border */}
+          <div className="flex-1 w-full">
+            <div className="relative group w-full">
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
+              <Input
+                placeholder="Search products with AI..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-white/80 dark:bg-gray-800 backdrop-blur-sm border-2 border-transparent hover:border-blue-200 focus:border-blue-400 transition-all duration-300"
+              />
+            </div>
           </div>
+        </div>
+        {/* Results Summary */}
+        <div className="container mx-auto px-3 md:px-0 pb-2 mt-0 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+          <span>
+            Showing {filteredAndSortedProducts.length} of{" "}
+            {(products || []).length} products
+            {searchQuery && ` for "${searchQuery}"`}
+          </span>
+          {filteredAndSortedProducts.length > 0 && (
+            <span>
+              {filteredAndSortedProducts.filter((p) => p.inStock).length}{" "}
+              available
+            </span>
+          )}
         </div>
       </div>
 
@@ -919,16 +927,16 @@ export default function StorePage() {
 
       {/* Quick View Modal */}
       <Dialog open={isQuickViewOpen} onOpenChange={setIsQuickViewOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
           {selectedProduct && (
             <>
               <DialogHeader>
-                <DialogTitle className="text-2xl font-bold">
+                <DialogTitle className="text-xl sm:text-2xl font-bold">
                   {selectedProduct.name}
                 </DialogTitle>
               </DialogHeader>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-8">
                 {/* Product Image */}
                 <div className="aspect-square overflow-hidden rounded-lg">
                   <img
@@ -1013,7 +1021,7 @@ export default function StorePage() {
                     </div>
                   )}
 
-                  <div className="flex gap-3 pt-4">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
                     <Button
                       variant="outline"
                       className={`flex-1 ${
@@ -1028,9 +1036,16 @@ export default function StorePage() {
                           wishlist.has(selectedProduct.id) ? "fill-current" : ""
                         }`}
                       />
-                      {wishlist.has(selectedProduct.id)
-                        ? "Remove from Wishlist"
-                        : "Add to Wishlist"}
+                      <span className="hidden sm:inline">
+                        {wishlist.has(selectedProduct.id)
+                          ? "Remove from Wishlist"
+                          : "Add to Wishlist"}
+                      </span>
+                      <span className="sm:hidden">
+                        {wishlist.has(selectedProduct.id)
+                          ? "Remove"
+                          : "Wishlist"}
+                      </span>
                     </Button>
                     <Button
                       className="flex-1"
@@ -1051,13 +1066,11 @@ export default function StorePage() {
 
       {/* Product Comparison Modal */}
       <Dialog open={isCompareModalOpen} onOpenChange={setIsCompareModalOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center space-x-2">
-              <GitCompare className="w-5 h-5" />
-              <span>
-                Product Comparison ({getCompareProducts().length} items)
-              </span>
+            <DialogTitle className="flex items-center space-x-2 text-lg sm:text-xl">
+              <GitCompare className="w-4 h-4 sm:w-5 sm:h-5" />
+              <span>Comparison ({getCompareProducts().length})</span>
             </DialogTitle>
           </DialogHeader>
 
@@ -1087,178 +1100,243 @@ export default function StorePage() {
               </div>
 
               {/* Comparison Table */}
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <tbody className="space-y-4">
-                    {/* Product Names */}
-                    <tr className="border-b">
-                      <td className="font-semibold text-gray-600 p-3 w-32">
-                        Product Name
-                      </td>
-                      {getCompareProducts().map((product) => (
-                        <td key={product.id} className="p-3 text-center">
-                          <div className="font-bold text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            {product.name}
-                          </div>
+              <div className="overflow-x-auto -mx-4 sm:mx-0">
+                <div className="min-w-full px-4 sm:px-0">
+                  <table className="w-full border-collapse min-w-[600px]">
+                    <tbody className="space-y-4">
+                      {/* Product Names */}
+                      <tr className="border-b">
+                        <td className="font-semibold text-gray-600 p-2 sm:p-3 w-20 sm:w-32 text-xs sm:text-sm">
+                          Product
                         </td>
-                      ))}
-                    </tr>
-
-                    {/* Prices */}
-                    <tr className="border-b bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-                      <td className="font-semibold text-gray-600 p-3">Price</td>
-                      {getCompareProducts().map((product) => (
-                        <td key={product.id} className="p-3 text-center">
-                          <div className="text-xl font-bold text-green-600">
-                            {parseFloat(product.price).toLocaleString()} RWF
-                          </div>
-                        </td>
-                      ))}
-                    </tr>
-
-                    {/* Stock Status */}
-                    <tr className="border-b">
-                      <td className="font-semibold text-gray-600 p-3">
-                        Availability
-                      </td>
-                      {getCompareProducts().map((product) => (
-                        <td key={product.id} className="p-3 text-center">
-                          <Badge
-                            className={
-                              product.inStock ? "bg-green-500" : "bg-red-500"
-                            }
+                        {getCompareProducts().map((product) => (
+                          <td
+                            key={product.id}
+                            className="p-2 sm:p-3 text-center"
                           >
-                            {product.inStock ? (
-                              <>
-                                <CheckCircle className="w-3 h-3 mr-1" />
-                                In Stock
-                              </>
-                            ) : (
-                              <>
-                                <XCircle className="w-3 h-3 mr-1" />
-                                Out of Stock
-                              </>
-                            )}
-                          </Badge>
-                        </td>
-                      ))}
-                    </tr>
+                            <div className="font-bold text-sm sm:text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                              {product.name.length > 20
+                                ? product.name.substring(0, 20) + "..."
+                                : product.name}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
 
-                    {/* Categories */}
-                    <tr className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
-                      <td className="font-semibold text-gray-600 p-3">
-                        Category
-                      </td>
-                      {getCompareProducts().map((product) => (
-                        <td key={product.id} className="p-3 text-center">
-                          <Badge variant="outline" className="bg-white/80">
-                            {product.categoryName}
-                          </Badge>
+                      {/* Prices */}
+                      <tr className="border-b bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+                        <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
+                          Price
                         </td>
-                      ))}
-                    </tr>
+                        {getCompareProducts().map((product) => (
+                          <td
+                            key={product.id}
+                            className="p-2 sm:p-3 text-center"
+                          >
+                            <div className="text-sm sm:text-xl font-bold text-green-600">
+                              {parseFloat(product.price).toLocaleString()} RWF
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
 
-                    {/* Sizes */}
-                    <tr className="border-b">
-                      <td className="font-semibold text-gray-600 p-3">Sizes</td>
-                      {getCompareProducts().map((product) => (
-                        <td key={product.id} className="p-3 text-center">
-                          <div className="flex flex-wrap gap-1 justify-center">
-                            {product.sizes && product.sizes.length > 0 ? (
-                              product.sizes.slice(0, 3).map((size, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {size}
-                                </Badge>
-                              ))
-                            ) : (
-                              <span className="text-gray-400 text-sm">N/A</span>
-                            )}
-                          </div>
+                      {/* Stock Status */}
+                      <tr className="border-b">
+                        <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
+                          Stock
                         </td>
-                      ))}
-                    </tr>
-
-                    {/* Colors */}
-                    <tr className="border-b bg-gradient-to-r from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20">
-                      <td className="font-semibold text-gray-600 p-3">
-                        Colors
-                      </td>
-                      {getCompareProducts().map((product) => (
-                        <td key={product.id} className="p-3 text-center">
-                          <div className="flex flex-wrap gap-1 justify-center">
-                            {product.colors && product.colors.length > 0 ? (
-                              product.colors.slice(0, 3).map((color, index) => (
-                                <Badge
-                                  key={index}
-                                  variant="outline"
-                                  className="text-xs"
-                                >
-                                  {color}
-                                </Badge>
-                              ))
-                            ) : (
-                              <span className="text-gray-400 text-sm">N/A</span>
-                            )}
-                          </div>
-                        </td>
-                      ))}
-                    </tr>
-
-                    {/* Actions */}
-                    <tr>
-                      <td className="font-semibold text-gray-600 p-3">
-                        Actions
-                      </td>
-                      {getCompareProducts().map((product) => (
-                        <td key={product.id} className="p-3 text-center">
-                          <div className="flex flex-col gap-2">
-                            <Button
-                              size="sm"
-                              className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
-                              onClick={() => {
-                                openQuickView(product);
-                                setIsCompareModalOpen(false);
-                              }}
+                        {getCompareProducts().map((product) => (
+                          <td
+                            key={product.id}
+                            className="p-2 sm:p-3 text-center"
+                          >
+                            <Badge
+                              className={
+                                product.inStock
+                                  ? "bg-green-500 text-xs"
+                                  : "bg-red-500 text-xs"
+                              }
                             >
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Details
-                            </Button>
-                            <Button
-                              size="sm"
+                              {product.inStock ? (
+                                <>
+                                  <CheckCircle className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
+                                  <span className="hidden sm:inline">
+                                    In Stock
+                                  </span>
+                                  <span className="sm:hidden">✓</span>
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="w-2 h-2 sm:w-3 sm:h-3 mr-1" />
+                                  <span className="hidden sm:inline">
+                                    Out of Stock
+                                  </span>
+                                  <span className="sm:hidden">✗</span>
+                                </>
+                              )}
+                            </Badge>
+                          </td>
+                        ))}
+                      </tr>
+
+                      {/* Categories */}
+                      <tr className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+                        <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
+                          Category
+                        </td>
+                        {getCompareProducts().map((product) => (
+                          <td
+                            key={product.id}
+                            className="p-2 sm:p-3 text-center"
+                          >
+                            <Badge
                               variant="outline"
-                              className={`${
-                                wishlist.has(product.id)
-                                  ? "bg-red-50 border-red-200 text-red-600"
-                                  : ""
-                              }`}
-                              onClick={() => toggleWishlist(product.id)}
+                              className="bg-white/80 text-xs"
                             >
-                              <Heart
-                                className={`w-4 h-4 mr-1 ${
-                                  wishlist.has(product.id) ? "fill-current" : ""
-                                }`}
-                              />
-                              {wishlist.has(product.id) ? "Remove" : "Wishlist"}
-                            </Button>
-                          </div>
+                              {product.categoryName &&
+                              product.categoryName.length > 10
+                                ? product.categoryName.substring(0, 10) + "..."
+                                : product.categoryName}
+                            </Badge>
+                          </td>
+                        ))}
+                      </tr>
+
+                      {/* Sizes */}
+                      <tr className="border-b">
+                        <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
+                          Sizes
                         </td>
-                      ))}
-                    </tr>
-                  </tbody>
-                </table>
+                        {getCompareProducts().map((product) => (
+                          <td
+                            key={product.id}
+                            className="p-2 sm:p-3 text-center"
+                          >
+                            <div className="flex flex-wrap gap-1 justify-center">
+                              {product.sizes && product.sizes.length > 0 ? (
+                                product.sizes.slice(0, 2).map((size, index) => (
+                                  <Badge
+                                    key={index}
+                                    variant="outline"
+                                    className="text-xs px-1 py-0.5"
+                                  >
+                                    {size}
+                                  </Badge>
+                                ))
+                              ) : (
+                                <span className="text-gray-400 text-xs">
+                                  N/A
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+
+                      {/* Colors */}
+                      <tr className="border-b bg-gradient-to-r from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20">
+                        <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
+                          Colors
+                        </td>
+                        {getCompareProducts().map((product) => (
+                          <td
+                            key={product.id}
+                            className="p-2 sm:p-3 text-center"
+                          >
+                            <div className="flex flex-wrap gap-1 justify-center">
+                              {product.colors && product.colors.length > 0 ? (
+                                product.colors
+                                  .slice(0, 2)
+                                  .map((color, index) => (
+                                    <Badge
+                                      key={index}
+                                      variant="outline"
+                                      className="text-xs px-1 py-0.5"
+                                    >
+                                      {color}
+                                    </Badge>
+                                  ))
+                              ) : (
+                                <span className="text-gray-400 text-xs">
+                                  N/A
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+
+                      {/* Actions */}
+                      <tr>
+                        <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
+                          Actions
+                        </td>
+                        {getCompareProducts().map((product) => (
+                          <td
+                            key={product.id}
+                            className="p-2 sm:p-3 text-center"
+                          >
+                            <div className="flex flex-col gap-1 sm:gap-2">
+                              <Button
+                                size="sm"
+                                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-xs px-2 py-1"
+                                onClick={() => {
+                                  openQuickView(product);
+                                  setIsCompareModalOpen(false);
+                                }}
+                              >
+                                <Eye className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                                <span className="hidden sm:inline">
+                                  View Details
+                                </span>
+                                <span className="sm:hidden">View</span>
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className={`text-xs px-2 py-1 ${
+                                  wishlist.has(product.id)
+                                    ? "bg-red-50 border-red-200 text-red-600"
+                                    : ""
+                                }`}
+                                onClick={() => toggleWishlist(product.id)}
+                              >
+                                <Heart
+                                  className={`w-3 h-3 sm:w-4 sm:h-4 mr-1 ${
+                                    wishlist.has(product.id)
+                                      ? "fill-current"
+                                      : ""
+                                  }`}
+                                />
+                                {wishlist.has(product.id)
+                                  ? "Remove"
+                                  : "Wishlist"}
+                              </Button>
+                            </div>
+                          </td>
+                        ))}
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
-              <div className="flex justify-between items-center pt-4 border-t">
-                <Button variant="outline" onClick={clearCompareList}>
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-4 border-t">
+                <Button
+                  variant="outline"
+                  onClick={clearCompareList}
+                  className="w-full sm:w-auto"
+                >
                   Clear All
                 </Button>
-                <div className="text-sm text-gray-500">
-                  Compare up to 4 products • {4 - compareList.size} slots
-                  remaining
+                <div className="text-xs sm:text-sm text-gray-500 text-center">
+                  <span className="hidden sm:inline">
+                    Compare up to 4 products • {4 - compareList.size} slots
+                    remaining
+                  </span>
+                  <span className="sm:hidden">
+                    {4 - compareList.size} slots left
+                  </span>
                 </div>
               </div>
             </div>

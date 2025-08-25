@@ -29,20 +29,25 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   
-  /* Clean Nyambika Colors - Light Mode */
+  /* Enhanced AI Theme Colors - Light Mode */
   --electric-blue: hsl(235 100% 65%);
   --coral: hsl(0 72% 51%);
   --success: hsl(142 71% 45%);
   --warning: hsl(45 93% 47%);
+  --ai-purple: hsl(280 100% 70%);
+  --ai-cyan: hsl(190 100% 60%);
   --electric-blue-rgb: 82 82 255;
   --coral-rgb: 220 38 38;
   --success-rgb: 34 197 94;
   --warning-rgb: 245 158 11;
+  --ai-purple-rgb: 153 51 255;
+  --ai-cyan-rgb: 51 204 255;
   
-  /* Clean Glassmorphism */
-  --glass-bg: hsla(0 0% 100% / 0.8);
-  --glass-border: hsla(235 100% 65% / 0.12);
-  --glass-shadow: hsla(235 100% 65% / 0.08);
+  /* Enhanced Glassmorphism */
+  --glass-bg: hsla(0 0% 100% / 0.85);
+  --glass-border: hsla(235 100% 65% / 0.15);
+  --glass-shadow: hsla(235 100% 65% / 0.12);
+  --glass-backdrop: blur(16px);
   
   /* Modern Card Shadows */
   --shadow-sm: 0 1px 2px 0 hsla(235 100% 65% / 0.05);
@@ -80,20 +85,25 @@
   --chart-4: hsl(280 65% 60%);
   --chart-5: hsl(340 75% 55%);
   
-  /* Clean Nyambika Colors - Dark Mode */
-  --electric-blue: hsl(235 100% 70%);
-  --coral: hsl(0 72% 51%);
-  --success: hsl(142 71% 45%);
-  --warning: hsl(45 93% 47%);
-  --electric-blue-rgb: 103 103 255;
-  --coral-rgb: 220 38 38;
-  --success-rgb: 34 197 94;
-  --warning-rgb: 245 158 11;
+  /* Enhanced AI Theme Colors - Dark Mode */
+  --electric-blue: hsl(235 100% 75%);
+  --coral: hsl(0 72% 60%);
+  --success: hsl(142 71% 50%);
+  --warning: hsl(45 93% 55%);
+  --ai-purple: hsl(280 100% 75%);
+  --ai-cyan: hsl(190 100% 65%);
+  --electric-blue-rgb: 128 128 255;
+  --coral-rgb: 255 102 102;
+  --success-rgb: 52 211 153;
+  --warning-rgb: 251 191 36;
+  --ai-purple-rgb: 191 102 255;
+  --ai-cyan-rgb: 102 217 255;
   
-  /* Clean Glassmorphism Dark */
-  --glass-bg: hsla(230 26% 12% / 0.8);
-  --glass-border: hsla(235 100% 70% / 0.15);
-  --glass-shadow: hsla(235 100% 70% / 0.1);
+  /* Enhanced Glassmorphism Dark */
+  --glass-bg: hsla(230 26% 12% / 0.85);
+  --glass-border: hsla(235 100% 70% / 0.2);
+  --glass-shadow: hsla(235 100% 70% / 0.15);
+  --glass-backdrop: blur(20px);
   
   /* Modern Card Shadows Dark */
   --shadow-sm: 0 1px 2px 0 hsla(0 0% 0% / 0.05);
@@ -120,10 +130,21 @@
 @layer components {
   .glassmorphism {
     background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
     border: 1px solid var(--glass-border);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--glass-shadow), var(--shadow-lg);
+  }
+  
+  .ai-gradient {
+    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--ai-purple) 50%, var(--ai-cyan) 100%);
+  }
+  
+  .ai-gradient-text {
+    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--ai-purple) 50%, var(--ai-cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   
   .floating-card {
@@ -205,6 +226,14 @@
   .animate-pulse-slow {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
+  
+  .animate-glow {
+    animation: glow 3s ease-in-out infinite alternate;
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+  }
 }
 
 @keyframes gradient-x {
@@ -231,5 +260,23 @@
   }
   50% { 
     transform: translateY(-10px);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px rgba(var(--electric-blue-rgb), 0.3);
+  }
+  to {
+    box-shadow: 0 0 30px rgba(var(--ai-purple-rgb), 0.5), 0 0 40px rgba(var(--ai-cyan-rgb), 0.3);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
   }
 }

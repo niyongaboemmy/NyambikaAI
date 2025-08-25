@@ -58,7 +58,7 @@ export default function ProductCard({
   return (
     <div
       className={cn(
-        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1",
+        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1",
         selected && "ring-2 ring-blue-400 shadow-blue-200/50",
         containerClassName
       )}
@@ -78,10 +78,12 @@ export default function ProductCard({
           : undefined
       }
     >
-      <div className={cn(
-        "relative overflow-hidden pb-2 md:pb-2 lg:pb-2",
-        compact ? "py-2" : "py-3 md:py-5 lg:py-7"
-      )}>
+      <div
+        className={cn(
+          "relative overflow-hidden pb-2 md:pb-2 lg:pb-2",
+          compact ? "pt-2" : "pt-3 md:pt-5 lg:pt-7"
+        )}
+      >
         <img
           src={product.imageUrl}
           alt={product.name}
@@ -163,7 +165,12 @@ export default function ProductCard({
         )}
       </div>
 
-      <div className={cn("space-y-1 px-0.5 text-center", compact ? "p-2" : "p-4") }>
+      <div
+        className={cn(
+          "space-y-1 px-0.5 text-center",
+          compact ? "p-2 pt-2" : "p-4 pt-2"
+        )}
+      >
         <div
           className="cursor-pointer"
           onClick={(e) => {
@@ -171,22 +178,31 @@ export default function ProductCard({
             onViewDetails(product.id);
           }}
         >
-          <h3 className={cn("font-bold text-gray-900 dark:text-gray-100 truncate leading-tight",
-            compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
-          )}>
+          <h3
+            className={cn(
+              "font-bold text-gray-900 dark:text-gray-100 truncate leading-tight",
+              compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
+            )}
+          >
             {product.name}
           </h3>
           {!hideDesc && (
-            <p className={cn("text-gray-600 dark:text-gray-400 truncate mb-2",
-              compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
-            )}>
+            <p
+              className={cn(
+                "text-gray-600 dark:text-gray-400 truncate mb-2",
+                compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
+              )}
+            >
               {product.nameRw}
             </p>
           )}
           <div className="text-center">
-            <span className={cn("font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
-              compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
-            )}>
+            <span
+              className={cn(
+                "font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
+                compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
+              )}
+            >
               {typeof product.price === "number"
                 ? formatPrice(product.price)
                 : formatPrice(Number(product.price))}

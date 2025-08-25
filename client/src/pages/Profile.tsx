@@ -8,6 +8,24 @@ import {
   Edit3,
   Camera,
   Loader2,
+  Sparkles,
+  TrendingUp,
+  Shield,
+  Bell,
+  CreditCard,
+  MapPin,
+  Calendar,
+  Activity,
+  Zap,
+  Brain,
+  Target,
+  Award,
+  ChevronRight,
+  LogOut,
+  HelpCircle,
+  Globe,
+  Moon,
+  Sun,
 } from "lucide-react";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -15,13 +33,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
+import { useTheme } from "@/components/theme-provider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 export default function Profile() {
   const { user, isAuthenticated } = useAuth();
+  const { theme, actualTheme, setTheme } = useTheme();
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
@@ -101,304 +121,422 @@ export default function Profile() {
     },
   });
 
-  const favoriteItems = [
-    {
-      id: "1",
-      name: "Summer Dress",
-      price: "45,000 RWF",
-      image:
-        "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400",
+  // Fetch user's favorites
+  const { data: favorites = [] } = useQuery({
+    queryKey: ["favorites"],
+    queryFn: async () => {
+      const response = await fetch("/api/favorites", {
+        headers: { "x-user-id": user?.id || "demo-user" },
+      });
+      if (!response.ok) return [];
+      return response.json();
     },
-    {
-      id: "2",
-      name: "Leather Handbag",
-      price: "65,000 RWF",
-      image:
-        "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=300&h=400",
-    },
-  ];
+    enabled: !!user,
+  });
 
-  const recentOrders = [
-    {
-      id: "ORD-001",
-      date: "2024-08-15",
-      status: "Delivered",
-      total: "120,000 RWF",
-      items: 2,
+  // Fetch user's orders
+  const { data: orders = [] } = useQuery({
+    queryKey: ["user-orders"],
+    queryFn: async () => {
+      const response = await fetch("/api/orders", {
+        headers: { "x-user-id": user?.id || "demo-user" },
+      });
+      if (!response.ok) return [];
+      return response.json();
     },
-    {
-      id: "ORD-002",
-      date: "2024-08-10",
-      status: "Processing",
-      total: "85,000 RWF",
-      items: 1,
+    enabled: !!user,
+  });
+
+  // Fetch user's try-on sessions
+  const { data: tryOnSessions = [] } = useQuery({
+    queryKey: ["try-on-sessions"],
+    queryFn: async () => {
+      const response = await fetch("/api/try-on-sessions", {
+        headers: { "x-user-id": user?.id || "demo-user" },
+      });
+      if (!response.ok) return [];
+      return response.json();
     },
-  ];
+    enabled: !!user,
+  });
 
   const handleSaveProfile = () => {
     updateProfileMutation.mutate(userInfo);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
-      <main className="pt-24 pb-12 px-4 md:px-6">
-        <div className=" ">
-          {/* Page Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold gradient-text mb-4">
-              Profil Wanjye / My Profile
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Manage your account and preferences
-            </p>
-          </div>
+    <div className="min-h-screen bg-white dark:bg-black pt-4 sm:pt-8">
+      <div className="container mx-auto px-2 sm:px-3 md:px-0">
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Profile Info */}
-            <div className="lg:col-span-2 space-y-8">
-              <Card className="floating-card p-8">
-                <CardHeader className="p-0 mb-6">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-2xl gradient-text">
-                      Personal Information
-                    </CardTitle>
-                    <Button
-                      onClick={() =>
-                        isEditing ? handleSaveProfile() : setIsEditing(true)
-                      }
-                      className={
-                        isEditing ? "gradient-bg text-white" : "glassmorphism"
-                      }
-                    >
-                      <Edit3 className="mr-2 h-4 w-4" />
-                      {isEditing ? "Save" : "Edit"}
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="flex items-center space-x-6 mb-8">
-                    <div className="relative">
-                      <div className="w-24 h-24 gradient-bg rounded-full flex items-center justify-center text-white text-3xl font-bold">
-                        {userInfo.name.charAt(0)}
+        <main className="relative pt-12 sm:pt-16 pb-6 sm:pb-8 px-2 sm:px-3 md:px-4">
+          <div className="max-w-6xl mx-auto">
+            {/* Simple Header */}
+            <div className="flex flex-col items-center mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-3 mb-2">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 dark:from-blue-500 dark:via-purple-500 dark:to-indigo-600 flex items-center justify-center shadow-lg">
+                  <User className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-black dark:text-white">
+                  Profile
+                </h1>
+              </div>
+              <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center">
+                Manage your account settings
+              </p>
+            </div>
+
+            {/* Flex Layout for Better Space Management */}
+            <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
+              {/* Main Content - Flexible */}
+              <div className="flex-1 space-y-3 sm:space-y-4">
+                {/* Stats Dashboard */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3">
+                  <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardContent className="p-2 sm:p-3 text-center">
+                      <div className="flex items-center justify-center mb-1">
+                        <div className="p-1 sm:p-1.5 rounded-full bg-rose-100 dark:bg-rose-900/30">
+                          <Heart className="h-3 w-3 sm:h-4 sm:w-4 text-rose-600 dark:text-rose-400" />
+                        </div>
                       </div>
-                      {isEditing && (
-                        <Button
-                          size="icon"
-                          className="absolute -bottom-2 -right-2 rounded-full gradient-bg text-white"
-                        >
-                          <Camera className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                        {userInfo.name}
-                      </h2>
-                      <p className="text-gray-600 dark:text-gray-400">
-                        {userInfo.fullNameRw}
+                      <p className="text-lg sm:text-xl font-bold text-black dark:text-white">
+                        {favorites.length}
                       </p>
-                    </div>
-                  </div>
+                      <p className="text-xs sm:text-xs text-gray-600 dark:text-gray-400">
+                        Favorites
+                      </p>
+                    </CardContent>
+                  </Card>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <Label htmlFor="name">Full Name</Label>
-                      <Input
-                        id="name"
-                        value={userInfo.name}
-                        onChange={(e) =>
-                          setUserInfo({ ...userInfo, name: e.target.value })
-                        }
-                        disabled={!isEditing}
-                        className="glassmorphism border-0 bg-transparent mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="name_rw">Izina mu Kinyarwanda</Label>
-                      <Input
-                        id="name_rw"
-                        value={userInfo.fullNameRw}
-                        onChange={(e) =>
-                          setUserInfo({
-                            ...userInfo,
-                            fullNameRw: e.target.value,
-                          })
-                        }
-                        disabled={!isEditing}
-                        className="glassmorphism border-0 bg-transparent mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={userInfo.email}
-                        onChange={(e) =>
-                          setUserInfo({ ...userInfo, email: e.target.value })
-                        }
-                        disabled={!isEditing}
-                        className="glassmorphism border-0 bg-transparent mt-2"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="phone">Phone</Label>
-                      <Input
-                        id="phone"
-                        value={userInfo.phone}
-                        onChange={(e) =>
-                          setUserInfo({ ...userInfo, phone: e.target.value })
-                        }
-                        disabled={!isEditing}
-                        className="glassmorphism border-0 bg-transparent mt-2"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <Label htmlFor="location">Location</Label>
-                      <Input
-                        id="location"
-                        value={userInfo.location}
-                        onChange={(e) =>
-                          setUserInfo({ ...userInfo, location: e.target.value })
-                        }
-                        disabled={!isEditing}
-                        className="glassmorphism border-0 bg-transparent mt-2"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardContent className="p-2 sm:p-3 text-center">
+                      <div className="flex items-center justify-center mb-1">
+                        <div className="p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                          <ShoppingBag className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold text-black dark:text-white">
+                        {orders.length}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Orders
+                      </p>
+                    </CardContent>
+                  </Card>
 
-              {/* Recent Orders */}
-              <Card className="floating-card p-8">
-                <CardHeader className="p-0 mb-6">
-                  <CardTitle className="text-2xl gradient-text">
-                    Ibigura Byaje / Recent Orders
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="space-y-4">
-                    {recentOrders.map((order) => (
-                      <div
-                        key={order.id}
-                        className="glassmorphism rounded-xl p-4 hover:scale-105 transition-all duration-300"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold text-gray-800 dark:text-gray-200">
-                              {order.id}
-                            </p>
-                            <p className="text-sm text-gray-600 dark:text-gray-400">
-                              {order.date} • {order.items} items
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-[rgb(var(--electric-blue-rgb))]">
-                              {order.total}
-                            </p>
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs ${
-                                order.status === "Delivered"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                                  : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
-                              }`}
-                            >
-                              {order.status}
+                  <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardContent className="p-2 sm:p-3 text-center">
+                      <div className="flex items-center justify-center mb-1">
+                        <div className="p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30">
+                          <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold text-black dark:text-white">
+                        {tryOnSessions.length}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Try-Ons
+                      </p>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardContent className="p-2 sm:p-3 text-center">
+                      <div className="flex items-center justify-center mb-1">
+                        <div className="p-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                          <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                        </div>
+                      </div>
+                      <p className="text-xl font-bold text-black dark:text-white">
+                        95%
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        Match Score
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+                {/* Compact Profile Section with Flex Layout */}
+                <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
+                  {/* Profile Info Card */}
+                  <Card className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                    <CardContent className="p-3 sm:p-4">
+                      <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-slate-700 to-slate-900 dark:from-slate-200 dark:to-slate-400 rounded-full flex items-center justify-center text-white dark:text-slate-900 text-lg sm:text-xl font-bold shadow-lg">
+                          {userInfo.name.charAt(0).toUpperCase() || "U"}
+                        </div>
+                        <div className="flex-1">
+                          <h2 className="text-base sm:text-lg font-bold text-black dark:text-white">
+                            {userInfo.name || "User"}
+                          </h2>
+                          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+                            {userInfo.email}
+                          </p>
+                          <div className="flex items-center gap-1 sm:gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <MapPin className="h-3 w-3 flex-shrink-0" />
+                            <span className="truncate">
+                              {userInfo.location || "Location not set"}
                             </span>
                           </div>
                         </div>
+                        <Button
+                          onClick={() =>
+                            isEditing ? handleSaveProfile() : setIsEditing(true)
+                          }
+                          size="sm"
+                          className={`${
+                            isEditing
+                              ? "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
+                              : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
+                          } border border-gray-200 dark:border-0 transition-all duration-200`}
+                          disabled={updateProfileMutation.isPending}
+                        >
+                          <div>
+                            {updateProfileMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Edit3 className="h-4 w-4" />
+                            )}
+                          </div>
+                          <span>Edit</span>
+                        </Button>
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
-            {/* Sidebar */}
-            <div className="space-y-8">
-              {/* Stats Cards */}
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="floating-card p-4 text-center">
-                  <Heart className="h-8 w-8 text-[rgb(var(--coral-rgb))] mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                    {favoriteItems.length}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Favorites
-                  </p>
-                </Card>
-                <Card className="floating-card p-4 text-center">
-                  <ShoppingBag className="h-8 w-8 text-[rgb(var(--electric-blue-rgb))] mx-auto mb-2" />
-                  <p className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                    {recentOrders.length}
-                  </p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Orders
-                  </p>
+                      {isEditing && (
+                        <div className="grid grid-cols-1 gap-2 sm:gap-3 animate-in slide-in-from-top-2 duration-300">
+                          <Input
+                            placeholder="Full Name"
+                            value={userInfo.name}
+                            onChange={(e) =>
+                              setUserInfo({ ...userInfo, name: e.target.value })
+                            }
+                            className="bg-white/70 dark:bg-slate-800/70 border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm text-sm w-full"
+                          />
+                          <Input
+                            placeholder="Phone"
+                            value={userInfo.phone}
+                            onChange={(e) =>
+                              setUserInfo({
+                                ...userInfo,
+                                phone: e.target.value,
+                              })
+                            }
+                            className="bg-white/70 dark:bg-slate-800/70 border-gray-200/50 dark:border-gray-700/50 backdrop-blur-sm text-sm w-full"
+                          />
+                          <Input
+                            placeholder="Location"
+                            value={userInfo.location}
+                            onChange={(e) =>
+                              setUserInfo({
+                                ...userInfo,
+                                location: e.target.value,
+                              })
+                            }
+                            className="bg-white dark:bg-gray-800 border-gray-200 dark:border-0 text-sm sm:col-span-2 w-full"
+                          />
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Recent Activity */}
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30">
+                        <Activity className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                      </div>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                        Recent Activity
+                      </h3>
+                    </div>
+                    {orders.length > 0 ? (
+                      <div className="space-y-1 sm:space-y-2">
+                        {orders.slice(0, 2).map((order: any) => (
+                          <div
+                            key={order.id}
+                            className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="p-1 rounded-full bg-blue-100 dark:bg-blue-900/30">
+                                <ShoppingBag className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                              </div>
+                              <div>
+                                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                                  Order #{order.id}
+                                </p>
+                                <p className="text-xs text-gray-600 dark:text-gray-400">
+                                  {new Date(
+                                    order.createdAt || Date.now()
+                                  ).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-sm font-semibold text-black dark:text-white">
+                                RF {order.total}
+                              </p>
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                {order.status || "Processing"}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-4">
+                        <ShoppingBag className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                          No recent orders
+                        </p>
+                        <Button
+                          onClick={() => setLocation("/")}
+                          size="sm"
+                          className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
+                        >
+                          Start Shopping
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
                 </Card>
               </div>
 
-              {/* Favorite Items */}
-              <Card className="floating-card p-6">
-                <CardHeader className="p-0 mb-4">
-                  <CardTitle className="text-xl gradient-text">
-                    Favorite Items
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="space-y-4">
-                    {favoriteItems.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex items-center space-x-3"
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-16 h-16 object-cover rounded-xl"
-                        />
-                        <div>
-                          <p className="font-semibold text-gray-800 dark:text-gray-200">
-                            {item.name}
-                          </p>
-                          <p className="text-sm text-[rgb(var(--electric-blue-rgb))]">
-                            {item.price}
-                          </p>
-                        </div>
+              {/* Sidebar */}
+              <div className="lg:w-80 space-y-2 sm:space-y-3">
+                {/* Quick Actions */}
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="relative p-2 sm:p-3">
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <div className="p-1 sm:p-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30">
+                        <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-amber-600 dark:text-amber-400" />
                       </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
+                        Quick Actions
+                      </h3>
+                    </div>
+                    <div className="space-y-1 sm:space-y-2">
+                      <Button
+                        onClick={() => setLocation("/try-on")}
+                        size="sm"
+                        className="w-full justify-start bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-sm text-sm py-2"
+                      >
+                        <Sparkles className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        Try-On
+                      </Button>
+                      <Button
+                        onClick={() => setLocation("/favorites")}
+                        size="sm"
+                        className="w-full justify-start bg-gray-100 hover:bg-gray-200 text-black dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white text-sm py-2"
+                      >
+                        <Heart className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        Favorites
+                        <ChevronRight className="ml-auto h-3 w-3" />
+                      </Button>
+                      <Button
+                        onClick={() => setLocation("/orders")}
+                        size="sm"
+                        className="w-full justify-start bg-gray-100 hover:bg-gray-200 text-black dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white text-sm py-2"
+                      >
+                        <ShoppingBag className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                        Orders
+                        <ChevronRight className="ml-auto h-3 w-3" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
 
-              {/* Quick Actions */}
-              <Card className="floating-card p-6">
-                <CardHeader className="p-0 mb-4">
-                  <CardTitle className="text-xl gradient-text">
-                    Quick Actions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <div className="space-y-3">
-                    <Button className="w-full glassmorphism justify-start">
-                      <Settings className="mr-2 h-4 w-4" />
-                      Settings
-                    </Button>
-                    <Button className="w-full glassmorphism justify-start">
-                      <Star className="mr-2 h-4 w-4" />
-                      Reviews
-                    </Button>
-                    <Button className="w-full glassmorphism justify-start">
-                      <ShoppingBag className="mr-2 h-4 w-4" />
-                      Order History
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+                {/* Insights */}
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="relative p-2 sm:p-3">
+                    <div className="flex items-center gap-2 mb-2 sm:mb-3">
+                      <div className="p-1.5 rounded-full bg-violet-100 dark:bg-violet-900/30">
+                        <Target className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                      </div>
+                      <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
+                        Insights
+                      </h3>
+                    </div>
+                    <div className="space-y-1 sm:space-y-2">
+                      <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Award className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                          <span className="text-xs font-medium text-gray-900 dark:text-white">
+                            Style Match
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          95% casual-chic
+                        </p>
+                      </div>
+                      <div className="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20">
+                        <div className="flex items-center gap-2 mb-1">
+                          <TrendingUp className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                          <span className="text-xs font-medium text-gray-900 dark:text-white">
+                            Trending
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-600 dark:text-gray-400">
+                          Summer styles
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Settings */}
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <CardContent className="p-2 sm:p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1.5 rounded-full bg-slate-100 dark:bg-slate-800">
+                          <Settings className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                        </div>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">
+                          Settings
+                        </span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-gray-400" />
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setTheme(actualTheme === "light" ? "dark" : "light")
+                        }
+                        className="flex items-center gap-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+                      >
+                        <div className="p-1 rounded-full bg-slate-100 dark:bg-slate-800">
+                          {actualTheme === "light" ? (
+                            <Moon className="h-3 w-3 text-slate-600 dark:text-slate-400" />
+                          ) : (
+                            <Sun className="h-3 w-3 text-amber-500 dark:text-amber-400" />
+                          )}
+                        </div>
+                        <span className="text-sm text-gray-700 dark:text-gray-300">
+                          {actualTheme === "light" ? "Dark Mode" : "Light Mode"}
+                        </span>
+                      </Button>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-2">
+                        <div className="p-1 rounded-full bg-red-100 dark:bg-red-900/30">
+                          <LogOut className="h-3 w-3 text-red-600 dark:text-red-400" />
+                        </div>
+                        <span className="text-sm text-red-600 dark:text-red-400">
+                          Sign Out
+                        </span>
+                      </div>
+                      <ChevronRight className="h-3 w-3 text-gray-400" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

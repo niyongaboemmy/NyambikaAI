@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
-import { useTheme } from "@/components/ThemeProvider";
+import { useTheme } from "@/components/theme-provider";
 import { useCompany } from "@/contexts/CompanyContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -372,16 +372,18 @@ export default function RoleBasedNavigation() {
                       {/* User Info */}
                       <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700 mb-1">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">
-                            {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                          <div>
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                              {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                            </div>
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white w-[190px] truncate">
                               {user?.name || "User"}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400 w-[190px] truncate">
                               {user?.email}
-                            </p>
+                            </div>
                           </div>
                         </div>
                       </div>

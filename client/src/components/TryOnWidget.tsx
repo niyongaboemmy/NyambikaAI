@@ -1,6 +1,8 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useMutation } from "@tanstack/react-query";
+import { useLocation } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -45,6 +47,7 @@ export default function TryOnWidget({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
+  const [location] = useLocation();
   const [customerImage, setCustomerImage] = useState<string | null>(null);
   const [tryOnResult, setTryOnResult] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<{
@@ -434,72 +437,242 @@ export default function TryOnWidget({
 
   const widgetContent = (
     <div className="space-y-3 md:space-y-4">
-      {/* Mobile-Optimized Header with AI Branding */}
-      <div className="relative overflow-hidden rounded-xl md:rounded-2xl bg-gradient-to-r from-purple-500/10 via-blue-500/10 to-cyan-500/10 dark:from-purple-500/20 dark:via-blue-500/20 dark:to-cyan-500/20 border border-purple-200/30 dark:border-purple-700/30 p-3 md:p-4">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-blue-500/5 animate-pulse" />
-        <div className="relative flex items-center justify-between">
+      {/* Enhanced Mobile-Optimized Header with AI Branding */}
+      <motion.div
+        onClick={() => {
+          isFullscreen ? closeFullscreen() : openFullscreen();
+          onUnselectProduct && onUnselectProduct();
+        }}
+        className="cursor-pointer relative overflow-hidden rounded-xl md:rounded-2xl bg-gradient-to-br from-white/95 via-blue-50/90 to-gray-50/95 dark:from-gray-950/95 dark:via-slate-900/90 dark:to-purple-950/95 border border-violet-300/70 dark:border-violet-500/40 p-3 md:p-4 hover:shadow-md shadow-blue-500/20 dark:shadow-purple-500/20 backdrop-blur-xl"
+        whileHover={{ scale: 1.01, y: -1 }}
+        whileTap={{ scale: 0.98 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        {/* AI Background Effects */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-violet-500/25 to-blue-500/20 dark:from-blue-400/8 dark:via-purple-400/12 dark:to-pink-400/8 rounded-xl"
+            animate={{
+              opacity: [0.5, 0.8, 0.5],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          {/* Cute floating particles */}
+          {[...Array(3)].map((_, i) => (
+            <motion.div
+              key={i}
+              className={`absolute w-1 h-1 rounded-full ${
+                i === 0
+                  ? "bg-blue-400/40"
+                  : i === 1
+                  ? "bg-purple-400/40"
+                  : "bg-pink-400/40"
+              }`}
+              style={{
+                left: `${20 + i * 30}%`,
+                top: `${20 + i * 10}%`,
+              }}
+              animate={{
+                y: [0, -5, 0],
+                opacity: [0.4, 0.8, 0.4],
+                scale: [1, 1.2, 1],
+              }}
+              transition={{
+                duration: 2 + i * 0.5,
+                repeat: Infinity,
+                delay: i * 0.5,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+        <div className="relative flex items-center justify-between z-10">
           <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
             <div className="relative flex-shrink-0">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Brain className="h-4 w-4 md:h-5 md:w-5 text-white" />
-              </div>
-              <div className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 w-3 h-3 md:w-4 md:h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center">
+              <motion.div
+                className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-violet-500 via-blue-500 to-indigo-500 dark:from-purple-400 dark:via-blue-400 dark:to-indigo-400 flex items-center justify-center shadow-xl"
+                animate={{
+                  boxShadow: [
+                    "0 4px 10px rgba(147, 51, 234, 0.3)",
+                    "0 4px 15px rgba(59, 130, 246, 0.4)",
+                    "0 4px 10px rgba(147, 51, 234, 0.3)",
+                  ],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                <motion.div
+                  animate={{
+                    rotate: [0, 180, 360],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
+                >
+                  <Brain className="h-4 w-4 md:h-5 md:w-5 text-white" />
+                </motion.div>
+              </motion.div>
+              <motion.div
+                className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 w-3 h-3 md:w-4 md:h-4 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 dark:from-yellow-300 dark:via-orange-300 dark:to-red-300 rounded-full flex items-center justify-center shadow-lg"
+                animate={{
+                  scale: [1, 1.2, 1],
+                  rotate: [0, 180, 360],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
                 <Sparkles className="h-2 w-2 md:h-2.5 md:w-2.5 text-white" />
-              </div>
+              </motion.div>
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent truncate">
+              <motion.h3
+                className="font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
+                animate={{
+                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+                style={{
+                  backgroundSize: "200% 200%",
+                }}
+              >
                 AI Virtual Try-On
-              </h3>
-              <p className="text-xs text-muted-foreground hidden sm:block">
-                Powered by advanced AI technology
-              </p>
+              </motion.h3>
+              <motion.p
+                className="text-xs text-muted-foreground hidden sm:block"
+                initial={{ opacity: 0.7 }}
+                animate={{ opacity: [0.7, 1, 0.7] }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              >
+                Powered by advanced AI technology ✨
+              </motion.p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              isFullscreen ? closeFullscreen() : openFullscreen();
-              onUnselectProduct && onUnselectProduct();
-            }}
-            className="hover:bg-white/50 dark:hover:bg-white/10 transition-all duration-300 hover:scale-105 flex-shrink-0 px-2 md:px-3"
-            title={isFullscreen ? "Close" : "Open"}
-          >
-            {isFullscreen ? (
-              <>
-                <Minimize2 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                <span className="hidden sm:inline">Close</span>
-              </>
-            ) : (
-              <>
-                <Maximize2 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                <span className="hidden sm:inline">Open</span>
-              </>
-            )}
-          </Button>
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="bg-gradient-to-r from-white/90 to-blue-50/90 dark:from-slate-800/90 dark:to-blue-900/90 hover:from-white hover:to-blue-50 dark:hover:from-slate-700 dark:hover:to-blue-800 transition-all duration-300 flex-shrink-0 px-2 md:px-3 border border-blue-200/50 dark:border-blue-700/50 shadow-sm"
+              title={isFullscreen ? "Close" : "Open"}
+            >
+              {isFullscreen ? (
+                <>
+                  <Minimize2 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                  <span className="inline">Close</span>
+                </>
+              ) : (
+                <>
+                  <Maximize2 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                  <span className="inline">Open</span>
+                </>
+              )}
+            </Button>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
-      {/* Enhanced Compact result view */}
+      {/* Enhanced Compact result view with AI animations */}
       {!isFullscreen && tryOnResult && (
-        <div className="animate-in fade-in-0 duration-700 slide-in-from-bottom-4">
+        <motion.div
+          className="animate-in fade-in-0 duration-700 slide-in-from-bottom-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        >
           <div className="relative group">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl md:rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-            <div className="relative rounded-2xl md:rounded-3xl bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-white/30 dark:border-slate-700/30 shadow-2xl p-3 md:p-6 group-hover:scale-[1.02] transition-all duration-500">
+            {/* Enhanced AI Glow Effect */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-r from-purple-500/25 via-blue-500/30 to-indigo-500/25 dark:from-purple-400/20 dark:via-blue-400/25 dark:to-indigo-400/20 rounded-2xl md:rounded-3xl blur-xl"
+              animate={{
+                opacity: [0.6, 0.9, 0.6],
+                scale: [1, 1.02, 1],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="relative rounded-2xl md:rounded-3xl bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-950/95 dark:via-slate-900/90 dark:to-purple-950/95 backdrop-blur-xl border border-blue-200/40 dark:border-purple-500/40 shadow-2xl p-3 md:p-6"
+              whileHover={{ scale: 1.02, y: -4 }}
+              transition={{ type: "spring", stiffness: 300 }}
+            >
               <div className="relative rounded-2xl overflow-hidden">
-                <img
-                  src={tryOnResult}
-                  alt="AI Try-on result"
-                  className="w-full max-h-[200px] md:max-h-[280px] object-contain rounded-2xl"
+                {/* AI Processing Border Animation */}
+                <motion.div
+                  className="absolute inset-0 rounded-2xl"
+                  style={{
+                    background:
+                      "linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.4), transparent, rgba(147, 51, 234, 0.4), transparent, rgba(6, 182, 212, 0.3), transparent)",
+                    backgroundSize: "400% 400%",
+                  }}
+                  animate={{
+                    backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
+                  }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    ease: "linear",
+                  }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
-
-                {/* Success Badge */}
-                <div className="absolute top-4 right-4 flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-lg">
-                  <Zap className="h-3 w-3" />
-                  AI Ready
+                <div className="relative bg-gradient-to-br from-white via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-purple-900 rounded-2xl p-1">
+                  <img
+                    src={tryOnResult}
+                    alt="AI Try-on result"
+                    className="w-full max-h-[200px] md:max-h-[280px] object-contain rounded-xl"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent rounded-xl" />
                 </div>
+
+                {/* Enhanced Success Badge with Animation */}
+                <motion.div
+                  className="absolute top-4 right-4 flex items-center gap-2 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 dark:from-green-400 dark:via-emerald-400 dark:to-teal-400 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-xl"
+                  animate={{
+                    scale: [1, 1.1, 1],
+                    boxShadow: [
+                      "0 4px 15px rgba(34, 197, 94, 0.3)",
+                      "0 4px 20px rgba(34, 197, 94, 0.5)",
+                      "0 4px 15px rgba(34, 197, 94, 0.3)",
+                    ],
+                  }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  >
+                    <Zap className="h-3 w-3" />
+                  </motion.div>
+                  AI Ready
+                </motion.div>
 
                 {/* Clear Button */}
                 <Button
@@ -513,19 +686,36 @@ export default function TryOnWidget({
                 </Button>
               </div>
 
-              {/* Quick Action */}
+              {/* Enhanced Quick Action with AI Effects */}
               <div className="mt-3 md:mt-4 flex justify-center">
-                <Button
-                  onClick={openFullscreen}
-                  className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm md:text-base"
+                <motion.div
+                  whileHover={{ scale: 1.05, y: -2 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                  <Eye className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                  View Details
-                </Button>
+                  <Button
+                    onClick={openFullscreen}
+                    className="relative bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm md:text-base overflow-hidden"
+                  >
+                    {/* Shimmer effect */}
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                      animate={{
+                        x: ["-100%", "100%"],
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "linear",
+                      }}
+                    />
+                    <Eye className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 relative z-10" />
+                    <span className="relative z-10">View Details</span>
+                  </Button>
+                </motion.div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* 3-column preview only when fullscreen modal is open */}
@@ -636,7 +826,7 @@ export default function TryOnWidget({
             <div className="order-1 md:order-1 animate-in fade-in-0 slide-in-from-left-4 duration-500 delay-100">
               <div className="rounded-2xl bg-gradient-to-br from-card to-card/80 dark:from-slate-800/90 dark:to-slate-700/80 backdrop-blur-sm border border-white/20 dark:border-slate-600/50 transition-all duration-300 p-3 group">
                 {productImageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-muted/20 to-muted/5">
+                  <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/20 to-purple-50/5 dark:from-slate-800/20 dark:to-slate-700/5">
                     <img
                       src={productImageUrl}
                       alt="Selected product"
@@ -645,11 +835,11 @@ export default function TryOnWidget({
                     <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                   </div>
                 ) : (
-                  <div className="rounded-2xl border-2 border-dashed border-primary/20 bg-gradient-to-br from-muted/10 to-transparent p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Upload className="h-8 w-8 text-primary/60" />
+                  <div className="rounded-2xl border-2 border-dashed border-blue-300/30 dark:border-slate-600/30 bg-gradient-to-br from-blue-50/10 to-transparent dark:from-slate-800/10 p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center">
+                      <Upload className="h-8 w-8 text-blue-500/60 dark:text-blue-400/60" />
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                       Product image will appear here
                     </p>
                   </div>
@@ -767,24 +957,24 @@ export default function TryOnWidget({
                 {isProcessingTryOn ? (
                   <div className="flex flex-col items-center justify-center py-16 px-8">
                     <div className="relative">
-                      <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                      <div className="absolute inset-0 bg-primary/20 rounded-full blur-lg animate-pulse" />
+                      <Loader2 className="h-12 w-12 animate-spin text-blue-500 dark:text-blue-400" />
+                      <div className="absolute inset-0 bg-blue-500/20 dark:bg-blue-400/20 rounded-full blur-lg animate-pulse" />
                     </div>
                     <div className="mt-6 text-center">
-                      <p className="text-sm font-medium text-primary mb-2">
+                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
                         Creating your try-on...
                       </p>
                       <div className="flex items-center justify-center space-x-1">
                         <div
-                          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+                          className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce"
                           style={{ animationDelay: "0ms" }}
                         ></div>
                         <div
-                          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+                          className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce"
                           style={{ animationDelay: "150ms" }}
                         ></div>
                         <div
-                          className="w-2 h-2 bg-primary/60 rounded-full animate-bounce"
+                          className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce"
                           style={{ animationDelay: "300ms" }}
                         ></div>
                       </div>
@@ -792,7 +982,7 @@ export default function TryOnWidget({
                   </div>
                 ) : tryOnResult ? (
                   <div className="animate-in fade-in-0 zoom-in-95 duration-700">
-                    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-muted/20 to-muted/5 border border-primary/10">
+                    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/20 to-purple-50/5 dark:from-slate-800/20 dark:to-slate-700/5 border border-blue-300/20 dark:border-slate-600/20">
                       <img
                         src={tryOnResult}
                         alt="Try-on result"
@@ -806,7 +996,7 @@ export default function TryOnWidget({
                     {/* AI Success Message */}
                     <div className="mt-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-200">
                       <div className="relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-cyan-500/20 rounded-2xl blur-xl opacity-60 animate-pulse" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-indigo-500/20 rounded-2xl blur-xl opacity-60 animate-pulse" />
                         <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/30 dark:border-slate-700/30 rounded-2xl p-3 shadow-2xl">
                           <div className="flex items-center gap-2">
                             <div className="relative">
@@ -830,7 +1020,7 @@ export default function TryOnWidget({
                                     style={{ animationDelay: "150ms" }}
                                   />
                                   <div
-                                    className="w-1 h-1 bg-cyan-500 rounded-full animate-bounce"
+                                    className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"
                                     style={{ animationDelay: "300ms" }}
                                   />
                                 </div>
@@ -845,20 +1035,20 @@ export default function TryOnWidget({
                     </div>
                   </div>
                 ) : processed ? (
-                  <div className="rounded-2xl border-2 border-dashed border-primary/20 bg-gradient-to-br from-muted/10 to-transparent p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Wand2 className="h-8 w-8 text-primary/60" />
+                  <div className="rounded-2xl border-2 border-dashed border-blue-300/30 dark:border-slate-600/30 bg-gradient-to-br from-blue-50/10 to-transparent dark:from-slate-800/10 p-8 text-center">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center">
+                      <Wand2 className="h-8 w-8 text-blue-500/60 dark:text-blue-400/60" />
                     </div>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
                       Try-on result will appear here
                     </p>
                   </div>
                 ) : (
-                  <div className="rounded-2xl border-2 border-dashed border-muted/30 bg-gradient-to-br from-muted/5 to-transparent p-8 text-center">
-                    <div className="w-16 h-16 mx-auto my-7 rounded-full bg-muted/20 flex items-center justify-center">
-                      <Wand2 className="h-16 w-16 text-muted-foreground/40" />
+                  <div className="rounded-2xl border-2 border-dashed border-slate-300/30 dark:border-slate-600/30 bg-gradient-to-br from-slate-50/5 to-transparent dark:from-slate-800/5 p-8 text-center">
+                    <div className="w-16 h-16 mx-auto my-7 rounded-full bg-slate-200/20 dark:bg-slate-700/20 flex items-center justify-center">
+                      <Wand2 className="h-16 w-16 text-slate-400/40 dark:text-slate-500/40" />
                     </div>
-                    <p className="text-sm text-muted-foreground/60">
+                    <p className="text-sm text-slate-500/60 dark:text-slate-400/60">
                       Upload a photo to see the magic
                     </p>
                   </div>
@@ -868,11 +1058,11 @@ export default function TryOnWidget({
           </div>
 
           {processed && !tryOnResult && (
-            <div className="rounded-xl border bg-card text-card-foreground shadow p-4">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow p-4">
               <p className="text-sm font-semibold mb-1">
                 No AI image available
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
                 We couldn’t generate a try-on image right now (likely due to AI
                 quota). Please try again later or continue shopping.
               </p>
@@ -880,28 +1070,32 @@ export default function TryOnWidget({
           )}
 
           {recommendations && (
-            <div className="rounded-xl border bg-card text-card-foreground shadow p-4">
+            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow p-4">
               <p className="text-sm font-semibold mb-2">Fit Recommendation</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Fit: </span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Fit:{" "}
+                  </span>
                   <span className="capitalize">{recommendations.fit}</span>
                 </div>
                 {recommendations.suggestedSize && (
                   <div>
-                    <span className="text-muted-foreground">
+                    <span className="text-slate-600 dark:text-slate-400">
                       Suggested size:{" "}
                     </span>
                     <span>{recommendations.suggestedSize}</span>
                   </div>
                 )}
                 <div>
-                  <span className="text-muted-foreground">Confidence: </span>
+                  <span className="text-slate-600 dark:text-slate-400">
+                    Confidence:{" "}
+                  </span>
                   <span>{Math.round(recommendations.confidence * 100)}%</span>
                 </div>
               </div>
               {recommendations.notes && (
-                <p className="text-sm mt-2 text-muted-foreground">
+                <p className="text-sm mt-2 text-slate-600 dark:text-slate-400">
                   {recommendations.notes}
                 </p>
               )}
@@ -909,24 +1103,32 @@ export default function TryOnWidget({
           )}
 
           <div className="sticky bottom-0 left-0 right-0 mt-8 animate-in fade-in-0 slide-in-from-bottom-4 duration-500 delay-500">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-3">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60 p-3">
               <div className="flex gap-2"></div>
-              <div className="flex gap-2 md:justify-end">
+              <div className="flex flex-col md:flex-row gap-2 md:justify-end">
                 {tryOnResult ? (
                   <>
                     <Button
                       onClick={() => {
-                        if (onNavigateToProduct) {
-                          onNavigateToProduct(productId);
+                        // Check if we're already on the product details page
+                        if (location === `/product/${productId}`) {
+                          // Just close the modal if we're already on the product page
+                          closeFullscreen();
+                          onUnselectProduct && onUnselectProduct();
                         } else {
-                          // Fallback navigation
-                          window.location.href = `/product/${productId}`;
+                          // Navigate to product details if we're not already there
+                          if (onNavigateToProduct) {
+                            onNavigateToProduct(productId);
+                          } else {
+                            // Fallback navigation
+                            window.location.href = `/product/${productId}`;
+                          }
                         }
                       }}
                       className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white hover:scale-105 transition-all duration-200 hover:shadow-lg"
                     >
                       <ShoppingBag className="h-4 w-4 mr-2" />
-                      View Product Details
+                      Choose & Continue
                     </Button>
                     <Button
                       onClick={() => {
@@ -952,7 +1154,7 @@ export default function TryOnWidget({
                     <Button
                       onClick={handleTryOn}
                       disabled={!customerImage || isProcessingTryOn}
-                      className="gradient-bg text-white disabled:opacity-50"
+                      className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white disabled:opacity-50"
                     >
                       {isProcessingTryOn ? (
                         <>
@@ -991,27 +1193,206 @@ export default function TryOnWidget({
       )}
       {isFullscreen &&
         createPortal(
-          <div
+          <motion.div
             className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-[95vw] h-[90vh] overflow-auto p-4">
-              {widgetContent}
+            {/* AI-Inspired Animated Background */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {/* Holographic Aurora Background */}
+              <div className="absolute inset-0">
+                {/* Multiple layered gradient orbs for depth */}
+                <motion.div
+                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/25 via-purple-400/25 to-indigo-400/20 dark:from-blue-400/15 dark:via-purple-400/15 dark:to-indigo-400/12 rounded-full blur-3xl"
+                  animate={{
+                    x: [0, 100, -50, 0],
+                    y: [0, -50, 100, 0],
+                    scale: [1, 1.2, 0.8, 1],
+                  }}
+                  transition={{
+                    duration: 8,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+                <motion.div
+                  className="absolute top-3/4 right-1/4 w-80 h-80 bg-gradient-to-r from-indigo-400/20 via-blue-400/20 to-purple-400/15 dark:from-indigo-400/12 dark:via-blue-400/12 dark:to-purple-400/10 rounded-full blur-3xl"
+                  animate={{
+                    x: [0, -80, 60, 0],
+                    y: [0, 80, -40, 0],
+                    scale: [1, 0.9, 1.1, 1],
+                  }}
+                  transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+                <motion.div
+                  className="absolute top-1/2 left-1/2 w-72 h-72 bg-gradient-to-r from-purple-400/18 via-pink-400/18 to-blue-400/15 dark:from-purple-400/10 dark:via-pink-400/10 dark:to-blue-400/8 rounded-full blur-3xl"
+                  animate={{
+                    x: [0, 60, -80, 0],
+                    y: [0, -60, 40, 0],
+                    scale: [1, 1.1, 0.9, 1],
+                  }}
+                  transition={{
+                    duration: 4,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                />
+              </div>
+
+              {/* Neural Network Grid Pattern */}
+              <div className="absolute inset-0 opacity-30 dark:opacity-18">
+                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-blue-400/8 to-purple-400/5 dark:via-blue-400/4 dark:to-purple-400/2" />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `
+                      radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
+                      radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.12) 0%, transparent 50%),
+                      linear-gradient(45deg, transparent 49%, rgba(59, 130, 246, 0.04) 50%, transparent 51%),
+                      linear-gradient(-45deg, transparent 49%, rgba(147, 51, 234, 0.04) 50%, transparent 51%)
+                    `,
+                    backgroundSize:
+                      "100px 100px, 150px 150px, 20px 20px, 20px 20px",
+                  }}
+                />
+              </div>
+
+              {/* Animated AI Particles */}
+              <div className="absolute inset-0">
+                {[...Array(8)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className={`absolute w-1 h-1 rounded-full ${
+                      i % 4 === 0
+                        ? "bg-blue-500/60 dark:bg-blue-400/40"
+                        : i % 4 === 1
+                        ? "bg-purple-500/60 dark:bg-purple-400/40"
+                        : i % 4 === 2
+                        ? "bg-indigo-500/60 dark:bg-indigo-400/40"
+                        : "bg-pink-500/60 dark:bg-pink-400/40"
+                    }`}
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                    }}
+                    animate={{
+                      x: [0, Math.random() * 200 - 100],
+                      y: [0, Math.random() * 200 - 100],
+                      opacity: [0.4, 0.8, 0.4],
+                      scale: [1, 1.5, 1],
+                    }}
+                    transition={{
+                      duration: 3 + Math.random() * 2,
+                      repeat: Infinity,
+                      delay: Math.random() * 2,
+                      ease: "easeInOut",
+                    }}
+                  />
+                ))}
+              </div>
+
+              {/* Scanning Line Effect */}
+              <motion.div
+                className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/30 dark:via-blue-300/20 to-transparent"
+                animate={{
+                  y: [0, window.innerHeight || 800],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "linear",
+                }}
+              />
+
+              {/* Bottom Scanning Line */}
+              <motion.div
+                className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-400/20 dark:via-purple-300/15 to-transparent"
+                animate={{
+                  scaleX: [0, 1, 0],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
             </div>
-          </div>,
+
+            <motion.div
+              className="container mx-auto relative bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-900/95 dark:via-slate-900/90 dark:to-purple-950/20 backdrop-blur-xl borde border-white/40 dark:border-purple-500/40 shadow-2xl p-3 md:p-6 rounded-2xl"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            >
+              {widgetContent}
+            </motion.div>
+          </motion.div>,
           document.body
         )}
 
       {/* Camera Preview Modal */}
       {showCameraModal &&
         createPortal(
-          <div
+          <motion.div
             className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
             role="dialog"
             aria-modal="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
           >
-            <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 rounded-2xl shadow-2xl w-full max-w-md">
+            {/* AI Background for Camera Modal */}
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              {/* Cute animated particles for camera mode */}
+              <div className="absolute inset-0">
+                {[...Array(6)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className={`absolute w-2 h-2 rounded-full ${
+                      i % 3 === 0
+                        ? "bg-blue-500/35 dark:bg-blue-400/25"
+                        : i % 3 === 1
+                        ? "bg-purple-500/35 dark:bg-purple-400/25"
+                        : "bg-indigo-500/35 dark:bg-indigo-400/25"
+                    }`}
+                    style={{
+                      left: `${Math.random() * 100}%`,
+                      top: `${Math.random() * 100}%`,
+                    }}
+                    animate={{
+                      y: [0, -20, 0],
+                      opacity: [0.3, 0.7, 0.3],
+                      scale: [1, 1.2, 1],
+                    }}
+                    transition={{
+                      duration: 2 + Math.random(),
+                      repeat: Infinity,
+                      delay: Math.random() * 2,
+                      ease: "easeInOut",
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <motion.div
+              className="relative bg-gradient-to-br from-white/98 via-blue-50/95 to-purple-50/98 dark:from-gray-950/98 dark:via-slate-900/95 dark:to-purple-950/98 backdrop-blur-xl border border-blue-200/40 dark:border-purple-500/30 rounded-2xl shadow-2xl w-full max-w-md"
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              transition={{ type: "spring", damping: 20, stiffness: 300 }}
+            >
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold">Take Photo</h3>
@@ -1054,7 +1435,7 @@ export default function TryOnWidget({
                 <div className="flex gap-3">
                   <Button
                     onClick={capturePhoto}
-                    className="flex-1 gradient-bg text-white"
+                    className="flex-1 bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white"
                     disabled={!isVideoReady || !!cameraError}
                   >
                     <Camera className="h-4 w-4 mr-2" />
@@ -1065,8 +1446,8 @@ export default function TryOnWidget({
                   </Button>
                 </div>
               </div>
-            </div>
-          </div>,
+            </motion.div>
+          </motion.div>,
           document.body
         )}
     </>
