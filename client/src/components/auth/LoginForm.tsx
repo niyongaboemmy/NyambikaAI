@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { FormInput } from "@/components/ui/form-input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
@@ -53,13 +53,111 @@ export default function LoginForm({
 
   return (
     <div className="">
-      <main className="p-3">
+      <main className="p-0.5 max-h-screen overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7 }}
         >
-          <Card className="backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/20 dark:border-gray-700/30 shadow-2xl shadow-blue-500/10 dark:shadow-blue-400/5">
+          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/85 dark:from-black/95 dark:via-blue-950/90 dark:to-black/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-blue-500/20 dark:shadow-blue-400/10 overflow-hidden">
+            {/* Animated AI-inspired background elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {/* Primary animated gradient orb */}
+              <motion.div
+                className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/30 via-purple-400/25 to-cyan-400/20 rounded-full blur-2xl"
+                animate={{
+                  x: [0, 20, 0],
+                  y: [0, -15, 0],
+                  scale: [1, 1.1, 1],
+                }}
+                transition={{
+                  duration: 8,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+
+              {/* Secondary animated gradient orb */}
+              <motion.div
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-purple-400/25 via-pink-400/20 to-indigo-400/15 rounded-full blur-xl"
+                animate={{
+                  x: [0, -15, 0],
+                  y: [0, 10, 0],
+                  scale: [1, 0.9, 1],
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1,
+                }}
+              />
+
+              {/* Neural network inspired dots */}
+              <motion.div
+                className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/40 rounded-full"
+                animate={{
+                  opacity: [0.4, 0.8, 0.4],
+                  scale: [1, 1.2, 1],
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              <motion.div
+                className="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-purple-400/40 rounded-full"
+                animate={{
+                  opacity: [0.3, 0.7, 0.3],
+                  scale: [1, 1.3, 1],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 0.5,
+                }}
+              />
+              <motion.div
+                className="absolute top-1/2 right-1/4 w-1 h-1 bg-cyan-400/40 rounded-full"
+                animate={{
+                  opacity: [0.2, 0.6, 0.2],
+                  scale: [1, 1.4, 1],
+                }}
+                transition={{
+                  duration: 5,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 1.5,
+                }}
+              />
+
+              {/* Subtle connecting lines for neural network effect */}
+              <motion.div
+                className="absolute top-1/4 left-1/4 w-16 h-px bg-gradient-to-r from-blue-400/20 to-transparent"
+                animate={{
+                  opacity: [0.2, 0.4, 0.2],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
+              <motion.div
+                className="absolute top-1/2 right-1/3 w-12 h-px bg-gradient-to-l from-purple-400/20 to-transparent rotate-45"
+                animate={{
+                  opacity: [0.1, 0.3, 0.1],
+                }}
+                transition={{
+                  duration: 6,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                  delay: 2,
+                }}
+              />
+            </div>
             <CardHeader className="text-center relative">
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
@@ -98,30 +196,16 @@ export default function LoginForm({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5, duration: 0.4 }}
                 >
-                  <Label
-                    htmlFor="email"
-                    className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2"
-                  >
-                    Email Address
-                  </Label>
-                  <div className="relative group">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300" />
-                    <div className="relative">
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        className="h-10 pl-10 pr-4 bg-gradient-to-br from-white/90 via-blue-50/60 to-purple-50/40 dark:from-gray-900/90 dark:via-blue-950/60 dark:to-purple-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-blue-400/70 dark:focus:border-blue-500/70 focus:ring-2 focus:ring-blue-500/15 transition-all duration-300 shadow-md shadow-blue-500/5 group-hover:shadow-blue-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
-                        placeholder="Enter your email address"
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
-                        <Mail className="h-4 w-4" />
-                      </div>
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                    </div>
-                  </div>
+                  <FormInput
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    label="Email Address"
+                    placeholder="Enter your email address"
+                    icon={Mail}
+                  />
                 </motion.div>
                 <motion.div
                   className="space-y-2"
@@ -129,42 +213,31 @@ export default function LoginForm({
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.6, duration: 0.4 }}
                 >
-                  <Label
-                    htmlFor="password"
-                    className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2"
-                  >
-                    Password
-                  </Label>
-                  <div className="relative group">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-red-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300" />
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        type={showPassword ? "text" : "password"}
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        required
-                        className="h-10 pl-10 pr-11 bg-gradient-to-br from-white/90 via-purple-50/60 to-pink-50/40 dark:from-gray-900/90 dark:via-purple-950/60 dark:to-pink-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-purple-400/70 dark:focus:border-purple-500/70 focus:ring-2 focus:ring-purple-500/15 transition-all duration-300 shadow-md shadow-purple-500/5 group-hover:shadow-purple-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
-                        placeholder="Enter your password"
-                      />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-purple-500 pointer-events-none">
-                        <Lock className="h-4 w-4" />
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
-                        onClick={() => setShowPassword(!showPassword)}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                        ) : (
-                          <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                        )}
-                      </Button>
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-                    </div>
+                  <div className="relative">
+                    <FormInput
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      label="Password"
+                      placeholder="Enter your password"
+                      icon={Lock}
+                      className="pr-11"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-9 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                      ) : (
+                        <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                      )}
+                    </Button>
                   </div>
                 </motion.div>
                 {showForgotLink && (
@@ -227,105 +300,167 @@ export default function LoginForm({
                     <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-11 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all duration-200 rounded-lg font-medium"
+                      disabled={oauthLoading !== null || isLoading}
+                      onClick={async () => {
+                        setOauthLoading("google");
+                        try {
+                          await loginWithProvider("google");
+                          onSuccess?.();
+                        } catch (err: any) {
+                          setError(err?.message || "Google sign-in failed");
+                        } finally {
+                          setOauthLoading(null);
+                        }
+                      }}
                     >
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="bg-white/60 dark:bg-gray-800/60 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
-                        disabled={oauthLoading !== null || isLoading}
-                        onClick={async () => {
-                          setOauthLoading('google');
-                          try {
-                            await loginWithProvider('google');
-                            onSuccess?.();
-                          } catch (err: any) {
-                            setError(err?.message || 'Google sign-in failed');
-                          } finally {
-                            setOauthLoading(null);
-                          }
-                        }}
-                      >
-                        {oauthLoading === "google" ? (
-                          <motion.div
-                            className="mr-2 h-3 w-3 border-2 border-gray-400 border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{
-                              duration: 1,
-                              repeat: Infinity,
-                              ease: "linear",
-                            }}
+                      {oauthLoading === "google" ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                          <path
+                            fill="#4285F4"
+                            d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                           />
-                        ) : (
-                          <svg className="mr-2 h-3 w-3" viewBox="0 0 24 24">
-                            <path
-                              fill="#4285F4"
-                              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                            />
-                            <path
-                              fill="#34A853"
-                              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                            />
-                            <path
-                              fill="#FBBC05"
-                              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                            />
-                            <path
-                              fill="#EA4335"
-                              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                            />
-                          </svg>
-                        )}
+                          <path
+                            fill="#34A853"
+                            d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                          />
+                          <path
+                            fill="#FBBC05"
+                            d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                          />
+                          <path
+                            fill="#EA4335"
+                            d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                          />
+                        </svg>
+                      )}
+                      <span className="text-sm">
                         {oauthLoading === "google" ? "Signing in..." : "Google"}
-                      </Button>
-                    </motion.div>
-                    <motion.div
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      </span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full h-11 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all duration-200 rounded-lg font-medium"
+                      disabled={oauthLoading !== null || isLoading}
+                      onClick={async () => {
+                        setOauthLoading("facebook");
+                        try {
+                          await loginWithProvider("facebook");
+                          onSuccess?.();
+                        } catch (err: any) {
+                          setError(err?.message || "Facebook sign-in failed");
+                        } finally {
+                          setOauthLoading(null);
+                        }
+                      }}
                     >
-                      <Button
-                        type="button"
-                        variant="outline"
-                        className="bg-white/60 dark:bg-gray-800/60 border-gray-200/50 dark:border-gray-600/50 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-700 transition-all duration-200"
-                        disabled={oauthLoading !== null || isLoading}
-                        onClick={async () => {
-                          setOauthLoading('facebook');
-                          try {
-                            await loginWithProvider('facebook');
-                            onSuccess?.();
-                          } catch (err: any) {
-                            setError(err?.message || 'Facebook sign-in failed');
-                          } finally {
-                            setOauthLoading(null);
-                          }
-                        }}
-                      >
-                        {oauthLoading === "facebook" ? (
-                          <motion.div
-                            className="mr-2 h-3 w-3 border-2 border-gray-400 border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{
-                              duration: 1,
-                              repeat: Infinity,
-                              ease: "linear",
-                            }}
+                      {oauthLoading === "facebook" ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                          <path
+                            fill="currentColor"
+                            d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
                           />
-                        ) : (
-                          <svg
-                            className="mr-2 h-3 w-3"
-                            fill="#1877F2"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                          </svg>
-                        )}
+                        </svg>
+                      )}
+                      <span className="text-sm">
                         {oauthLoading === "facebook"
                           ? "Signing in..."
                           : "Facebook"}
-                      </Button>
-                    </motion.div>
+                      </span>
+                    </Button>
+                  </div>
+                </motion.div>
+
+                {/* Demo Users Section */}
+                <motion.div
+                  className="space-y-3"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.9, duration: 0.4 }}
+                >
+                  <div className="relative text-center text-xs text-gray-500 dark:text-gray-400">
+                    <span className="bg-white/90 dark:bg-gray-900/90 px-3 relative z-10 backdrop-blur-sm">
+                      or try demo accounts
+                    </span>
+                    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
+                  </div>
+
+                  <div className="grid gap-2">
+                    {[
+                      {
+                        role: "Customer",
+                        email: "customer@demo.com",
+                        password: "password",
+                        icon: "👤",
+                        color: "from-blue-500/10 to-cyan-500/10",
+                        borderColor:
+                          "border-blue-200/50 dark:border-blue-700/50",
+                      },
+                      {
+                        role: "Producer",
+                        email: "producer@demo.com",
+                        password: "password",
+                        icon: "🏭",
+                        color: "from-purple-500/10 to-pink-500/10",
+                        borderColor:
+                          "border-purple-200/50 dark:border-purple-700/50",
+                      },
+                      {
+                        role: "Admin",
+                        email: "admin@demo.com",
+                        password: "password",
+                        icon: "⚡",
+                        color: "from-orange-500/10 to-red-500/10",
+                        borderColor:
+                          "border-orange-200/50 dark:border-orange-700/50",
+                      },
+                    ].map((demo, index) => (
+                      <motion.button
+                        key={demo.role}
+                        type="button"
+                        onClick={() => {
+                          setEmail(demo.email);
+                          setPassword(demo.password);
+                        }}
+                        className={`p-3 rounded-xl border ${demo.borderColor} bg-gradient-to-r ${demo.color} backdrop-blur-sm hover:scale-[1.02] transition-all duration-200 text-left group`}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 1.0 + index * 0.1, duration: 0.3 }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="text-lg">{demo.icon}</div>
+                            <div>
+                              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                {demo.role} Demo
+                              </div>
+                              <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {demo.email}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-xs text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                            Click to fill
+                          </div>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  <div className="text-center">
+                    <p className="text-xs text-gray-400 dark:text-gray-500">
+                      💡 Click any demo account to auto-fill login credentials
+                    </p>
                   </div>
                 </motion.div>
 

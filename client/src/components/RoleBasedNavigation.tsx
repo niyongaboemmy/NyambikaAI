@@ -12,13 +12,13 @@ import { useTheme } from "@/components/theme-provider";
 import { useCompany } from "@/contexts/CompanyContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import type { ComponentType, SVGProps } from "react";
 import {
   Home,
   ShoppingCart,
   User,
   LogOut,
-  Settings,
   Package,
   BarChart3,
   Users,
@@ -29,43 +29,14 @@ import {
   Menu,
   Globe,
   Building2,
+  Plus,
+  User2,
 } from "lucide-react";
 
-const ROLE_CONFIGS = {
-  customer: {
-    links: [
-      { href: "/", label: "Home", icon: Home },
-      { href: "/try-on/start", label: "Try-On", icon: null },
-    ],
-    menu: [{ href: "/products", label: "Products", icon: ShoppingCart }],
-  },
-  producer: {
-    links: [
-      { href: "/", label: "Home", icon: Home },
-      {
-        href: "/producer-dashboard",
-        label: "Dashboard",
-        icon: null,
-      },
-    ],
-    menu: [
-      { href: "/products", label: "Products", icon: ShoppingCart },
-      { href: "/product-registration", label: "Add Product", icon: null },
-      { href: "/producer-analytics", label: "Analytics", icon: BarChart3 },
-    ],
-  },
-  admin: {
-    links: [
-      { href: "/", label: "Home", icon: Home },
-      { href: "/admin-dashboard", label: "Dashboard", icon: null },
-    ],
-    menu: [
-      { href: "/products", label: "Products", icon: ShoppingCart },
-      { href: "/product-registration", label: "Add Product", icon: null },
-      { href: "/admin-users", label: "Users", icon: Users },
-    ],
-  },
-};
+type IconType = ComponentType<SVGProps<SVGSVGElement>>;
+type NavItem = { href: string; label: string; icon: IconType | null };
+type RoleKey = "customer" | "producer" | "admin";
+type RoleConfig = { links: NavItem[]; menu: NavItem[] };
 
 export default function RoleBasedNavigation() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -74,9 +45,61 @@ export default function RoleBasedNavigation() {
   const { count: cartCount } = useCart();
   const { open } = useLoginPrompt();
   const { language, setLanguage } = useLanguage();
+  const [, setLocation] = useLocation();
 
-  const userRole = user?.role || "customer";
-  const config = ROLE_CONFIGS[userRole] || ROLE_CONFIGS.customer;
+  // Build producer menu with de-duplication (avoid duplicate "/products" entries)
+  const producerMenuBase: NavItem[] = [
+    {
+      href: company?.id ? `/store/${company.id}` : "/#",
+      label: "My Products",
+      icon: User2,
+    },
+    { href: "/product-registration", label: "Add Product", icon: Plus },
+    { href: "/producer-orders", label: "Orders", icon: Package },
+    { href: "/producer-dashboard", label: "Dashboard", icon: BarChart3 },
+  ];
+  const producerMenu: NavItem[] = producerMenuBase.filter(
+    (item, idx, arr) => arr.findIndex((i) => i.href === item.href) === idx
+  );
+
+  const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
+    customer: {
+      links: [
+        { href: "/", label: "Home", icon: Home },
+        { href: "/try-on/start", label: "Try-On", icon: null },
+      ],
+      menu: [
+        { href: "/orders", label: "My Orders", icon: Package },
+      ],
+    },
+    producer: {
+      links: [
+        { href: "/", label: "Home", icon: Home },
+        { href: "/producer-dashboard", label: "Dashboard", icon: null },
+      ],
+      menu: producerMenu,
+    },
+    admin: {
+      links: [
+        { href: "/", label: "Home", icon: Home },
+        { href: "/admin-dashboard", label: "Dashboard", icon: null },
+      ],
+      menu: [
+        { href: "/products", label: "Products", icon: ShoppingCart },
+        { href: "/product-registration", label: "Add Product", icon: null },
+        { href: "/producer-orders", label: "Orders", icon: Package },
+        { href: "/admin-users", label: "Users", icon: Users },
+      ],
+    },
+  };
+
+  const userRole: RoleKey =
+    user?.role === "producer" ||
+    user?.role === "admin" ||
+    user?.role === "customer"
+      ? user.role
+      : "customer";
+  const config: RoleConfig = ROLE_CONFIGS[userRole];
 
   const languages = [
     { code: "en", label: "EN", name: "English", flag: "🇺🇸" },
@@ -133,16 +156,16 @@ export default function RoleBasedNavigation() {
             {publicLinks.map((link) => {
               const Icon = link.icon;
               return (
-                <Link key={link.href} href={link.href}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
-                  >
-                    {Icon && <Icon className="h-4 w-4" />}
-                    <span className="font-medium">{link.label}</span>
-                  </Button>
-                </Link>
+                <Button
+                  key={link.href}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation(link.href)}
+                  className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
+                >
+                  {Icon && <Icon className="h-4 w-4" />}
+                  <span className="font-medium">{link.label}</span>
+                </Button>
               );
             })}
           </div>
@@ -203,10 +226,11 @@ export default function RoleBasedNavigation() {
 
             {/* Desktop Cart - Only show on desktop when authenticated */}
             {isAuthenticated && (
-              <Link href="/cart" className="hidden lg:block">
+              <div className="hidden lg:block">
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => setLocation("/cart")}
                   className="relative hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
                 >
                   <ShoppingCart className="h-4 w-4" />
@@ -216,7 +240,7 @@ export default function RoleBasedNavigation() {
                     </span>
                   )}
                 </Button>
-              </Link>
+              </div>
             )}
 
             {/* Desktop Profile - Only show on desktop when authenticated */}
@@ -250,21 +274,30 @@ export default function RoleBasedNavigation() {
                     {config.menu.map((item) => {
                       const Icon = item.icon;
                       return (
-                        <Link key={item.href} href={item.href}>
-                          <DropdownMenuItem className="cursor-pointer gap-3">
-                            {Icon && <Icon className="h-4 w-4" />}
-                            {item.label}
-                          </DropdownMenuItem>
-                        </Link>
+                        <DropdownMenuItem
+                          key={item.href}
+                          onSelect={(e) => {
+                            e.preventDefault();
+                            setLocation(item.href);
+                          }}
+                          className="cursor-pointer gap-3"
+                        >
+                          {Icon && <Icon className="h-4 w-4" />}
+                          {item.label}
+                        </DropdownMenuItem>
                       );
                     })}
                     <DropdownMenuSeparator />
-                    <Link href="/profile">
-                      <DropdownMenuItem className="cursor-pointer gap-3">
-                        <User className="h-4 w-4" />
-                        Profile Settings
-                      </DropdownMenuItem>
-                    </Link>
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-3"
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        setLocation("/profile");
+                      }}
+                    >
+                      <User className="h-4 w-4" />
+                      Profile Settings
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={logout}
@@ -284,7 +317,7 @@ export default function RoleBasedNavigation() {
                 variant="default"
                 size="sm"
                 onClick={open}
-                className="hidden lg:flex bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                className="hidden lg:flex rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
               >
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
@@ -316,16 +349,21 @@ export default function RoleBasedNavigation() {
                   {allNavLinks.map((link) => {
                     const Icon = link.icon;
                     return (
-                      <Link key={link.href} href={link.href}>
-                        <DropdownMenuItem className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
-                            {Icon && (
-                              <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                            )}
-                          </div>
-                          <span className="font-medium">{link.label}</span>
-                        </DropdownMenuItem>
-                      </Link>
+                      <DropdownMenuItem
+                        key={link.href}
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setLocation(link.href);
+                        }}
+                        className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                          {Icon && (
+                            <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          )}
+                        </div>
+                        <span className="font-medium">{link.label}</span>
+                      </DropdownMenuItem>
                     );
                   })}
 
@@ -339,24 +377,28 @@ export default function RoleBasedNavigation() {
 
                   {/* Cart - Only show if authenticated */}
                   {isAuthenticated && (
-                    <Link href="/cart">
-                      <DropdownMenuItem className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center relative">
-                          <ShoppingCart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          {cartCount > 0 && (
-                            <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold shadow-lg animate-pulse">
-                              {cartCount}
-                            </span>
-                          )}
-                        </div>
-                        <span className="font-medium">Shopping Cart</span>
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                      onSelect={(e) => {
+                        e.preventDefault();
+                        setLocation("/cart");
+                      }}
+                    >
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center relative">
+                        <ShoppingCart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         {cartCount > 0 && (
-                          <span className="ml-auto text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full">
+                          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold shadow-lg animate-pulse">
                             {cartCount}
                           </span>
                         )}
-                      </DropdownMenuItem>
-                    </Link>
+                      </div>
+                      <span className="font-medium">Shopping Cart</span>
+                      {cartCount > 0 && (
+                        <span className="ml-auto text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full">
+                          {cartCount}
+                        </span>
+                      )}
+                    </DropdownMenuItem>
                   )}
 
                   {/* Account Section - Only show if authenticated */}
@@ -392,27 +434,36 @@ export default function RoleBasedNavigation() {
                       {config.menu.map((item) => {
                         const Icon = item.icon;
                         return (
-                          <Link key={item.href} href={item.href}>
-                            <DropdownMenuItem className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">
-                              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
-                                {Icon && (
-                                  <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                )}
-                              </div>
-                              <span className="font-medium">{item.label}</span>
-                            </DropdownMenuItem>
-                          </Link>
+                          <DropdownMenuItem
+                            key={item.href}
+                            className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                            onSelect={(e) => {
+                              e.preventDefault();
+                              setLocation(item.href);
+                            }}
+                          >
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                              {Icon && (
+                                <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                              )}
+                            </div>
+                            <span className="font-medium">{item.label}</span>
+                          </DropdownMenuItem>
                         );
                       })}
 
-                      <Link href="/profile">
-                        <DropdownMenuItem className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200">
-                          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
-                            <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          </div>
-                          <span className="font-medium">Profile Settings</span>
-                        </DropdownMenuItem>
-                      </Link>
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          setLocation("/profile");
+                        }}
+                      >
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                          <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <span className="font-medium">Profile Settings</span>
+                      </DropdownMenuItem>
 
                       <DropdownMenuItem
                         onClick={logout}
@@ -435,7 +486,7 @@ export default function RoleBasedNavigation() {
                           variant="default"
                           size="sm"
                           onClick={open}
-                          className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                          className="w-full rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                         >
                           <LogIn className="h-4 w-4 mr-2" />
                           Sign In

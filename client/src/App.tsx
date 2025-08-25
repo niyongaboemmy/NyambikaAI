@@ -1,5 +1,5 @@
-import React from "react";
-import { Switch, Route, useLocation } from "wouter";
+import React, { Suspense } from "react";
+import { Switch, Route, useLocation, Link } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -15,27 +15,215 @@ import { CompanyProvider } from "@/contexts/CompanyContext";
 import CompanyModal from "@/components/CompanyModal";
 import LoginModal from "@/components/LoginModal";
 import RoleBasedNavigation from "@/components/RoleBasedNavigation";
-import Home from "@/pages/Home";
-import Products from "@/pages/Products";
-import TryOn from "@/pages/TryOn";
-import ProductDetail from "@/pages/ProductDetail";
-import Checkout from "@/pages/Checkout";
-import Profile from "@/pages/Profile";
-import Cart from "@/pages/Cart";
-import ProducerDashboard from "@/pages/ProducerDashboard";
-import AdminDashboard from "@/pages/AdminDashboard";
-import AdminCategories from "@/pages/AdminCategories";
-import Orders from "@/pages/Orders";
-// Login page removed in favor of modal-only login
-import Register from "@/pages/Register";
-import ForgotPassword from "@/pages/ForgotPassword";
-import NotFound from "@/pages/not-found";
-import ProductRegistration from "@/pages/ProductRegistration";
-import ProductEdit from "@/pages/ProductEdit";
-import Companies from "@/pages/Companies";
-import StorePage from "@/pages/StorePage";
 import Footer from "./components/Footer";
-import TryOnStart from "./pages/TryOnStart";
+import AnimatedAIBackground from "./components/layout/AnimatedAIBackground";
+import { Plus } from "lucide-react";
+
+// Optimized lazy loading with preloading for better performance
+const Home = React.lazy(() => import("@/pages/Home"));
+
+// Floating Add Product Button for producer/admin
+function AddProductFAB() {
+  const { user } = useAuth();
+  const [location] = useLocation();
+  const canAdd = user?.role === "producer" || user?.role === "admin";
+  // Hide on the product registration page itself
+  if (
+    !canAdd ||
+    location === "/product-registration" ||
+    location.includes("product-edit")
+  )
+    return null;
+  return (
+    <div className="fixed bottom-6 right-6 z-50">
+      <Link
+        href="/product-registration"
+        className="group"
+        aria-label="Add product"
+      >
+        <div className="relative">
+          <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-blue-500/25 via-purple-500/25 to-indigo-500/25 blur-xl opacity-60 group-hover:opacity-90 transition" />
+          <button className="relative inline-flex items-center gap-2 px-5 py-3 rounded-full text-white shadow-lg shadow-blue-500/20 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 hover:from-blue-500 hover:via-purple-500 hover:to-indigo-500 transition">
+            <Plus className="h-5 w-5" />
+            <span className="hidden sm:block text-sm font-semibold">
+              Add Product
+            </span>
+          </button>
+        </div>
+      </Link>
+    </div>
+  );
+}
+const Products = React.lazy(() => import("@/pages/Products"));
+const TryOn = React.lazy(() => import("@/pages/TryOn"));
+const ProductDetail = React.lazy(() => import("@/pages/ProductDetail"));
+const Checkout = React.lazy(() => import("@/pages/Checkout"));
+const Profile = React.lazy(() => import("@/pages/Profile"));
+const Cart = React.lazy(() => import("@/pages/Cart"));
+const ProducerDashboard = React.lazy(() => import("@/pages/ProducerDashboard"));
+const AdminDashboard = React.lazy(() => import("@/pages/AdminDashboard"));
+const AdminCategories = React.lazy(() => import("@/pages/AdminCategories"));
+const Orders = React.lazy(() => import("@/pages/Orders"));
+const OrderDetailsPage = React.lazy(() => import("@/pages/OrderDetailsPage"));
+const ProducerOrders = React.lazy(() => import("@/pages/ProducerOrders"));
+const Register = React.lazy(() => import("@/pages/Register"));
+const ForgotPassword = React.lazy(() => import("@/pages/ForgotPassword"));
+const NotFound = React.lazy(() => import("@/pages/not-found"));
+const ProductRegistration = React.lazy(
+  () => import("@/pages/ProductRegistration")
+);
+const ProductEdit = React.lazy(() => import("@/pages/ProductEdit"));
+const Companies = React.lazy(() => import("@/pages/Companies"));
+const StorePage = React.lazy(() => import("@/pages/StorePage"));
+const TryOnStart = React.lazy(() => import("./pages/TryOnStart"));
+
+// Preload critical components after initial load
+const preloadCriticalComponents = () => {
+  // Preload most commonly accessed pages immediately after initial render
+  setTimeout(() => {
+    import("@/pages/Products");
+    import("@/pages/TryOnStart");
+    import("@/pages/Profile");
+  }, 100); // Reduced from 2000ms to 100ms for faster preloading
+
+  // Preload secondary pages after a short delay
+  setTimeout(() => {
+    import("@/pages/Companies");
+    import("@/pages/Cart");
+    import("@/pages/Orders");
+  }, 500);
+};
+
+// Fast mini loading component for quick transitions
+const MiniLoader = () => (
+  <div className="flex items-center justify-center py-8">
+    <div className="relative">
+      <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 animate-spin">
+        <div className="absolute top-1 right-1 w-1.5 h-1.5 bg-white rounded-full" />
+      </div>
+      <div className="absolute -inset-2 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-indigo-400/20 rounded-full blur-lg animate-pulse" />
+    </div>
+  </div>
+);
+
+// Modern AI-inspired loading fallback with cute animations
+const LoadingFallback = ({ type = "default" }: { type?: string }) => (
+  <div className="fixed inset-0 bg-gradient-to-br from-slate-50/95 via-blue-50/90 to-purple-50/85 dark:from-black/95 dark:via-slate-950/90 dark:to-purple-950/85 backdrop-blur-sm flex items-center justify-center z-50">
+    {/* Animated AI Background Particles */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {/* Floating AI Orbs */}
+      <div
+        className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-blue-400/10 via-purple-400/15 to-cyan-400/10 rounded-full blur-2xl animate-pulse"
+        style={{ animationDuration: "3s" }}
+      />
+      <div
+        className="absolute top-40 right-32 w-24 h-24 bg-gradient-to-r from-pink-400/10 via-purple-400/15 to-indigo-400/10 rounded-full blur-xl animate-bounce"
+        style={{ animationDuration: "4s" }}
+      />
+      <div
+        className="absolute bottom-32 left-40 w-20 h-20 bg-gradient-to-r from-emerald-400/10 via-teal-400/15 to-cyan-400/10 rounded-full blur-xl animate-pulse"
+        style={{ animationDuration: "2.5s" }}
+      />
+
+      {/* Neural Network Grid Pattern */}
+      <div className="absolute inset-0 opacity-20 dark:opacity-10">
+        <div className="absolute top-1/4 left-1/4 w-px h-32 bg-gradient-to-b from-transparent via-blue-400/30 to-transparent" />
+        <div className="absolute top-1/3 right-1/3 w-24 h-px bg-gradient-to-r from-transparent via-purple-400/30 to-transparent" />
+        <div className="absolute bottom-1/3 left-1/2 w-px h-20 bg-gradient-to-b from-transparent via-cyan-400/30 to-transparent" />
+      </div>
+    </div>
+
+    {/* Main Loading Content */}
+    <div className="relative text-center">
+      {/* AI Brain Icon with Multiple Rotating Rings */}
+      <div className="relative mb-8">
+        {/* Outer rotating ring */}
+        <div
+          className="absolute inset-0 w-20 h-20 mx-auto rounded-full border-2 border-transparent bg-gradient-to-r from-blue-500/30 via-purple-500/30 to-cyan-500/30 animate-spin"
+          style={{ animationDuration: "3s" }}
+        >
+          <div className="absolute top-1 right-1 w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+          <div
+            className="absolute bottom-1 left-1 w-2 h-2 bg-purple-400 rounded-full animate-pulse"
+            style={{ animationDelay: "0.5s" }}
+          />
+        </div>
+
+        {/* Middle counter-rotating ring */}
+        <div
+          className="absolute inset-2 w-16 h-16 mx-auto rounded-full border-2 border-transparent bg-gradient-to-l from-purple-500/40 via-indigo-500/40 to-pink-500/40 animate-spin"
+          style={{ animationDuration: "2s", animationDirection: "reverse" }}
+        >
+          <div
+            className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse"
+            style={{ animationDelay: "0.3s" }}
+          />
+        </div>
+
+        {/* Inner core with AI brain */}
+        <div className="relative w-12 h-12 mx-auto rounded-2xl bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 dark:from-blue-500 dark:via-purple-500 dark:to-indigo-600 flex items-center justify-center shadow-xl">
+          {/* AI Brain Icon */}
+          <svg
+            className="w-6 h-6 text-white animate-pulse"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          </svg>
+        </div>
+
+        {/* Pulsing glow effect */}
+        <div
+          className="absolute -inset-4 bg-gradient-to-r from-blue-400/20 via-purple-400/30 to-indigo-400/20 rounded-full blur-2xl animate-pulse"
+          style={{ animationDuration: "2s" }}
+        />
+      </div>
+
+      {/* AI-themed Loading Text */}
+      <div className="space-y-3">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-400 dark:via-purple-400 dark:to-indigo-400 bg-clip-text text-transparent">
+          ✨ AI Loading {type === "page" ? "Experience" : "Content"}
+        </h2>
+
+        {/* Animated dots */}
+        <div className="flex items-center justify-center space-x-1">
+          <div className="flex space-x-1">
+            <div
+              className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0s" }}
+            />
+            <div
+              className="w-2 h-2 bg-purple-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.1s" }}
+            />
+            <div
+              className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+              style={{ animationDelay: "0.2s" }}
+            />
+          </div>
+        </div>
+
+        {/* Status text */}
+        <p className="text-sm text-gray-600 dark:text-gray-400 font-medium">
+          Neural networks processing...
+        </p>
+      </div>
+
+      {/* Bottom progress indicator */}
+      <div className="mt-8 w-48 mx-auto">
+        <div className="h-1 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-indigo-500 rounded-full animate-pulse"
+            style={{
+              width: "60%",
+              animation: "pulse 1.5s ease-in-out infinite",
+            }}
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+);
 
 function AdminRoute({
   component: Component,
@@ -44,216 +232,16 @@ function AdminRoute({
 }) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { open } = useLoginPrompt();
-  if (isLoading) return null;
+  if (isLoading) return <LoadingFallback />;
   if (!isAuthenticated) {
     open();
     return null;
   }
   if (user?.role !== "admin") return null;
-  return <Component />;
-}
-
-function Router() {
-  // Local layout wrapper to apply a consistent container on most routes
-  const Container = ({ children }: { children: React.ReactNode }) => (
-    <div className="container mx-auto px-3 md:px-0">{children}</div>
-  );
-
   return (
-    <>
-      <Switch>
-        <Route
-          path="/"
-          component={() => (
-            <Container>
-              <Home />
-            </Container>
-          )}
-        />
-        <Route
-          path="/register"
-          component={() => (
-            <Container>
-              <Register />
-            </Container>
-          )}
-        />
-        <Route
-          path="/forgot-password"
-          component={() => (
-            <Container>
-              <ForgotPassword />
-            </Container>
-          )}
-        />
-
-        {/* Protected routes */}
-        <Route
-          path="/products"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={Products} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/companies"
-          component={() => (
-            <ProtectedRoute
-              component={Companies}
-              showLoadingSkeleton={true}
-              skeletonType="companies"
-            />
-          )}
-        />
-        {/* Store page should NOT be wrapped to allow full-bleed design */}
-        <Route path="/store/:companyId" component={StorePage} />
-        <Route
-          path="/try-on/start"
-          component={() => (
-            <ProtectedRoute component={TryOnStart} showLoadingSkeleton={true} />
-          )}
-        />
-        <Route
-          path="/try-on"
-          component={() => <ProtectedRoute component={TryOn} />}
-        />
-        <Route
-          path="/product/:id"
-          component={() => <ProtectedRoute component={ProductDetail} />}
-        />
-        <Route
-          path="/checkout"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={Checkout} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/profile"
-          component={() => <ProtectedRoute component={Profile} />}
-        />
-        <Route
-          path="/cart"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={Cart} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/orders"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={Orders} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/product-registration"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={ProductRegistration} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/product-edit/:id"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={ProductEdit} />
-            </Container>
-          )}
-        />
-
-        {/* Producer Routes (protected) */}
-        <Route
-          path="/producer-dashboard"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={ProducerDashboard} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/producer-products"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={Products} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/producer-orders"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={Profile} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/producer-analytics"
-          component={() => (
-            <Container>
-              <ProtectedRoute component={Profile} />
-            </Container>
-          )}
-        />
-
-        {/* Admin Routes (protected) */}
-        <Route
-          path="/admin-dashboard"
-          component={() => (
-            <Container>
-              <AdminRoute component={AdminDashboard} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/admin-users"
-          component={() => (
-            <Container>
-              <AdminRoute component={Profile} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/admin-products"
-          component={() => (
-            <Container>
-              <AdminRoute component={Products} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/admin-orders"
-          component={() => (
-            <Container>
-              <AdminRoute component={Orders} />
-            </Container>
-          )}
-        />
-        <Route
-          path="/admin-categories"
-          component={() => (
-            <Container>
-              <AdminRoute component={AdminCategories} />
-            </Container>
-          )}
-        />
-
-        {/* Fallback to 404 */}
-        <Route
-          component={() => (
-            <Container>
-              <NotFound />
-            </Container>
-          )}
-        />
-      </Switch>
-      <Footer />
-    </>
+    <Suspense fallback={<LoadingFallback />}>
+      <Component />
+    </Suspense>
   );
 }
 
@@ -414,14 +402,23 @@ function ProtectedRoute({
         </div>
       );
     }
-    return null;
+    return <LoadingFallback />;
   }
 
   if (!isAuthenticated) return null;
-  return <Component />;
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <Component />
+    </Suspense>
+  );
 }
 
 export default function App() {
+  // Preload critical components after app initialization
+  React.useEffect(() => {
+    preloadCriticalComponents();
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider defaultTheme="system" storageKey="nyambika-ui-theme">
@@ -432,7 +429,249 @@ export default function App() {
                 <CompanyProvider>
                   <CartProvider>
                     <RoleBasedNavigation />
-                    <Router />
+                    <AnimatedAIBackground>
+                      <div className="min-h-screen">
+                        <Switch>
+                          {/* Store page should NOT be wrapped to allow full-bleed design */}
+                          <Route
+                            path="/store/:companyId"
+                            component={() => (
+                              <Suspense fallback={<LoadingFallback />}>
+                                <StorePage />
+                              </Suspense>
+                            )}
+                          />
+
+                          {/* All other routes wrapped in container */}
+                          <Route
+                            path="/"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<MiniLoader />}>
+                                  <Home />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/register"
+                            component={() => (
+                              <Suspense fallback={<MiniLoader />}>
+                                <Register />
+                              </Suspense>
+                            )}
+                          />
+                          <Route
+                            path="/forgot-password"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<MiniLoader />}>
+                                  <ForgotPassword />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+
+                          {/* Protected routes */}
+                          <Route
+                            path="/products"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<MiniLoader />}>
+                                  <ProtectedRoute component={Products} />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/companies"
+                            component={() => (
+                              <ProtectedRoute
+                                component={Companies}
+                                showLoadingSkeleton={true}
+                                skeletonType="companies"
+                              />
+                            )}
+                          />
+                          <Route
+                            path="/try-on/start"
+                            component={() => (
+                              <ProtectedRoute
+                                component={TryOnStart}
+                                showLoadingSkeleton={true}
+                              />
+                            )}
+                          />
+                          <Route
+                            path="/try-on"
+                            component={() => (
+                              <ProtectedRoute component={TryOn} />
+                            )}
+                          />
+                          <Route
+                            path="/product/:id"
+                            component={() => (
+                              <ProtectedRoute component={ProductDetail} />
+                            )}
+                          />
+                          <Route
+                            path="/checkout"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <ProtectedRoute component={Checkout} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/profile"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <ProtectedRoute component={Profile} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/cart"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<MiniLoader />}>
+                                  <ProtectedRoute component={Cart} />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/orders"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<MiniLoader />}>
+                                  <ProtectedRoute component={Orders} />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/orders/:id"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<MiniLoader />}>
+                                  <ProtectedRoute component={OrderDetailsPage} />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/product-registration"
+                            component={() => (
+                              <Suspense fallback={<MiniLoader />}>
+                                <ProtectedRoute
+                                  component={ProductRegistration}
+                                />
+                              </Suspense>
+                            )}
+                          />
+                          <Route
+                            path="/product-edit/:id"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<MiniLoader />}>
+                                  <ProtectedRoute component={ProductEdit} />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+
+                          {/* Producer Routes (protected) */}
+                          <Route
+                            path="/producer-dashboard"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <ProtectedRoute component={ProducerDashboard} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/producer-products"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <ProtectedRoute component={Products} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/producer-orders"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <ProtectedRoute component={ProducerOrders} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/producer-analytics"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <ProtectedRoute component={Profile} />
+                              </div>
+                            )}
+                          />
+
+                          {/* Admin Routes (protected) */}
+                          <Route
+                            path="/admin-dashboard"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <AdminRoute component={AdminDashboard} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/admin-users"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <AdminRoute component={Profile} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/admin-products"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <AdminRoute component={Products} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/admin-orders"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <AdminRoute component={Orders} />
+                              </div>
+                            )}
+                          />
+                          <Route
+                            path="/admin-categories"
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <AdminRoute component={AdminCategories} />
+                              </div>
+                            )}
+                          />
+
+                          {/* Fallback to 404 */}
+                          <Route
+                            component={() => (
+                              <div className="container mx-auto px-3 md:px-0">
+                                <Suspense fallback={<LoadingFallback />}>
+                                  <NotFound />
+                                </Suspense>
+                              </div>
+                            )}
+                          />
+                        </Switch>
+                      </div>
+                      <Footer />
+                      <AddProductFAB />
+                    </AnimatedAIBackground>
                     <AuthPromptOnStart />
                     <CompanyModal />
                     <LoginModal />

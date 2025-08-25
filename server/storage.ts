@@ -83,6 +83,7 @@ export interface IStorage {
 
   // Order operations
   getOrders(userId: string): Promise<Order[]>;
+  getProducerOrders(producerId: string): Promise<Order[]>;
   getOrder(
     id: string
   ): Promise<
@@ -350,6 +351,14 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(orders)
       .where(eq(orders.customerId, userId))
+      .orderBy(desc(orders.createdAt));
+  }
+
+  async getProducerOrders(producerId: string): Promise<Order[]> {
+    return await db
+      .select()
+      .from(orders)
+      .where(eq(orders.producerId, producerId))
       .orderBy(desc(orders.createdAt));
   }
 

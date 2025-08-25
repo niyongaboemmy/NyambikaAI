@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
@@ -33,7 +39,8 @@ const STORAGE_KEY = "cart";
 
 function readFromStorage(): CartItem[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem("cartItems");
+    const raw =
+      localStorage.getItem(STORAGE_KEY) || localStorage.getItem("cartItems");
     if (!raw) return [];
     const data = JSON.parse(raw);
     if (Array.isArray(data)) return data;
@@ -66,7 +73,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   // Helper: auth headers
   const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem("auth_token");
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
     if (token) headers["Authorization"] = `Bearer ${token}`;
     return headers;
   };
@@ -78,7 +87,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       name: ci.product.name,
       nameRw: ci.product.nameRw,
       description: ci.product.description,
-      price: typeof ci.product.price === "number" ? ci.product.price : parseFloat(ci.product.price),
+      price:
+        typeof ci.product.price === "number"
+          ? ci.product.price
+          : parseFloat(ci.product.price),
       image: ci.product.imageUrl,
       size: ci.size || undefined,
       quantity: ci.quantity || 1,
@@ -93,10 +105,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       beginSync();
       const res = await fetch("/api/cart", { headers: getAuthHeaders() });
       if (!res.ok) return;
-      const data = await res.json();
+      if (res.status === 204) {
+        // No content: treat as empty cart
+        setItems([]);
+        return;
+      }
+      // Some servers may send empty body with 200; guard before parsing
+      const text = await res.text();
+      if (!text) {
+        setItems([]);
+        return;
+      }
+      const data = JSON.parse(text);
       setItems(mapServerToLocal(data));
-    } catch {}
-    finally {
+    } catch {
+    } finally {
       endSync();
     }
   };
@@ -153,29 +176,41 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           }),
         });
         await refreshFromServer();
-      } catch {}
-      finally {
+      } catch {
+      } finally {
         endSync();
       }
     })();
   };
 
   const removeItem: CartState["removeItem"] = (id, size) => {
-    setItems((prev) => prev.filter((it) => !(it.id === id && (it.size || "") === (size || ""))));
+    // Optimistically remove and capture serverId from previous state to avoid stale reads
+    let serverId: string | undefined;
+    setItems((prev) => {
+      const target = prev.find(
+        (it) => it.id === id && (it.size || "") === (size || "")
+      );
+      serverId = target?.serverId;
+      return prev.filter(
+        (it) => !(it.id === id && (it.size || "") === (size || ""))
+      );
+    });
 
     // Mirror to server if possible (requires serverId)
     (async () => {
       try {
         if (!isAuthenticated) return;
-        const target = items.find((it) => it.id === id && (it.size || "") === (size || ""));
-        const serverId = target?.serverId;
         beginSync();
         if (serverId) {
-          await fetch(`/api/cart/${serverId}`, { method: "DELETE", headers: getAuthHeaders() });
+          await fetch(`/api/cart/${serverId}`, {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+          });
+          // Only refresh when we actually performed a server deletion; otherwise skip to avoid reverting local state
+          await refreshFromServer();
         }
-        await refreshFromServer();
-      } catch {}
-      finally {
+      } catch {
+      } finally {
         endSync();
       }
     })();
@@ -183,9 +218,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const updateQuantity: CartState["updateQuantity"] = (id, quantity, size) => {
     setItems((prev) => {
-      if (quantity <= 0) return prev.filter((it) => !(it.id === id && (it.size || "") === (size || "")));
+      if (quantity <= 0)
+        return prev.filter(
+          (it) => !(it.id === id && (it.size || "") === (size || ""))
+        );
       return prev.map((it) =>
-        it.id === id && (it.size || "") === (size || "") ? { ...it, quantity } : it
+        it.id === id && (it.size || "") === (size || "")
+          ? { ...it, quantity }
+          : it
       );
     });
 
@@ -193,7 +233,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         if (!isAuthenticated) return;
-        const target = items.find((it) => it.id === id && (it.size || "") === (size || ""));
+        const target = items.find(
+          (it) => it.id === id && (it.size || "") === (size || "")
+        );
         const serverId = target?.serverId;
         beginSync();
         if (serverId) {
@@ -206,8 +248,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           // Fallback: POST the delta by setting absolute quantity not supported; trigger refresh
         }
         await refreshFromServer();
-      } catch {}
-      finally {
+      } catch {
+      } finally {
         endSync();
       }
     })();
@@ -222,9 +264,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       (async () => {
         try {
           beginSync();
-          await fetch("/api/cart", { method: "DELETE", headers: getAuthHeaders() });
-        } catch {}
-        finally {
+          await fetch("/api/cart", {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+          });
+        } catch {
+        } finally {
           endSync();
         }
       })();

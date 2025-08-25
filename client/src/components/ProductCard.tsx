@@ -80,15 +80,15 @@ export default function ProductCard({
     >
       <div
         className={cn(
-          "relative overflow-hidden pb-2 md:pb-2 lg:pb-2",
-          compact ? "pt-2" : "pt-3 md:pt-5 lg:pt-7"
+          "relative overflow-hidden mb-2 md:pb-2 lg:mb-2",
+          compact ? "" : ""
         )}
       >
         <img
           src={product.imageUrl}
           alt={product.name}
           loading="lazy"
-          className="w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
+          className="min-h-full min-w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src =
               "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500";

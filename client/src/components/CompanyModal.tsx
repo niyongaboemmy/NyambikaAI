@@ -73,7 +73,7 @@ export default function CompanyModal() {
       }}
     >
       <DialogContent
-        className="max-w-lg"
+        className="max-w-lg rounded-2xl"
         onInteractOutside={(e) => {
           if (isMissing && !isFormValid) e.preventDefault();
         }}

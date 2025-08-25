@@ -116,7 +116,7 @@ export default function Companies() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-gray-950 dark:to-black pt-20">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-gray-950 dark:to-black pt-12">
         <div className="container mx-auto px-3 md:px-0 relative overflow-hidden">
           {/* AI-Motivated Animated Background */}
           <div className="fixed inset-0 pointer-events-none">
@@ -200,7 +200,7 @@ export default function Companies() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 dark:from-gray-950 dark:via-slate-950 dark:to-indigo-950/50 pt-20">
+    <div className="pt-10">
       <div className="container mx-auto px-3 md:px-0 w-full relative overflow-hidden">
         {/* Enhanced Animated Background */}
         <div className="fixed inset-0 pointer-events-none overflow-hidden">
@@ -313,12 +313,12 @@ export default function Companies() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-1">
               ✨ AI Fashion Brands
             </h1>
 
             <motion.p
-              className="text-xs text-gray-600 dark:text-gray-300 mb-3 max-w-lg mx-auto"
+              className="text-xs md:text-sm text-gray-600 dark:text-gray-300 mb-3 max-w-lg mx-auto"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}

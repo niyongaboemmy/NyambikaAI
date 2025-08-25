@@ -1,11 +1,17 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: 'customer' | 'producer' | 'admin';
+  role: "customer" | "producer" | "admin";
   phone?: string;
   createdAt: string;
 }
@@ -14,12 +20,18 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string, role: 'customer' | 'producer', phone?: string) => Promise<void>;
+  register: (
+    email: string,
+    password: string,
+    name: string,
+    role: "customer" | "producer",
+    phone?: string
+  ) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
   hasRole: (role: string) => boolean;
   requestPasswordReset: (email: string) => Promise<void>;
-  loginWithProvider: (provider: 'google' | 'facebook') => void;
+  loginWithProvider: (provider: "google" | "facebook") => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,7 +39,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }
@@ -45,17 +57,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
+        const token = localStorage.getItem("auth_token");
         if (!token) {
           setIsLoading(false);
           return;
         }
 
-        const response = await fetch('/api/auth/me', {
+        const response = await fetch("/api/auth/me", {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
 
         if (response.ok) {
@@ -63,11 +75,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setUser(userData);
         } else {
           // Token is invalid, remove it
-          localStorage.removeItem('auth_token');
+          localStorage.removeItem("auth_token");
         }
       } catch (error) {
-        console.error('Auth check failed:', error);
-        localStorage.removeItem('auth_token');
+        console.error("Auth check failed:", error);
+        localStorage.removeItem("auth_token");
       } finally {
         setIsLoading(false);
       }
@@ -79,33 +91,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+        throw new Error(error.message || "Login failed");
       }
 
       const { user: userData, token } = await response.json();
-      
-      localStorage.setItem('auth_token', token);
+
+      localStorage.setItem("auth_token", token);
       setUser(userData);
-      
+
       toast({
         title: "Login successful",
-        description: `Welcome back, ${userData.name}!`
+        description: `Welcome back, ${userData.name}!`,
       });
     } catch (error: any) {
       toast({
         title: "Login failed",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
       throw error;
     } finally {
@@ -113,36 +125,42 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const register = async (email: string, password: string, name: string, role: 'customer' | 'producer', phone?: string) => {
+  const register = async (
+    email: string,
+    password: string,
+    name: string,
+    role: "customer" | "producer",
+    phone?: string
+  ) => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/auth/register', {
-        method: 'POST',
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, name, role, phone })
+        body: JSON.stringify({ email, password, name, role, phone }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Registration failed');
+        throw new Error(error.message || "Registration failed");
       }
 
       const { user: userData, token } = await response.json();
-      
-      localStorage.setItem('auth_token', token);
+
+      localStorage.setItem("auth_token", token);
       setUser(userData);
-      
+
       toast({
         title: "Registration successful",
-        description: `Welcome to NyambikaAI, ${userData.name}!`
+        description: `Welcome to NyambikaAI, ${userData.name}!`,
       });
     } catch (error: any) {
       toast({
         title: "Registration failed",
         description: error.message,
-        variant: "destructive"
+        variant: "destructive",
       });
       throw error;
     } finally {
@@ -153,28 +171,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const requestPasswordReset = async (email: string) => {
     try {
       setIsLoading(true);
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to request password reset');
+        throw new Error(error.message || "Failed to request password reset");
       }
 
       toast({
-        title: 'Password reset sent',
-        description: 'Check your email for a reset link.'
+        title: "Password reset sent",
+        description: "Check your email for a reset link.",
       });
     } catch (error: any) {
       toast({
-        title: 'Password reset failed',
+        title: "Password reset failed",
         description: error.message,
-        variant: 'destructive'
+        variant: "destructive",
       });
       throw error;
     } finally {
@@ -183,18 +201,18 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const logout = () => {
-    localStorage.removeItem('auth_token');
+    localStorage.removeItem("auth_token");
     setUser(null);
     toast({
       title: "Logged out",
-      description: "You have been successfully logged out."
+      description: "You have been successfully logged out.",
     });
   };
 
   // Initiate OAuth flow via backend routes (server handles redirect & callback)
-  const loginWithProvider = (provider: 'google' | 'facebook') => {
+  const loginWithProvider = (provider: "google" | "facebook") => {
     // Optional: allow overriding base URL via env
-    const base = import.meta?.env?.VITE_API_BASE_URL || '';
+    const base = import.meta?.env?.VITE_API_BASE_URL || "";
     window.location.href = `${base}/api/auth/oauth/${provider}`;
   };
 
@@ -214,9 +232,5 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loginWithProvider,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

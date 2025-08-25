@@ -1105,8 +1105,20 @@ try {
     }
   });
 
+  // Producer orders (for producers/admins)
+  app.get('/api/producer/orders', requireAuth, requireRole(['producer', 'admin']), async (req: any, res) => {
+    try {
+      const orders = await storage.getProducerOrders(req.userId);
+      res.json(orders);
+    } catch (error) {
+      console.error('Error fetching producer orders:', error);
+      res.status(500).json({ message: 'Failed to fetch producer orders' });
+    }
+  });
+
   app.get('/api/orders/:id', requireAuth, async (req, res) => {
     try {
+      const { id } = req.params;
       const order = await storage.getOrder(req.params.id);
       if (!order) {
         return res.status(404).json({ message: 'Order not found' });
@@ -1142,7 +1154,7 @@ try {
     }
   });
 
-  app.put('/api/orders/:id/status', async (req, res) => {
+  app.put('/api/orders/:id/status', requireAuth, requireRole(['producer', 'admin']), async (req, res) => {
     try {
       const { status } = req.body;
       if (!status) {
@@ -1156,7 +1168,7 @@ try {
       res.json(order);
     } catch (error) {
       console.error('Error updating order status:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      res.status(500).json({ message: 'Failed to update order status' });
     }
   });
 

@@ -42,48 +42,7 @@ interface Product {
   company?: Company;
 }
 
-// Add CSS for animated gradients, custom scrollbar, and dark theme support
-const styles = `
-  @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(59, 130, 246, 0.1);
-    border-radius: 3px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #3b82f6, #8b5cf6);
-    border-radius: 3px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to bottom, #2563eb, #7c3aed);
-  }
-  
-  /* Dark theme scrollbar */
-  .dark .custom-scrollbar::-webkit-scrollbar-track {
-    background: rgba(99, 102, 241, 0.2);
-  }
-  
-  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: linear-gradient(to bottom, #6366f1, #a855f7);
-  }
-`;
-
-// Inject styles
-if (typeof document !== "undefined") {
-  const styleSheet = document.createElement("style");
-  styleSheet.textContent = styles;
-  document.head.appendChild(styleSheet);
-}
+// Shared background styles are injected by AnimatedAIBackground
 
 export default function TryOnStart() {
   const [selectedProductId, setSelectedProductId] = useState<{
@@ -249,22 +208,12 @@ export default function TryOnStart() {
   // Show loading skeleton if any data is still loading
   if (productsLoading || categoriesLoading || companiesLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-gray-950 dark:to-black relative overflow-hidden pt-10">
-        <style>{styles}</style>
+      <>
         <div className="container mx-auto px-3 md:px-0">
-          {/* AI-Motivated Animated Background */}
-          <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" />
-            <div
-              className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-bounce"
-              style={{ animationDuration: "3s" }}
-            />
-          </div>
-
-          <main className="relative z-10 pt-10 sm:pt-12">
+          <main className="pt-10 sm:pt-10">
             {/* Compact Hero Header for Categories */}
             <div className="text-center mb-4 sm:mb-6">
-              <div className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+              <div className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
                 ✨ AI Try-On
               </div>
               <div className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-md mx-auto px-4">
@@ -325,46 +274,14 @@ export default function TryOnStart() {
             </div>
           </main>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-950 dark:via-gray-950 dark:to-black relative overflow-hidden pt-10">
-      <style>{styles}</style>
+    <>
       <div className="container mx-auto px-3 md:px-0">
-        {/* AI-Motivated Animated Background */}
-        <div className="fixed inset-0 pointer-events-none">
-          {/* Neural network inspired animated gradients */}
-          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" />
-          <div
-            className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-bounce"
-            style={{ animationDuration: "3s" }}
-          />
-          <div
-            className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-green-400/15 via-teal-400/15 to-blue-400/15 rounded-full blur-2xl animate-ping"
-            style={{ animationDuration: "4s" }}
-          />
-          <div
-            className="absolute bottom-1/3 left-1/4 w-28 h-28 bg-gradient-to-r from-purple-400/15 via-pink-400/15 to-rose-400/15 rounded-full blur-2xl animate-pulse"
-            style={{ animationDuration: "2s" }}
-          />
-
-          {/* AI Circuit patterns */}
-          <div className="absolute inset-0 opacity-5">
-            <div className="absolute top-20 left-1/4 w-px h-32 bg-gradient-to-b from-blue-500 to-transparent animate-pulse" />
-            <div
-              className="absolute top-40 left-1/3 w-24 h-px bg-gradient-to-r from-purple-500 to-transparent animate-pulse"
-              style={{ animationDelay: "1s" }}
-            />
-            <div
-              className="absolute bottom-32 right-1/3 w-px h-24 bg-gradient-to-t from-cyan-500 to-transparent animate-pulse"
-              style={{ animationDelay: "2s" }}
-            />
-          </div>
-        </div>
-
-        <main className="relative z-10 pt-10 sm:pt-12">
+        <main className="pt-10 sm:pt-10">
           {currentStep === "categories" ? (
             /* Compact Hero Header for Categories */
             <motion.div
@@ -374,7 +291,7 @@ export default function TryOnStart() {
               transition={{ duration: 0.4 }}
             >
               <motion.h1
-                className="text-xl sm:text-2xl md:text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2"
+                className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2"
                 whileHover={{ scale: 1.02 }}
               >
                 ✨ AI Try-On
@@ -653,7 +570,7 @@ export default function TryOnStart() {
                     transition={{ duration: 0.5 }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-50" />
-                    <div className="relative bg-white/90 dark:bg-violet-800/10 dark:text-white backdrop-blur-sm rounded-xl border border-blue-200/30">
+                    <div className="relative bg-white/90 dark:bg-violet-900/5 dark:text-white backdrop-blur-sm rounded-xl border border-blue-200/30">
                       <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
                       <Input
                         value={categorySearch}
@@ -836,7 +753,7 @@ export default function TryOnStart() {
                     </p>
                     <motion.button
                       onClick={() => setCategorySearch("")}
-                      className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
+                      className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -1413,6 +1330,6 @@ export default function TryOnStart() {
           )}
         </main>
       </div>
-    </div>
+    </>
   );
 }

@@ -71,7 +71,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-slate-900 to-gray-900 mt-16">
+    <footer className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-slate-900 to-gray-900 mt-0">
       {/* subtle top border glow */}
       <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
 

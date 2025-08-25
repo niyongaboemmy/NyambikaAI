@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,13 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import ReactSelect from "react-select";
 import {
   Dialog,
   DialogContent,
@@ -106,6 +100,23 @@ export default function StorePage() {
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
+  // Detect dark mode from document class (ThemeProvider sets 'dark' class)
+  const [isDark, setIsDark] = useState<boolean>(() =>
+    typeof document !== "undefined"
+      ? document.documentElement.classList.contains("dark")
+      : false
+  );
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const root = document.documentElement;
+    const observer = new MutationObserver(() => {
+      setIsDark(root.classList.contains("dark"));
+    });
+    observer.observe(root, { attributes: true, attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+
   const { data: company, isLoading: companyLoading } = useQuery<Company>({
     queryKey: [`/api/companies/${companyId}`],
     enabled: !!companyId,
@@ -184,6 +195,93 @@ export default function StorePage() {
     );
   }, [products]);
 
+  // react-select options
+  const categoryOptions = useMemo(
+    () => [
+      { value: "all", label: "All Categories" },
+      ...categories.map((c) => ({ value: c, label: c })),
+    ],
+    [categories]
+  );
+
+  const priceOptions = useMemo(
+    () => [
+      { value: "all", label: "All Prices" },
+      { value: "low", label: "Under 50K" },
+      { value: "medium", label: "50K - 200K" },
+      { value: "high", label: "Over 200K" },
+    ],
+    []
+  );
+
+  const sortOptions = useMemo(
+    () => [
+      { value: "name", label: "Name A-Z" },
+      { value: "price-low", label: "Price: Low to High" },
+      { value: "price-high", label: "Price: High to Low" },
+      { value: "newest", label: "Featured" },
+    ],
+    []
+  );
+
+  // react-select styles for light/dark modes
+  const selectStyles = useMemo(() => {
+    // Match Input styles: rounded-lg, 2px border, hover:border-blue-200, focus:border-blue-400
+    const lightBg = "rgba(255,255,255,0.8)"; // bg-white/80
+    const darkBg = "#1F2937"; // gray-800
+    const bg = isDark ? darkBg : lightBg;
+    const baseBorder = "transparent"; // matches input's default border-2 border-transparent
+    const hoverBorder = "#BFDBFE"; // blue-200
+    const focusBorder = isDark ? "#6366F1" : "#60A5FA"; // indigo-500 (dark) / blue-400 (light)
+    const text = isDark ? "#E5E7EB" : "#111827";
+    const muted = isDark ? "#9CA3AF" : "#6B7280";
+    const hoverBg = isDark ? "#111827" : "#F9FAFB";
+    return {
+      control: (base: any, state: any) => ({
+        ...base,
+        backgroundColor: bg,
+        borderColor: state.isFocused ? focusBorder : baseBorder,
+        borderWidth: 2,
+        borderRadius: 8,
+        boxShadow: state.isFocused ? `0 0 0 2px ${focusBorder}33` : "none",
+        color: text,
+        minHeight: 40,
+        ":hover": { borderColor: hoverBorder },
+        transition: "all 200ms ease",
+      }),
+      menu: (base: any) => ({
+        ...base,
+        backgroundColor: isDark ? "#111827" : "#fff",
+        border: `1px solid ${isDark ? "#374151" : "#E5E7EB"}`,
+        boxShadow: isDark
+          ? "0 10px 15px -3px rgba(0,0,0,0.4), 0 4px 6px -4px rgba(0,0,0,0.4)"
+          : "0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)",
+        zIndex: 50,
+      }),
+      option: (base: any, state: any) => ({
+        ...base,
+        backgroundColor: state.isSelected
+          ? focusBorder
+          : state.isFocused
+          ? hoverBg
+          : isDark
+          ? "#111827"
+          : "#fff",
+        color: state.isSelected ? "#fff" : text,
+        ":active": {
+          backgroundColor: state.isSelected ? focusBorder : hoverBg,
+        },
+      }),
+      singleValue: (base: any) => ({ ...base, color: text }),
+      placeholder: (base: any) => ({ ...base, color: muted }),
+      input: (base: any) => ({ ...base, color: text }),
+      valueContainer: (base: any) => ({ ...base, padding: "2px 12px" }),
+      indicatorsContainer: (base: any) => ({ ...base, color: muted }),
+      dropdownIndicator: (base: any) => ({ ...base, color: muted }),
+      clearIndicator: (base: any) => ({ ...base, color: muted }),
+    };
+  }, [isDark]);
+
   // Pagination logic
   const paginatedProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
@@ -255,71 +353,123 @@ export default function StorePage() {
 
   if (companyLoading || productsLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900">
-        {/* Enhanced Loading Skeleton for Hero with Animated Gradients */}
-        <div className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 opacity-10 animate-pulse" />
-          <div
-            className="absolute inset-0 bg-gradient-to-l from-pink-500 via-red-500 to-yellow-500 opacity-5 animate-pulse"
-            style={{ animationDelay: "1s" }}
-          />
-          <div className="px-3 md:px-6 py-16">
-            <div className="text-center space-y-6">
-              <div className="relative">
-                <Skeleton className="w-24 h-24 rounded-full mx-auto" />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full opacity-20 animate-ping" />
+      <div className="min-h-screen bg-transparent -mt-12">
+        {/* Hero skeleton (logo, name, location/phone, actions) */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 pt-8">
+          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-transparent to-purple-500/30 animate-pulse" />
+          <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative z-10">
+            <div className="text-center text-white space-y-4 sm:space-y-5">
+              <div className="flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
+                <div className="relative">
+                  <Skeleton className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto" />
+                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-20 animate-ping" />
+                </div>
+                <div className="flex flex-col sm:flex-row items-center sm:space-x-2 space-y-2 sm:space-y-0">
+                  <Skeleton className="h-6 sm:h-8 w-40 sm:w-64" />
+                  <Skeleton className="h-5 w-20 rounded-full" />
+                </div>
               </div>
-              <Skeleton className="h-8 w-64 mx-auto" />
-              <Skeleton className="h-4 w-96 mx-auto" />
-              <div className="flex justify-center gap-4">
-                <Skeleton className="h-10 w-32" />
-                <Skeleton className="h-10 w-32" />
+              <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="flex flex-row justify-center space-x-4 pt-2">
+                <Skeleton className="h-9 sm:h-10 w-28 sm:w-36 rounded-lg" />
+                <Skeleton className="h-9 sm:h-10 w-28 sm:w-36 rounded-lg" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Enhanced Loading Skeleton for Stats with Gradient Cards */}
-        <div className="px-3 md:px-6 py-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <Card
-                key={i}
-                className="p-6 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-0 shadow-lg"
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="relative">
-                    <Skeleton className="w-12 h-12 rounded-lg" />
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-400 rounded-lg opacity-20 animate-pulse" />
+        {/* Mini stats pills skeleton */}
+        <div className="px-4 sm:px-6 md:px-6 py-4">
+          <div className="flex justify-center">
+            <div className="flex items-center gap-3 sm:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-4 sm:px-6 py-3 shadow-lg overflow-x-auto">
+              {[...Array(4)].map((_, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 && (
+                    <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
+                  )}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <Skeleton className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" />
+                    <div className="text-center">
+                      <Skeleton className="h-4 w-10 sm:w-12" />
+                      <div className="hidden sm:block mt-1">
+                        <Skeleton className="h-3 w-12" />
+                      </div>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Skeleton className="h-6 w-16" />
-                    <Skeleton className="h-4 w-24" />
-                  </div>
-                </div>
-              </Card>
-            ))}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Enhanced Loading Skeleton for Products with Shimmer Effect */}
-        <div className="px-3 md:px-6 py-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(8)].map((_, i) => (
-              <Card
+        {/* Categories grid skeleton (matches Shop by Category) */}
+        <div className="py-4">
+          <div className="container mx-auto px-3 md:px-0">
+            <div className="px-3 md:px-2">
+              <div className="text-center mb-4">
+                <Skeleton className="h-5 w-40 mx-auto" />
+              </div>
+              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                {[...Array(8)].map((_, i) => (
+                  <div key={i} className="flex flex-col items-center space-y-1">
+                    <Skeleton className="w-12 h-12 rounded-full" />
+                    <Skeleton className="w-16 h-3" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Filters + Search sticky bar skeleton */}
+        <div className="bg-gradient-to-r from-white via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900/30 dark:to-gray-900/30 border-b border-gray-200 dark:border-gray-700 shadow-sm pt-4 md:sticky md:top-[4.5rem] md:z-10">
+          <div className="container mx-auto px-3 md:px-0 py-2 pt-0 flex flex-col md:flex-row md:items-center gap-2">
+            <div className="flex flex-col gap-4 w-full">
+              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+                <div className="grid grid-cols-2 sm:flex gap-3 flex-1">
+                  <Skeleton className="h-10 w-full sm:w-40 rounded-lg" />
+                  <Skeleton className="h-10 w-full sm:w-36 rounded-lg" />
+                  <Skeleton className="h-10 w-full sm:w-36 rounded-lg" />
+                  <div className="flex border rounded-lg col-span-2 sm:col-span-1 justify-center sm:justify-start overflow-hidden">
+                    <Skeleton className="h-9 w-1/2 rounded-none" />
+                    <Skeleton className="h-9 w-1/2 rounded-none" />
+                  </div>
+                </div>
+              </div>
+              <div className="flex-1 w-full">
+                <div className="relative group w-full">
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="container mx-auto px-3 pb-2 mt-0 flex items-center justify-between text-xs">
+            <Skeleton className="h-3 w-56" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+        </div>
+
+        {/* Products grid skeleton (matches ProductCard layout) */}
+        <div className="container mx-auto px-3 md:px-0 py-5">
+          <div className="grid grid-cols-12 gap-2">
+            {[...Array(12)].map((_, i) => (
+              <div
                 key={i}
-                className="overflow-hidden bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-0 shadow-lg"
+                className="col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow"
               >
-                <div className="relative">
-                  <Skeleton className="w-full h-48" />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                <div className="relative overflow-hidden mb-2 md:pb-2 lg:mb-2">
+                  <Skeleton className="w-full aspect-square" />
                 </div>
-                <div className="p-4 space-y-3">
-                  <Skeleton className="h-5 w-full" />
-                  <Skeleton className="h-4 w-20" />
-                  <Skeleton className="h-6 w-16" />
+                <div className="space-y-1 px-0.5 text-center p-4 pt-2">
+                  <Skeleton className="h-4 w-3/4 mx-auto" />
+                  <Skeleton className="h-3 w-2/3 mx-auto" />
+                  <Skeleton className="h-4 w-20 mx-auto" />
                 </div>
-              </Card>
+              </div>
             ))}
           </div>
         </div>
@@ -362,7 +512,7 @@ export default function StorePage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-transparent">
+    <div className="min-h-screen bg-transparent -mt-12">
       {/* Enhanced Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 pt-8">
         <div className="absolute inset-0 bg-black/20" />
@@ -456,7 +606,7 @@ export default function StorePage() {
       </div>
 
       {/* Mini Stats Section */}
-      <div className="bg-gradient-to-r from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-900 dark:to-indigo-900/10">
+      <div className="">
         <div className="px-4 sm:px-6 md:px-6 py-3">
           <div className="flex justify-center">
             <div className="flex items-center gap-3 sm:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-4 sm:px-6 py-3 shadow-lg overflow-x-auto">
@@ -527,7 +677,7 @@ export default function StorePage() {
       </div>
 
       {/* Categories Section */}
-      <div className="bg-gradient-to-br from-gray-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900/30 py-4">
+      <div className="py-4">
         <div className="container mx-auto px-3 md:px-0">
           <div className="px-3 md:px-2">
             <div className="text-center mb-4">
@@ -655,7 +805,7 @@ export default function StorePage() {
       </div>
 
       {/* Smart Search and Filter Section with Gradient Background */}
-      <div className="bg-gradient-to-r from-white via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900/30 dark:to-gray-900/30 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="bg-gradient-to-r from-white via-white to-white/80 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 border-b border-gray-200 dark:border-none dark:border-gray-700 dark:shadow-sm pt-4 md:sticky md:top-[4.5rem] md:z-10">
         <div className="container mx-auto px-3 md:px-0 py-2 pt-0 flex flex-col md:flex-row md:items-center gap-2">
           <div className="flex flex-col gap-4">
             {/* Comparison Bar */}
@@ -695,57 +845,49 @@ export default function StorePage() {
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
               <div className="grid grid-cols-2 sm:flex gap-3 flex-1">
-                <Select
-                  value={selectedCategory}
-                  onValueChange={setSelectedCategory}
-                >
-                  <SelectTrigger className="w-full sm:w-40">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Categories</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="w-full sm:w-40">
+                  <ReactSelect
+                    options={categoryOptions}
+                    value={categoryOptions.find(
+                      (o) => o.value === selectedCategory
+                    )}
+                    onChange={(opt) =>
+                      opt && setSelectedCategory((opt as any).value)
+                    }
+                    placeholder="Category"
+                    styles={selectStyles}
+                    isSearchable
+                  />
+                </div>
 
-                <Select value={priceRange} onValueChange={setPriceRange}>
-                  <SelectTrigger className="w-full sm:w-36">
-                    <SelectValue placeholder="Price" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Prices</SelectItem>
-                    <SelectItem value="low">Under 50K</SelectItem>
-                    <SelectItem value="medium">50K - 200K</SelectItem>
-                    <SelectItem value="high">Over 200K</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="w-full sm:w-36">
+                  <ReactSelect
+                    options={priceOptions}
+                    value={priceOptions.find((o) => o.value === priceRange)}
+                    onChange={(opt) => opt && setPriceRange((opt as any).value)}
+                    placeholder="Price"
+                    styles={selectStyles}
+                    isSearchable={false}
+                  />
+                </div>
 
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-full sm:w-36">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="name">Name A-Z</SelectItem>
-                    <SelectItem value="price-low">
-                      Price: Low to High
-                    </SelectItem>
-                    <SelectItem value="price-high">
-                      Price: High to Low
-                    </SelectItem>
-                    <SelectItem value="newest">Featured</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="w-full sm:w-36">
+                  <ReactSelect
+                    options={sortOptions}
+                    value={sortOptions.find((o) => o.value === sortBy)}
+                    onChange={(opt) => opt && setSortBy((opt as any).value)}
+                    placeholder="Sort by"
+                    styles={selectStyles}
+                    isSearchable={false}
+                  />
+                </div>
 
                 <div className="flex border rounded-lg col-span-2 sm:col-span-1 justify-center sm:justify-start">
                   <Button
                     variant={viewMode === "grid" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("grid")}
-                    className="rounded-r-none flex-1 sm:flex-none"
+                    className="rounded-r-none flex-1 sm:flex-none h-full"
                   >
                     <Grid className="w-4 h-4" />
                     <span className="ml-1 sm:hidden">Grid</span>
@@ -754,7 +896,7 @@ export default function StorePage() {
                     variant={viewMode === "list" ? "default" : "ghost"}
                     size="sm"
                     onClick={() => setViewMode("list")}
-                    className="rounded-l-none flex-1 sm:flex-none"
+                    className="rounded-l-none flex-1 sm:flex-none h-full"
                   >
                     <List className="w-4 h-4" />
                     <span className="ml-1 sm:hidden">List</span>
@@ -771,15 +913,16 @@ export default function StorePage() {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
               <Input
                 placeholder="Search products with AI..."
+                aria-label="Search products"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/80 dark:bg-gray-800 backdrop-blur-sm border-2 border-transparent hover:border-blue-200 focus:border-blue-400 transition-all duration-300"
+                className="pl-10 h-10 rounded-lg bg-white/80 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 backdrop-blur-sm border-2 border-transparent hover:border-blue-200 focus:border-blue-400 focus:ring-0 transition-all duration-300"
               />
             </div>
           </div>
         </div>
         {/* Results Summary */}
-        <div className="container mx-auto px-3 md:px-0 pb-2 mt-0 flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
+        <div className="container mx-auto px-3 pb-2 mt-0 flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
           <span>
             Showing {filteredAndSortedProducts.length} of{" "}
             {(products || []).length} products
@@ -795,7 +938,7 @@ export default function StorePage() {
       </div>
 
       {/* Enhanced Products Section */}
-      <div className="container mx-auto px-3 md:px-0 py-8">
+      <div className="container mx-auto px-3 md:px-0 py-5">
         {filteredAndSortedProducts.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
@@ -927,7 +1070,7 @@ export default function StorePage() {
 
       {/* Quick View Modal */}
       <Dialog open={isQuickViewOpen} onOpenChange={setIsQuickViewOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto rounded-2xl">
           {selectedProduct && (
             <>
               <DialogHeader>
@@ -1066,7 +1209,7 @@ export default function StorePage() {
 
       {/* Product Comparison Modal */}
       <Dialog open={isCompareModalOpen} onOpenChange={setIsCompareModalOpen}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto mx-4 sm:mx-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center space-x-2 text-lg sm:text-xl">
               <GitCompare className="w-4 h-4 sm:w-5 sm:h-5" />

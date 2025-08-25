@@ -149,7 +149,7 @@ export default function ProductDetail() {
 
     handleAddToCart();
     setTimeout(() => {
-      setLocation("/checkout");
+      setLocation("/cart");
     }, 500);
   };
 
@@ -166,7 +166,7 @@ export default function ProductDetail() {
 
   if (productLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-gray-900 relative overflow-hidden transition-colors duration-500 pt-5">
+      <div className="">
         {/* AI-Motivated Animated Background */}
         <div className="fixed inset-0 pointer-events-none">
           <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/25 rounded-full blur-3xl animate-pulse" />
@@ -184,7 +184,7 @@ export default function ProductDetail() {
           />
         </div>
 
-        <main className="relative z-10 pt-12 sm:pt-16 pb-4 sm:pb-6 px-2 sm:px-3">
+        <main className="relative z-10 pt-12 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-3">
           <div className="max-w-5xl mx-auto space-y-2 sm:space-y-3">
             {/* Header Skeleton */}
             <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -293,7 +293,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-slate-50 to-gray-100 dark:from-gray-950 dark:via-slate-950 dark:to-gray-900 relative overflow-hidden transition-colors duration-500 pt-5">
+    <div className="">
       {/* AI-Motivated Animated Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/25 rounded-full blur-3xl animate-pulse" />
@@ -311,7 +311,7 @@ export default function ProductDetail() {
         />
       </div>
 
-      <main className="relative z-10 pt-12 sm:pt-16 pb-4 sm:pb-6 px-2 sm:px-3">
+      <main className="relative z-10 pt-12 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-3">
         <div className="max-w-5xl mx-auto space-y-2 sm:space-y-3">
           {/* Compact Header */}
           <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -387,7 +387,7 @@ export default function ProductDetail() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`aspect-square rounded-md sm:rounded-lg overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border-2 transition-all duration-300 ${
+                      className={`aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border-2 transition-all duration-300 ${
                         currentImageIndex === index
                           ? "border-blue-500 ring-2 ring-blue-200/50 dark:ring-indigo-600/50 scale-105 shadow-lg shadow-blue-500/20 dark:shadow-indigo-500/30"
                           : "border-transparent hover:border-blue-300/60 hover:scale-105 hover:shadow-md hover:shadow-blue-500/10 dark:hover:shadow-indigo-500/20"
@@ -479,7 +479,7 @@ export default function ProductDetail() {
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`p-1 sm:p-1.5 text-center border-3 rounded-sm sm:rounded-md transition-all duration-300 font-bold text-xs min-h-[32px] sm:min-h-auto flex items-center justify-center relative ${
+                      className={`p-1 sm:p-1.5 text-center border-3 rounded-full transition-all duration-300 font-bold text-xs min-h-[32px] sm:min-h-auto flex items-center justify-center relative ${
                         selectedSize === size
                           ? "border-blue-500 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white scale-110 dark:shadow-xl dark:shadow-blue-500/40 ring-4 ring-blue-200 dark:ring-blue-800 z-10"
                           : "border-gray-400 dark:border-gray-600 hover:border-blue-400 hover:scale-105 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:hover:shadow-md"
@@ -529,7 +529,7 @@ export default function ProductDetail() {
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`px-1.5 sm:px-2 py-1 sm:py-1.5 border-3 rounded-sm sm:rounded-md transition-all duration-300 font-bold text-xs min-h-[28px] sm:min-h-auto flex items-center justify-center relative ${
+                      className={`px-1.5 sm:px-2 py-1 sm:py-1.5 border-3 rounded-full transition-all duration-300 font-bold text-xs min-h-[28px] sm:min-h-auto flex items-center justify-center relative ${
                         selectedColor === color
                           ? "border-purple-500 bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 text-white scale-110 dark:shadow-xl dark:shadow-purple-500/40 ring-4 ring-purple-200 dark:ring-purple-800 z-10"
                           : "border-gray-400 dark:border-gray-600 hover:border-purple-400 hover:scale-105 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:hover:shadow-md"

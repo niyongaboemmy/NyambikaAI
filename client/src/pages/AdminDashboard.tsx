@@ -176,7 +176,7 @@ export default function AdminDashboard() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 rounded-xl font-medium transition-all duration-300 capitalize ${
+                  className={`px-6 py-3 rounded-full font-medium transition-all duration-300 capitalize ${
                     activeTab === tab
                       ? "gradient-bg text-white shadow-lg"
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
