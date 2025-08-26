@@ -1,11 +1,49 @@
-import CategoryCards from "@/components/CategoryCards";
-import HeroSection from "@/components/HeroSection";
+import { useEffect, useState } from "react";
 import HomeProducts from "@/components/HomeProducts";
 import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 import { Link } from "wouter";
 
+// Lightweight page-level skeleton for the Home hero/header area
+function HomePageSkeleton() {
+  return (
+    <div className="min-h-screen pt-8 md:pt-10 pb-12">
+      <div className="mb-4">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border bg-gray-50 dark:bg-gray-900 border-gray-200/40 dark:border-white/5">
+          <div className="p-4 sm:p-6 md:p-8">
+            {/* Badge + title skeleton */}
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-6 w-28 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+              <div className="hidden sm:block h-3 w-24 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+            </div>
+            <div className="h-8 w-56 sm:w-72 rounded bg-gray-200 dark:bg-gray-700 animate-pulse mb-3" />
+            <div className="h-4 w-64 sm:w-96 rounded bg-gray-200 dark:bg-gray-700 animate-pulse mb-4" />
+            {/* CTA skeletons */}
+            <div className="flex gap-3">
+              <div className="h-12 w-40 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+              <div className="hidden md:block h-12 w-40 rounded-full bg-gray-100 dark:bg-gray-800 animate-pulse" />
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Render HomeProducts so it shows its own loading skeleton */}
+      <HomeProducts />
+    </div>
+  );
+}
+
 export default function Home() {
+  const [showSkeleton, setShowSkeleton] = useState(true);
+  // Show the hero skeleton immediately on mount for a brief moment
+  useEffect(() => {
+    const t = setTimeout(() => setShowSkeleton(false), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (showSkeleton) {
+    return <HomePageSkeleton />;
+  }
+
   return (
     <div className="min-h-screen pt-8 md:pt-10 pb-12">
       {/* AI Try-On Banner - Enhanced with Modern AI Design & Mobile Optimized */}

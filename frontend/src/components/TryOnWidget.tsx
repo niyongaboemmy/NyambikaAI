@@ -2,7 +2,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useMutation } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -13,8 +13,6 @@ import {
   Maximize2,
   Minimize2,
   Camera,
-  Trash,
-  ArrowLeft,
   ShoppingBag,
   Eye,
   Sparkles,

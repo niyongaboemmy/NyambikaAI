@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useParams, useLocation, useRoute } from "wouter";
+import { useParams, useLocation } from "wouter";
 import {
   ArrowLeft,
   Heart,
@@ -10,17 +10,13 @@ import {
   Shield,
   RotateCcw,
   Wand2,
-  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import type { Product } from "@shared/schema";
-import Footer from "@/components/Footer";
 import TryOnWidget from "@/components/TryOnWidget";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -184,8 +180,8 @@ export default function ProductDetail() {
           />
         </div>
 
-        <main className="relative z-10 pt-12 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-3">
-          <div className="max-w-5xl mx-auto space-y-2 sm:space-y-3">
+        <main className="relative z-10 pt-12 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
+          <div className="">
             {/* Header Skeleton */}
             <div className="flex items-center justify-between mb-2 sm:mb-4">
               <div className="flex flex-row items-center gap-2">
@@ -311,8 +307,8 @@ export default function ProductDetail() {
         />
       </div>
 
-      <main className="relative z-10 pt-12 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-3">
-        <div className="max-w-5xl mx-auto space-y-2 sm:space-y-3">
+      <main className="relative z-10 pt-12 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
+        <div className="">
           {/* Compact Header */}
           <div className="flex items-center justify-between mb-2 sm:mb-4">
             <div className="flex flex-row items-center gap-2 pt-4 md:pt-0">

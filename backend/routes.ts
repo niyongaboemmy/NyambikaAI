@@ -23,7 +23,7 @@ import {
   insertFavoriteSchema,
   insertTryOnSessionSchema,
   insertReviewSchema
-} from "@shared/schema";
+} from "./shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   

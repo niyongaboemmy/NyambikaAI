@@ -1,5 +1,5 @@
 {
-  "include": ["client/src/**/*", "shared/**/*", "server/**/*"],
+  "include": ["src/**/*", "../backend/shared/**/*"],
   "exclude": ["node_modules", "build", "dist", "**/*.test.ts"],
   "compilerOptions": {
     "incremental": true,
@@ -8,16 +8,20 @@
     "module": "ESNext",
     "strict": true,
     "lib": ["esnext", "dom", "dom.iterable"],
-    "jsx": "preserve",
-    "esModuleInterop": true,
     "skipLibCheck": true,
-    "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
-    "types": ["node", "vite/client"],
     "paths": {
-      "@/*": ["./client/src/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../backend/shared/*"],
+      "@assets/*": ["../attached_assets/*"]
     }
   }
 }

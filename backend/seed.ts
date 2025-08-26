@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { db } from './db';
-import { categories } from '@shared/schema';
+import { categories } from './shared/schema';
 
 async function seedCategories() {
   // Check if categories already exist

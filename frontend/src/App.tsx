@@ -511,7 +511,9 @@ export default function App() {
                           <Route
                             path="/product/:id"
                             component={() => (
-                              <ProtectedRoute component={ProductDetail} />
+                              <div className="container mx-auto px-3 md:px-0">
+                                <ProtectedRoute component={ProductDetail} />
+                              </div>
                             )}
                           />
                           <Route
@@ -555,7 +557,9 @@ export default function App() {
                             component={() => (
                               <div className="container mx-auto px-3 md:px-0">
                                 <Suspense fallback={<MiniLoader />}>
-                                  <ProtectedRoute component={OrderDetailsPage} />
+                                  <ProtectedRoute
+                                    component={OrderDetailsPage}
+                                  />
                                 </Suspense>
                               </div>
                             )}

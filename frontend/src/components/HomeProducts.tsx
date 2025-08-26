@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, Link } from "wouter";
-import { Search, Loader2, Plus, Sparkles } from "lucide-react";
+import { useLocation } from "wouter";
+import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Product, Category } from "@shared/schema";
@@ -11,6 +11,53 @@ import CategoryPills from "@/components/feed/CategoryPills";
 import SelectedCompanyBar from "@/components/feed/SelectedCompanyBar";
 import { useCompanies } from "@/hooks/useCompanies";
 import { useAuth } from "@/contexts/AuthContext";
+
+// Page-level skeleton shown during initial load
+function HomeProductsSkeleton() {
+  return (
+    <section id="home-products">
+      <div className="animate-in fade-in-0 duration-500">
+        {/* Header skeleton */}
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <div className="h-6 w-40 rounded bg-gray-200 dark:bg-gray-700 animate-pulse mb-2" />
+            <div className="h-4 w-56 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          </div>
+          <div className="h-9 w-9 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+        </div>
+
+        {/* Stories skeleton */}
+        <div className="mb-2 overflow-x-auto">
+          <div className="flex items-start gap-3 pb-2 min-w-max px-1 pt-2">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div key={i} className="flex flex-col items-center gap-2 min-w-[80px]">
+                <div className="h-[76px] w-[76px] rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+                <div className="h-3 w-14 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Category pills skeleton */}
+        <div className="flex gap-2 mb-2 px-1 flex-wrap">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-8 w-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          ))}
+        </div>
+
+        {/* Products grid skeleton */}
+        <div className="grid grid-cols-12 gap-2 md:gap-3 px-1">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className="col-span-6 md:col-span-4 lg:col-span-2 aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg"
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function HomeProducts() {
   const [, setLocation] = useLocation();
@@ -162,6 +209,13 @@ export default function HomeProducts() {
   const handleCompanySelect = (company: any | null) => {
     setSelectedCompany(company);
   };
+
+  // Show page-level skeleton as early as possible (before first page is present)
+  const noFirstPageYet = !productsPages || !(productsPages.pages && productsPages.pages.length > 0);
+  const initialLoading = categoriesLoading || productsLoading || noFirstPageYet;
+  if (initialLoading) {
+    return <HomeProductsSkeleton />;
+  }
 
   return (
     <section id="home-products" className="">

@@ -29,7 +29,7 @@ import {
   type InsertTryOnSession,
   type Review,
   type InsertReview,
-} from "@shared/schema";
+} from "./shared/schema";
 import { db } from "./db";
 import { eq, like, and, desc, asc } from "drizzle-orm";
 
