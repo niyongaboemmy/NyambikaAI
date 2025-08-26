@@ -57,6 +57,12 @@
   
   --radius: 0.75rem;
   --font-sans: 'Inter', system-ui, sans-serif;
+
+  /* Scrollbar color tokens (light) */
+  --scrollbar-thumb: linear-gradient(180deg, hsl(235 100% 70% / 0.85), hsl(190 100% 60% / 0.85));
+  --scrollbar-thumb-hover: linear-gradient(180deg, hsl(235 100% 75%), hsl(280 100% 70%));
+  --scrollbar-track: linear-gradient(180deg, hsl(220 24% 97%), hsl(220 14% 96%));
+  --scrollbar-shadow: 0 0 0 1px hsl(235 100% 65% / 0.15), 0 2px 8px hsl(235 100% 65% / 0.15);
 }
 
 .dark {
@@ -110,6 +116,12 @@
   --shadow-md: 0 4px 6px -1px hsla(0 0% 0% / 0.1), 0 2px 4px -1px hsla(0 0% 0% / 0.06);
   --shadow-lg: 0 10px 15px -3px hsla(0 0% 0% / 0.1), 0 4px 6px -2px hsla(0 0% 0% / 0.05);
   --shadow-xl: 0 20px 25px -5px hsla(0 0% 0% / 0.1), 0 10px 10px -5px hsla(0 0% 0% / 0.04);
+
+  /* Scrollbar color tokens (dark) */
+  --scrollbar-thumb: linear-gradient(180deg, hsl(235 100% 70% / 0.6), hsl(190 100% 65% / 0.6));
+  --scrollbar-thumb-hover: linear-gradient(180deg, hsl(235 100% 75% / 0.8), hsl(280 100% 75% / 0.8));
+  --scrollbar-track: linear-gradient(180deg, hsl(230 26% 15%), hsl(230 26% 12%));
+  --scrollbar-shadow: 0 0 0 1px hsl(235 100% 70% / 0.2), 0 2px 8px hsl(235 100% 70% / 0.15);
 }
 
 @layer base {
@@ -124,6 +136,114 @@
   
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Global scrollbar defaults */
+  html, body, * {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: hsl(235 100% 65% / 0.6) transparent;
+  }
+
+  /* AI-inspired scrollbar styles */
+  .ai-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  .ai-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .ai-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 4px;
+  }
+
+  .ai-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  .ai-scrollbar::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  .ai-scrollbar::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
+  .dark .ai-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+  }
+
+  .dark .ai-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+  }
+
+  .dark .ai-scrollbar::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  /* AI-inspired skeleton: subtle aurora + shimmer bar */
+  .ai-skeleton {
+    position: relative;
+    overflow: hidden;
+    background:
+      linear-gradient(120deg,
+        hsl(220 14% 96% / 0.9) 0%,
+        hsl(220 14% 96% / 0.9) 35%,
+        hsl(220 14% 96% / 0.9) 65%,
+        hsl(220 14% 96% / 0.9) 100%);
+    /* Dark mode fallback via CSS vars already applied by bg-muted */
+    mask-image: radial-gradient(white, black);
+    -webkit-mask-image: radial-gradient(white, black);
+  }
+
+  .dark .ai-skeleton {
+    background:
+      linear-gradient(120deg,
+        hsl(230 26% 15% / 0.9) 0%,
+        hsl(230 26% 15% / 0.9) 35%,
+        hsl(230 26% 15% / 0.9) 65%,
+        hsl(230 26% 15% / 0.9) 100%);
+  }
+
+  /* Aurora glow layer */
+  .ai-skeleton::after {
+    content: "";
+    position: absolute;
+    inset: -40% -60%;
+    background:
+      radial-gradient(60% 50% at 20% 30%, hsla(var(--electric-blue-rgb)/0.08), transparent 60%),
+      radial-gradient(55% 45% at 80% 70%, hsla(var(--ai-purple-rgb)/0.08), transparent 60%),
+      radial-gradient(50% 40% at 50% 50%, hsla(var(--ai-cyan-rgb)/0.08), transparent 60%);
+    filter: blur(18px);
+    animation: ai-aurora 8s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+
+  /* Shimmer bar */
+  .ai-skeleton::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg,
+        transparent 0%,
+        rgba(255,255,255,0.55) 20%,
+        rgba(255,255,255,0.8) 35%,
+        rgba(255,255,255,0.55) 50%,
+        transparent 70%);
+    mix-blend-mode: overlay;
+    transform: translateX(-100%);
+    animation: ai-shimmer 1.6s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ai-skeleton::before,
+    .ai-skeleton::after {
+      animation: none !important;
+    }
   }
 }
 
@@ -278,5 +398,31 @@
   }
   100% {
     background-position: 200% center;
+  }
+}
+
+/* AI skeleton shimmer keyframe (translate instead of background-pos for perf) */
+@keyframes ai-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Aurora drift */
+@keyframes ai-aurora {
+  0% {
+    transform: translate3d(-2%, -2%, 0) scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate3d(2%, 1%, 0) scale(1.03);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(1%, -1%, 0) scale(1.02);
+    opacity: 0.95;
   }
 }

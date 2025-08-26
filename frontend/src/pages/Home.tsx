@@ -36,7 +36,7 @@ export default function Home() {
   const [showSkeleton, setShowSkeleton] = useState(true);
   // Show the hero skeleton immediately on mount for a brief moment
   useEffect(() => {
-    const t = setTimeout(() => setShowSkeleton(false), 100);
+    const t = setTimeout(() => setShowSkeleton(false), 200);
     return () => clearTimeout(t);
   }, []);
 

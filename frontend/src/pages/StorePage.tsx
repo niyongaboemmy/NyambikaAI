@@ -579,9 +579,9 @@ export default function StorePage() {
                 className="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
                 // onClick={handleShare}
               >
-                <Share2 className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Share Store</span>
-                <span className="sm:hidden">Share</span>
+                <Share2 className="w-4 h-4" />
+                <span className="hidden sm:inline text-sm">Share Store</span>
+                <span className="sm:hidden text-sm">Share</span>
               </Button>
               {company.websiteUrl && (
                 <Button
@@ -595,9 +595,11 @@ export default function StorePage() {
                     )
                   }
                 >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  <span className="hidden sm:inline">Visit Website</span>
-                  <span className="sm:hidden">Website</span>
+                  <ExternalLink className="w-4 h-4" />
+                  <span className="hidden sm:inline text-sm">
+                    Visit Website
+                  </span>
+                  <span className="sm:hidden text-sm">Website</span>
                 </Button>
               )}
             </div>

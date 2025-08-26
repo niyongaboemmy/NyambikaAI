@@ -20,8 +20,11 @@ export default function SelectedCompanyBar({ company, onClear }: Props) {
     setLocation(`/store/${company.id}`);
   };
   return (
-    <div className="sticky top-16 z-30 mb-4 backdrop-blur-md">
-      <div className="bg-gradient-to-r from-white/90 to-blue-50/90 dark:from-slate-900/90 dark:to-blue-950/90 border border-blue-200 dark:border-blue-800 rounded-xl p-3 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 hover:from-blue-50/95 hover:to-purple-50/95 dark:hover:from-blue-950/95 dark:hover:to-purple-950/95 hover:border-blue-400 dark:hover:border-blue-600 hover:scale-[1.02] transition-all duration-500 cursor-pointer group" onClick={handleCompanyClick}>
+    <div className="sticky top-[4.6rem] z-30 mb-4 backdrop-blur-md">
+      <div
+        className="bg-gradient-to-r from-white/90 to-blue-50/90 dark:from-slate-900/90 dark:to-blue-950/90 border border-blue-200 dark:border-blue-800 rounded-xl p-3 shadow-lg hover:shadow-2xl hover:shadow-blue-500/20 hover:from-blue-50/95 hover:to-purple-50/95 dark:hover:from-blue-950/95 dark:hover:to-purple-950/95 hover:border-blue-400 dark:hover:border-blue-600 hover:scale-[1.02] transition-all duration-500 cursor-pointer group"
+        onClick={handleCompanyClick}
+      >
         <div className="flex items-center gap-3">
           {/* Company Avatar with indicator */}
           <div className="relative flex-shrink-0">

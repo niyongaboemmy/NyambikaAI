@@ -59,10 +59,12 @@ export default function CompactSearchBar({
         // Smooth entrance
         "animate-in slide-in-from-top-1 duration-150",
       ].join(" ")}
-      style={{
-        // Ensure it overlays content when stuck
-        backdropFilter: "saturate(1.2) blur(6px)",
-      }}
+      style={
+        {
+          // Ensure it overlays content when stuck
+          // backdropFilter: "saturate(1.2) blur(2px)",
+        }
+      }
     >
       <div className="max-w-md mx-auto px-2 sm:px-0">
         <div

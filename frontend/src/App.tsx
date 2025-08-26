@@ -486,11 +486,9 @@ export default function App() {
                           <Route
                             path="/companies"
                             component={() => (
-                              <ProtectedRoute
-                                component={Companies}
-                                showLoadingSkeleton={true}
-                                skeletonType="companies"
-                              />
+                              <Suspense fallback={<MiniLoader />}>
+                                <Companies />
+                              </Suspense>
                             )}
                           />
                           <Route

@@ -58,7 +58,7 @@ export default function LoginModal() {
       {isOpen && <div className="fixed inset-0 bg-black/5 backdrop-blur-md" />}
       <DialogContent
         // allow closing; onOpenChange will handle navigation
-        className="p-0 overflow-hidden border-0 shadow-xl max-h-[95vh] overflow-y-auto rounded-2xl"
+        className="p-0 overflow-hidden border-0 shadow-xl max-h-[95vh] overflow-y-auto rounded-2xl bg-transparent"
         hideClose={true}
       >
         <div className="w-full">

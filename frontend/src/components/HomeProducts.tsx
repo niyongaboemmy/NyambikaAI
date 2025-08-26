@@ -30,7 +30,10 @@ function HomeProductsSkeleton() {
         <div className="mb-2 overflow-x-auto">
           <div className="flex items-start gap-3 pb-2 min-w-max px-1 pt-2">
             {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="flex flex-col items-center gap-2 min-w-[80px]">
+              <div
+                key={i}
+                className="flex flex-col items-center gap-2 min-w-[80px]"
+              >
                 <div className="h-[76px] w-[76px] rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
                 <div className="h-3 w-14 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
               </div>
@@ -41,7 +44,10 @@ function HomeProductsSkeleton() {
         {/* Category pills skeleton */}
         <div className="flex gap-2 mb-2 px-1 flex-wrap">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-8 w-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+            <div
+              key={i}
+              className="h-8 w-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"
+            />
           ))}
         </div>
 
@@ -211,7 +217,8 @@ export default function HomeProducts() {
   };
 
   // Show page-level skeleton as early as possible (before first page is present)
-  const noFirstPageYet = !productsPages || !(productsPages.pages && productsPages.pages.length > 0);
+  const noFirstPageYet =
+    !productsPages || !(productsPages.pages && productsPages.pages.length > 0);
   const initialLoading = categoriesLoading || productsLoading || noFirstPageYet;
   if (initialLoading) {
     return <HomeProductsSkeleton />;
