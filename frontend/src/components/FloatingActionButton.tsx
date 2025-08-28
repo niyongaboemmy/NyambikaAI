@@ -1,6 +1,6 @@
 import { Camera, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
+import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function FloatingActionButton() {
@@ -24,7 +24,7 @@ export default function FloatingActionButton() {
 
   // Default (customers/guests): Keep Try-On quick access
   return (
-    <Link href="/try-on/start">
+    <Link href="/try-on">
       <Button
         className="fixed bottom-8 right-8 w-16 h-16 gradient-bg rounded-full flex items-center justify-center text-white shadow-2xl hover:scale-110 transition-all duration-300 z-40 animate-pulse-slow"
         title="AI Try-On"

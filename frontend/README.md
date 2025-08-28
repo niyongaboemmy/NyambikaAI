@@ -1,132 +1,36 @@
-# NyambikaAI Frontend 🎨
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-Modern React + Vite frontend for the AI-powered fashion try-on platform.
+## Getting Started
 
-## 🚀 Features
+First, run the development server:
 
-- **AI Try-On Studio**: Interactive virtual clothing try-on experience
-- **Modern UI/UX**: Glassmorphism design with dark/light theme support
-- **Multi-language**: Support for English, Kinyarwanda, and French
-- **Responsive Design**: Mobile-first approach with Tailwind CSS
-- **Real-time Updates**: React Query for efficient data fetching
-
-## 📦 Installation
-
-1. **Navigate to frontend directory:**
-   ```bash
-   cd frontend
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
-
-## 🔧 Configuration
-
-Create a `.env` file in the frontend directory:
-
-```env
-# API Configuration
-VITE_API_URL=http://localhost:3001
-VITE_PYTHON_API_URL=http://localhost:8000
-
-# Authentication
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-
-# Stripe (for payments)
-VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_key
-```
-
-## 🏃‍♂️ Running the Application
-
-### Development Mode
 ```bash
 npm run dev
-```
-Access at: `http://localhost:5173`
-
-### Build for Production
-```bash
-npm run build
-```
-
-### Preview Production Build
-```bash
-npm run preview
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## 🏗️ Project Structure
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-```
-frontend/
-├── src/
-│   ├── components/         # Reusable UI components
-│   │   ├── ui/            # Base UI components (shadcn/ui)
-│   │   ├── theme-provider.tsx
-│   │   └── theme-toggle.tsx
-│   ├── contexts/          # React contexts
-│   │   ├── LanguageContext.tsx
-│   │   ├── CartContext.tsx
-│   │   └── CompanyContext.tsx
-│   ├── hooks/             # Custom React hooks
-│   │   └── use-toast.ts
-│   └── lib/               # Utilities
-│       ├── queryClient.ts
-│       └── utils.ts
-├── index.html             # Entry HTML file
-├── package.json           # Dependencies and scripts
-├── vite.config.ts         # Vite configuration
-├── tailwind.config.ts     # Tailwind CSS config
-└── tsconfig.json          # TypeScript config
-```
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## 🎨 Design System
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-- **Framework**: React 18 + TypeScript
-- **Styling**: Tailwind CSS with custom AI-themed components
-- **UI Components**: Radix UI primitives with custom styling
-- **Icons**: Lucide React + React Icons
-- **Animations**: Framer Motion + CSS animations
-- **Theme**: Dark/Light mode with system preference detection
+## Learn More
 
-## 🔗 API Integration
+To learn more about Next.js, take a look at the following resources:
 
-The frontend communicates with:
-- **Backend API** (`localhost:3001`): User auth, orders, favorites
-- **Python Service** (`localhost:8000`): AI try-on processing
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## 📱 Key Features
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### AI Try-On Studio
-- Product selection with category filtering
-- Photo upload with preview
-- Real-time try-on processing
-- Results gallery and sharing
+## Deploy on Vercel
 
-### User Experience
-- Multi-language support (EN/RW/FR)
-- Theme switching (light/dark)
-- Shopping cart functionality
-- User profile management
-- Order history tracking
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-### Responsive Design
-- Mobile-first approach
-- Touch-friendly interactions
-- Optimized for all screen sizes
-- Progressive Web App ready
-
-## 🛠️ Development
-
-### Code Quality
-```bash
-npm run check    # TypeScript type checking
-```
-
-### Key Dependencies
-- **React Router**: Client-side routing with Wouter
-- **State Management**: React Query + Context API
-- **Forms**: React Hook Form + Zod validation
-- **Payments**: Stripe integration
-- **Charts**: Recharts for analytics
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

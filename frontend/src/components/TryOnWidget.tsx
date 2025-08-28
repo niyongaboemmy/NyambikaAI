@@ -1,7 +1,6 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useMutation } from "@tanstack/react-query";
-import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -20,6 +19,8 @@ import {
   Brain,
   Image as ImageIcon,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { apiClient, handleApiError } from "@/config/api";
 
 interface TryOnWidgetProps {
   productId: string;
@@ -45,7 +46,7 @@ export default function TryOnWidget({
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
-  const [location] = useLocation();
+  const router = useRouter();
   const [customerImage, setCustomerImage] = useState<string | null>(null);
   const [tryOnResult, setTryOnResult] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<{
@@ -99,55 +100,37 @@ export default function TryOnWidget({
 
   const createTryOnMutation = useMutation({
     mutationFn: async (imageBase64: string) => {
-      const token = localStorage.getItem("auth_token");
-      const response = await fetch("/api/try-on-sessions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({
+      try {
+        const response = await apiClient.post('/api/try-on-sessions', {
           productId,
           customerImageUrl: imageBase64,
-        }),
-      });
-      if (!response.ok) throw new Error("Failed to create try-on session");
-      return response.json();
+        });
+        return response.data;
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
     },
     onSuccess: async (session) => {
       setIsProcessingTryOn(true);
       try {
-        const token = localStorage.getItem("auth_token");
-        const response = await fetch(
-          `/api/try-on-sessions/${session.id}/process`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            body: JSON.stringify({ productImageUrl }),
-          }
-        );
-        if (response.ok) {
-          const result = await response.json();
-          setTryOnResult(result.tryOnImageUrl || null);
-          if (result.recommendations)
-            setRecommendations(result.recommendations);
-          setProcessed(true);
+        const response = await apiClient.post(`/api/try-on-sessions/${session.id}/process`, {
+          productImageUrl
+        });
+        const result = response.data;
+        setTryOnResult(result.tryOnImageUrl || null);
+        if (result.recommendations)
+          setRecommendations(result.recommendations);
+        setProcessed(true);
+        toast({
+          title: "Try-on complete!",
+          description: "Your virtual try-on is ready",
+        });
+        if (result.error) {
           toast({
-            title: "Try-on complete!",
-            description: "Your virtual try-on is ready",
+            title: "Using demo fallback",
+            description:
+              "AI quota reached; showing a preview using your uploaded photo.",
           });
-          if (result.error) {
-            toast({
-              title: "Using demo fallback",
-              description:
-                "AI quota reached; showing a preview using your uploaded photo.",
-            });
-          }
-        } else {
-          throw new Error("Try-on processing failed");
         }
       } catch (error) {
         toast({
@@ -1109,7 +1092,9 @@ export default function TryOnWidget({
                     <Button
                       onClick={() => {
                         // Check if we're already on the product details page
-                        if (location === `/product/${productId}`) {
+                        if (
+                          window.location.pathname === `/product/${productId}`
+                        ) {
                           // Just close the modal if we're already on the product page
                           closeFullscreen();
                           onUnselectProduct && onUnselectProduct();

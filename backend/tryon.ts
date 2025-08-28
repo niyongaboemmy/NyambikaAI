@@ -81,8 +81,15 @@ async function generateWithReplicate(
     return { success: false, error: `Replicate create failed: ${text}` };
   }
 
-  const created = await createRes.json();
-  const url = created.urls?.get || created?.url;
+  interface ReplicatePrediction {
+    urls?: { get?: string };
+    url?: string;
+    status?: string;
+    output?: any;
+    error?: string;
+  }
+  const created = (await createRes.json()) as ReplicatePrediction;
+  const url = created.urls?.get || created.url;
   if (!url) {
     return {
       success: false,
@@ -91,7 +98,7 @@ async function generateWithReplicate(
   }
 
   // Poll for completion
-  let status = created.status as string;
+  let status = (created.status || "queued") as string;
   let output: any = created.output;
   const maxWaitMs = 90_000;
   const start = Date.now();
@@ -105,13 +112,13 @@ async function generateWithReplicate(
       headers: { Authorization: `Token ${REPLICATE_API_TOKEN}` },
     });
     if (!poll.ok) break;
-    const json = await poll.json();
-    status = json.status;
-    output = json.output;
+    const json = (await poll.json()) as ReplicatePrediction;
+    status = (json.status || status) as string;
+    output = json.output ?? output;
   }
 
   if (status !== "succeeded") {
-    const err = created?.error || "Replicate prediction failed";
+    const err = created.error || "Replicate prediction failed";
     return { success: false, error: err };
   }
 
@@ -144,10 +151,7 @@ export async function generateVirtualTryOn(
       }
 
       // Heuristics: use face-anchored sizing so garment width follows face width.
-      // Tune faceWidthMult per product type if needed.
-      const type = (productType || "").toLowerCase();
-      const faceWidthMult =
-        type.includes("dress") ? 2.4 : type.includes("coat") ? 2.2 : type.includes("tshirt") || type.includes("shirt") ? 2.0 : 2.1;
+      // Tune per product type in the ClothFlow service configuration if needed.
       const res = await fetch(`${CLOTHFLOW_URL.replace(/\/$/, "")}/tryon`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -167,8 +171,14 @@ export async function generateVirtualTryOn(
           error: `ClothFlow error (${res.status}): ${text || res.statusText}`,
         };
       }
-      const data = await res.json();
-      const base64 = data.tryOnImageBase64 as string | undefined;
+      interface ClothFlowResponse {
+        tryOnImageBase64?: string;
+        tryOnImageUrl?: string;
+        output?: string;
+        url?: string;
+      }
+      const data = (await res.json()) as ClothFlowResponse;
+      const base64 = data.tryOnImageBase64;
       const url = data.tryOnImageUrl || data.output || data.url;
       return {
         success: true,

@@ -1,16 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useLocation } from "wouter";
 import { Search, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Product, Category } from "@shared/schema";
+import type { Product, Category } from "@/shared/schema";
 import ProductCard from "@/components/ProductCard";
 import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
 import CompactSearchBar from "@/components/feed/CompactSearchBar";
 import CategoryPills from "@/components/feed/CategoryPills";
 import SelectedCompanyBar from "@/components/feed/SelectedCompanyBar";
 import { useCompanies } from "@/hooks/useCompanies";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
+import { apiClient, handleApiError } from "@/config/api";
 
 // Page-level skeleton shown during initial load
 function HomeProductsSkeleton() {
@@ -66,7 +67,7 @@ function HomeProductsSkeleton() {
 }
 
 export default function HomeProducts() {
-  const [, setLocation] = useLocation();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [searchExpanded, setSearchExpanded] = useState(false);
@@ -90,9 +91,12 @@ export default function HomeProducts() {
   >({
     queryKey: ["categories"],
     queryFn: async () => {
-      const response = await fetch("/api/categories");
-      if (!response.ok) throw new Error("Failed to fetch categories");
-      return response.json();
+      try {
+        const response = await apiClient.get('/api/categories');
+        return response.data;
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
     },
     staleTime: 60_000,
   });
@@ -104,12 +108,11 @@ export default function HomeProducts() {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteProducts({
-    categoryId: selectedCategoryId || undefined,
-    // do not pass search here; search locally first
-    producerId: selectedCompany?.producerId || undefined,
-    limit: 50,
-  });
+  } = useInfiniteProducts(
+    selectedCategoryId || undefined,
+    selectedCompany?.producerId || undefined,
+    undefined // search - handled locally
+  );
 
   const products = (productsPages?.pages || []).flat();
 
@@ -166,16 +169,15 @@ export default function HomeProducts() {
   // Favorites mutations
   const addToFavoritesMutation = useMutation({
     mutationFn: async (productId: string) => {
-      const response = await fetch("/api/favorites", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-user-id": "demo-user",
-        },
-        body: JSON.stringify({ productId }),
-      });
-      if (!response.ok) throw new Error("Failed to add to favorites");
-      return response.json();
+      try {
+        const response = await apiClient.post('/api/favorites', 
+          { productId },
+          { headers: { "x-user-id": "demo-user" } }
+        );
+        return response.data;
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
@@ -184,11 +186,13 @@ export default function HomeProducts() {
 
   const removeFromFavoritesMutation = useMutation({
     mutationFn: async (productId: string) => {
-      const response = await fetch(`/api/favorites/${productId}`, {
-        method: "DELETE",
-        headers: { "x-user-id": "demo-user" },
-      });
-      if (!response.ok) throw new Error("Failed to remove from favorites");
+      try {
+        await apiClient.delete(`/api/favorites/${productId}`, {
+          headers: { "x-user-id": "demo-user" }
+        });
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["favorites"] });
@@ -206,7 +210,7 @@ export default function HomeProducts() {
   };
 
   const onViewDetails = (productId: string) =>
-    setLocation(`/product/${productId}`);
+    router.push(`/product/${productId}`);
 
   // Companies for stories
   const { data: companies = [] } = useCompanies();
@@ -356,7 +360,7 @@ export default function HomeProducts() {
 
               {/* View All Companies */}
               <button
-                onClick={() => setLocation("/companies")}
+                onClick={() => router.push("/companies")}
                 className="flex flex-col items-center gap-2 group min-w-[80px]"
                 aria-label="View all companies"
                 title="View all companies"

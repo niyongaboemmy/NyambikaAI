@@ -1,6 +1,8 @@
-import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import Link from "next/link";
+import { apiClient, handleApiError } from "@/config/api";
 
 type Category = {
   id: string;
@@ -12,11 +14,14 @@ type Category = {
 
 export default function CategoryCards() {
   const { data: categories = [], isLoading } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+    queryKey: ["categories"],
     queryFn: async () => {
-      const res = await fetch("/api/categories");
-      if (!res.ok) throw new Error("Failed to load categories");
-      return res.json();
+      try {
+        const response = await apiClient.get('/api/categories');
+        return response.data;
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
     },
   });
 

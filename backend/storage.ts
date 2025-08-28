@@ -614,15 +614,25 @@ export class DatabaseStorage implements IStorage {
   async getCompanyByProducerId(
     producerId: string
   ): Promise<Company | undefined> {
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.producerId, producerId));
-    return company || undefined;
+    try {
+      const [company] = await db
+        .select()
+        .from(companies)
+        .where(eq(companies.producerId, producerId));
+      return company || undefined;
+    } catch (error) {
+      console.error("Database error in getCompanyByProducerId:", error);
+      return undefined;
+    }
   }
 
   async getCompanies(): Promise<Company[]> {
-    return await db.select().from(companies).orderBy(asc(companies.name));
+    try {
+      return await db.select().from(companies).orderBy(asc(companies.name));
+    } catch (error) {
+      console.error("Database error in getCompanies:", error);
+      return [];
+    }
   }
 
   async createCompany(company: InsertCompany): Promise<Company> {
@@ -643,35 +653,45 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCompanyById(id: string): Promise<Company | undefined> {
-    const [company] = await db
-      .select()
-      .from(companies)
-      .where(eq(companies.id, id));
-    return company || undefined;
+    try {
+      const [company] = await db
+        .select()
+        .from(companies)
+        .where(eq(companies.id, id));
+      return company || undefined;
+    } catch (error) {
+      console.error("Database error in getCompanyById:", error);
+      return undefined;
+    }
   }
 
   async getProductsByCompanyId(companyId: string): Promise<any[]> {
-    const companyProducts = await db
-      .select({
-        id: products.id,
-        name: products.name,
-        nameRw: products.nameRw,
-        description: products.description,
-        price: products.price,
-        imageUrl: products.imageUrl,
-        categoryId: products.categoryId,
-        categoryName: categories.name,
-        inStock: products.inStock,
-        sizes: products.sizes,
-        colors: products.colors,
-      })
-      .from(products)
-      .leftJoin(categories, eq(products.categoryId, categories.id))
-      .leftJoin(companies, eq(products.producerId, companies.producerId))
-      .where(eq(companies.id, companyId))
-      .orderBy(asc(products.name));
+    try {
+      const companyProducts = await db
+        .select({
+          id: products.id,
+          name: products.name,
+          nameRw: products.nameRw,
+          description: products.description,
+          price: products.price,
+          imageUrl: products.imageUrl,
+          categoryId: products.categoryId,
+          categoryName: categories.name,
+          inStock: products.inStock,
+          sizes: products.sizes,
+          colors: products.colors,
+        })
+        .from(products)
+        .leftJoin(categories, eq(products.categoryId, categories.id))
+        .leftJoin(companies, eq(products.producerId, companies.producerId))
+        .where(eq(companies.id, companyId))
+        .orderBy(asc(products.name));
 
-    return companyProducts;
+      return companyProducts;
+    } catch (error) {
+      console.error("Database error in getProductsByCompanyId:", error);
+      return [];
+    }
   }
 }
 

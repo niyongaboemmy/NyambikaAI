@@ -8,6 +8,12 @@ import { storage } from "./storage";
 import { analyzeFashionImage, generateSizeRecommendation } from "./openai";
 import { generateVirtualTryOn } from "./tryon";
 import crypto from "crypto";
+import { getSubscriptionPlans } from "./subscription-plans";
+import { db, ensureSchemaMigrations } from "./db";
+import { subscriptions, users, products, orders } from "./shared/schema";
+import { and, eq, desc, sql, inArray } from "drizzle-orm";
+import { createSubscription, renewSubscription, updateSubscriptionStatus } from "./subscriptions";
+import { getProducerSubscriptionStatus, getProducerStats } from "./producer-routes";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -21,9 +27,15 @@ import {
   insertFavoriteSchema,
   insertTryOnSessionSchema
 } from "./shared/schema";
-import { getUserOrders, getOrderById, createOrder, updateOrder, cancelOrder } from "./orders";
+import { getUserOrders, getOrderById, createOrder, updateOrder, cancelOrder, getProducerOrders, updateOrderValidationStatus } from "./orders";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Ensure minimal runtime migrations (safe, idempotent)
+  try {
+    await ensureSchemaMigrations();
+  } catch (e) {
+    console.warn('ensureSchemaMigrations failed or is unavailable:', (e as any)?.message || e);
+  }
   
   // Auth middleware with JWT
 
@@ -50,6 +62,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
             fullName: 'Demo User',
             role: 'customer'
           });
+
+  // Producer stats (producer/admin)
+  app.get('/api/producer/stats', requireAuth, requireRole(['producer', 'admin']), async (req: any, res) => {
+    try {
+      // getProducerStats expects req.user
+      req.user = { id: req.userId, role: req.userRole } as any;
+      await getProducerStats(req as any, res as any);
+    } catch (error) {
+      console.error('Error in /api/producer/stats:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
         }
         req.userId = user.id;
         req.userRole = user.role || 'customer';
@@ -76,6 +100,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   };
 
+  // Orders: validation status update
+  app.put('/api/orders/:id/validation-status', requireAuth, async (req, res) => {
+    try {
+      await updateOrderValidationStatus(req as any, res as any);
+    } catch (error) {
+      console.error('Error in PUT /api/orders/:id/validation-status:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+
   const requireRole = (roles: string[]) => {
     return (req: any, res: any, next: any) => {
       if (!roles.includes(req.userRole)) {
@@ -84,6 +119,219 @@ export async function registerRoutes(app: Express): Promise<Server> {
       next();
     };
   };
+
+  // ===== Admin endpoints (protected) =====
+  // Admin stats: aggregate platform-wide numbers
+  app.get('/api/admin/stats', requireAuth, requireRole(['admin']), async (_req, res) => {
+    try {
+      const [[{ totalUsers } = { totalUsers: 0 }], [{ totalProducers } = { totalProducers: 0 }], [{ totalAgents } = { totalAgents: 0 }]] = await Promise.all([
+        db.select({ totalUsers: sql<number>`COUNT(*)` }).from(users),
+        db.select({ totalProducers: sql<number>`COUNT(*)` }).from(users).where(eq(users.role, 'producer')),
+        db.select({ totalAgents: sql<number>`COUNT(*)` }).from(users).where(eq(users.role, 'agent')),
+      ]);
+
+      const [[{ totalOrders } = { totalOrders: 0 }], [{ totalRevenue } = { totalRevenue: '0' }]] = await Promise.all([
+        db.select({ totalOrders: sql<number>`COUNT(*)` }).from(orders),
+        db.select({ totalRevenue: sql<string>`COALESCE(SUM(${orders.total}), '0')` }).from(orders),
+      ]);
+
+      res.json({ totalUsers, totalProducers, totalAgents, totalOrders, totalRevenue });
+    } catch (error) {
+      console.error('Error in /api/admin/stats:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Admin producers: list all producers
+  app.get('/api/admin/producers', requireAuth, requireRole(['admin']), async (_req, res) => {
+    try {
+      const list = await db.select().from(users).where(eq(users.role, 'producer')).orderBy(users.fullName);
+      // strip passwords if present
+      const sanitized = list.map(({ password, ...u }) => u);
+      res.json(sanitized);
+    } catch (error) {
+      console.error('Error in /api/admin/producers:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Admin agents: list all agents
+  app.get('/api/admin/agents', requireAuth, requireRole(['admin']), async (_req, res) => {
+    try {
+      const list = await db.select().from(users).where(eq(users.role, 'agent')).orderBy(users.fullName);
+      const sanitized = list.map(({ password, ...u }) => u);
+      res.json(sanitized);
+    } catch (error) {
+      console.error('Error in /api/admin/agents:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Admin orders: list recent orders with minimal fields
+  app.get('/api/admin/orders', requireAuth, requireRole(['admin']), async (_req, res) => {
+    try {
+      const recent = await db
+        .select()
+        .from(orders)
+        .orderBy(desc(orders.createdAt))
+        .limit(50);
+      res.json(recent);
+    } catch (error) {
+      console.error('Error in /api/admin/orders:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Admin pending approvals: products awaiting approval
+  app.get('/api/admin/pending-approvals', requireAuth, requireRole(['admin']), async (_req, res) => {
+    try {
+      const pending = await db
+        .select({
+          id: products.id,
+          title: products.name,
+          image: products.imageUrl,
+          producerId: products.producerId,
+          isApproved: products.isApproved,
+          submittedDate: products.createdAt,
+        })
+        .from(products)
+        .where(eq(products.isApproved, false))
+        .orderBy(desc(products.createdAt))
+        .limit(50);
+
+      // Enrich with producer basic info
+      const producerIds = Array.from(new Set(pending.map(p => p.producerId).filter(Boolean))) as string[];
+      let producersMap: Record<string, any> = {};
+      if (producerIds.length > 0) {
+        const producersList = await db.select({ id: users.id, fullName: users.fullName, username: users.username, email: users.email })
+          .from(users)
+          .where(and(eq(users.role, 'producer'), inArray(users.id, producerIds)));
+        producersMap = producersList.reduce((acc, u) => { acc[u.id] = u; return acc; }, {} as Record<string, any>);
+      }
+
+      const result = pending.map(p => ({
+        id: p.id,
+        title: p.title,
+        image: p.image,
+        type: 'product',
+        priority: 'medium',
+        producer: producersMap[p.producerId || '']?.fullName || producersMap[p.producerId || '']?.username || 'Unknown',
+        businessName: undefined,
+        submittedDate: p.submittedDate,
+      }));
+
+      res.json(result);
+    } catch (error) {
+      console.error('Error in /api/admin/pending-approvals:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Subscription plans (public)
+  app.get('/api/subscription-plans', async (req, res) => {
+    try {
+      await getSubscriptionPlans(req as any, res as any);
+    } catch (error) {
+      console.error('Error in /api/subscription-plans:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Subscription plans: get by id (public)
+  app.get('/api/subscription-plans/:id', async (req, res) => {
+    try {
+      const { getSubscriptionPlanById } = await import('./subscription-plans');
+      await getSubscriptionPlanById(req as any, res as any);
+    } catch (error) {
+      console.error('Error in /api/subscription-plans/:id:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Subscription plans: create (admin)
+  app.post('/api/subscription-plans', requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      const { createSubscriptionPlan } = await import('./subscription-plans');
+      await createSubscriptionPlan(req as any, res as any);
+    } catch (error) {
+      console.error('Error creating subscription plan:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Subscription plans: update (admin)
+  app.put('/api/subscription-plans/:id', requireAuth, requireRole(['admin']), async (req, res) => {
+    try {
+      const { updateSubscriptionPlan } = await import('./subscription-plans');
+      await updateSubscriptionPlan(req as any, res as any);
+    } catch (error) {
+      console.error('Error updating subscription plan:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Create/activate subscription for current user (producer or via agent assistance)
+  app.post('/api/subscriptions', requireAuth, async (req: any, res) => {
+    try {
+      const { planId, billingCycle, paymentMethod, amount, paymentReference, producerId } = req.body || {};
+      if (!planId || !billingCycle || !paymentMethod || !amount) {
+        return res.status(400).json({ message: 'Missing required fields: planId, billingCycle, paymentMethod, amount' });
+      }
+
+      // Normalize payload for createSubscription handler
+      req.body = {
+        userId: producerId || req.userId,
+        planId,
+        billingCycle, // 'monthly' | 'annual'
+        status: 'active',
+        amount: String(amount),
+        paymentMethod,
+        paymentReference: paymentReference || null,
+        ...(producerId ? { agentId: req.userRole === 'agent' ? req.userId : undefined } : {}),
+      };
+
+      await createSubscription(req as any, res as any);
+    } catch (error) {
+      console.error('Error in /api/subscriptions:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Renew an existing subscription (producer or agent-assisted)
+  app.put('/api/subscriptions/:id/renew', requireAuth, requireRole(['producer', 'agent']), async (req: any, res) => {
+    try {
+      // If an agent is performing the renewal, attach agentId when not provided
+      if (req.userRole === 'agent' && !req.body?.agentId) {
+        req.body = { ...(req.body || {}), agentId: req.userId };
+      }
+      await renewSubscription(req as any, res as any);
+    } catch (error) {
+      console.error('Error in /api/subscriptions/:id/renew:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Generic subscription update (e.g., cancel) — used when changing plans
+  app.put('/api/subscriptions/:id', requireAuth, requireRole(['producer', 'agent', 'admin']), async (req, res) => {
+    try {
+      await updateSubscriptionStatus(req as any, res as any);
+    } catch (error) {
+      console.error('Error in PUT /api/subscriptions/:id:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
+  // Producer subscription status (requires auth)
+  app.get('/api/producer/subscription-status', requireAuth, async (req: any, res) => {
+    try {
+      // getProducerSubscriptionStatus expects req.user
+      req.user = { id: req.userId, role: req.userRole } as any;
+      await getProducerSubscriptionStatus(req as any, res as any);
+    } catch (error) {
+      console.error('Error in /api/producer/subscription-status:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
 
   // Authentication routes
   app.post('/api/auth/register', async (req, res) => {
@@ -95,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: 'Missing required fields' });
       }
       
-      if (!['customer', 'producer'].includes(role)) {
+      if (!['customer', 'producer', 'agent'].includes(role)) {
         return res.status(400).json({ message: 'Invalid role' });
       }
       
@@ -538,8 +786,9 @@ try {
 
   app.put('/api/auth/profile', requireAuth, async (req: any, res) => {
     try {
-      const { fullName, fullNameRw, phone, location, businessName, profileImage } = req.body;
-      
+      const { fullName, fullNameRw, phone, location, businessName, profileImage, email } = req.body || {};
+
+      // Build updates
       const updateData: any = {};
       if (fullName !== undefined) updateData.fullName = fullName;
       if (fullNameRw !== undefined) updateData.fullNameRw = fullNameRw;
@@ -547,19 +796,35 @@ try {
       if (location !== undefined) updateData.location = location;
       if (businessName !== undefined) updateData.businessName = businessName;
       if (profileImage !== undefined) updateData.profileImage = profileImage;
-      
+
+      // Email change (optional) with basic validation and uniqueness check
+      if (email !== undefined) {
+        const trimmed = String(email).trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmed)) {
+          return res.status(400).json({ message: 'Invalid email format' });
+        }
+        const existing = await storage.getUserByEmail(trimmed);
+        if (existing && existing.id !== req.userId) {
+          return res.status(400).json({ message: 'Email already in use' });
+        }
+        updateData.email = trimmed;
+        // Keep username aligned with email for this app
+        updateData.username = trimmed;
+      }
+
       const user = await storage.updateUser(req.userId, updateData);
       if (!user) {
         return res.status(404).json({ message: 'User not found' });
       }
-      
+
       // Return user without password and map fullName to name
       const { password: _, fullName: userFullName, ...userWithoutPassword } = user;
       const mappedUser = {
         ...userWithoutPassword,
         name: userFullName || user.email.split('@')[0]
       };
-      
+
       res.json(mappedUser);
     } catch (error) {
       console.error('Update profile error:', error);
@@ -567,8 +832,51 @@ try {
     }
   });
 
+  // Change password
+  app.post('/api/auth/change-password', requireAuth, async (req: any, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body || {};
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'currentPassword and newPassword are required' });
+      }
+
+      // Basic password policy
+      if (typeof newPassword !== 'string' || newPassword.length < 8) {
+        return res.status(400).json({ message: 'New password must be at least 8 characters long' });
+      }
+
+      const user = await storage.getUserById(req.userId);
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      if (!user.password) {
+        return res.status(400).json({ message: 'Password change not available for this account' });
+      }
+
+      const matches = await bcrypt.compare(currentPassword, user.password);
+      if (!matches) {
+        return res.status(401).json({ message: 'Current password is incorrect' });
+      }
+
+      if (currentPassword === newPassword) {
+        return res.status(400).json({ message: 'New password must be different from current password' });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      const updated = await storage.updateUser(req.userId, { password: hashed } as any);
+      if (!updated) {
+        return res.status(500).json({ message: 'Failed to update password' });
+      }
+
+      return res.json({ message: 'Password updated successfully' });
+    } catch (error) {
+      console.error('Change password error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  });
+
   // Demo users seeding route (for development)
-  app.post('/api/seed-demo-users', async (req, res) => {
+  app.post('/api/seed-demo-users', async (_req, res) => {
     try {
       const demoUsers = [
         {
@@ -623,7 +931,7 @@ try {
   });
 
   // Categories routes
-  app.get('/api/categories', async (req, res) => {
+  app.get('/api/categories', async (_req, res) => {
     try {
       const categories = await storage.getCategories();
       res.json(categories);
@@ -969,6 +1277,33 @@ try {
         return res.status(404).json({ message: 'Company not found' });
       }
       
+      // Enforce active subscription for the producer that owns this company
+      try {
+        const rows = await db
+          .select()
+          .from(subscriptions)
+          .where(
+            and(
+              eq(subscriptions.userId, company.producerId),
+              eq(subscriptions.status, 'active')
+            )
+          )
+          .limit(1);
+        const sub = rows[0];
+        const now = new Date();
+        const hasActive = sub && new Date(sub.endDate) > now;
+        if (!hasActive) {
+          return res
+            .status(403)
+            .json({ message: 'Producer subscription inactive. Store temporarily unavailable.' });
+        }
+      } catch (e) {
+        console.error('Subscription check failed:', e);
+        return res
+          .status(500)
+          .json({ message: 'Failed to verify subscription for this store' });
+      }
+      
       // Get products with category information for this company
       const companyProducts = await storage.getProductsByCompanyId(id);
       
@@ -1091,14 +1426,12 @@ try {
   // Orders routes (migrated to dedicated handlers in ./orders)
   // Legacy inline route removed to avoid conflicting validation/handlers.
 
-  // Producer orders (for producers/admins)
+  // Producer orders (producer/admin)
   app.get('/api/producer/orders', requireAuth, requireRole(['producer', 'admin']), async (req: any, res) => {
     try {
-      const { status } = req.query;
-      const orders = await storage.getProducerOrders(req.userId, status);
-      res.json(orders);
+      await getProducerOrders(req as any, res as any);
     } catch (error) {
-      console.error('Error fetching producer orders:', error);
+      console.error('Error in /api/producer/orders:', error);
       res.status(500).json({ message: 'Failed to fetch producer orders' });
     }
   });
@@ -1359,6 +1692,8 @@ try {
   });
 
   // Order routes
+  // Producer-specific orders (only producer/admin)
+  app.get('/api/producer/orders', requireAuth, requireRole(['producer', 'admin']), getProducerOrders);
   app.get('/api/orders', requireAuth, getUserOrders);
   app.get('/api/orders/:id', requireAuth, getOrderById);
   app.post('/api/orders', requireAuth, createOrder);
@@ -1366,7 +1701,7 @@ try {
   app.delete('/api/orders/:id', requireAuth, cancelOrder);
 
   // Health check endpoint
-  app.get('/api/health', (req, res) => {
+  app.get('/api/health', (_req, res) => {
     res.json({ 
       status: 'ok', 
       timestamp: new Date().toISOString(),

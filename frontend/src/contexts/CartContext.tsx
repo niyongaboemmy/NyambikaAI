@@ -6,7 +6,9 @@ import React, {
   useState,
 } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Loader2 } from "lucide-react";
+import { apiClient, handleApiError } from "@/config/api";
 
 export type CartItem = {
   id: string;
@@ -16,6 +18,7 @@ export type CartItem = {
   price: number; // in RWF
   image?: string;
   size?: string;
+  color?: string;
   quantity: number;
   serverId?: string; // id of server cart item, if synced
 };
@@ -31,6 +34,7 @@ export type CartState = {
   shipping: number;
   total: number;
   isSyncing: boolean;
+  isDeleting: (id: string, size?: string) => boolean;
 };
 
 const CartContext = createContext<CartState | undefined>(undefined);
@@ -59,9 +63,14 @@ function writeToStorage(items: CartItem[]) {
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => readFromStorage());
   const { isAuthenticated } = useAuth();
+  const { open } = useLoginPrompt();
   // Track in-flight server sync operations to avoid flicker during bursts
   const [syncCounter, setSyncCounter] = useState(0);
   const isSyncing = syncCounter > 0;
+
+  // Track per-item deletion state so UI can show a precise spinner on the item being removed
+  const [pendingRemovals, setPendingRemovals] = useState<Set<string>>(new Set());
+  const keyFor = (id: string, size?: string) => `${id}::${size || ""}`;
 
   const beginSync = () => setSyncCounter((c) => c + 1);
   const endSync = () => setSyncCounter((c) => Math.max(0, c - 1));
@@ -99,26 +108,32 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   // Refresh items from server if authenticated
-  const refreshFromServer = async () => {
+  const refreshFromServer = async (): Promise<CartItem[] | undefined> => {
     try {
       if (!isAuthenticated) return;
       beginSync();
-      const res = await fetch("/api/cart", { headers: getAuthHeaders() });
-      if (!res.ok) return;
-      if (res.status === 204) {
-        // No content: treat as empty cart
-        setItems([]);
-        return;
+      const response = await apiClient.get('/api/cart');
+      const data = response.data;
+      if (data?.items && Array.isArray(data.items)) {
+        const mapped = mapServerToLocal(data.items);
+        setItems(mapped);
+        return mapped;
+      } else if (data && Array.isArray(data)) {
+        const mapped = mapServerToLocal(data);
+        setItems(mapped);
+        return mapped;
+      } else {
+        // Don't clear items if server returns empty - keep local state
+        console.log('Server returned empty cart, keeping local state');
       }
-      // Some servers may send empty body with 200; guard before parsing
-      const text = await res.text();
-      if (!text) {
-        setItems([]);
-        return;
+    } catch (error: any) {
+      // Handle 204 No Content or empty responses
+      if (error.response?.status === 204) {
+        console.log('Server cart is empty (204), keeping local state');
+      } else {
+        console.error('Failed to refresh cart from server:', error);
       }
-      const data = JSON.parse(text);
-      setItems(mapServerToLocal(data));
-    } catch {
+      // Keep local state on any error
     } finally {
       endSync();
     }
@@ -149,6 +164,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const total = subtotal + shipping;
 
   const addItem: CartState["addItem"] = (item, qty = 1) => {
+    // Check authentication first
+    if (!isAuthenticated) {
+      open();
+      return;
+    }
+
+    let updatedItems: CartItem[];
     setItems((prev) => {
       const idx = prev.findIndex(
         (it) => it.id === item.id && (it.size || "") === (item.size || "")
@@ -156,27 +178,38 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (idx !== -1) {
         const copy = [...prev];
         copy[idx] = { ...copy[idx], quantity: copy[idx].quantity + qty };
+        updatedItems = copy;
         return copy;
       }
-      return [...prev, { ...item, quantity: qty }];
+      updatedItems = [...prev, { ...item, quantity: qty }];
+      return updatedItems;
     });
 
-    // Mirror to server when authenticated, then refresh
+    // Mirror to server when authenticated, but don't refresh immediately
     (async () => {
       try {
-        if (!isAuthenticated) return;
         beginSync();
-        await fetch("/api/cart", {
-          method: "POST",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({
-            productId: item.id,
-            quantity: qty,
-            size: item.size,
-          }),
+        const res = await apiClient.post('/api/cart', {
+          productId: item.id,
+          quantity: qty,
+          size: item.size,
+          color: item.color,
         });
-        await refreshFromServer();
-      } catch {
+        // Capture serverId from response if available to enable future sync operations
+        const sid = res?.data?.id ?? res?.data?.item?.id ?? res?.data?.data?.id;
+        if (sid) {
+          setItems((prev) =>
+            prev.map((it) =>
+              it.id === item.id && (it.size || "") === (item.size || "")
+                ? { ...it, serverId: String(sid) }
+                : it
+            )
+          );
+        }
+        // Don't refresh immediately to avoid clearing the optimistic update
+      } catch (error) {
+        console.error('Failed to sync cart to server:', error);
+        // On error, keep the optimistic update
       } finally {
         endSync();
       }
@@ -184,44 +217,79 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   };
 
   const removeItem: CartState["removeItem"] = (id, size) => {
-    // Optimistically remove and capture serverId from previous state to avoid stale reads
-    let serverId: string | undefined;
-    setItems((prev) => {
-      const target = prev.find(
-        (it) => it.id === id && (it.size || "") === (size || "")
-      );
-      serverId = target?.serverId;
-      return prev.filter(
-        (it) => !(it.id === id && (it.size || "") === (size || ""))
-      );
-    });
+    const k = keyFor(id, size);
 
-    // Mirror to server if possible (requires serverId)
+    if (!isAuthenticated) {
+      // Guest: keep optimistic removal behavior (no server) but still briefly mark as pending
+      setPendingRemovals((prev) => new Set([...prev, k]));
+      setItems((prev) =>
+        prev.filter((it) => !(it.id === id && (it.size || "") === (size || "")))
+      );
+      // Clear pending immediately since there's no server roundtrip
+      setPendingRemovals((prev) => {
+        const copy = new Set(prev);
+        copy.delete(k);
+        return copy;
+      });
+      return;
+    }
+
+    // Authenticated: show item-level loading and perform server delete first
+    setPendingRemovals((prev) => new Set([...prev, k]));
+
     (async () => {
       try {
-        if (!isAuthenticated) return;
         beginSync();
+        // Find serverId without mutating items yet
+        let serverId: string | undefined = items.find(
+          (it) => it.id === id && (it.size || "") === (size || "")
+        )?.serverId;
+
         if (serverId) {
-          await fetch(`/api/cart/${serverId}`, {
-            method: "DELETE",
-            headers: getAuthHeaders(),
-          });
-          // Only refresh when we actually performed a server deletion; otherwise skip to avoid reverting local state
-          await refreshFromServer();
+          await apiClient.delete(`/api/cart/${serverId}`);
+        } else {
+          // Fallback: refresh to discover serverId then delete
+          const refreshed = await refreshFromServer();
+          const match = refreshed?.find(
+            (it) => it.id === id && (it.size || "") === (size || "")
+          );
+          if (match?.serverId) {
+            await apiClient.delete(`/api/cart/${match.serverId}`);
+          }
         }
-      } catch {
+
+        // Now remove locally and refresh to reconcile
+        setItems((prev) =>
+          prev.filter((it) => !(it.id === id && (it.size || "") === (size || "")))
+        );
+        await refreshFromServer();
+      } catch (error) {
+        console.error('Failed to remove cart item:', error);
       } finally {
         endSync();
+        setPendingRemovals((prev) => {
+          const copy = new Set(prev);
+          copy.delete(k);
+          return copy;
+        });
       }
     })();
   };
 
   const updateQuantity: CartState["updateQuantity"] = (id, quantity, size) => {
+    let serverId: string | undefined;
+    
     setItems((prev) => {
-      if (quantity <= 0)
+      const target = prev.find(
+        (it) => it.id === id && (it.size || "") === (size || "")
+      );
+      serverId = target?.serverId;
+      
+      if (quantity <= 0) {
         return prev.filter(
           (it) => !(it.id === id && (it.size || "") === (size || ""))
         );
+      }
       return prev.map((it) =>
         it.id === id && (it.size || "") === (size || "")
           ? { ...it, quantity }
@@ -233,22 +301,50 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         if (!isAuthenticated) return;
-        const target = items.find(
-          (it) => it.id === id && (it.size || "") === (size || "")
-        );
-        const serverId = target?.serverId;
         beginSync();
-        if (serverId) {
-          await fetch(`/api/cart/${serverId}`, {
-            method: "PUT",
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ quantity }),
-          });
+        if (quantity <= 0) {
+          // Handle deletion
+          if (serverId) {
+            await apiClient.delete(`/api/cart/${serverId}`);
+          } else {
+            // No serverId yet: attempt refresh to discover it
+            const refreshed = await refreshFromServer();
+            const match = refreshed?.find(
+              (it) => it.id === id && (it.size || "") === (size || "")
+            );
+            if (match?.serverId) {
+              await apiClient.delete(`/api/cart/${match.serverId}`);
+            }
+          }
         } else {
-          // Fallback: POST the delta by setting absolute quantity not supported; trigger refresh
+          // Handle quantity update
+          if (serverId) {
+            await apiClient.put(`/api/cart/${serverId}`, { quantity });
+          } else {
+            // Fallback: add new item to server and capture serverId
+            const res = await apiClient.post('/api/cart', {
+              productId: id,
+              quantity,
+              size,
+            });
+            const sid = res?.data?.id ?? res?.data?.item?.id ?? res?.data?.data?.id;
+            if (sid) {
+              setItems((prev) =>
+                prev.map((it) =>
+                  it.id === id && (it.size || "") === (size || "")
+                    ? { ...it, serverId: String(sid) }
+                    : it
+                )
+              );
+            }
+          }
         }
-        await refreshFromServer();
-      } catch {
+        // Only refresh for deletions, not quantity updates
+        if (quantity <= 0) {
+          await refreshFromServer();
+        }
+      } catch (error) {
+        console.error('Failed to update cart quantity:', error);
       } finally {
         endSync();
       }
@@ -264,10 +360,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       (async () => {
         try {
           beginSync();
-          await fetch("/api/cart", {
-            method: "DELETE",
-            headers: getAuthHeaders(),
-          });
+          await apiClient.delete('/api/cart');
         } catch {
         } finally {
           endSync();
@@ -288,6 +381,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     shipping,
     total,
     isSyncing,
+    isDeleting: (id: string, size?: string) => pendingRemovals.has(keyFor(id, size)),
   };
 
   return (

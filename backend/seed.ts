@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { db } from './db';
 import { categories } from './shared/schema';
+import { seedSubscriptionPlans } from './subscription-plans';
 
 async function seedCategories() {
   // Check if categories already exist
@@ -58,7 +59,12 @@ async function seedCategories() {
   console.log(`Seeded ${initial.length} categories.`);
 }
 
-seedCategories()
+async function main() {
+  await seedSubscriptionPlans();
+  await seedCategories();
+}
+
+main()
   .catch((err) => {
     console.error('Seed failed:', err);
     process.exit(1);

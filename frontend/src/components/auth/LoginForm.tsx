@@ -43,11 +43,14 @@ export default function LoginForm({
     try {
       await login(email, password);
       onSuccess?.();
+      return;
     } catch (err: any) {
       setError(err?.message || "Invalid email or password");
       setPassword("");
+      return;
     } finally {
       setSubmitting(false);
+      return;
     }
   };
 
@@ -205,6 +208,7 @@ export default function LoginForm({
                     label="Email Address"
                     placeholder="Enter your email address"
                     icon={Mail}
+                    autoComplete="username"
                   />
                 </motion.div>
                 <motion.div
@@ -224,6 +228,7 @@ export default function LoginForm({
                       placeholder="Enter your password"
                       icon={Lock}
                       className="pr-11"
+                      autoComplete="current-password"
                     />
                     <Button
                       type="button"
@@ -414,8 +419,8 @@ export default function LoginForm({
                           "border-purple-200/50 dark:border-purple-700/50",
                       },
                       {
-                        role: "Admin",
-                        email: "admin@demo.com",
+                        role: "Agent",
+                        email: "agent@demo.com",
                         password: "password",
                         icon: "⚡",
                         color: "from-orange-500/10 to-red-500/10",

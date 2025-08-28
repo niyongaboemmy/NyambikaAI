@@ -1,18 +1,18 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
 import { Camera, Upload, Sparkles, Ruler, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function AITryOnStudio() {
   const [isProcessing, setIsProcessing] = useState(false);
-  const [, setLocation] = useLocation();
+  const router = useRouter();
 
   const handleTakePhoto = () => {
-    setLocation("/try-on/start");
+    router.push("/try-on");
   };
 
   const handleUploadPhoto = () => {
-    setLocation("/try-on/start");
+    router.push("/try-on");
   };
 
   const features = [

@@ -6,13 +6,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import { useTheme } from "@/components/theme-provider";
 import { useCompany } from "@/contexts/CompanyContext";
-import { useLoginPrompt } from "@/contexts/LoginPromptContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Link, useLocation } from "wouter";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
+import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 import {
   Home,
@@ -31,11 +32,15 @@ import {
   Building2,
   Plus,
   User2,
+  Settings,
+  Grid3X3,
 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 type NavItem = { href: string; label: string; icon: IconType | null };
-type RoleKey = "customer" | "producer" | "admin";
+type RoleKey = "customer" | "producer" | "admin" | "agent";
 type RoleConfig = { links: NavItem[]; menu: NavItem[] };
 
 export default function RoleBasedNavigation() {
@@ -43,9 +48,21 @@ export default function RoleBasedNavigation() {
   const { company } = useCompany();
   const { actualTheme, setTheme } = useTheme();
   const { count: cartCount } = useCart();
-  const { open } = useLoginPrompt();
+  const { open, isOpen } = useLoginPrompt();
   const { language, setLanguage } = useLanguage();
-  const [, setLocation] = useLocation();
+  const pathname = usePathname();
+  const router = useRouter();
+  const { status, plan } = useProducerSubscriptionStatus();
+  const daysLeft = status?.expiresAt
+    ? Math.ceil((new Date(status.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : undefined;
+
+  // Public navigation links (always visible)
+  const publicLinks = [
+    { href: "/", label: "Home", icon: Home },
+    { href: "/try-on", label: "Try-On", icon: Package },
+    { href: "/companies", label: "Companies", icon: Building2 },
+  ];
 
   // Build producer menu with de-duplication (avoid duplicate "/products" entries)
   const producerMenuBase: NavItem[] = [
@@ -58,37 +75,49 @@ export default function RoleBasedNavigation() {
     { href: "/producer-orders", label: "Orders", icon: Package },
     { href: "/producer-dashboard", label: "Dashboard", icon: BarChart3 },
   ];
-  const producerMenu: NavItem[] = producerMenuBase.filter(
-    (item, idx, arr) => arr.findIndex((i) => i.href === item.href) === idx
-  );
 
   const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     customer: {
-      links: [
-        { href: "/", label: "Home", icon: Home },
-        { href: "/try-on/start", label: "Try-On", icon: null },
-      ],
-      menu: [
-        { href: "/orders", label: "My Orders", icon: Package },
-      ],
+      links: publicLinks,
+      menu: [{ href: "/orders", label: "My Orders", icon: Package }],
     },
     producer: {
-      links: [
-        { href: "/", label: "Home", icon: Home },
-        { href: "/producer-dashboard", label: "Dashboard", icon: null },
+      links: publicLinks,
+      menu: [
+        {
+          href: company?.id ? `/store/${company.id}` : "/#",
+          label: "My Store",
+          icon: User2,
+        },
+        { href: "/product-registration", label: "Add Product", icon: Plus },
+        { href: "/producer-subscription", label: "Subscription", icon: Settings },
+        { href: "/producer-orders", label: "Orders", icon: Package },
+        { href: "/producer-dashboard", label: "Dashboard", icon: BarChart3 },
       ],
-      menu: producerMenu,
     },
     admin: {
-      links: [
-        { href: "/", label: "Home", icon: Home },
-        { href: "/admin-dashboard", label: "Dashboard", icon: null },
-      ],
+      links: publicLinks,
       menu: [
         { href: "/products", label: "Products", icon: ShoppingCart },
-        { href: "/product-registration", label: "Add Product", icon: null },
+        { href: "/product-registration", label: "Add Product", icon: Plus },
         { href: "/producer-orders", label: "Orders", icon: Package },
         { href: "/admin-users", label: "Users", icon: Users },
+        {
+          href: "/admin/agents-management",
+          label: "Agents Management",
+          icon: Users,
+        },
+      ],
+    },
+    agent: {
+      links: publicLinks,
+      menu: [
+        { href: "/agent-dashboard", label: "Dashboard", icon: BarChart3 },
+        {
+          href: "/agent/producers-management",
+          label: "Producers Management",
+          icon: Users,
+        },
       ],
     },
   };
@@ -96,7 +125,8 @@ export default function RoleBasedNavigation() {
   const userRole: RoleKey =
     user?.role === "producer" ||
     user?.role === "admin" ||
-    user?.role === "customer"
+    user?.role === "customer" ||
+    user?.role === "agent"
       ? user.role
       : "customer";
   const config: RoleConfig = ROLE_CONFIGS[userRole];
@@ -109,13 +139,6 @@ export default function RoleBasedNavigation() {
 
   const currentLang =
     languages.find((lang) => lang.code === language) || languages[0];
-
-  // Public navigation links (always visible)
-  const publicLinks = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/try-on/start", label: "Try-On", icon: Package },
-    { href: "/companies", label: "Companies", icon: Building2 },
-  ];
 
   // All navigation links for mobile dropdown - always show public links plus authenticated links
   const allNavLinks = isAuthenticated
@@ -152,26 +175,93 @@ export default function RoleBasedNavigation() {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <div className="hidden lg:flex items-center gap-1">
-            {publicLinks.map((link) => {
-              const Icon = link.icon;
-              return (
-                <Button
-                  key={link.href}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setLocation(link.href)}
-                  className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
-                >
-                  {Icon && <Icon className="h-4 w-4" />}
-                  <span className="font-medium">{link.label}</span>
-                </Button>
-              );
-            })}
-          </div>
+          {userRole !== "producer" ? (
+            <div className="hidden lg:flex items-center gap-1">
+              {publicLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Button
+                    key={link.href}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => router.push(link.href)}
+                    className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
+                  >
+                    {Icon && <Icon className="h-4 w-4" />}
+                    <span className="font-medium">{link.label}</span>
+                  </Button>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="hidden lg:flex items-center gap-1">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                    <span className="font-medium">Browse</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="w-56">
+                  {publicLinks.map((link) => {
+                    const Icon = link.icon;
+                    return (
+                      <DropdownMenuItem
+                        key={link.href}
+                        onSelect={(e) => {
+                          e.preventDefault();
+                          router.push(link.href);
+                        }}
+                        className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                      >
+                        {Icon && <Icon className="h-4 w-4" />}
+                        {link.label}
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* Producer subscription badge */}
+            {isAuthenticated && userRole === "producer" && status && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push("/producer-subscription")}
+                className="hidden md:flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                title={
+                  status.hasActiveSubscription
+                    ? `Active plan${plan ? ": " + plan.name : ""}`
+                    : "Subscription expired or not active"
+                }
+              >
+                {status.hasActiveSubscription && typeof daysLeft === "number" && daysLeft > 0 && daysLeft <= 5 ? (
+                  <Badge className="bg-yellow-500 text-black dark:text-white">Expiring in {daysLeft}d</Badge>
+                ) : (
+                  <Badge
+                    className={
+                      status.hasActiveSubscription
+                        ? "bg-green-600 text-white"
+                        : "bg-red-600 text-white"
+                    }
+                  >
+                    {status.hasActiveSubscription ? "Active" : "Expired"}
+                  </Badge>
+                )}
+                <span className="text-xs font-medium max-w-[120px] truncate">
+                  {plan?.name || "Subscription"}
+                </span>
+              </Button>
+            )}
             {/* Language Selector - Always visible */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -230,7 +320,7 @@ export default function RoleBasedNavigation() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => setLocation("/cart")}
+                  onClick={() => router.push("/cart")}
                   className="relative hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
                 >
                   <ShoppingCart className="h-4 w-4" />
@@ -278,21 +368,21 @@ export default function RoleBasedNavigation() {
                           key={item.href}
                           onSelect={(e) => {
                             e.preventDefault();
-                            setLocation(item.href);
+                            router.push(item.href);
                           }}
-                          className="cursor-pointer gap-3"
+                          className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                         >
                           {Icon && <Icon className="h-4 w-4" />}
                           {item.label}
                         </DropdownMenuItem>
                       );
                     })}
-                    <DropdownMenuSeparator />
+
                     <DropdownMenuItem
                       className="cursor-pointer gap-3"
                       onSelect={(e) => {
                         e.preventDefault();
-                        setLocation("/profile");
+                        router.push("/profile");
                       }}
                     >
                       <User className="h-4 w-4" />
@@ -316,8 +406,12 @@ export default function RoleBasedNavigation() {
               <Button
                 variant="default"
                 size="sm"
-                onClick={open}
-                className="hidden lg:flex rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  open();
+                }}
+                className="hidden md:flex bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
               >
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
@@ -353,7 +447,7 @@ export default function RoleBasedNavigation() {
                         key={link.href}
                         onSelect={(e) => {
                           e.preventDefault();
-                          setLocation(link.href);
+                          const isActive = pathname === link.href;
                         }}
                         className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                       >
@@ -381,7 +475,7 @@ export default function RoleBasedNavigation() {
                       className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                       onSelect={(e) => {
                         e.preventDefault();
-                        setLocation("/cart");
+                        router.push("/cart");
                       }}
                     >
                       <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center relative">
@@ -439,7 +533,7 @@ export default function RoleBasedNavigation() {
                             className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                             onSelect={(e) => {
                               e.preventDefault();
-                              setLocation(item.href);
+                              router.push(item.href);
                             }}
                           >
                             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
@@ -456,7 +550,7 @@ export default function RoleBasedNavigation() {
                         className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                         onSelect={(e) => {
                           e.preventDefault();
-                          setLocation("/profile");
+                          router.push("/profile");
                         }}
                       >
                         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
@@ -485,8 +579,12 @@ export default function RoleBasedNavigation() {
                         <Button
                           variant="default"
                           size="sm"
-                          onClick={open}
-                          className="w-full rounded-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            open();
+                          }}
+                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
                         >
                           <LogIn className="h-4 w-4 mr-2" />
                           Sign In

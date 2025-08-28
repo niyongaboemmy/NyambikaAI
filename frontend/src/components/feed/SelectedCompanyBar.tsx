@@ -6,7 +6,8 @@ type Company = {
   websiteUrl?: string | null;
 };
 
-import { Link, useLocation } from "wouter";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 
 type Props = {
   company: Company;
@@ -14,10 +15,11 @@ type Props = {
 };
 
 export default function SelectedCompanyBar({ company, onClear }: Props) {
-  const [, setLocation] = useLocation();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const handleCompanyClick = () => {
-    setLocation(`/store/${company.id}`);
+    router.push(`/store/${company.id}`);
   };
   return (
     <div className="sticky top-[4.6rem] z-30 mb-4 backdrop-blur-md">
@@ -69,10 +71,10 @@ export default function SelectedCompanyBar({ company, onClear }: Props) {
           <div className="flex items-center gap-2 flex-shrink-0">
             {company.websiteUrl && (
               <Link
-                to={`/store/${company.id}`}
-                className="text-xs text-blue-500 hover:text-blue-600 font-medium hidden sm:inline px-2 py-1 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                href={`/store/${company.id}`}
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm transition-colors duration-200"
               >
-                Visit
+                View Store
               </Link>
             )}
             <button

@@ -1,24 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-
-export type Company = {
-  id: string;
-  producerId: string;
-  tin?: string | null;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  logoUrl?: string | null;
-  websiteUrl?: string | null;
-  createdAt?: string;
-};
+import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
+import type { Company } from "@/shared/schema";
 
 async function fetchCompanies(producerId?: string): Promise<Company[]> {
-  const url = new URL("/api/companies", window.location.origin);
-  if (producerId) url.searchParams.set("producerId", producerId);
-  const res = await fetch(url.toString());
-  if (!res.ok) throw new Error("Failed to fetch companies");
-  return res.json();
+  try {
+    const params = producerId ? { producerId } : {};
+    const response = await apiClient.get(API_ENDPOINTS.COMPANIES, { params });
+    return response.data;
+  } catch (error) {
+    throw new Error(handleApiError(error));
+  }
 }
 
 export function useCompanies(producerId?: string) {

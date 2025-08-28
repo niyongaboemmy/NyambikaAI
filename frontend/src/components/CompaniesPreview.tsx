@@ -1,10 +1,10 @@
 import { useCompanies } from "@/hooks/useCompanies";
-import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function CompaniesPreview() {
   const { data: companies = [], isLoading } = useCompanies();
-  const [, setLocation] = useLocation();
+  const router = useRouter();
 
   return (
     <section id="companies-preview" className="py-14 px-4 md:px-6">
@@ -21,7 +21,7 @@ export default function CompaniesPreview() {
           <Button
             variant="ghost"
             className="rounded-full hover:scale-[1.02] transition"
-            onClick={() => setLocation("/companies")}
+            onClick={() => router.push("/companies")}
           >
             View All
           </Button>
@@ -57,7 +57,7 @@ export default function CompaniesPreview() {
                       <button
                         className="mt-1 text-[10px] text-primary hover:underline"
                         onClick={() =>
-                          setLocation(`/products?companyId=${c.id}`)
+                          router.push(`/products?companyId=${c.id}`)
                         }
                       >
                         View

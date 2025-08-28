@@ -49,25 +49,29 @@ const translations = {
 };
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
-  const [language, setLanguageState] = useState<Language>(() => {
-    // Get language from localStorage or default to 'en'
+  const [language, setLanguageState] = useState<Language>('en');
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+    // Get language from localStorage after component mounts
     const saved = localStorage.getItem('nyambika-language');
-    return (saved as Language) || 'en';
-  });
+    if (saved && (saved === 'en' || saved === 'rw' || saved === 'fr')) {
+      setLanguageState(saved as Language);
+    }
+  }, []);
 
   const setLanguage = (newLanguage: Language) => {
     setLanguageState(newLanguage);
-    localStorage.setItem('nyambika-language', newLanguage);
+    if (isClient) {
+      localStorage.setItem('nyambika-language', newLanguage);
+    }
   };
 
   const t = (key: string): string => {
     return translations[language][key as keyof typeof translations[typeof language]] || key;
   };
 
-  useEffect(() => {
-    // Save language preference
-    localStorage.setItem('nyambika-language', language);
-  }, [language]);
 
   const value = {
     language,

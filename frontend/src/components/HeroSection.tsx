@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Camera, ChevronsDown } from "lucide-react";
+import { Camera, ArrowRight, Sparkles, ChevronsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
+import { apiClient, handleApiError } from "@/config/api";
 
 type Category = {
   id: string;
@@ -12,7 +13,6 @@ type Category = {
 };
 
 export default function HeroSection() {
-
   const handleExplore = () => {
     const el = document.getElementById("home-products");
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -50,7 +50,7 @@ export default function HeroSection() {
 
         {/* CTAs: Try-On and Explore Products */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-          <Link href="/try-on/start">
+          <Link href="/try-on">
             <Button
               className="gradient-bg text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg neumorphism"
               size="lg"
@@ -79,18 +79,23 @@ export default function HeroSection() {
 
 function CategoriesStrip() {
   const { data: categories = [], isLoading } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+    queryKey: ["categories"],
     queryFn: async () => {
-      const res = await fetch("/api/categories");
-      if (!res.ok) throw new Error("Failed to load categories");
-      return res.json();
+      try {
+        const response = await apiClient.get("/api/categories");
+        return response.data;
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
     },
     staleTime: 60_000,
   });
 
   if (isLoading) {
     return (
-      <div className="mt-10 text-sm text-muted-foreground">Loading categories...</div>
+      <div className="mt-10 text-sm text-muted-foreground">
+        Loading categories...
+      </div>
     );
   }
 
@@ -101,7 +106,9 @@ function CategoriesStrip() {
       <div className="flex items-center justify-between mb-3 px-1">
         <h3 className="text-lg font-semibold">Browse by Category</h3>
         <Link href="/products">
-          <span className="text-sm text-primary hover:underline cursor-pointer">View all</span>
+          <span className="text-sm text-primary hover:underline cursor-pointer">
+            View all
+          </span>
         </Link>
       </div>
       <div className="relative">
@@ -116,15 +123,22 @@ function CategoriesStrip() {
                   <div className="rounded-2xl overflow-hidden border bg-card hover:shadow-md transition-all">
                     <div className="h-28 w-full overflow-hidden">
                       <img
-                        src={c.imageUrl || "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600"}
+                        src={
+                          c.imageUrl ||
+                          "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600"
+                        }
                         alt={c.name}
                         className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
                         loading="lazy"
                       />
                     </div>
                     <div className="p-3">
-                      <div className="text-sm font-semibold truncate">{c.nameRw || c.name}</div>
-                      <div className="text-xs text-muted-foreground">Tap to explore</div>
+                      <div className="text-sm font-semibold truncate">
+                        {c.nameRw || c.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Tap to explore
+                      </div>
                     </div>
                   </div>
                 </div>

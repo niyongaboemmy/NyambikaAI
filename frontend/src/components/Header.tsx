@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
-import { useTheme } from "@/hooks/useTheme";
 import {
   ShoppingBag,
   User,
@@ -22,15 +20,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useTheme } from "./theme-provider";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function HeaderOld() {
   const { theme, setTheme } = useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [language, setLanguage] = useState("rw");
   const { user, logout } = useAuth();
-  const [, setLocation] = useLocation();
+  const router = useRouter();
   const { open } = useLoginPrompt();
 
   const toggleTheme = () => {
@@ -39,7 +40,7 @@ export default function HeaderOld() {
 
   const handleLogout = async () => {
     await logout();
-    setLocation("/");
+    router.push("/");
   };
 
   const navLinks = [
@@ -148,17 +149,17 @@ export default function HeaderOld() {
                     </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => setLocation("/profile")}>
+                  <DropdownMenuItem onClick={() => router.push("/profile")}>
                     <User className="mr-2 h-4 w-4" />
                     Profile
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocation("/orders")}>
+                  <DropdownMenuItem onClick={() => router.push("/orders")}>
                     <Package className="mr-2 h-4 w-4" />
                     Orders
                   </DropdownMenuItem>
                   {user.role === "producer" && (
                     <DropdownMenuItem
-                      onClick={() => setLocation("/producer-dashboard")}
+                      onClick={() => router.push("/producer-dashboard")}
                     >
                       <BarChart3 className="mr-2 h-4 w-4" />
                       Dashboard
@@ -166,7 +167,7 @@ export default function HeaderOld() {
                   )}
                   {user.role === "admin" && (
                     <DropdownMenuItem
-                      onClick={() => setLocation("/admin-dashboard")}
+                      onClick={() => router.push("/admin-dashboard")}
                     >
                       <Settings className="mr-2 h-4 w-4" />
                       Admin Panel
@@ -191,7 +192,7 @@ export default function HeaderOld() {
                 </Button>
                 <Button
                   size="sm"
-                  onClick={() => setLocation("/register")}
+                  onClick={() => router.push("/register")}
                   className="gradient-bg text-white hover:scale-105 transition-all duration-300"
                 >
                   Sign Up

@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
 import { useCompany } from '@/contexts/CompanyContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { FormInput } from '@/components/ui/form-input';
+import { Building2, Mail, Phone, MapPin, Hash, Image, Link as LinkIcon } from 'lucide-react';
 
 export default function CompanyModal() {
   const { company, isMissing, modalOpen, setModalOpen, createCompany, updateCompany } = useCompany();
@@ -89,34 +89,71 @@ export default function CompanyModal() {
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid grid-cols-1 gap-4">
-            <div>
-              <Label htmlFor="name">Company Name</Label>
-              <Input id="name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
-            </div>
-            <div>
-              <Label htmlFor="email">Company Email</Label>
-              <Input id="email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
-            </div>
-            <div>
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} required />
-            </div>
-            <div>
-              <Label htmlFor="location">Location</Label>
-              <Input id="location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} required />
-            </div>
-            <div>
-              <Label htmlFor="tin">TIN (optional)</Label>
-              <Input id="tin" value={form.tin} onChange={(e) => setForm({ ...form, tin: e.target.value })} />
-            </div>
-            <div>
-              <Label htmlFor="logoUrl">Logo URL (optional)</Label>
-              <Input id="logoUrl" value={form.logoUrl} onChange={(e) => setForm({ ...form, logoUrl: e.target.value })} />
-            </div>
-            <div>
-              <Label htmlFor="websiteUrl">Website URL (optional)</Label>
-              <Input id="websiteUrl" value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} />
-            </div>
+            <FormInput
+              id="name"
+              label="Company Name"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.currentTarget.value })}
+              required
+              icon={Building2}
+              placeholder="e.g., Nyambika Ltd"
+            />
+            <FormInput
+              id="email"
+              type="email"
+              label="Company Email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.currentTarget.value })}
+              required
+              icon={Mail}
+              placeholder="company@example.com"
+              autoComplete="email"
+            />
+            <FormInput
+              id="phone"
+              label="Phone"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.currentTarget.value })}
+              required
+              icon={Phone}
+              placeholder="e.g., +2507..."
+              autoComplete="tel"
+            />
+            <FormInput
+              id="location"
+              label="Location"
+              value={form.location}
+              onChange={(e) => setForm({ ...form, location: e.currentTarget.value })}
+              required
+              icon={MapPin}
+              placeholder="City, Country"
+            />
+            <FormInput
+              id="tin"
+              label="TIN (optional)"
+              value={form.tin}
+              onChange={(e) => setForm({ ...form, tin: e.currentTarget.value })}
+              icon={Hash}
+              placeholder="Tax Identification Number"
+            />
+            <FormInput
+              id="logoUrl"
+              type="url"
+              label="Logo URL (optional)"
+              value={form.logoUrl}
+              onChange={(e) => setForm({ ...form, logoUrl: e.currentTarget.value })}
+              icon={Image}
+              placeholder="https://..."
+            />
+            <FormInput
+              id="websiteUrl"
+              type="url"
+              label="Website URL (optional)"
+              value={form.websiteUrl}
+              onChange={(e) => setForm({ ...form, websiteUrl: e.currentTarget.value })}
+              icon={LinkIcon}
+              placeholder="https://..."
+            />
           </div>
           <div className="flex justify-end gap-2">
             {/* Allow closing only when editing OR when required fields are valid */}

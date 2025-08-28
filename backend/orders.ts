@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { db } from "./db";
 import { orders, orderItems, cartItems, products } from "./shared/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, inArray } from "drizzle-orm";
 
 // GET /api/orders - Get user's orders
 export const getUserOrders = async (req: any, res: Response) => {
@@ -16,6 +16,7 @@ export const getUserOrders = async (req: any, res: Response) => {
         id: orders.id,
         total: orders.total,
         status: orders.status,
+        validationStatus: orders.validationStatus,
         paymentMethod: orders.paymentMethod,
         paymentStatus: orders.paymentStatus,
         shippingAddress: orders.shippingAddress,
@@ -55,8 +56,13 @@ export const getUserOrders = async (req: any, res: Response) => {
 
           // attempt to parse shippingAddress if it looks like JSON
           let shippingAddress = order.shippingAddress as any;
-          if (typeof shippingAddress === "string" && shippingAddress.trim().startsWith("{")) {
-            try { shippingAddress = JSON.parse(shippingAddress); } catch {}
+          if (
+            typeof shippingAddress === "string" &&
+            shippingAddress.trim().startsWith("{")
+          ) {
+            try {
+              shippingAddress = JSON.parse(shippingAddress);
+            } catch {}
           }
 
           return { ...order, shippingAddress, items };
@@ -70,7 +76,141 @@ export const getUserOrders = async (req: any, res: Response) => {
     res.status(200).json(ordersWithItems);
   } catch (error) {
     console.error("Error fetching orders:", error);
-    res.status(500).json({ error: "Failed to fetch orders", details: (error as any)?.message || String(error) });
+    res.status(500).json({
+      error: "Failed to fetch orders",
+      details: (error as any)?.message || String(error),
+    });
+  }
+};
+
+// GET /api/producer/orders - Get orders for current producer (only items belonging to this producer)
+export const getProducerOrders = async (req: any, res: Response) => {
+  try {
+    const userId = req.userId; // producer or admin acting as producer
+    if (!userId) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const statusFilter = (req.query.status as string | undefined)?.trim();
+
+    // Gather order IDs where this producer has at least one item
+    const orderIdRows = await db
+      .select({ orderId: orderItems.orderId })
+      .from(orderItems)
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(products.producerId, userId));
+
+    const orderIds = Array.from(
+      new Set(orderIdRows.map((r) => r.orderId))
+    ).filter(Boolean) as string[];
+    if (orderIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Base orders for these IDs
+    const baseQuery = db
+      .select({
+        id: orders.id,
+        customerId: orders.customerId,
+        total: orders.total,
+        status: orders.status,
+        validationStatus: orders.validationStatus,
+        paymentMethod: orders.paymentMethod,
+        paymentStatus: orders.paymentStatus,
+        shippingAddress: orders.shippingAddress,
+        trackingNumber: orders.trackingNumber,
+        notes: orders.notes,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .where(inArray(orders.id, orderIds))
+      .orderBy(desc(orders.createdAt))
+      .$dynamic();
+
+    if (statusFilter && statusFilter.length > 0) {
+      baseQuery.where(
+        and(inArray(orders.id, orderIds), eq(orders.status, statusFilter))
+      );
+    }
+
+    const baseOrders = await baseQuery;
+
+    const ordersWithItems = await Promise.all(
+      baseOrders.map(async (order) => {
+        try {
+          const items = await db
+            .select({
+              id: orderItems.id,
+              productId: orderItems.productId,
+              quantity: orderItems.quantity,
+              price: orderItems.price,
+              size: orderItems.size,
+              color: orderItems.color,
+              product: {
+                id: products.id,
+                name: products.name,
+                imageUrl: products.imageUrl,
+                producerId: products.producerId,
+              },
+            })
+            .from(orderItems)
+            .leftJoin(products, eq(orderItems.productId, products.id))
+            .where(
+              and(
+                eq(orderItems.orderId, order.id),
+                eq(products.producerId, userId)
+              )
+            );
+
+          const producerTotal = items.reduce((sum, it) => {
+            const priceNum =
+              typeof it.price === "string"
+                ? parseFloat(it.price)
+                : (it.price as unknown as number);
+            const qty =
+              typeof it.quantity === "number"
+                ? it.quantity
+                : parseInt(String(it.quantity) || "0", 10);
+            return (
+              sum +
+              (isFinite(priceNum) ? priceNum : 0) * (isFinite(qty) ? qty : 0)
+            );
+          }, 0);
+
+          let shippingAddress = order.shippingAddress as any;
+          if (
+            typeof shippingAddress === "string" &&
+            shippingAddress.trim().startsWith("{")
+          ) {
+            try {
+              shippingAddress = JSON.parse(shippingAddress);
+            } catch {}
+          }
+
+          return {
+            ...order,
+            shippingAddress,
+            items,
+            total: producerTotal.toFixed(2),
+          };
+        } catch (itemErr) {
+          console.warn(
+            "Failed to fetch producer items for order",
+            order.id,
+            itemErr
+          );
+          return { ...order, items: [] as any[], total: "0.00" };
+        }
+      })
+    );
+
+    res.status(200).json(ordersWithItems);
+  } catch (error) {
+    console.error("Error fetching producer orders:", error);
+    res.status(500).json({
+      error: "Failed to fetch producer orders",
+      details: (error as any)?.message || String(error),
+    });
   }
 };
 
@@ -81,13 +221,13 @@ export const getOrderById = async (req: any, res: Response) => {
     const userRole = req.userRole; // Added to check user role
     const producerId = req.userId; // For producers, this is their user ID
     const orderId = req.params.id;
-    
-    console.log('Order ID:', orderId);
-    console.log('User ID:', userId);
-    console.log('User Role:', userRole);
-    
+
+    console.log("Order ID:", orderId);
+    console.log("User ID:", userId);
+    console.log("User Role:", userRole);
+
     if (!userId) {
-      console.log('No user ID found in request');
+      console.log("No user ID found in request");
       return res.status(401).json({ error: "Unauthorized" });
     }
 
@@ -98,6 +238,7 @@ export const getOrderById = async (req: any, res: Response) => {
         customerId: orders.customerId, // Include customerId in the selection
         total: orders.total,
         status: orders.status,
+        validationStatus: orders.validationStatus,
         paymentMethod: orders.paymentMethod,
         paymentStatus: orders.paymentStatus,
         shippingAddress: orders.shippingAddress,
@@ -109,15 +250,12 @@ export const getOrderById = async (req: any, res: Response) => {
       .$dynamic();
 
     // Apply conditions based on user role
-    if (userRole === 'producer' || userRole === 'admin') {
+    if (userRole === "producer" || userRole === "admin") {
       orderQuery.where(eq(orders.id, orderId));
     } else {
       // For customers, only show their own orders
       orderQuery.where(
-        and(
-          eq(orders.id, orderId),
-          eq(orders.customerId, userId)
-        )
+        and(eq(orders.id, orderId), eq(orders.customerId, userId))
       );
     }
 
@@ -153,7 +291,7 @@ export const getOrderById = async (req: any, res: Response) => {
         .$dynamic();
 
       // Apply conditions based on user role
-      if (userRole === 'producer') {
+      if (userRole === "producer") {
         // For producers, only show items from their products
         itemsQuery.where(
           and(
@@ -165,17 +303,21 @@ export const getOrderById = async (req: any, res: Response) => {
         // For customers and admins, show all items in the order
         itemsQuery.where(eq(orderItems.orderId, orderId));
       }
-      
-      items = await itemsQuery;
 
+      items = await itemsQuery;
     } catch (itemErr) {
       console.warn("Failed to fetch items for order", orderId, itemErr);
     }
 
     // attempt to parse shippingAddress if it's a JSON string
     let shippingAddress = order.shippingAddress as any;
-    if (typeof shippingAddress === "string" && shippingAddress.trim().startsWith("{")) {
-      try { shippingAddress = JSON.parse(shippingAddress); } catch {}
+    if (
+      typeof shippingAddress === "string" &&
+      shippingAddress.trim().startsWith("{")
+    ) {
+      try {
+        shippingAddress = JSON.parse(shippingAddress);
+      } catch {}
     }
 
     const orderWithItems = { ...order, shippingAddress, items };
@@ -183,7 +325,10 @@ export const getOrderById = async (req: any, res: Response) => {
     res.json(orderWithItems);
   } catch (error) {
     console.error("Error fetching order:", error);
-    res.status(500).json({ error: "Failed to fetch order", details: (error as any)?.message || String(error) });
+    res.status(500).json({
+      error: "Failed to fetch order",
+      details: (error as any)?.message || String(error),
+    });
   }
 };
 
@@ -203,13 +348,17 @@ export const createOrder = async (req: any, res: Response) => {
     }
 
     if (!total || !paymentMethod || !shippingAddress) {
-      return res.status(400).json({ error: "Missing required order information" });
+      return res
+        .status(400)
+        .json({ error: "Missing required order information" });
     }
 
     // Validate each item has required fields
     for (const item of items) {
       if (!item.productId || !item.quantity || !item.price) {
-        return res.status(400).json({ error: "Each item must have productId, quantity, and price" });
+        return res.status(400).json({
+          error: "Each item must have productId, quantity, and price",
+        });
       }
     }
 
@@ -222,8 +371,12 @@ export const createOrder = async (req: any, res: Response) => {
           customerId: userId,
           total: parseFloat(total).toFixed(2),
           paymentMethod,
-          paymentStatus: paymentMethod === "cash_on_delivery" ? "pending" : "pending",
-          shippingAddress: typeof shippingAddress === "string" ? shippingAddress : JSON.stringify(shippingAddress),
+          paymentStatus:
+            paymentMethod === "cash_on_delivery" ? "pending" : "pending",
+          shippingAddress:
+            typeof shippingAddress === "string"
+              ? shippingAddress
+              : JSON.stringify(shippingAddress),
           notes: notes || null,
         })
         .returning();
@@ -241,9 +394,7 @@ export const createOrder = async (req: any, res: Response) => {
       await tx.insert(orderItems).values(orderItemsData);
 
       // Clear user's cart after successful order
-      await tx
-        .delete(cartItems)
-        .where(eq(cartItems.userId, userId));
+      await tx.delete(cartItems).where(eq(cartItems.userId, userId));
 
       return newOrder;
     });
@@ -300,10 +451,10 @@ export const updateOrder = async (req: any, res: Response) => {
     }
 
     // Only allow updates by customer (limited), producer, or admin
-    const canUpdate = 
+    const canUpdate =
       existingOrder.customerId === userId ||
       existingOrder.producerId === userId;
-      // Add admin check here when roles are implemented
+    // Add admin check here when roles are implemented
 
     if (!canUpdate) {
       return res.status(403).json({ error: "Forbidden" });
@@ -355,33 +506,126 @@ export const cancelOrder = async (req: any, res: Response) => {
 
     // Only allow cancellation by the customer who placed the order
     if (existingOrder.customerId !== userId) {
-      return res.status(403).json({ error: "You can only cancel your own orders" });
+      return res
+        .status(403)
+        .json({ error: "You can only cancel your own orders" });
     }
 
     // Only allow cancellation if order is still pending
     if (existingOrder.status !== "pending") {
-      return res.status(400).json({ 
-        error: "Order cannot be cancelled", 
-        message: `Orders with status '${existingOrder.status}' cannot be cancelled. Only pending orders can be cancelled.`
+      return res.status(400).json({
+        error: "Order cannot be cancelled",
+        message: `Orders with status '${existingOrder.status}' cannot be cancelled. Only pending orders can be cancelled.`,
       });
     }
 
     // Update order status to cancelled
     const [cancelledOrder] = await db
       .update(orders)
-      .set({ 
+      .set({
         status: "cancelled",
-        notes: "Order cancelled by customer"
+        notes: "Order cancelled by customer",
       })
       .where(eq(orders.id, orderId))
       .returning();
 
-    res.json({ 
-      message: "Order cancelled successfully", 
-      order: cancelledOrder 
+    res.json({
+      message: "Order cancelled successfully",
+      order: cancelledOrder,
     });
   } catch (error) {
     console.error("Error cancelling order:", error);
     res.status(500).json({ error: "Failed to cancel order" });
+  }
+};
+
+// PUT /api/orders/:id/validation-status - Update validation_status with role checks
+export const updateOrderValidationStatus = async (req: any, res: Response) => {
+  try {
+    const userId = req.userId as string | undefined;
+    const role = req.userRole as string | undefined;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+    const orderId = req.params.id as string;
+    const newStatus = String(req.body?.validationStatus || "").trim();
+    const allowedValues = [
+      "pending",
+      "in_progress",
+      "done",
+      "confirmed_by_customer",
+    ];
+    if (!allowedValues.includes(newStatus)) {
+      return res
+        .status(400)
+        .json({ error: "Invalid validationStatus value" });
+    }
+
+    // Fetch order basic info
+    const [existing] = await db
+      .select({ id: orders.id, customerId: orders.customerId })
+      .from(orders)
+      .where(eq(orders.id, orderId));
+    if (!existing) return res.status(404).json({ error: "Order not found" });
+
+    // Customers: can only set confirmed_by_customer on their own orders
+    if (role === "customer") {
+      if (existing.customerId !== userId) {
+        return res.status(403).json({ error: "Forbidden" });
+      }
+      if (newStatus !== "confirmed_by_customer") {
+        return res.status(400).json({
+          error: "Customers can only set confirmed_by_customer",
+        });
+      }
+      const [updated] = await db
+        .update(orders)
+        .set({
+          validationStatus: newStatus,
+          isConfirmedByCustomer: true,
+          customerConfirmationDate: new Date() as any,
+        })
+        .where(eq(orders.id, orderId))
+        .returning();
+      return res.json(updated);
+    }
+
+    // Producers/Admins: can set pending, in_progress, done
+    if (role === "producer" || role === "admin") {
+      if (role === "producer") {
+        // Ensure this producer has at least one item in this order
+        const ownedItem = await db
+          .select({ id: orderItems.id })
+          .from(orderItems)
+          .leftJoin(products, eq(orderItems.productId, products.id))
+          .where(
+            and(eq(orderItems.orderId, orderId), eq(products.producerId, userId))
+          )
+          .limit(1);
+        if (ownedItem.length === 0) {
+          return res
+            .status(403)
+            .json({ error: "You do not have items in this order" });
+        }
+      }
+
+      if (!["in_progress", "done", "pending"].includes(newStatus)) {
+        return res.status(400).json({
+          error: "Producers can set: pending, in_progress, done",
+        });
+      }
+      const [updated] = await db
+        .update(orders)
+        .set({ validationStatus: newStatus })
+        .where(eq(orders.id, orderId))
+        .returning();
+      return res.json(updated);
+    }
+
+    return res.status(403).json({ error: "Forbidden" });
+  } catch (error) {
+    console.error("Error updating validation status:", error);
+    return res
+      .status(500)
+      .json({ error: "Failed to update validation status" });
   }
 };

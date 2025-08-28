@@ -1,4 +1,3 @@
-import { Link } from "wouter";
 import React from "react";
 import { toast } from "@/hooks/use-toast";
 import {
@@ -14,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
 
 export default function Footer() {
   const year = new Date().getFullYear();

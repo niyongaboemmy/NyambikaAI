@@ -1,9 +1,6 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "./shared/schema";
-
-neonConfig.webSocketConstructor = ws;
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
@@ -12,4 +9,18 @@ if (!process.env.DATABASE_URL) {
 }
 
 export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
+
+// Runtime-safe migration to add missing columns without a migration framework
+export async function ensureSchemaMigrations() {
+  // Ensure orders.validation_status exists
+  const checkColSql = `
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'orders' AND column_name = 'validation_status'
+  `;
+  const result = await pool.query(checkColSql);
+  if (result.rowCount === 0) {
+    // Add the column with default 'pending'
+    await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS validation_status TEXT DEFAULT 'pending'`);
+  }
+}

@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { apiClient, handleApiError } from '@/config/api';
 
 export interface Company {
   id?: string;
@@ -42,7 +43,14 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   const [isMissing, setIsMissing] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const token = useMemo(() => localStorage.getItem('auth_token'), [user?.id]);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Only access localStorage on client side
+    if (typeof window !== 'undefined') {
+      setToken(localStorage.getItem('auth_token'));
+    }
+  }, [user?.id]);
 
   const refresh = async () => {
     if (!user || user.role !== 'producer' || !token) {
@@ -53,22 +61,18 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     }
     setIsLoading(true);
     try {
-      const res = await fetch('/api/companies/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (res.status === 404) {
+      const response = await apiClient.get('/api/companies/me');
+      setCompany(response.data);
+      setIsMissing(false);
+    } catch (error: any) {
+      if (error.response?.status === 404) {
         setCompany(null);
         setIsMissing(true);
         setModalOpen(true);
-        return;
+      } else {
+        console.error('Error fetching company:', handleApiError(error));
+        setCompany(null);
       }
-      if (!res.ok) throw new Error('Failed to load company');
-      const data = await res.json();
-      setCompany(data);
-      setIsMissing(false);
-    } catch (e: any) {
-      console.error('Company load error:', e);
-      toast({ title: 'Company', description: e.message || 'Failed to load company', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -78,26 +82,15 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const res = await fetch('/api/companies', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Failed to create company');
-      }
-      const created = await res.json();
-      setCompany(created);
+      const response = await apiClient.post('/api/companies', data);
+      setCompany(response.data);
       setIsMissing(false);
       setModalOpen(false);
       toast({ title: 'Company saved', description: 'Your company details were created.' });
-    } catch (e: any) {
-      toast({ title: 'Company', description: e.message, variant: 'destructive' });
-      throw e;
+    } catch (error: any) {
+      const errorMessage = handleApiError(error);
+      toast({ title: 'Company', description: errorMessage, variant: 'destructive' });
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -107,24 +100,13 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     if (!token) return;
     setIsLoading(true);
     try {
-      const res = await fetch('/api/companies', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(updates)
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || 'Failed to update company');
-      }
-      const updated = await res.json();
-      setCompany(updated);
+      const response = await apiClient.put('/api/companies', updates);
+      setCompany(response.data);
       toast({ title: 'Company updated', description: 'Your company details were updated.' });
-    } catch (e: any) {
-      toast({ title: 'Company', description: e.message, variant: 'destructive' });
-      throw e;
+    } catch (error: any) {
+      const errorMessage = handleApiError(error);
+      toast({ title: 'Company', description: errorMessage, variant: 'destructive' });
+      throw new Error(errorMessage);
     } finally {
       setIsLoading(false);
     }

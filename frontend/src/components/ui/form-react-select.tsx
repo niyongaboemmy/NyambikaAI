@@ -27,10 +27,15 @@ const useIsDark = () => {
   );
 
   React.useEffect(() => {
+    if (typeof document === "undefined") return;
+    
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
     });
-    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    
+    if (document.documentElement) {
+      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
+    }
     return () => observer.disconnect();
   }, []);
 

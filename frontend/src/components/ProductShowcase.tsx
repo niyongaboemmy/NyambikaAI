@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useLocation } from "wouter";
 import ProductCard from "@/components/ProductCard";
+import { useRouter } from "next/navigation";
 
 export default function ProductShowcase() {
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [, setLocation] = useLocation();
+  const router = useRouter();
 
   const products = [
     {
@@ -77,7 +77,7 @@ export default function ProductShowcase() {
               }
               isFavorited={favorites.includes(p.id)}
               onToggleFavorite={toggleFavorite}
-              onViewDetails={(pid) => setLocation(`/product/${pid}`)}
+              onViewDetails={(pid) => router.push(`/product/${pid}`)}
               containerClassName="p-6"
             />
           ))}
