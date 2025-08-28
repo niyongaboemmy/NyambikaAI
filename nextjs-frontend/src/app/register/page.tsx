@@ -18,17 +18,27 @@ import {
   ShoppingBag,
   Factory,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormInput } from "@/components/ui/form-input";
-import { FormSelect } from "@/components/ui/form-select";
-import { Label } from "@/components/ui/label";
-import { useAuth } from "@/contexts/AuthContext";
-import { useLoginPrompt } from "@/contexts/LoginPromptContext";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
+import { Button } from "../../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
+import { FormInput } from "../../components/ui/form-input";
+import { FormSelect } from "../../components/ui/form-select";
+import { Label } from "../../components/ui/label";
+import { useAuth } from "../../contexts/AuthContext";
+import { useLoginPrompt } from "../../contexts/LoginPromptContext";
+import { Checkbox } from "../../components/ui/checkbox";
+import { useToast } from "../../hooks/use-toast";
+import {
+  Tabs,
+  TabsTrigger,
+  TabsContent,
+  TabsList,
+} from "../../components/ui/tabs";
+import { Progress } from "../../components/ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 

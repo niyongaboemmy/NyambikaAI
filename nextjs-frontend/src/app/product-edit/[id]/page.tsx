@@ -43,7 +43,7 @@ function ProductEdit() {
   const { toast } = useToast();
   const router = useRouter();
   const params = useParams();
-  const productId = useMemo(() => params?.id as string || "", [params]);
+  const productId = useMemo(() => (params?.id as string) || "", [params]);
   const { open } = useLoginPrompt();
 
   // Prompt login or redirect based on auth/role (after auth finished loading)
@@ -126,10 +126,7 @@ function ProductEdit() {
 
   // Move useMemo outside of conditional rendering to fix hooks order
   const initialValues = useMemo(() => {
-    const cached: any = queryClient.getQueryData([
-      "product",
-      productId,
-    ]);
+    const cached: any = queryClient.getQueryData(["product", productId]);
     const p: any = loadedProduct || cached;
     if (!p) return initialFormData;
     return {
@@ -137,8 +134,7 @@ function ProductEdit() {
       nameRw: p.nameRw || "",
       description: p.description || "",
       descriptionRw: p.descriptionRw || "",
-      price:
-        typeof p.price === "number" ? String(p.price) : p.price || "",
+      price: typeof p.price === "number" ? String(p.price) : p.price || "",
       categoryId: p.categoryId || "",
       imageUrl: p.imageUrl || "",
       additionalImages: Array.isArray(p.additionalImages)
@@ -197,6 +193,9 @@ function ProductEdit() {
               await updateProductMutation.mutateAsync(data);
             }}
           />
+          <Button
+            type="button"
+            variant="secondary"
             onClick={() => router.push(`/product/${productId}`)}
             className="bg-white dark:bg-gray-900 dark:hover:bg-gray-800 flex items-center gap-2"
           >
@@ -219,7 +218,6 @@ function ProductEdit() {
             await updateProductMutation.mutateAsync(data);
           }}
         />
-      </div>
       </main>
     </ProtectedRoute>
   );
