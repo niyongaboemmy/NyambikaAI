@@ -18,20 +18,14 @@ import {
   insertProductSchema,
   insertCategorySchema,
   insertCartItemSchema,
-  insertOrderSchema,
-  insertOrderItemSchema,
   insertFavoriteSchema,
-  insertTryOnSessionSchema,
-  insertReviewSchema
+  insertTryOnSessionSchema
 } from "./shared/schema";
+import { getUserOrders, getOrderById, createOrder, updateOrder, cancelOrder } from "./orders";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   
   // Auth middleware with JWT
-  interface AuthenticatedRequest extends Express.Request {
-    userId: string;
-    userRole: string;
-  }
 
   const requireAuth = async (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
@@ -1094,21 +1088,14 @@ try {
     }
   });
 
-  // Orders routes
-  app.get('/api/orders', requireAuth, async (req: any, res) => {
-    try {
-      const orders = await storage.getOrders(req.userId);
-      res.json(orders);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+  // Orders routes (migrated to dedicated handlers in ./orders)
+  // Legacy inline route removed to avoid conflicting validation/handlers.
 
   // Producer orders (for producers/admins)
   app.get('/api/producer/orders', requireAuth, requireRole(['producer', 'admin']), async (req: any, res) => {
     try {
-      const orders = await storage.getProducerOrders(req.userId);
+      const { status } = req.query;
+      const orders = await storage.getProducerOrders(req.userId, status);
       res.json(orders);
     } catch (error) {
       console.error('Error fetching producer orders:', error);
@@ -1116,43 +1103,9 @@ try {
     }
   });
 
-  app.get('/api/orders/:id', requireAuth, async (req, res) => {
-    try {
-      const { id } = req.params;
-      const order = await storage.getOrder(req.params.id);
-      if (!order) {
-        return res.status(404).json({ message: 'Order not found' });
-      }
-      res.json(order);
-    } catch (error) {
-      console.error('Error fetching order:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+  // Legacy inline GET /api/orders/:id removed; use getOrderById from ./orders below.
 
-  app.post('/api/orders', requireAuth, async (req: any, res) => {
-    try {
-      const { items, ...orderData } = req.body;
-      const validatedOrderData = insertOrderSchema.parse({
-        ...orderData,
-        userId: req.userId
-      });
-      const validatedItems = z.array(insertOrderItemSchema).parse(items);
-      
-      const order = await storage.createOrder(validatedOrderData, validatedItems);
-      
-      // Clear cart after successful order
-      await storage.clearCart(req.userId);
-      
-      res.status(201).json(order);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ message: 'Validation error', errors: error.errors });
-      }
-      console.error('Error creating order:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
+  // Legacy inline POST /api/orders removed; use createOrder from ./orders below.
 
   app.put('/api/orders/:id/status', requireAuth, requireRole(['producer', 'admin']), async (req, res) => {
     try {
@@ -1223,11 +1176,19 @@ try {
   // Try-on sessions routes
   app.get('/api/try-on-sessions', requireAuth, async (req: any, res) => {
     try {
-      const sessions = await storage.getTryOnSessions(req.userId);
-      res.json(sessions);
+      // Set a timeout for the database query
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Database query timeout')), 8000);
+      });
+      
+      const sessionsPromise = storage.getTryOnSessions(req.userId);
+      
+      const sessions = await Promise.race([sessionsPromise, timeoutPromise]);
+      res.json(sessions || []);
     } catch (error) {
       console.error('Error fetching try-on sessions:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      // Return empty array instead of error to prevent frontend crashes
+      res.json([]);
     }
   });
 
@@ -1396,6 +1357,13 @@ try {
       res.status(500).json({ message: 'Internal server error' });
     }
   });
+
+  // Order routes
+  app.get('/api/orders', requireAuth, getUserOrders);
+  app.get('/api/orders/:id', requireAuth, getOrderById);
+  app.post('/api/orders', requireAuth, createOrder);
+  app.put('/api/orders/:id', requireAuth, updateOrder);
+  app.delete('/api/orders/:id', requireAuth, cancelOrder);
 
   // Health check endpoint
   app.get('/api/health', (req, res) => {

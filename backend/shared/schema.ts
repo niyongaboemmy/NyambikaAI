@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, decimal, timestamp, boolean, json } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, decimal, timestamp, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -79,11 +79,11 @@ export const orders = pgTable("orders", {
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
   status: text("status").notNull().default("pending"), // pending, confirmed, processing, shipped, delivered, cancelled
   paymentMethod: text("payment_method"),
-  paymentStatus: text("payment_status").default("pending"),
   shippingAddress: text("shipping_address"),
+  createdAt: timestamp("created_at").defaultNow(),
+  paymentStatus: text("payment_status").default("pending"),
   trackingNumber: text("tracking_number"),
   notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const orderItems = pgTable("order_items", {

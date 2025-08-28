@@ -31,7 +31,7 @@ import {
   type InsertReview,
 } from "./shared/schema";
 import { db } from "./db";
-import { eq, like, and, desc, asc } from "drizzle-orm";
+import { eq, like, and, desc, asc, inArray } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -354,12 +354,87 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(orders.createdAt));
   }
 
-  async getProducerOrders(producerId: string): Promise<Order[]> {
-    return await db
+  async getProducerOrders(producerId: string, status?: string): Promise<Order[]> {
+    // First, get all order IDs that have products from this producer
+    const orderIdsQuery = db
+      .selectDistinct({ id: orders.id })
+      .from(orders)
+      .innerJoin(orderItems, eq(orders.id, orderItems.orderId))
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(products.producerId, producerId));
+
+    // Get the full order details for those orders
+    const orderIdsList = (await orderIdsQuery).map((o) => o.id);
+    
+    if (orderIdsList.length === 0) {
+      return [];
+    }
+
+    // Build the query with status filter if provided
+    const conditions = [inArray(orders.id, orderIdsList)];
+    if (status && status !== 'all') {
+      conditions.push(eq(orders.status, status));
+    }
+
+    const result = await db
       .select()
       .from(orders)
-      .where(eq(orders.producerId, producerId))
+      .where(and(...conditions))
       .orderBy(desc(orders.createdAt));
+
+    // Get all order items for these orders with product details,
+    // but only include items from this producer
+    const orderItemsWithProducts = await db
+      .select({
+        orderId: orderItems.orderId,
+        id: orderItems.id,
+        productId: orderItems.productId,
+        quantity: orderItems.quantity,
+        price: orderItems.price,
+        size: orderItems.size,
+        color: orderItems.color,
+        product: {
+          id: products.id,
+          name: products.name,
+          imageUrl: products.imageUrl,
+          producerId: products.producerId,
+        },
+      })
+      .from(orderItems)
+      .innerJoin(products, eq(orderItems.productId, products.id))
+      .where(
+        and(
+          inArray(orderItems.orderId, orderIdsList),
+          eq(products.producerId, producerId) // Only include products from this producer
+        )
+      );
+
+    // Group order items by order ID
+    const itemsByOrderId = orderItemsWithProducts.reduce<Record<string, any[]>>(
+      (acc, item) => {
+        const orderId = item.orderId || ""; // Ensure we have a string key
+        if (!acc[orderId]) {
+          acc[orderId] = [];
+        }
+        acc[orderId].push({
+          id: item.id,
+          productId: item.productId,
+          quantity: item.quantity,
+          price: item.price,
+          size: item.size,
+          color: item.color,
+          product: item.product,
+        });
+        return acc;
+      },
+      {}
+    );
+
+    // Combine orders with their items
+    return result.map((order) => ({
+      ...order,
+      items: itemsByOrderId[order.id] || [],
+    }));
   }
 
   async getOrder(
@@ -464,11 +539,17 @@ export class DatabaseStorage implements IStorage {
 
   // Try-on session operations
   async getTryOnSessions(userId: string): Promise<TryOnSession[]> {
-    return await db
-      .select()
-      .from(tryOnSessions)
-      .where(eq(tryOnSessions.userId, userId))
-      .orderBy(desc(tryOnSessions.createdAt));
+    try {
+      return await db
+        .select()
+        .from(tryOnSessions)
+        .where(eq(tryOnSessions.userId, userId))
+        .orderBy(desc(tryOnSessions.createdAt))
+        .limit(50); // Limit results to prevent large queries
+    } catch (error) {
+      console.error("Database error in getTryOnSessions:", error);
+      return []; // Return empty array on error
+    }
   }
 
   async getTryOnSession(id: string): Promise<TryOnSession | undefined> {
@@ -521,7 +602,7 @@ export class DatabaseStorage implements IStorage {
     let q: any = db
       .select()
       .from(users)
-      .where(eq(users.role, 'producer'))
+      .where(eq(users.role, "producer"))
       .orderBy(asc(users.fullName));
     if (limit && limit > 0) {
       q = q.limit(limit);
@@ -530,7 +611,9 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Companies
-  async getCompanyByProducerId(producerId: string): Promise<Company | undefined> {
+  async getCompanyByProducerId(
+    producerId: string
+  ): Promise<Company | undefined> {
     const [company] = await db
       .select()
       .from(companies)
@@ -587,7 +670,7 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(companies, eq(products.producerId, companies.producerId))
       .where(eq(companies.id, companyId))
       .orderBy(asc(products.name));
-    
+
     return companyProducts;
   }
 }
