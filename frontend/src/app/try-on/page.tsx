@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect, useMemo, memo } from "react";
+import { useState, useCallback, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -11,7 +11,6 @@ import {
   Filter,
   ChevronDown,
   Eye,
-  Brain,
 } from "lucide-react";
 import { Skeleton } from "../../components/ui/skeleton";
 import { Input } from "@/components/ui/input";

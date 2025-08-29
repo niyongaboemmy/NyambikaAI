@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Camera, Upload, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { Camera, X, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface OrderFormProps {
   onSubmit: (orderData: any) => void;

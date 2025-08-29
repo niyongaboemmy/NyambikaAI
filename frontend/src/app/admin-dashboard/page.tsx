@@ -10,7 +10,6 @@ import {
   Users,
   Package,
   DollarSign,
-  TrendingUp,
   CheckCircle,
   Clock,
   AlertTriangle,
@@ -19,7 +18,6 @@ import {
   Ban,
   MoreVertical,
   Search,
-  Filter,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,9 +27,8 @@ function AdminDashboard() {
   const router = useRouter();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("overview");
-  const [loading, setLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState({
-    stats: {} as any,
+    stats: {},
     producers: [],
     agents: [],
     orders: [],
@@ -39,7 +36,7 @@ function AdminDashboard() {
   });
 
   const formatCurrency = (amount: number | string | undefined) => {
-    const n = typeof amount === "string" ? parseFloat(amount) : (amount ?? 0);
+    const n = typeof amount === "string" ? parseFloat(amount) : amount ?? 0;
     return new Intl.NumberFormat("en-RW", {
       style: "currency",
       currency: "RWF",
@@ -94,9 +91,24 @@ function AdminDashboard() {
     const customers = Math.max(total - producers - agents, 0);
     const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
     return [
-      { role: "Producers", count: producers, percentage: pct(producers), color: "bg-purple-500" },
-      { role: "Agents", count: agents, percentage: pct(agents), color: "bg-blue-500" },
-      { role: "Customers", count: customers, percentage: pct(customers), color: "bg-green-500" },
+      {
+        role: "Producers",
+        count: producers,
+        percentage: pct(producers),
+        color: "bg-purple-500",
+      },
+      {
+        role: "Agents",
+        count: agents,
+        percentage: pct(agents),
+        color: "bg-blue-500",
+      },
+      {
+        role: "Customers",
+        count: customers,
+        percentage: pct(customers),
+        color: "bg-green-500",
+      },
     ];
   })();
 
@@ -104,11 +116,30 @@ function AdminDashboard() {
     const orders: any[] = (dashboardData.orders as any[]) || [];
     return orders.slice(0, 6).map((o) => ({
       id: o.id,
-      type: o.status === "delivered" ? "success" : o.status === "cancelled" ? "warning" : "info",
-      action: o.status === "delivered" ? "Order delivered" : o.status === "cancelled" ? "Order cancelled" : "Order update",
-      target: `Order #${String(o.id).slice(-8)} • ${o.items?.length || 0} item(s)` ,
+      type:
+        o.status === "delivered"
+          ? "success"
+          : o.status === "cancelled"
+          ? "warning"
+          : "info",
+      action:
+        o.status === "delivered"
+          ? "Order delivered"
+          : o.status === "cancelled"
+          ? "Order cancelled"
+          : "Order update",
+      target: `Order #${String(o.id).slice(-8)} • ${
+        o.items?.length || 0
+      } item(s)`,
       user: o.customerEmail || "customer",
-      timestamp: new Date(o.createdAt || o.updatedAt || Date.now()).toLocaleString("en-RW", { hour: "2-digit", minute: "2-digit", month: "short", day: "numeric" }),
+      timestamp: new Date(
+        o.createdAt || o.updatedAt || Date.now()
+      ).toLocaleString("en-RW", {
+        hour: "2-digit",
+        minute: "2-digit",
+        month: "short",
+        day: "numeric",
+      }),
     }));
   })();
 
@@ -146,7 +177,7 @@ function AdminDashboard() {
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      // setLoading(false);
     }
   };
 
@@ -440,7 +471,8 @@ function AdminDashboard() {
                 <Card className="floating-card">
                   <CardHeader>
                     <CardTitle className="gradient-text">
-                      Pending Approvals ({dashboardData.pendingApprovals.length})
+                      Pending Approvals ({dashboardData.pendingApprovals.length}
+                      )
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">

@@ -7,16 +7,13 @@ import SubscriptionGuard from '@/components/SubscriptionGuard';
 import { 
   ShoppingBag, 
   Package, 
-  TrendingUp, 
   DollarSign,
   Eye,
   Clock,
   CheckCircle,
   AlertTriangle,
-  Users,
   Camera,
-  MessageSquare,
-  Star
+  MessageSquare
 } from 'lucide-react';
 
 interface Order {

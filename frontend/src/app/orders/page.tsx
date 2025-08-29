@@ -10,18 +10,13 @@ import {
   X,
   Calendar,
   CreditCard,
-  MapPin,
   Sparkles,
   Zap,
-  Brain,
-  Activity,
   Download,
-  Star,
-  TrendingUp,
   ShoppingBag,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { OrdersSkeleton } from "@/components/ui/OrdersSkeleton";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

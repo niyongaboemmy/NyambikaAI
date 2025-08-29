@@ -2,11 +2,9 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent } from "@/components/ui/card";
 import { apiClient, handleApiError } from "@/config/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import ReactSelect from "react-select";
 import {
@@ -14,35 +12,26 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import ProductCard from "@/components/ProductCard";
 import {
   MapPin,
   Phone,
-  Mail,
-  Globe,
   Share2,
   Package,
   Star,
-  Users,
-  TrendingUp,
   Heart,
   ShoppingCart,
   Search,
-  Filter,
   Grid,
   List,
-  ArrowLeft,
   ExternalLink,
   Clock,
   CheckCircle,
   XCircle,
   GitCompare,
   Eye,
-  Sparkles,
-  Zap,
   Grid3X3,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";

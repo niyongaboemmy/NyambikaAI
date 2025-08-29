@@ -7,18 +7,12 @@ import {
   Settings,
   Heart,
   ShoppingBag,
-  Star,
   Edit3,
-  Camera,
   Loader2,
   Sparkles,
   TrendingUp,
-  Shield,
-  Bell,
-  CreditCard,
   MapPin,
   Phone,
-  Calendar,
   Activity,
   Zap,
   Brain,
@@ -26,18 +20,14 @@ import {
   Award,
   ChevronRight,
   LogOut,
-  HelpCircle,
-  Globe,
   Moon,
   Sun,
   Mail,
   Lock,
 } from "lucide-react";
-import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { FormInput } from "@/components/ui/form-input";
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/theme-provider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";

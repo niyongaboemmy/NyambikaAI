@@ -1,6 +1,5 @@
 import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import Link from "next/link";
 import { apiClient, handleApiError } from "@/config/api";
 

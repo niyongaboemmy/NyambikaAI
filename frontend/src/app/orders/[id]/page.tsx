@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, use, useEffect } from "react";
+import { useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Skeleton } from "@/components/ui/skeleton";
 import { OrderDetailsSkeleton } from "@/components/ui/OrderDetailsSkeleton";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import {
@@ -28,8 +27,6 @@ import {
   Copy,
   Star,
   MessageSquare,
-  Sparkles,
-  Zap,
   ShoppingBag,
   Brain,
   Cpu,

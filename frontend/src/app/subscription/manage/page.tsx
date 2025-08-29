@@ -4,11 +4,9 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
-  CreditCard, 
   Calendar, 
   AlertTriangle, 
-  CheckCircle, 
-  ArrowRight,
+  CheckCircle,
   RefreshCw,
   X,
   Crown,

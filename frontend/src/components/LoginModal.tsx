@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import LoginForm from "@/components/auth/LoginForm";
 import PasswordRecoveryForm from "@/components/auth/PasswordRecoveryForm";

@@ -7,27 +7,18 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { format, parseISO } from "date-fns";
+import { format } from "date-fns";
 import {
   Search,
   X,
   RefreshCw,
   Package,
   DollarSign,
-  CreditCard,
-  ShoppingCart,
   Filter,
   ListFilter,
   Calendar as CalendarIcon,
   Clock,
-  CheckCircle,
-  Truck,
   AlertCircle,
-  Eye,
-  User,
-  MapPin,
-  Phone,
-  Mail,
   Download,
   TrendingUp,
   BarChart3,

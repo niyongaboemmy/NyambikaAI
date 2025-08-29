@@ -5,10 +5,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { usePathname, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { AlertCircle, CreditCard, Loader2, Sparkles, UserCheck } from "lucide-react";
+import { CreditCard, Loader2, Sparkles, UserCheck } from "lucide-react";
 import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
 import SubscriptionPlanSelector from "./SubscriptionPlanSelector";
-import { apiClient, API_ENDPOINTS } from "@/config/api";
+import { apiClient } from "@/config/api";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProducerSubscriptionGuardProps {

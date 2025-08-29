@@ -20,8 +20,6 @@ import {
   Smartphone,
   Building2,
   User,
-  Calendar,
-  DollarSign,
   CheckCircle2,
   AlertCircle,
   ArrowLeft,
@@ -31,7 +29,6 @@ import {
   MapPin,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import { motion } from "framer-motion";
 
 interface Producer {
   id: string;

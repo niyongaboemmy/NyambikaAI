@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Camera, ArrowRight, Sparkles, ChevronsDown } from "lucide-react";
+import { Camera, ChevronsDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";

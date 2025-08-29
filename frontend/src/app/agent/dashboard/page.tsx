@@ -5,9 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { 
   Users, 
-  DollarSign, 
-  TrendingUp, 
-  Calendar,
+  DollarSign,
   Search,
   Filter,
   Eye,

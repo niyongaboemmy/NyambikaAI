@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-import { Toaster } from "@/components/ui/toaster";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
 
 // Theme script to be injected into the document head

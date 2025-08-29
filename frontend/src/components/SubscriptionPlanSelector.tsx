@@ -15,7 +15,6 @@ import {
   Star,
   TrendingUp,
   Shield,
-  Clock,
 } from "lucide-react";
 
 interface SubscriptionPlan {

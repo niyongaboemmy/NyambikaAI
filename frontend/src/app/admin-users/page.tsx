@@ -750,7 +750,7 @@ const AdminUsersPage: React.FC = () => {
                           {company ? (
                             <div className="flex items-start gap-3">
                               {company.logoUrl ? (
-                                // eslint-disable-next-line @next/next/no-img-element
+                                 
                                 <img
                                   src={company.logoUrl}
                                   alt="Company logo"

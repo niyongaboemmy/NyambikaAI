@@ -2,7 +2,7 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Bell, Package, CheckCircle, Eye, X } from "lucide-react";
+import { Bell, Package, CheckCircle, X } from "lucide-react";
 import { apiClient } from "@/config/api";
 
 interface Notification {

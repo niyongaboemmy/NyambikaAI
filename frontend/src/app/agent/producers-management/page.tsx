@@ -18,12 +18,10 @@ import {
   Users,
   Search,
   Filter,
-  Plus,
   Building2,
   Mail,
   Phone,
   MapPin,
-  Calendar,
   DollarSign,
   TrendingUp,
   CheckCircle2,
@@ -35,13 +33,12 @@ import {
   Brain,
   Sparkles,
   Zap,
-  Store,
   CreditCard,
   ArrowRight,
 } from "lucide-react";
 import SubscriptionPlanSelector from "@/components/SubscriptionPlanSelector";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, API_ENDPOINTS } from "@/config/api";
 

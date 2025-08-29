@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { apiClient, API_BASE_URL, API_ENDPOINTS } from '@/config/api';
+import { apiClient, API_ENDPOINTS } from '@/config/api';
 
 type DashboardStats = {
   totalProducts: number;
