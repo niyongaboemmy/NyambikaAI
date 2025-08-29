@@ -453,6 +453,8 @@ export default function RoleBasedNavigation() {
                         onSelect={(e) => {
                           e.preventDefault();
                           const isActive = pathname === link.href;
+                          if (isActive) return;
+                          router.push(link.href);
                         }}
                         className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                       >
