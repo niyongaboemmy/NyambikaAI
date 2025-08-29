@@ -213,8 +213,7 @@ export default function RoleBasedNavigation() {
                     return (
                       <DropdownMenuItem
                         key={i + 1}
-                        onSelect={(e) => {
-                          e.preventDefault();
+                        onSelect={() => {
                           router.push(link.href);
                         }}
                         className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
@@ -371,8 +370,7 @@ export default function RoleBasedNavigation() {
                       return (
                         <DropdownMenuItem
                           key={i + 1}
-                          onSelect={(e) => {
-                            e.preventDefault();
+                          onSelect={() => {
                             router.push(item.href);
                           }}
                           className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
@@ -385,8 +383,7 @@ export default function RoleBasedNavigation() {
 
                     <DropdownMenuItem
                       className="cursor-pointer gap-3"
-                      onSelect={(e) => {
-                        e.preventDefault();
+                      onSelect={() => {
                         router.push("/profile");
                       }}
                     >
@@ -450,8 +447,7 @@ export default function RoleBasedNavigation() {
                     return (
                       <DropdownMenuItem
                         key={i + 1}
-                        onSelect={(e) => {
-                          e.preventDefault();
+                        onSelect={() => {
                           const isActive = pathname === link.href;
                           if (isActive) return;
                           router.push(link.href);
@@ -480,8 +476,7 @@ export default function RoleBasedNavigation() {
                   {isAuthenticated && (
                     <DropdownMenuItem
                       className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
-                      onSelect={(e) => {
-                        e.preventDefault();
+                      onSelect={() => {
                         router.push("/cart");
                       }}
                     >
@@ -538,8 +533,7 @@ export default function RoleBasedNavigation() {
                           <DropdownMenuItem
                             key={i + 1}
                             className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
-                            onSelect={(e) => {
-                              e.preventDefault();
+                            onSelect={() => {
                               router.push(item.href);
                             }}
                           >
@@ -555,8 +549,7 @@ export default function RoleBasedNavigation() {
 
                       <DropdownMenuItem
                         className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
-                        onSelect={(e) => {
-                          e.preventDefault();
+                        onSelect={() => {
                           router.push("/profile");
                         }}
                       >
