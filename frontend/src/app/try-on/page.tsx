@@ -131,7 +131,11 @@ export default function TryOn() {
   });
 
   // Companies (load all, filter client-side)
-  const { data: companies = [], isLoading: companiesLoading, error: companiesError } = useQuery({
+  const {
+    data: companies = [],
+    isLoading: companiesLoading,
+    error: companiesError,
+  } = useQuery({
     queryKey: [API_ENDPOINTS.COMPANIES],
     queryFn: async () => {
       try {
@@ -580,13 +584,13 @@ export default function TryOn() {
                     transition={{ duration: 0.5 }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-50" />
-                    <div className="relative bg-white/90 dark:bg-violet-900/5 dark:text-white backdrop-blur-sm rounded-xl border border-blue-200/30">
+                    <div className="relative rounded-xl bg-white dark:bg-gray-800">
                       <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
                       <Input
                         value={categorySearch}
                         onChange={(e) => setCategorySearch(e.target.value)}
                         placeholder="Discover categories with AI..."
-                        className="pl-12 pr-10 py-3 bg-transparent border-0 text-gray-800 dark:text-white placeholder:text-gray-500 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
+                        className="pl-12 pr-10 py-3 bg-transparent border-0 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all"
                       />
                       {categorySearch && (
                         <motion.button
