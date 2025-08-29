@@ -1,7 +1,7 @@
 import { Response } from "express";
 import { db } from "./db";
-import { orders, orderItems, cartItems, products } from "./shared/schema";
-import { eq, desc, and, inArray } from "drizzle-orm";
+import { orders, orderItems, cartItems, products, users } from "./shared/schema";
+import { eq, desc, and, inArray, sql } from "drizzle-orm";
 
 // GET /api/orders - Get user's orders
 export const getUserOrders = async (req: any, res: Response) => {
@@ -429,6 +429,8 @@ export const createOrder = async (req: any, res: Response) => {
 export const updateOrder = async (req: any, res: Response) => {
   try {
     const userId = req.userId;
+    const userRole = req.userRole;
+
     if (!userId) {
       return res.status(401).json({ error: "Unauthorized" });
     }
@@ -436,12 +438,11 @@ export const updateOrder = async (req: any, res: Response) => {
     const orderId = req.params.id;
     const { status, trackingNumber, notes } = req.body;
 
-    // Verify order belongs to user or user is admin/producer
+    // First, check if the order exists and get basic info
     const [existingOrder] = await db
       .select({
         id: orders.id,
         customerId: orders.customerId,
-        producerId: orders.producerId,
       })
       .from(orders)
       .where(eq(orders.id, orderId));
@@ -450,19 +451,45 @@ export const updateOrder = async (req: any, res: Response) => {
       return res.status(404).json({ error: "Order not found" });
     }
 
-    // Only allow updates by customer (limited), producer, or admin
-    const canUpdate =
-      existingOrder.customerId === userId ||
-      existingOrder.producerId === userId;
-    // Add admin check here when roles are implemented
+    // Check if user is admin - they can update any order
+    if (userRole === "admin") {
+      // Admin can update any order
+    }
+    // Check if user is the customer
+    else if (existingOrder.customerId === userId) {
+      // Customers can only update certain fields (like notes)
+      // and can't change status to certain values
+      if (status && !["cancelled"].includes(status)) {
+        return res.status(403).json({
+          error: "You can only cancel your own orders",
+        });
+      }
+    }
+    // Check if user is a producer with items in this order
+    else if (userRole === "producer") {
+      const producerItems = await db
+        .select({ count: sql<number>`count(*)` })
+        .from(orderItems)
+        .innerJoin(products, eq(orderItems.productId, products.id))
+        .where(
+          and(eq(orderItems.orderId, orderId), eq(products.producerId, userId))
+        );
 
-    if (!canUpdate) {
-      return res.status(403).json({ error: "Forbidden" });
+      if (producerItems[0].count === 0) {
+        return res.status(403).json({
+          error: "You don't have permission to update this order",
+        });
+      }
+    }
+    // If none of the above, user is not authorized
+    else {
+      return res.status(403).json({
+        error: "You don't have permission to update this order",
+      });
     }
 
-    // Update order
+    // If we get here, the user is authorized to update the order
     const updateData: any = {};
-
     if (status) updateData.status = status;
     if (trackingNumber) updateData.trackingNumber = trackingNumber;
     if (notes) updateData.notes = notes;
@@ -555,9 +582,7 @@ export const updateOrderValidationStatus = async (req: any, res: Response) => {
       "confirmed_by_customer",
     ];
     if (!allowedValues.includes(newStatus)) {
-      return res
-        .status(400)
-        .json({ error: "Invalid validationStatus value" });
+      return res.status(400).json({ error: "Invalid validationStatus value" });
     }
 
     // Fetch order basic info
@@ -570,7 +595,7 @@ export const updateOrderValidationStatus = async (req: any, res: Response) => {
     // Customers: can only set confirmed_by_customer on their own orders
     if (role === "customer") {
       if (existing.customerId !== userId) {
-        return res.status(403).json({ error: "Forbidden" });
+        return res.status(403).json({ error: "hello" });
       }
       if (newStatus !== "confirmed_by_customer") {
         return res.status(400).json({
@@ -598,7 +623,10 @@ export const updateOrderValidationStatus = async (req: any, res: Response) => {
           .from(orderItems)
           .leftJoin(products, eq(orderItems.productId, products.id))
           .where(
-            and(eq(orderItems.orderId, orderId), eq(products.producerId, userId))
+            and(
+              eq(orderItems.orderId, orderId),
+              eq(products.producerId, userId)
+            )
           )
           .limit(1);
         if (ownedItem.length === 0) {
@@ -621,11 +649,166 @@ export const updateOrderValidationStatus = async (req: any, res: Response) => {
       return res.json(updated);
     }
 
-    return res.status(403).json({ error: "Forbidden" });
+    return res.status(403).json({ error: "hello" });
   } catch (error) {
     console.error("Error updating validation status:", error);
     return res
       .status(500)
       .json({ error: "Failed to update validation status" });
+  }
+};
+
+// GET /api/orders/producer/:producerId - Get orders for specific producer
+export const getOrdersByProducerId = async (req: any, res: Response) => {
+  try {
+    const { producerId } = req.params;
+    const userId = req.userId;
+    const userRole = req.userRole;
+    
+    if (!userId) {
+      return res.status(401).json({ message: "Authentication required" });
+    }
+
+    // Only allow access if user is the producer themselves or an admin
+    if (userRole !== 'admin' && userId !== producerId) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    const statusFilter = (req.query.status as string | undefined)?.trim();
+    const searchQuery = (req.query.search as string | undefined)?.trim();
+
+    // Get order IDs where this producer has items
+    const orderIdRows = await db
+      .select({ orderId: orderItems.orderId })
+      .from(orderItems)
+      .leftJoin(products, eq(orderItems.productId, products.id))
+      .where(eq(products.producerId, producerId));
+
+    const orderIds = Array.from(
+      new Set(orderIdRows.map((r) => r.orderId))
+    ).filter(Boolean) as string[];
+
+    if (orderIds.length === 0) {
+      return res.status(200).json([]);
+    }
+
+    // Build dynamic query
+    let whereConditions = [inArray(orders.id, orderIds)];
+    
+    if (statusFilter && statusFilter !== 'all') {
+      whereConditions.push(eq(orders.status, statusFilter));
+    }
+
+    const baseOrders = await db
+      .select({
+        id: orders.id,
+        customerId: orders.customerId,
+        total: orders.total,
+        status: orders.status,
+        validationStatus: orders.validationStatus,
+        paymentMethod: orders.paymentMethod,
+        paymentStatus: orders.paymentStatus,
+        shippingAddress: orders.shippingAddress,
+        trackingNumber: orders.trackingNumber,
+        notes: orders.notes,
+        createdAt: orders.createdAt,
+      })
+      .from(orders)
+      .leftJoin(users, eq(orders.customerId, users.id))
+      .where(and(...whereConditions))
+      .orderBy(desc(orders.createdAt));
+
+    // Get customer info and items for each order
+    const ordersWithDetails = await Promise.all(
+      baseOrders.map(async (order) => {
+        try {
+          // Get customer info
+          const customer = await db
+            .select({
+              id: users.id,
+              name: users.fullName,
+              email: users.email,
+              phone: users.phone,
+            })
+            .from(users)
+            .where(eq(users.id, order.customerId!))
+            .limit(1);
+
+          // Get producer's items in this order
+          const items = await db
+            .select({
+              id: orderItems.id,
+              productId: orderItems.productId,
+              quantity: orderItems.quantity,
+              price: orderItems.price,
+              size: orderItems.size,
+              color: orderItems.color,
+              product: {
+                id: products.id,
+                name: products.name,
+                imageUrl: products.imageUrl,
+                producerId: products.producerId,
+              },
+            })
+            .from(orderItems)
+            .leftJoin(products, eq(orderItems.productId, products.id))
+            .where(
+              and(
+                eq(orderItems.orderId, order.id),
+                eq(products.producerId, producerId)
+              )
+            );
+
+          // Calculate producer-specific total
+          const producerTotal = items.reduce((sum, item) => {
+            const priceNum = typeof item.price === "string" 
+              ? parseFloat(item.price) 
+              : (item.price as unknown as number);
+            const qty = typeof item.quantity === "number" 
+              ? item.quantity 
+              : parseInt(String(item.quantity) || "0", 10);
+            return sum + (isFinite(priceNum) ? priceNum : 0) * (isFinite(qty) ? qty : 0);
+          }, 0);
+
+          const customerInfo = customer[0] || {};
+
+          return {
+            ...order,
+            total: producerTotal.toFixed(2),
+            customerName: customerInfo.name || 'Unknown Customer',
+            customerEmail: customerInfo.email || '',
+            customerPhone: customerInfo.phone || '',
+            items: items,
+          };
+        } catch (error) {
+          console.error(`Error processing order ${order.id}:`, error);
+          return {
+            ...order,
+            customerName: 'Unknown Customer',
+            customerEmail: '',
+            customerPhone: '',
+            items: [],
+          };
+        }
+      })
+    );
+
+    // Apply search filter if provided
+    let filteredOrders = ordersWithDetails;
+    if (searchQuery) {
+      filteredOrders = ordersWithDetails.filter(order => 
+        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    return res.status(200).json(filteredOrders);
+  } catch (error) {
+    console.error("Error fetching producer orders:", error);
+    return res.status(500).json({
+      message: "Failed to fetch orders",
+      details: (error as any)?.message || String(error),
+    });
   }
 };

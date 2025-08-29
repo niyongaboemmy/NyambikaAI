@@ -27,7 +27,7 @@ import {
   insertFavoriteSchema,
   insertTryOnSessionSchema
 } from "./shared/schema";
-import { getUserOrders, getOrderById, createOrder, updateOrder, cancelOrder, getProducerOrders, updateOrderValidationStatus } from "./orders";
+import { getUserOrders, getOrderById, createOrder, updateOrder, cancelOrder, getProducerOrders, updateOrderValidationStatus, getOrdersByProducerId } from "./orders";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Ensure minimal runtime migrations (safe, idempotent)
@@ -1694,6 +1694,7 @@ try {
   // Order routes
   // Producer-specific orders (only producer/admin)
   app.get('/api/producer/orders', requireAuth, requireRole(['producer', 'admin']), getProducerOrders);
+  app.get('/api/orders/producer/:producerId', requireAuth, requireRole(['producer', 'admin']), getOrdersByProducerId);
   app.get('/api/orders', requireAuth, getUserOrders);
   app.get('/api/orders/:id', requireAuth, getOrderById);
   app.post('/api/orders', requireAuth, createOrder);

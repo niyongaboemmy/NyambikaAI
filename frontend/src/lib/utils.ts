@@ -21,3 +21,13 @@ export function handleApiError(error: unknown): string {
   // Default error message
   return error instanceof Error ? error.message : 'An unknown error occurred';
 }
+
+export function formatPrice(price: string | number): string {
+  const numPrice = typeof price === 'string' ? parseFloat(price) : price;
+  return new Intl.NumberFormat('en-RW', {
+    style: 'currency',
+    currency: 'RWF',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(numPrice);
+}
