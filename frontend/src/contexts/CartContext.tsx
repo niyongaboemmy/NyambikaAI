@@ -8,7 +8,7 @@ import React, {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Loader2 } from "lucide-react";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, API_ENDPOINTS } from "@/config/api";
 
 export type CartItem = {
   id: string;
@@ -79,16 +79,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     writeToStorage(items);
   }, [items]);
 
-  // Helper: auth headers
-  const getAuthHeaders = (): Record<string, string> => {
-    const token = localStorage.getItem("auth_token");
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-    return headers;
-  };
-
   // Map server cart payload to local CartItem[]
   const mapServerToLocal = (serverItems: any[]): CartItem[] => {
     return serverItems.map((ci: any) => ({
@@ -112,7 +102,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!isAuthenticated) return;
       beginSync();
-      const response = await apiClient.get('/api/cart');
+      const response = await apiClient.get(API_ENDPOINTS.CART);
       const data = response.data;
       if (data?.items && Array.isArray(data.items)) {
         const mapped = mapServerToLocal(data.items);
@@ -189,7 +179,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       try {
         beginSync();
-        const res = await apiClient.post('/api/cart', {
+        const res = await apiClient.post(API_ENDPOINTS.CART, {
           productId: item.id,
           quantity: qty,
           size: item.size,
@@ -241,12 +231,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       try {
         beginSync();
         // Find serverId without mutating items yet
-        let serverId: string | undefined = items.find(
+        const serverId: string | undefined = items.find(
           (it) => it.id === id && (it.size || "") === (size || "")
         )?.serverId;
 
         if (serverId) {
-          await apiClient.delete(`/api/cart/${serverId}`);
+          await apiClient.delete(API_ENDPOINTS.CART_ITEM(serverId));
         } else {
           // Fallback: refresh to discover serverId then delete
           const refreshed = await refreshFromServer();
@@ -254,7 +244,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             (it) => it.id === id && (it.size || "") === (size || "")
           );
           if (match?.serverId) {
-            await apiClient.delete(`/api/cart/${match.serverId}`);
+            await apiClient.delete(API_ENDPOINTS.CART_ITEM(match.serverId));
           }
         }
 
@@ -305,7 +295,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         if (quantity <= 0) {
           // Handle deletion
           if (serverId) {
-            await apiClient.delete(`/api/cart/${serverId}`);
+            await apiClient.delete(API_ENDPOINTS.CART_ITEM(serverId));
           } else {
             // No serverId yet: attempt refresh to discover it
             const refreshed = await refreshFromServer();
@@ -313,16 +303,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               (it) => it.id === id && (it.size || "") === (size || "")
             );
             if (match?.serverId) {
-              await apiClient.delete(`/api/cart/${match.serverId}`);
+              await apiClient.delete(API_ENDPOINTS.CART_ITEM(match.serverId));
             }
           }
         } else {
           // Handle quantity update
           if (serverId) {
-            await apiClient.put(`/api/cart/${serverId}`, { quantity });
+            await apiClient.put(API_ENDPOINTS.CART_ITEM(serverId), { quantity });
           } else {
             // Fallback: add new item to server and capture serverId
-            const res = await apiClient.post('/api/cart', {
+            const res = await apiClient.post(API_ENDPOINTS.CART, {
               productId: id,
               quantity,
               size,
@@ -360,14 +350,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       (async () => {
         try {
           beginSync();
-          await apiClient.delete('/api/cart');
+          await apiClient.delete(API_ENDPOINTS.CART);
         } catch {
         } finally {
           endSync();
         }
       })();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [items.length, isAuthenticated]);
 
   const value: CartState = {

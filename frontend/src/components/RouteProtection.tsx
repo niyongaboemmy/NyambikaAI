@@ -4,9 +4,11 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { AppLoader } from "@/components/ui/AppLoader";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useCompany } from "@/contexts/CompanyContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Button } from "@/components/ui/button";
+import ProducerPendingVerificationModal from "@/components/ProducerPendingVerificationModal";
 
 // Route protection configuration
 const ROUTE_CONFIG = {
@@ -36,7 +38,7 @@ const ROUTE_CONFIG = {
 
   // Producer only routes
   producer: [
-    "/producer-dashboard",
+    "/producer-orders",
     "/producer/[producerId]/orders",
     "/product-registration",
     "/product-edit/[id]",
@@ -52,9 +54,6 @@ const ROUTE_CONFIG = {
 
   // Producer or Admin routes
   producerOrAdmin: ["/producer-orders"],
-
-  // Admin only routes for managing agents
-  adminAgents: ["/admin/agents-management", "/admin/agent/[agentId]"],
 };
 
 interface RouteProtectionProps {
@@ -64,8 +63,22 @@ interface RouteProtectionProps {
 export function RouteProtection({ children }: RouteProtectionProps) {
   const pathname = usePathname();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { company } = useCompany();
   const router = useRouter();
-  const { open } = useLoginPrompt();
+  const { open, show } = useLoginPrompt();
+  const warnedRef = useRef(false);
+  const pendingRole: "producer" | "agent" | null = (() => {
+    if (!user) return null;
+    const isVerified = Boolean(user.isVerified);
+    // For producers, require company to exist and verification to be false
+    if (user.role === "producer" && !!company && !isVerified) {
+      return "producer";
+    }
+    if (user.role === "agent" && !isVerified) {
+      return "agent";
+    }
+    return null;
+  })();
 
   const renderNotAuthenticated = () => (
     <div className="min-h-[60vh] -mt-12 flex items-center justify-center p-6">
@@ -121,7 +134,6 @@ export function RouteProtection({ children }: RouteProtectionProps) {
   const getRouteCategory = (path: string) => {
     if (isRouteInCategory(ROUTE_CONFIG.public, path)) return "public";
     if (isRouteInCategory(ROUTE_CONFIG.admin, path)) return "admin";
-    if (isRouteInCategory(ROUTE_CONFIG.adminAgents, path)) return "adminAgents";
     if (isRouteInCategory(ROUTE_CONFIG.producer, path)) return "producer";
     if (isRouteInCategory(ROUTE_CONFIG.agent, path)) return "agent";
     if (isRouteInCategory(ROUTE_CONFIG.producerOrAdmin, path))
@@ -180,16 +192,6 @@ export function RouteProtection({ children }: RouteProtectionProps) {
         }
         break;
 
-      case "adminAgents":
-        if (!isAuthenticated) {
-          open();
-          return;
-        } else if (user?.role !== "admin") {
-          router.push("/");
-          return;
-        }
-        break;
-
       case "producerOrAdmin":
         if (!isAuthenticated) {
           open();
@@ -208,6 +210,11 @@ export function RouteProtection({ children }: RouteProtectionProps) {
         }
     }
   }, [isAuthenticated, user?.role, routeCategory, router, isLoading]);
+
+  // No soft prompts for pending states; unified blocking modal is used instead
+  useEffect(() => {
+    warnedRef.current = true;
+  }, []);
 
   // Show loading while auth is being determined
   if (isLoading) {
@@ -232,10 +239,6 @@ export function RouteProtection({ children }: RouteProtectionProps) {
         if (!isAuthenticated) return renderNotAuthenticated();
         if (user?.role !== "agent") return null;
         break;
-      case "adminAgents":
-        if (!isAuthenticated) return renderNotAuthenticated();
-        if (user?.role !== "admin") return null;
-        break;
       case "producerOrAdmin":
         if (!isAuthenticated) return renderNotAuthenticated();
         if (user?.role !== "producer" && user?.role !== "admin") return null;
@@ -243,7 +246,13 @@ export function RouteProtection({ children }: RouteProtectionProps) {
     }
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {/* Show pending verification warning when applicable */}
+      <ProducerPendingVerificationModal open={!!pendingRole} role={(pendingRole || "producer") as "producer" | "agent"} />
+      {children}
+    </>
+  );
 }
 
 // Export route configuration for external use

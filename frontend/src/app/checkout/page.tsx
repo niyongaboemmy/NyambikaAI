@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormInput } from "@/components/ui/form-input";
@@ -186,7 +186,7 @@ function CheckoutPage() {
         });
 
         try {
-          const uploadResponse = await apiClient.post("/api/upload/size-evidence", formData, {
+          const uploadResponse = await apiClient.post(API_ENDPOINTS.UPLOAD_SIZE_EVIDENCE, formData, {
             headers: { "Content-Type": "multipart/form-data" }
           });
           sizeEvidenceUrls = uploadResponse.data.urls;
@@ -217,7 +217,7 @@ function CheckoutPage() {
       };
 
       // Call backend directly via centralized apiClient (adds Authorization)
-      const { data: order } = await apiClient.post("/api/orders", orderData);
+      const { data: order } = await apiClient.post(API_ENDPOINTS.ORDERS, orderData);
 
       // Clear cart and wait for it to complete
       await new Promise<void>((resolve) => {

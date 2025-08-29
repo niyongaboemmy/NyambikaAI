@@ -9,6 +9,7 @@ import {
   tryOnSessions,
   reviews,
   companies,
+  subscriptions,
   type User,
   type InsertUser,
   type Company,
@@ -31,7 +32,7 @@ import {
   type InsertReview,
 } from "./shared/schema";
 import { db } from "./db";
-import { eq, like, and, desc, asc, inArray } from "drizzle-orm";
+import { eq, like, and, desc, asc, inArray, gt } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -214,7 +215,7 @@ export class DatabaseStorage implements IStorage {
     producerId?: string;
   }): Promise<Product[]> {
     // Build conditions array
-    const conditions = [];
+    const conditions = [] as any[];
     if (options?.categoryId) {
       conditions.push(eq(products.categoryId, options.categoryId));
     }
@@ -224,6 +225,32 @@ export class DatabaseStorage implements IStorage {
     if (options?.producerId) {
       conditions.push(eq(products.producerId, options.producerId));
     }
+
+    // Server-side enforcement: only include products from producers who are
+    // verified and have an active, non-expired subscription.
+    // 1) Find producer IDs with active subscriptions
+    const now = new Date();
+    const producersWithActiveSubs = await db
+      .select({ id: users.id })
+      .from(users)
+      .innerJoin(subscriptions, eq(subscriptions.userId, users.id))
+      .where(
+        and(
+          eq(users.role, "producer"),
+          eq(users.isVerified, true),
+          eq(subscriptions.status, "active"),
+          gt(subscriptions.endDate, now)
+        )
+      );
+
+    const allowedProducerIds = producersWithActiveSubs.map((r) => r.id);
+
+    // If none, short-circuit with empty results
+    if (allowedProducerIds.length === 0) {
+      return [];
+    }
+
+    conditions.push(inArray(products.producerId, allowedProducerIds));
 
     // Build query with all conditions
     let query: any = db.select().from(products);
@@ -667,6 +694,7 @@ export class DatabaseStorage implements IStorage {
 
   async getProductsByCompanyId(companyId: string): Promise<any[]> {
     try {
+      const now = new Date();
       const companyProducts = await db
         .select({
           id: products.id,
@@ -684,7 +712,17 @@ export class DatabaseStorage implements IStorage {
         .from(products)
         .leftJoin(categories, eq(products.categoryId, categories.id))
         .leftJoin(companies, eq(products.producerId, companies.producerId))
-        .where(eq(companies.id, companyId))
+        .innerJoin(users, eq(products.producerId, users.id))
+        .innerJoin(subscriptions, eq(subscriptions.userId, users.id))
+        .where(
+          and(
+            eq(companies.id, companyId),
+            eq(users.role, "producer"),
+            eq(users.isVerified, true),
+            eq(subscriptions.status, "active"),
+            gt(subscriptions.endDate, now)
+          )
+        )
         .orderBy(asc(products.name));
 
       return companyProducts;

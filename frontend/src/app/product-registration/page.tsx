@@ -133,7 +133,7 @@ function ProductRegistration() {
               name: c.name,
             }))}
             loading={createProductMutation.isPending}
-            onCancel={() => router.push("/producer-dashboard")}
+            onCancel={() => router.push("/producer-orders")}
             onSubmit={async (data) => {
               await createProductMutation.mutateAsync(data);
             }}
@@ -145,4 +145,3 @@ function ProductRegistration() {
 }
 
 export default ProductRegistration;
-

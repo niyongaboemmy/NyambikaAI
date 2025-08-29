@@ -54,7 +54,10 @@ export default function RoleBasedNavigation() {
   const router = useRouter();
   const { status, plan } = useProducerSubscriptionStatus();
   const daysLeft = status?.expiresAt
-    ? Math.ceil((new Date(status.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    ? Math.ceil(
+        (new Date(status.expiresAt).getTime() - Date.now()) /
+          (1000 * 60 * 60 * 24)
+      )
     : undefined;
 
   // Public navigation links (always visible)
@@ -73,7 +76,6 @@ export default function RoleBasedNavigation() {
     },
     { href: "/product-registration", label: "Add Product", icon: Plus },
     { href: "/producer-orders", label: "Orders", icon: Package },
-    { href: "/producer-dashboard", label: "Dashboard", icon: BarChart3 },
   ];
 
   const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
@@ -90,9 +92,12 @@ export default function RoleBasedNavigation() {
           icon: User2,
         },
         { href: "/product-registration", label: "Add Product", icon: Plus },
-        { href: "/producer-subscription", label: "Subscription", icon: Settings },
+        {
+          href: "/producer-subscription",
+          label: "Subscription",
+          icon: Settings,
+        },
         { href: "/producer-orders", label: "Orders", icon: Package },
-        { href: "/producer-dashboard", label: "Dashboard", icon: BarChart3 },
       ],
     },
     admin: {
@@ -100,13 +105,8 @@ export default function RoleBasedNavigation() {
       menu: [
         { href: "/products", label: "Products", icon: ShoppingCart },
         { href: "/product-registration", label: "Add Product", icon: Plus },
-        { href: "/producer-orders", label: "Orders", icon: Package },
-        { href: "/admin-users", label: "Users", icon: Users },
-        {
-          href: "/admin/agents-management",
-          label: "Agents Management",
-          icon: Users,
-        },
+        { href: "/admin-orders", label: "Orders", icon: Package },
+        { href: "/admin-users", label: "Users Management", icon: Users },
       ],
     },
     agent: {
@@ -208,11 +208,11 @@ export default function RoleBasedNavigation() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-56">
-                  {publicLinks.map((link) => {
+                  {publicLinks.map((link, i) => {
                     const Icon = link.icon;
                     return (
                       <DropdownMenuItem
-                        key={link.href}
+                        key={i + 1}
                         onSelect={(e) => {
                           e.preventDefault();
                           router.push(link.href);
@@ -244,8 +244,13 @@ export default function RoleBasedNavigation() {
                     : "Subscription expired or not active"
                 }
               >
-                {status.hasActiveSubscription && typeof daysLeft === "number" && daysLeft > 0 && daysLeft <= 5 ? (
-                  <Badge className="bg-yellow-500 text-black dark:text-white">Expiring in {daysLeft}d</Badge>
+                {status.hasActiveSubscription &&
+                typeof daysLeft === "number" &&
+                daysLeft > 0 &&
+                daysLeft <= 5 ? (
+                  <Badge className="bg-yellow-500 text-black dark:text-white">
+                    Expiring in {daysLeft}d
+                  </Badge>
                 ) : (
                   <Badge
                     className={
@@ -278,9 +283,9 @@ export default function RoleBasedNavigation() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-44">
-                {languages.map((lang) => (
+                {languages.map((lang, i) => (
                   <DropdownMenuItem
-                    key={lang.code}
+                    key={i + 1}
                     onClick={() => setLanguage(lang.code as "en" | "rw" | "fr")}
                     className={`cursor-pointer flex items-center gap-3 ${
                       language === lang.code
@@ -361,11 +366,11 @@ export default function RoleBasedNavigation() {
                         {user?.email}
                       </p>
                     </div>
-                    {config.menu.map((item) => {
+                    {config.menu.map((item, i) => {
                       const Icon = item.icon;
                       return (
                         <DropdownMenuItem
-                          key={item.href}
+                          key={i + 1}
                           onSelect={(e) => {
                             e.preventDefault();
                             router.push(item.href);
@@ -411,7 +416,7 @@ export default function RoleBasedNavigation() {
                   e.stopPropagation();
                   open();
                 }}
-                className="hidden md:flex bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                className="hidden md:flex bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-full"
               >
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
@@ -440,11 +445,11 @@ export default function RoleBasedNavigation() {
                       Navigation
                     </p>
                   </div>
-                  {allNavLinks.map((link) => {
+                  {allNavLinks.map((link, i) => {
                     const Icon = link.icon;
                     return (
                       <DropdownMenuItem
-                        key={link.href}
+                        key={i + 1}
                         onSelect={(e) => {
                           e.preventDefault();
                           const isActive = pathname === link.href;
@@ -525,11 +530,11 @@ export default function RoleBasedNavigation() {
                       </div>
 
                       {/* Role-specific menu items */}
-                      {config.menu.map((item) => {
+                      {config.menu.map((item, i) => {
                         const Icon = item.icon;
                         return (
                           <DropdownMenuItem
-                            key={item.href}
+                            key={i + 1}
                             className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                             onSelect={(e) => {
                               e.preventDefault();
@@ -584,7 +589,7 @@ export default function RoleBasedNavigation() {
                             e.stopPropagation();
                             open();
                           }}
-                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300"
+                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full"
                         >
                           <LogIn className="h-4 w-4 mr-2" />
                           Sign In

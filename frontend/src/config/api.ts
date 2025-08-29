@@ -19,8 +19,16 @@ const createAxiosInstance = (): AxiosInstance => {
     (config) => {
       if (typeof window !== "undefined") {
         const token = localStorage.getItem("auth_token");
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
+        // Normalize token: OAuth callbacks may have stored a JSON-stringified token with quotes
+        const normalizedToken =
+          token &&
+          token.length > 0 &&
+          token[0] === '"' &&
+          token[token.length - 1] === '"'
+            ? token.slice(1, -1)
+            : token;
+        if (normalizedToken) {
+          config.headers.Authorization = `Bearer ${normalizedToken}`;
         }
       }
       return config;
@@ -73,10 +81,14 @@ export const API_ENDPOINTS = {
   REGISTER: "/api/auth/register",
   LOGOUT: "/api/auth/logout",
   ME: "/api/auth/me",
+  PROFILE: "/api/auth/profile",
+  CHANGE_PASSWORD: "/api/auth/change-password",
+  FORGOT_PASSWORD: "/api/auth/forgot-password",
 
   // Products
   PRODUCTS: "/api/products",
   PRODUCT_BY_ID: (id: string) => `/api/products/${id}`,
+  PRODUCT_SEARCH: "/api/search",
 
   // Categories
   CATEGORIES: "/api/categories",
@@ -85,19 +97,77 @@ export const API_ENDPOINTS = {
   // Companies
   COMPANIES: "/api/companies",
   COMPANY_BY_ID: (id: string) => `/api/companies/${id}`,
+  COMPANY_PRODUCTS: (id: string) => `/api/companies/${id}/products`,
+  COMPANY_ME: "/api/companies/me",
 
   // Cart
   CART: "/api/cart",
   CART_SYNC: "/api/cart/sync",
+  CART_ITEM: (id: string) => `/api/cart/${id}`,
 
   // Orders
   ORDERS: "/api/orders",
   ORDER_BY_ID: (id: string) => `/api/orders/${id}`,
   CANCEL_ORDER: (id: string) => `/api/orders/${id}`,
-  ORDER_VALIDATION_STATUS: (id: string) => `/api/orders/${id}/validation-status`,
+  ORDER_VALIDATION_STATUS: (id: string) =>
+    `/api/orders/${id}/validation-status`,
+  ORDER_STATUS: (id: string) => `/api/orders/${id}/status`,
+  PRODUCER_ORDERS: "/api/producer/orders",
+  ORDERS_BY_PRODUCER: (producerId: string) =>
+    `/api/orders/producer/${producerId}`,
 
   // Try-on
   TRY_ON: "/api/try-on",
   TRY_ON_UPLOAD: "/api/try-on/upload",
   TRY_ON_SESSIONS: "/api/try-on-sessions",
+  TRY_ON_SESSION_BY_ID: (id: string) => `/api/try-on-sessions/${id}`,
+  TRY_ON_SESSION_PROCESS: (id: string) => `/api/try-on-sessions/${id}/process`,
+
+  // Producers
+  PRODUCERS: "/api/producers",
+  PRODUCER_BY_ID: (id: string) => `/api/producers/${id}`,
+  PRODUCER_PRODUCTS: (id: string) => `/api/producers/${id}/products`,
+
+  // Agent
+  AGENT_STATS: "/api/agent/stats",
+  AGENT_PRODUCERS: "/api/agent/producers",
+  AGENT_AVAILABLE_PRODUCERS: "/api/agent/available-producers",
+  AGENT_ASSIGN_PRODUCER: "/api/agent/assign-producer",
+  AGENT_PRODUCER_DETAILS: (producerId: string) =>
+    `/api/agent/producer/${producerId}`,
+  AGENT_COMMISSIONS: "/api/agent/commissions",
+  AGENT_PROCESS_PAYMENT: "/api/agent/process-payment",
+
+  // Admin
+  ADMIN_STATS: "/api/admin/stats",
+  ADMIN_PRODUCERS: "/api/admin/producers",
+  ADMIN_AGENTS: "/api/admin/agents",
+  ADMIN_CUSTOMERS: "/api/admin/customers",
+  ADMIN_ADMINS: "/api/admin/admins",
+  ADMIN_ORDERS: "/api/admin/orders",
+  ADMIN_PENDING_APPROVALS: "/api/admin/pending-approvals",
+  ADMIN_VERIFY_PRODUCER: (producerId: string) =>
+    `/api/admin/producers/${producerId}/verify`,
+  ADMIN_VERIFY_AGENT: (agentId: string) =>
+    `/api/admin/agents/${agentId}/verify`,
+  ADMIN_PRODUCER_COMPANY: (producerId: string) =>
+    `/api/admin/producers/${producerId}/company`,
+
+  // Favorites
+  FAVORITES: "/api/favorites",
+  FAVORITES_ITEM: (productId: string) => `/api/favorites/${productId}`,
+  FAVORITES_CHECK: (productId: string) => `/api/favorites/${productId}/check`,
+
+  // Payments
+  CREATE_PAYMENT_INTENT: "/api/create-payment-intent",
+  UPLOAD_SIZE_EVIDENCE: "/api/upload/size-evidence",
+
+  // AI
+  AI_ANALYZE_FASHION: "/api/ai/analyze-fashion",
+  AI_SIZE_RECOMMENDATION: "/api/ai/size-recommendation",
+
+  // Subscriptions
+  PRODUCER_SUBSCRIPTION_STATUS: "/api/producer/subscription-status",
+  SUBSCRIPTION_PLANS_BY_ID: (id: string) => `/api/subscription-plans/${id}`,
+  SUBSCRIPTIONS: "/api/subscriptions",
 } as const;

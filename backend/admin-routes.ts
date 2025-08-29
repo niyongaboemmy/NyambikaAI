@@ -6,6 +6,7 @@ import {
   orders,
   products,
   subscriptionPayments,
+  companies,
 } from "./shared/schema";
 import { eq, and, desc, count, sum, sql } from "drizzle-orm";
 
@@ -246,6 +247,53 @@ export async function verifyProducer(req: Request, res: Response) {
     res.json({ message: "Producer verified successfully" });
   } catch (error) {
     console.error("Error verifying producer:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Verify Agent
+export async function verifyAgent(req: Request, res: Response) {
+  try {
+    const { agentId } = req.params;
+
+    await db
+      .update(users)
+      .set({ isVerified: true })
+      .where(eq(users.id, agentId));
+
+    res.json({ message: "Agent verified successfully" });
+  } catch (error) {
+    console.error("Error verifying agent:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Get Producer Company details (admin)
+export async function getProducerCompany(req: Request, res: Response) {
+  try {
+    const { producerId } = req.params;
+    const rows = await db
+      .select({
+        id: companies.id,
+        name: companies.name,
+        email: companies.email,
+        phone: companies.phone,
+        location: companies.location,
+        logoUrl: companies.logoUrl,
+        websiteUrl: companies.websiteUrl,
+        createdAt: companies.createdAt,
+      })
+      .from(companies)
+      .where(eq(companies.producerId, producerId))
+      .limit(1);
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "Company not found for this producer" });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error("Error fetching producer company:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 }

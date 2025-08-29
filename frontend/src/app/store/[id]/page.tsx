@@ -61,6 +61,11 @@ type Company = {
   createdAt: string;
 };
 
+type Producer = {
+  id: string;
+  isVerified?: boolean;
+};
+
 type Product = {
   id: string;
   name: string;
@@ -133,6 +138,26 @@ export default function StorePage() {
     enabled: !!id,
   });
 
+  // Fetch the producer to check verification status (status is on producer, not company)
+  const { data: producer } = useQuery<Producer>({
+    queryKey: ["/api/producers", (company as any)?.producerId],
+    queryFn: async () => {
+      try {
+        const producerId = (company as any)?.producerId as string;
+        const response = await apiClient.get(`/api/producers/${producerId}`);
+        return response.data;
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
+    },
+    enabled: Boolean((company as any)?.producerId),
+  });
+
+  const producerVerified = useMemo(() => {
+    if (!producer) return true; // default to true if unknown
+    return Boolean((producer as any).isVerified);
+  }, [producer]);
+
   const {
     data: products,
     isLoading: productsLoading,
@@ -152,31 +177,22 @@ export default function StorePage() {
     enabled: !!id,
   });
 
-  // If producer's subscription is inactive, backend returns 403; show friendly UI
-  if (productsError) {
+  // Determine if the store should show empty state due to subscription restriction
+  const subscriptionBlocked = React.useMemo(() => {
+    if (!productsError) return false;
     const raw: any = productsErrorObj as any;
-    const msg: string = typeof raw === 'string' ? raw : String(raw?.message || '');
-    const blocked = msg.toLowerCase().includes('subscription') || msg.toLowerCase().includes('unavailable');
-    if (blocked) {
-      return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center -mt-12 p-6">
-          <div className="w-full max-w-lg text-center space-y-5 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-2xl p-8 shadow-xl">
-            <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-orange-500 to-red-500 flex items-center justify-center">
-              <XCircle className="w-8 h-8 text-white" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Store temporarily unavailable</h2>
-            <p className="text-gray-600 dark:text-gray-400">
-              The producer's subscription is inactive at the moment. Please check back later.
-            </p>
-            <div className="flex justify-center gap-3">
-              <Button variant="outline" onClick={() => router.push('/')}>Go back home</Button>
-              <Button onClick={() => router.push('/companies')}>Browse other stores</Button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-  }
+    const msg: string = typeof raw === "string" ? raw : String(raw?.message || "");
+    return (
+      msg.toLowerCase().includes("subscription") ||
+      msg.toLowerCase().includes("unavailable")
+    );
+  }, [productsError, productsErrorObj]);
+
+  // Use a safe products list for rendering
+  const productsList: Product[] = React.useMemo(
+    () => (subscriptionBlocked || !producerVerified ? [] : products || []),
+    [subscriptionBlocked, producerVerified, products]
+  );
 
   // Fetch all categories with images
   const { data: allCategories = [], isLoading: categoriesLoading } = useQuery<
@@ -195,9 +211,9 @@ export default function StorePage() {
 
   // Smart filtering and sorting logic
   const filteredAndSortedProducts = useMemo(() => {
-    if (!products) return [];
+    if (!productsList) return [];
 
-    let filtered = products.filter((product) => {
+    const filtered = productsList.filter((product) => {
       // Search filter
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -235,19 +251,19 @@ export default function StorePage() {
     });
 
     return filtered;
-  }, [products, searchQuery, selectedCategory, sortBy, priceRange]);
+  }, [productsList, searchQuery, selectedCategory, sortBy, priceRange]);
 
   // Get unique categories for filter dropdown
   const categories = useMemo(() => {
-    if (!products) return [];
+    if (!productsList) return [];
     return Array.from(
       new Set(
-        products
+        productsList
           .map((p) => p.categoryName)
           .filter((cat): cat is string => Boolean(cat))
       )
     );
-  }, [products]);
+  }, [productsList]);
 
   // react-select options
   const categoryOptions = useMemo(
@@ -609,10 +625,17 @@ export default function StorePage() {
                 <h1 className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent text-center sm:text-left">
                   {company.name}
                 </h1>
-                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg animate-pulse">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Verified
-                </Badge>
+                {producerVerified ? (
+                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg animate-pulse">
+                    <CheckCircle className="w-3 h-3 mr-1" />
+                    Verified
+                  </Badge>
+                ) : (
+                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg animate-pulse">
+                    <Clock className="w-3 h-3 mr-1" />
+                    Pending Verification
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -672,7 +695,7 @@ export default function StorePage() {
                 </div>
                 <div className="text-center">
                   <div className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">
-                    {(products || []).length}
+                    {productsList.length}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1 hidden sm:block">
                     Products
@@ -704,7 +727,7 @@ export default function StorePage() {
                 </div>
                 <div className="text-center">
                   <div className="text-sm sm:text-lg font-bold text-gray-900 dark:text-white">
-                    {(products || []).filter((p) => p.inStock).length}
+                    {productsList.filter((p) => p.inStock).length}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 -mt-1 hidden sm:block">
                     Available

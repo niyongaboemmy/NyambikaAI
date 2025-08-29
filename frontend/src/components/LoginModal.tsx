@@ -19,8 +19,6 @@ export default function LoginModal() {
   const [forgotMode, setForgotMode] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
-
-
   return (
     <Dialog
       open={isOpen}
@@ -37,7 +35,6 @@ export default function LoginModal() {
             "/orders",
             "/product-registration",
             "/product-edit/",
-            "/producer-dashboard",
             "/producer-products",
             "/producer-orders",
             "/producer-analytics",

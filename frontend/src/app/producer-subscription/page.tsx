@@ -102,7 +102,7 @@ export default function ProducerSubscriptionPage() {
 
   const fetchSubscriptionPlans = async () => {
     try {
-      const response = await apiClient.get("/subscription-plans");
+      const response = await apiClient.get("/api/subscription-plans");
       setPlans(response.data);
     } catch (error) {
       console.error("Error fetching subscription plans:", error);
@@ -139,7 +139,7 @@ export default function ProducerSubscriptionPage() {
       if (renewMode && subStatus?.subscriptionId) {
         // Renew the existing subscription (same plan, extend dates)
         await apiClient.put(
-          `/subscriptions/${subStatus.subscriptionId}/renew`,
+          `/api/subscriptions/${subStatus.subscriptionId}/renew`,
           {
             paymentMethod: selectedPaymentMethod,
           }
@@ -162,7 +162,7 @@ export default function ProducerSubscriptionPage() {
           ) {
             try {
               await apiClient.put(
-                `/subscriptions/${subStatus.subscriptionId}`,
+                `/api/subscriptions/${subStatus.subscriptionId}`,
                 { status: "cancelled" }
               );
             } catch (e) {
@@ -178,7 +178,7 @@ export default function ProducerSubscriptionPage() {
         const amount =
           billingCycle === "monthly" ? plan?.monthlyPrice : plan?.annualPrice;
 
-        await apiClient.post("/subscriptions", {
+        await apiClient.post("/api/subscriptions", {
           planId: selectedPlan,
           billingCycle,
           paymentMethod: selectedPaymentMethod,
@@ -195,9 +195,9 @@ export default function ProducerSubscriptionPage() {
 
       // Force a full reload to ensure all producer features pick up new plan
       if (typeof window !== "undefined") {
-        window.location.replace("/producer-dashboard");
+        window.location.replace("/producer-orders");
       } else {
-        router.push("/producer-dashboard");
+        router.push("/producer-orders");
       }
     } catch (error: any) {
       console.error("Error creating subscription:", error);
@@ -553,29 +553,44 @@ export default function ProducerSubscriptionPage() {
               ))}
             </div>
 
-            {/* Subscribe Button */}
-            <div className="text-center">
-              <Button
-                onClick={handleSubscribe}
-                disabled={
-                  !selectedPaymentMethod ||
-                  isProcessing ||
-                  (!renewMode && !selectedPlan)
-                }
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-              >
-                {isProcessing ? (
-                  <div className="flex items-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Processing...
+            {/* Spacer to avoid content hidden behind the fixed action bar */}
+            <div className="h-24" />
+
+            {/* Floating Subscribe/Renew Action Bar */}
+            <div className="fixed inset-x-0 bottom-0 z-50">
+              <div className="mx-auto w-full max-w-2xl px-4">
+                <div className="rounded-t-2xl border-t border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-lg">
+                  <div
+                    className="p-3"
+                    style={{
+                      paddingBottom:
+                        "max(env(safe-area-inset-bottom), 0.75rem)",
+                    }}
+                  >
+                    <Button
+                      onClick={handleSubscribe}
+                      disabled={
+                        !selectedPaymentMethod ||
+                        isProcessing ||
+                        (!renewMode && !selectedPlan)
+                      }
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-6 text-base md:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isProcessing ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center">
+                          <Shield className="h-5 w-5 mr-2" />
+                          {renewMode ? "Renew Now" : "Subscribe Now"}
+                        </div>
+                      )}
+                    </Button>
                   </div>
-                ) : (
-                  <>
-                    <Shield className="h-5 w-5 mr-2" />
-                    {renewMode ? "Renew Now" : "Subscribe Now"}
-                  </>
-                )}
-              </Button>
+                </div>
+              </div>
             </div>
           </motion.div>
         )}

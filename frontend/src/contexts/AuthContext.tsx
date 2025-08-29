@@ -1,3 +1,4 @@
+"use client";
 import React, {
   createContext,
   useContext,
@@ -8,7 +9,8 @@ import React, {
 } from "react";
 import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, API_BASE_URL } from "@/config/api";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 export interface User {
   id: string;
@@ -17,6 +19,9 @@ export interface User {
   role: "customer" | "producer" | "admin" | "agent";
   phone?: string;
   createdAt: string;
+  // Optional fields used for verification checks
+  isVerified?: boolean | null;
+  businessName?: string | null;
 }
 
 interface AuthContextType {
@@ -58,6 +63,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const didCheckRef = useRef(false);
+  const { show } = useLoginPrompt();
 
   // Check for existing session on app load
   useEffect(() => {
@@ -97,7 +103,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       });
 
       const { user: userData, token } = response.data;
-
+      // Allow login even if pending verification; RouteProtection shows a blocking modal
       localStorage.setItem("auth_token", token);
       setUser(userData);
 
@@ -106,9 +112,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         description: `Welcome back, ${userData.name}!`,
       });
     } catch (error: any) {
+      // Normalize error message
+      const description = handleApiError ? handleApiError(error) : error?.message || "Login failed";
       toast({
         title: "Login failed",
-        description: error.message,
+        description,
         variant: "destructive",
       });
       throw error;
@@ -188,10 +196,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   // Initiate OAuth flow via backend routes (server handles redirect & callback)
   const loginWithProvider = (provider: "google" | "facebook") => {
-    // Use Next.js environment variable
-    const base =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-    window.location.href = `${base}/api/auth/oauth/${provider}`;
+    // Use centralized API base URL to avoid port mismatches
+    window.location.href = `${API_BASE_URL}/api/auth/oauth/${provider}`;
   };
 
   const hasRole = (role: string): boolean => {

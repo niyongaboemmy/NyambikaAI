@@ -8,7 +8,7 @@ import { Building2, Mail, Phone, MapPin, Hash, Image, Link as LinkIcon } from 'l
 
 export default function CompanyModal() {
   const { company, isMissing, modalOpen, setModalOpen, createCompany, updateCompany } = useCompany();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [form, setForm] = useState({
     tin: '',
     name: '',
@@ -59,7 +59,8 @@ export default function CompanyModal() {
     else await createCompany(payload as any);
   };
 
-  const shouldOpen = isMissing || isEdit ? modalOpen : false;
+  // Always show for producers until company exists; use modalOpen only for edit mode
+  const shouldOpen = (!!user && user.role === 'producer' && !company) || (isEdit && modalOpen);
 
   if (!user || user.role !== 'producer') return null;
 
@@ -75,10 +76,12 @@ export default function CompanyModal() {
       <DialogContent
         className="max-w-lg rounded-2xl"
         onInteractOutside={(e) => {
-          if (isMissing && !isFormValid) e.preventDefault();
+          // Disallow dismiss while company is missing
+          if (isMissing) e.preventDefault();
         }}
         onEscapeKeyDown={(e) => {
-          if (isMissing && !isFormValid) e.preventDefault();
+          // Disallow dismiss while company is missing
+          if (isMissing) e.preventDefault();
         }}
       >
         <DialogHeader>
@@ -155,17 +158,31 @@ export default function CompanyModal() {
               placeholder="https://..."
             />
           </div>
-          <div className="flex justify-end gap-2">
-            {/* Allow closing only when editing OR when required fields are valid */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Logout button on the left to allow user to exit flow */}
             <Button
               type="button"
-              variant="secondary"
-              onClick={() => setModalOpen(false)}
-              disabled={isMissing && !isFormValid}
+              variant="outline"
+              onClick={() => {
+                logout();
+              }}
             >
-              Close
+              Logout
             </Button>
-            <Button type="submit" disabled={!isFormValid}>{isEdit ? 'Save Changes' : 'Save Company'}</Button>
+
+            {/* Form action buttons on the right */}
+            <div className="flex justify-end gap-2">
+              {/* Allow closing only when editing OR when required fields are valid */}
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setModalOpen(false)}
+                disabled={isMissing}
+              >
+                Close
+              </Button>
+              <Button type="submit" disabled={!isFormValid}>{isEdit ? 'Save Changes' : 'Save Company'}</Button>
+            </div>
           </div>
         </form>
       </DialogContent>

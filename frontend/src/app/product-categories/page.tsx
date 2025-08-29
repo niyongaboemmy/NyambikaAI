@@ -17,7 +17,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { useRouter } from "next/navigation";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 
 interface Category {
   id: string;
@@ -47,10 +47,10 @@ export default function AdminCategories() {
 
   // List categories
   const { data: categories = [], isLoading } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+    queryKey: [API_ENDPOINTS.CATEGORIES],
     queryFn: async () => {
       try {
-        const response = await apiClient.get("/api/categories");
+        const response = await apiClient.get(API_ENDPOINTS.CATEGORIES);
         return response.data;
       } catch (error) {
         throw new Error(handleApiError(error));
@@ -63,7 +63,7 @@ export default function AdminCategories() {
   const createMutation = useMutation({
     mutationFn: async () => {
       try {
-        const response = await apiClient.post("/api/categories", form);
+        const response = await apiClient.post(API_ENDPOINTS.CATEGORIES, form);
         return response.data;
       } catch (error) {
         throw new Error(handleApiError(error));
@@ -71,7 +71,7 @@ export default function AdminCategories() {
     },
     onSuccess: () => {
       toast({ title: "Category created" });
-      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.CATEGORIES] });
       setOpenForm(false);
       resetForm();
     },
@@ -88,7 +88,7 @@ export default function AdminCategories() {
     mutationFn: async () => {
       try {
         const response = await apiClient.put(
-          `/api/categories/${editing!.id}`,
+          API_ENDPOINTS.CATEGORY_BY_ID(editing!.id),
           form
         );
         return response.data;
@@ -98,7 +98,7 @@ export default function AdminCategories() {
     },
     onSuccess: () => {
       toast({ title: "Category updated" });
-      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.CATEGORIES] });
       setOpenForm(false);
       resetForm();
     },
@@ -114,14 +114,14 @@ export default function AdminCategories() {
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       try {
-        await apiClient.delete(`/api/categories/${id}`);
+        await apiClient.delete(API_ENDPOINTS.CATEGORY_BY_ID(id));
       } catch (error) {
         throw new Error(handleApiError(error));
       }
     },
     onSuccess: () => {
       toast({ title: "Category deleted" });
-      queryClient.invalidateQueries({ queryKey: ["/api/categories"] });
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.CATEGORIES] });
     },
     onError: (e: any) =>
       toast({

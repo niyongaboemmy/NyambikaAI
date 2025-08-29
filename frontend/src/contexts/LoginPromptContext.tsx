@@ -14,24 +14,27 @@ interface LoginPromptContextType {
   close: () => void;
   error: string | null;
   clearError: () => void;
+  show: (message: string) => void;
 }
 
 const LoginPromptContext = createContext<LoginPromptContextType | undefined>(
   undefined
 );
 
-export function useLoginPrompt() {
+export function useLoginPrompt(): LoginPromptContextType {
   const ctx = useContext(LoginPromptContext);
   if (!ctx) {
     // Return a no-op implementation instead of throwing during SSR/mounting
     if (typeof window === "undefined") {
-      return {
+      const fallback: LoginPromptContextType = {
         isOpen: false,
         open: () => {},
         close: () => {},
         error: null,
         clearError: () => {},
+        show: () => {},
       };
+      return fallback;
     }
     throw new Error("useLoginPrompt must be used within LoginPromptProvider");
   }
@@ -87,6 +90,16 @@ export function LoginPromptProvider({
       setError(null);
     }
   }, []);
+
+  // Open with a specific message (used for verification prompts)
+  const show = useCallback(
+    (message: string) => {
+      if (!isMountedRef.current) return;
+      setError(message);
+      open();
+    },
+    [open]
+  );
 
   // Global fetch interceptor for 401
   useEffect(() => {
@@ -147,8 +160,9 @@ export function LoginPromptProvider({
       close,
       error,
       clearError,
+      show,
     }),
-    [isOpen, open, close, error, clearError]
+    [isOpen, open, close, error, clearError, show]
   );
 
   return (

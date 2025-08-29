@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { apiClient } from "@/config/api";
+import { apiClient, API_ENDPOINTS } from "@/config/api";
 import { useToast } from "@/hooks/use-toast";
 import {
   Users,
@@ -124,11 +124,11 @@ function AdminDashboard() {
     try {
       const [statsRes, producersRes, agentsRes, ordersRes, approvalsRes] =
         await Promise.all([
-          apiClient.get("/api/admin/stats"),
-          apiClient.get("/api/admin/producers"),
-          apiClient.get("/api/admin/agents"),
-          apiClient.get("/api/admin/orders"),
-          apiClient.get("/api/admin/pending-approvals"),
+          apiClient.get(API_ENDPOINTS.ADMIN_STATS),
+          apiClient.get(API_ENDPOINTS.ADMIN_PRODUCERS),
+          apiClient.get(API_ENDPOINTS.ADMIN_AGENTS),
+          apiClient.get(API_ENDPOINTS.ADMIN_ORDERS),
+          apiClient.get(API_ENDPOINTS.ADMIN_PENDING_APPROVALS),
         ]);
 
       setDashboardData({

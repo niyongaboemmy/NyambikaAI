@@ -42,7 +42,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/theme-provider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
@@ -85,7 +85,7 @@ function Profile() {
   const updateProfileMutation = useMutation({
     mutationFn: async (profileData: typeof userInfo) => {
       try {
-        const response = await apiClient.put("/api/auth/profile", {
+        const response = await apiClient.put(API_ENDPOINTS.PROFILE, {
           fullName: profileData.name,
           fullNameRw: profileData.fullNameRw,
           phone: profileData.phone,
@@ -103,7 +103,7 @@ function Profile() {
         description: "Your profile information has been saved.",
       });
       setIsEditing(false);
-      queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ME] });
     },
     onError: (error: any) => {
       toast({
@@ -116,10 +116,10 @@ function Profile() {
 
   // Fetch user's favorites
   const { data: favorites = [], isLoading: favoritesLoading } = useQuery({
-    queryKey: ["favorites"],
+    queryKey: [API_ENDPOINTS.FAVORITES],
     queryFn: async () => {
       try {
-        const response = await apiClient.get("/api/favorites");
+        const response = await apiClient.get(API_ENDPOINTS.FAVORITES);
         return response.data;
       } catch (error) {
         console.error("Failed to fetch favorites:", handleApiError(error));
@@ -131,10 +131,10 @@ function Profile() {
 
   // Fetch user's orders
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
-    queryKey: ["user-orders"],
+    queryKey: [API_ENDPOINTS.ORDERS],
     queryFn: async () => {
       try {
-        const { data } = await apiClient.get("/api/orders");
+        const { data } = await apiClient.get(API_ENDPOINTS.ORDERS);
         return data;
       } catch (error) {
         console.error("Failed to fetch orders:", handleApiError(error));
@@ -152,7 +152,7 @@ function Profile() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-        const response = await apiClient.get("/api/try-on-sessions", {
+        const response = await apiClient.get(API_ENDPOINTS.TRY_ON_SESSIONS, {
           signal: controller.signal,
         });
 
@@ -190,7 +190,7 @@ function Profile() {
   const changePasswordMutation = useMutation({
     mutationFn: async (payload: { currentPassword: string; newPassword: string }) => {
       try {
-        const { data } = await apiClient.post("/api/auth/change-password", payload);
+        const { data } = await apiClient.post(API_ENDPOINTS.CHANGE_PASSWORD, payload);
         return data;
       } catch (error) {
         throw new Error(handleApiError(error));

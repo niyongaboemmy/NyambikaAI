@@ -65,7 +65,7 @@ import { EmptyState } from "@/components/empty-state";
 import { StatCard } from "@/components/stat-card";
 
 // Utils
-import { apiClient } from "@/lib/api";
+import { apiClient } from "@/config/api";
 import { formatPrice } from "@/lib/format";
 
 // Status configuration

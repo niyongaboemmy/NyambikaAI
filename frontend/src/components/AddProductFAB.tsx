@@ -8,12 +8,13 @@ import { useAuth } from "@/contexts/AuthContext";
 export default function AddProductFAB() {
   const { user } = useAuth();
   const pathname = usePathname();
-  const canAdd = user?.role === "producer" || user?.role === "admin";
+  const canAdd = user?.role === "producer";
 
   // Hide on the product registration page itself
   if (
     !canAdd ||
     pathname === "/product-registration" ||
+    pathname === "/producer-subscription" ||
     pathname?.includes("product-edit")
   )
     return null;

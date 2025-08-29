@@ -16,7 +16,7 @@ import {
 import { Skeleton } from "../../components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import TryOnWidget from "@/components/TryOnWidget";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 
 // Type definitions
 interface Category {
@@ -93,10 +93,10 @@ export default function TryOn() {
     isLoading: productsLoading,
     error: productsError,
   } = useQuery({
-    queryKey: ["products"],
+    queryKey: [API_ENDPOINTS.PRODUCTS],
     queryFn: async () => {
       try {
-        const response = await apiClient.get("/api/products", {
+        const response = await apiClient.get(API_ENDPOINTS.PRODUCTS, {
           params: { limit: 1000 },
         });
         return response.data;
@@ -119,30 +119,28 @@ export default function TryOn() {
     isLoading: categoriesLoading,
     error: categoriesError,
   } = useQuery({
-    queryKey: ["categories"],
+    queryKey: [API_ENDPOINTS.CATEGORIES],
     queryFn: async () => {
       try {
-        const response = await apiClient.get("/api/categories");
+        const response = await apiClient.get(API_ENDPOINTS.CATEGORIES);
         return response.data;
       } catch (error) {
-        throw new Error(handleApiError(error));
+        console.error("Failed to fetch categories:", handleApiError(error));
+        return [];
       }
     },
   });
 
   // Companies (load all, filter client-side)
-  const {
-    data: companies,
-    isLoading: companiesLoading,
-    error: companiesError,
-  } = useQuery({
-    queryKey: ["companies"],
+  const { data: companies = [], isLoading: companiesLoading, error: companiesError } = useQuery({
+    queryKey: [API_ENDPOINTS.COMPANIES],
     queryFn: async () => {
       try {
-        const response = await apiClient.get("/api/companies");
+        const response = await apiClient.get(API_ENDPOINTS.COMPANIES);
         return response.data;
       } catch (error) {
-        throw new Error(handleApiError(error));
+        console.error("Failed to fetch companies:", handleApiError(error));
+        return [];
       }
     },
   });

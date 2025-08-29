@@ -116,6 +116,37 @@ export default function HomeProducts() {
 
   const products = (productsPages?.pages || []).flat();
 
+  // Build unique producer ids present in current products
+  const producerIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const p of products as any[]) {
+      if (p?.producerId) ids.add(String(p.producerId));
+    }
+    return Array.from(ids);
+  }, [products]);
+
+  // Fetch verification status for those producers (status lives on producer)
+  const { data: verifiedMap = {}, isLoading: verifyingProducers } = useQuery<{ [id: string]: boolean }>({
+    queryKey: ["producers-verified-map", producerIds],
+    queryFn: async () => {
+      const entries: Array<[string, boolean]> = await Promise.all(
+        producerIds.map(async (id) => {
+          try {
+            const res = await apiClient.get(`/api/producers/${id}`);
+            const isVerified = Boolean((res.data as any)?.isVerified);
+            return [id, isVerified];
+          } catch (e) {
+            // On error, default to false to be safe
+            return [id, false];
+          }
+        })
+      );
+      return Object.fromEntries(entries);
+    },
+    enabled: producerIds.length > 0,
+    staleTime: 60_000,
+  });
+
   // Local search across all keys
   const term = (debouncedSearch || "").trim().toLowerCase();
   const locallyFilteredProducts = useMemo(() => {
@@ -129,6 +160,18 @@ export default function HomeProducts() {
       });
     });
   }, [products, term]);
+
+  // Apply active-producer filter
+  const activeProducerProducts = useMemo(() => {
+    if (!producerIds.length) return locallyFilteredProducts;
+    return locallyFilteredProducts.filter((p: any) => {
+      const pid = p?.producerId ? String(p.producerId) : undefined;
+      if (!pid) return true; // keep if no producerId info
+      const v = (verifiedMap as any)[pid];
+      // Only show when verified === true
+      return v === true;
+    });
+  }, [locallyFilteredProducts, producerIds.length, verifiedMap]);
 
   // Sentinel for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -412,7 +455,7 @@ export default function HomeProducts() {
                 ? `Search ${selectedCompany.name}...`
                 : "Search products..."
             }
-            resultsCount={locallyFilteredProducts.length}
+            resultsCount={activeProducerProducts.length}
             stickyTopClass="top-20"
           />
         )}
@@ -426,7 +469,7 @@ export default function HomeProducts() {
         )}
 
         {/* Products Grid - Instagram Style */}
-        {productsLoading ? (
+        {productsLoading || verifyingProducers ? (
           <div className="grid grid-cols-12 gap-2 md:gap-3 px-4 lg:px-0">
             {Array.from({ length: 12 }).map((_, i) => (
               <div
@@ -437,7 +480,7 @@ export default function HomeProducts() {
           </div>
         ) : (
           <div className="grid grid-cols-12 gap-2 md:gap-3">
-            {locallyFilteredProducts.map((product: Product) => (
+            {activeProducerProducts.map((product: Product) => (
               <ProductCard
                 key={product.id}
                 product={product}
@@ -458,7 +501,7 @@ export default function HomeProducts() {
         )}
 
         {/* Empty State */}
-        {!productsLoading && locallyFilteredProducts.length === 0 && (
+        {!productsLoading && !verifyingProducers && activeProducerProducts.length === 0 && (
           <div className="text-center py-16">
             <div className="rounded-3xl p-12 max-w-md mx-auto border">
               <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />

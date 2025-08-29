@@ -1,6 +1,6 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -69,8 +69,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ThemeProvider defaultTheme="system" storageKey="nyambika-ui-theme">
         <LanguageProvider>
           <TooltipProvider>
-            <AuthProviderWrapper>
-              <LoginPromptProvider>
+            <LoginPromptProvider>
+              <AuthProviderWrapper>
                 <CompanyProvider>
                   <CartProvider>
                     <ClientOnly>
@@ -95,8 +95,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                     <Toaster />
                   </CartProvider>
                 </CompanyProvider>
-              </LoginPromptProvider>
-            </AuthProviderWrapper>
+              </AuthProviderWrapper>
+            </LoginPromptProvider>
           </TooltipProvider>
         </LanguageProvider>
       </ThemeProvider>

@@ -14,18 +14,21 @@ The app now uses **app-level route protection** instead of individual page wrapp
 The following pages currently have `<ProtectedRoute>` wrappers that can now be removed:
 
 ### 1. Profile Page
+
 - **File**: `/src/app/profile/page.tsx`
 - **Remove**: `<ProtectedRoute>` wrapper
 - **Status**: ✅ Automatically protected as `/profile`
 
 ### 2. Orders Pages
-- **Files**: 
+
+- **Files**:
   - `/src/app/orders/page.tsx`
   - `/src/app/orders/[id]/page.tsx`
 - **Remove**: `<ProtectedRoute>` wrappers
 - **Status**: ✅ Automatically protected as `/orders` and `/orders/[id]`
 
 ### 3. Cart & Checkout
+
 - **Files**:
   - `/src/app/cart/page.tsx`
   - `/src/app/checkout/page.tsx`
@@ -33,8 +36,9 @@ The following pages currently have `<ProtectedRoute>` wrappers that can now be r
 - **Status**: ✅ Automatically protected
 
 ### 4. Producer Pages
+
 - **Files**:
-  - `/src/app/producer-dashboard/page.tsx`
+  - `/src/app/producer-orders/page.tsx`
   - `/src/app/producer/[producerId]/orders/page.tsx`
   - `/src/app/product-registration/page.tsx`
   - `/src/app/product-edit/[id]/page.tsx`
@@ -42,6 +46,7 @@ The following pages currently have `<ProtectedRoute>` wrappers that can now be r
 - **Status**: ✅ Automatically protected with producer role check
 
 ### 5. Admin Pages
+
 - **Files**:
   - `/src/app/admin-dashboard/page.tsx`
 - **Remove**: `<ProtectedRoute>` wrappers
@@ -53,12 +58,23 @@ The protection is now configured in `/src/components/RouteProtection.tsx`:
 
 ```typescript
 const ROUTE_CONFIG = {
-  public: ["/", "/try-on", "/companies", "/products", "/product/[id]", "/store/[id]"],
-  protected: ["/profile", "/cart", "/checkout", "/orders", "/orders/[id]"],
-  admin: ["/admin-dashboard"],
-  producer: ["/producer-dashboard", "/producer/[producerId]/orders", "/product-registration"],
-  producerOrAdmin: ["/producer-orders"]
-};
+  public: [
+    '/',
+    '/try-on',
+    '/companies',
+    '/products',
+    '/product/[id]',
+    '/store/[id]',
+  ],
+  protected: ['/profile', '/cart', '/checkout', '/orders', '/orders/[id]'],
+  admin: ['/admin-dashboard'],
+  producer: [
+    '/producer-orders',
+    '/producer/[producerId]/orders',
+    '/product-registration',
+  ],
+  producerOrAdmin: ['/producer-orders'],
+}
 ```
 
 ## Benefits

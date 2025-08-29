@@ -154,10 +154,8 @@ export function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-2 px-2 md:px-0">
       {/* Header */}
-      <div className="text-center mb-2">
-        <h1 className="text-2xl md:text-3xl font-bold gradient-text mb-1">
-          {title}
-        </h1>
+      <div className="text-center mb-4">
+        <h1 className="text-2xl md:text-3xl font-bold mb-1">{title}</h1>
         <p className="text-gray-600 dark:text-gray-300 text-sm">
           {title.includes("Edit")
             ? "Update your product details"
@@ -534,33 +532,40 @@ export function ProductForm({
         </CardContent>
       </Card>
 
-      {/* Actions */}
-      <div className="flex justify-end gap-4">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={onCancel}
-          className="glassmorphism"
-        >
-          Cancel
-        </Button>
-        <Button
-          type="submit"
-          disabled={submitting || loading}
-          className="gradient-bg text-white"
-        >
-          {submitting || loading ? (
-            <>
-              <Upload className="mr-2 h-4 w-4 animate-spin" />
-              {submitLabel}...
-            </>
-          ) : (
-            <>
-              <Save className="mr-2 h-4 w-4" />
-              {submitLabel}
-            </>
-          )}
-        </Button>
+      {/* Spacer to prevent content from being covered by fixed action bar */}
+      <div className="h-20" />
+
+      {/* Fixed bottom floating action bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/50 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onCancel}
+              className="glassmorphism"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={submitting || loading}
+              className="gradient-bg text-white"
+            >
+              {submitting || loading ? (
+                <>
+                  <Upload className="mr-2 h-4 w-4 animate-spin" />
+                  {submitLabel}...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {submitLabel}
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
       </div>
     </form>
   );

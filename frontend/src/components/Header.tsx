@@ -159,7 +159,7 @@ export default function HeaderOld() {
                   </DropdownMenuItem>
                   {user.role === "producer" && (
                     <DropdownMenuItem
-                      onClick={() => router.push("/producer-dashboard")}
+                      onClick={() => router.push("/producer-orders")}
                     >
                       <BarChart3 className="mr-2 h-4 w-4" />
                       Dashboard

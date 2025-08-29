@@ -328,7 +328,7 @@ export default function ProductDetail() {
         />
       </div>
 
-      <main className="relative z-10 pt-12 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
+      <main className="relative z-10 pt-6 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
         <div className="">
           {/* Compact Header */}
           <div className="flex items-center justify-between mb-2 sm:mb-4">
@@ -336,13 +336,15 @@ export default function ProductDetail() {
               <Button
                 variant="ghost"
                 onClick={handleBack}
-                className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-white/95 via-blue-50/90 to-indigo-50/95 dark:from-slate-800/95 dark:via-indigo-900/90 dark:to-purple-900/95 backdrop-blur-md border border-blue-200/40 dark:border-indigo-700/40 rounded-lg sm:rounded-xl px-2 sm:px-3 py-1.5 sm:py-2 text-xs sm:text-sm hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 dark:hover:from-slate-700 dark:hover:via-indigo-800 dark:hover:to-purple-800 transition-all duration-300 shadow-lg shadow-blue-500/10 dark:shadow-indigo-500/20"
+                className="flex items-center gap-1 sm:gap-1 bg-gradient-to-r from-white/95 via-blue-50/90 to-white dark:from-slate-800/95 dark:via-indigo-900/90 dark:to-purple-900/95 backdrop-blur-md rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 dark:hover:from-slate-700 dark:hover:via-indigo-800 dark:hover:to-purple-800 transition-all duration-300 dark:shadow-indigo-500/20"
               >
-                <ArrowLeft className="h-4 w-4" />
+                <ArrowLeft className="h-4 w-4 text-blue-600 dark:text-violet-500" />
                 <span className="hidden sm:inline">Back </span>
                 <span className="sm:hidden">Back</span>
               </Button>
-              <div className="font-bold text-xl">Product Details</div>
+              <div className="font-bold text-xl hidden md:inline-block">
+                Product Details
+              </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2">
               {(user?.role === "admin" ||
