@@ -933,8 +933,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const frontendBase =
         process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
 
-      // Redirect to frontend with token in URL hash so it can be stored on frontend origin
-      const redirectUrl = `${frontendBase}/auth/oauth-complete#token=${encodeURIComponent(
+      // Redirect to frontend with token as query param to a dedicated receiver route
+      // The receiver returns plain HTML that sets localStorage and redirects, avoiding hydration/CSP pitfalls
+      const redirectUrl = `${frontendBase}/auth/receive-token?token=${encodeURIComponent(
         token
       )}`;
       const html = `<!doctype html>
