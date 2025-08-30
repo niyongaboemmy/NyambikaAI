@@ -19,6 +19,7 @@ app.use(
       "http://127.0.0.1:3003",
       "http://127.0.0.1:5000",
       "https://nyambikaai.onrender.com",
+      "https://nyambika-ai.vercel.app", // add this
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
