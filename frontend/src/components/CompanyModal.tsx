@@ -59,8 +59,9 @@ export default function CompanyModal() {
     else await createCompany(payload as any);
   };
 
-  // Always show for producers until company exists; use modalOpen only for edit mode
-  const shouldOpen = (!!user && user.role === 'producer' && !company) || (isEdit && modalOpen);
+  // Open only when we have confirmed the company is missing (isMissing)
+  // This avoids opening during initial load before data is fetched
+  const shouldOpen = (!!user && user.role === 'producer' && isMissing) || (isEdit && modalOpen);
 
   if (!user || user.role !== 'producer') return null;
 
