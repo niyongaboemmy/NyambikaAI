@@ -1,7 +1,9 @@
 import 'dotenv/config';
 import { db } from './db';
-import { categories } from './shared/schema';
+import { categories, users } from './shared/schema';
 import { seedSubscriptionPlans } from './subscription-plans';
+import bcrypt from 'bcryptjs';
+import { eq } from 'drizzle-orm';
 
 async function seedCategories() {
   // Check if categories already exist
@@ -59,9 +61,33 @@ async function seedCategories() {
   console.log(`Seeded ${initial.length} categories.`);
 }
 
+async function seedDefaultAdmin() {
+  const email = process.env.SEED_ADMIN_EMAIL?.trim() || 'admin@nyambika.ai';
+  const name = process.env.SEED_ADMIN_NAME?.trim() || 'Nyambika Admin';
+  const password = process.env.SEED_ADMIN_PASSWORD || 'Passw0rd!';
+
+  const existing = await db.select().from(users).where(eq(users.email, email)).limit(1);
+  if (existing.length > 0) {
+    console.log(`Admin ${email} already exists. Skipping.`);
+    return;
+  }
+
+  const hashed = await bcrypt.hash(password, 10);
+  await db.insert(users).values({
+    username: email,
+    email,
+    password: hashed,
+    fullName: name,
+    role: 'admin',
+    isVerified: true,
+  });
+  console.log(`Seeded default admin: ${email}`);
+}
+
 async function main() {
   await seedSubscriptionPlans();
   await seedCategories();
+  await seedDefaultAdmin();
 }
 
 main()

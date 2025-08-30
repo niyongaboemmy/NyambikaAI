@@ -383,7 +383,7 @@ export default function LoginForm({
                   </div>
                 </motion.div>
 
-                {/* Demo Users Section */}
+                {/* Demo Users Section
                 <motion.div
                   className="space-y-3"
                   initial={{ opacity: 0, y: 20 }}
@@ -466,7 +466,7 @@ export default function LoginForm({
                       💡 Click any demo account to auto-fill login credentials
                     </p>
                   </div>
-                </motion.div>
+                </motion.div> */}
 
                 {showRegisterLink && (
                   <motion.div

@@ -344,6 +344,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // Admin create user: create a user with specified role
+  app.post(
+    "/api/admin/users",
+    requireAuth,
+    requireRole(["admin"]),
+    async (req, res) => {
+      try {
+        const { email, password, name, role, phone } = req.body || {};
+
+        if (!email || !password || !name || !role) {
+          return res
+            .status(400)
+            .json({ message: "Missing required fields: email, password, name, role" });
+        }
+
+        const normalizedRole = String(role).toLowerCase();
+        const allowedRoles = ["customer", "producer", "agent", "admin"];
+        if (!allowedRoles.includes(normalizedRole)) {
+          return res.status(400).json({ message: "Invalid role" });
+        }
+
+        // Check for existing user
+        const existingUser = await storage.getUserByEmail(email);
+        if (existingUser) {
+          return res.status(400).json({ message: "User already exists" });
+        }
+
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Create user record
+        const userData = {
+          username: email,
+          email,
+          password: hashedPassword,
+          fullName: name,
+          role: normalizedRole,
+          phone: phone || null,
+        } as any;
+
+        const created = await storage.createUser(userData);
+
+        // Return sanitized user
+        const { password: _pw, ...safe } = created as any;
+        res.status(201).json(safe);
+      } catch (error) {
+        console.error("Error in POST /api/admin/users:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
   // Admin orders: list recent orders with minimal fields
   app.get(
     "/api/admin/orders",

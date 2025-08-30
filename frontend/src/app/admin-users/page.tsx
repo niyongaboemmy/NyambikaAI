@@ -62,6 +62,15 @@ const AdminUsersPage: React.FC = () => {
   const [customers, setCustomers] = useState<AdminUserItem[]>([]);
   const [admins, setAdmins] = useState<AdminUserItem[]>([]);
 
+  // Create user form state
+  const [formOpen, setFormOpen] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [formName, setFormName] = useState("");
+  const [formEmail, setFormEmail] = useState("");
+  const [formPassword, setFormPassword] = useState("");
+  const [formRole, setFormRole] = useState<Role>("customer");
+  const [formPhone, setFormPhone] = useState("");
+
   // Company details for selected producer
   const [company, setCompany] = useState<ProducerCompany | null>(null);
   const [companyLoading, setCompanyLoading] = useState(false);
@@ -413,6 +422,113 @@ const AdminUsersPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Create User (Admin only) */}
+              <div className="mb-6 rounded-2xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Create New User</h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Admins can create users with any role.</p>
+                  </div>
+                  <button
+                    onClick={() => setFormOpen((v) => !v)}
+                    className="text-sm px-3 py-1.5 rounded-md border dark:border-none border-gray-200 dark:border-gray-700"
+                  >
+                    {formOpen ? "Hide" : "Open"}
+                  </button>
+                </div>
+                {formOpen && (
+                  <form
+                    className="mt-4 grid grid-cols-1 md:grid-cols-5 gap-3"
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      setError(null);
+                      setCreating(true);
+                      try {
+                        const payload = {
+                          email: formEmail.trim(),
+                          password: formPassword,
+                          name: formName.trim(),
+                          role: formRole,
+                          phone: formPhone.trim() || undefined,
+                        };
+                        const res = await apiClient.post<AdminUserItem>(
+                          API_ENDPOINTS.ADMIN_CREATE_USER,
+                          payload
+                        );
+                        const created = res.data;
+                        // Append to corresponding list
+                        if (created.role === "producer") setProducers((prev) => [created, ...prev]);
+                        else if (created.role === "agent") setAgents((prev) => [created, ...prev]);
+                        else if (created.role === "customer") setCustomers((prev) => [created, ...prev]);
+                        else if (created.role === "admin") setAdmins((prev) => [created, ...prev]);
+
+                        // Reset form
+                        setFormName("");
+                        setFormEmail("");
+                        setFormPassword("");
+                        setFormRole("customer");
+                        setFormPhone("");
+                        setFormOpen(false);
+                      } catch (e) {
+                        setError(handleApiError(e));
+                      } finally {
+                        setCreating(false);
+                      }
+                    }}
+                  >
+                    <input
+                      value={formName}
+                      onChange={(e) => setFormName(e.target.value)}
+                      required
+                      placeholder="Full name"
+                      className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    />
+                    <input
+                      type="email"
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value)}
+                      required
+                      placeholder="Email"
+                      className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    />
+                    <input
+                      type="password"
+                      value={formPassword}
+                      onChange={(e) => setFormPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      placeholder="Password"
+                      className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    />
+                    <select
+                      value={formRole}
+                      onChange={(e) => setFormRole(e.target.value as Role)}
+                      className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    >
+                      <option value="customer">Customer</option>
+                      <option value="producer">Producer</option>
+                      <option value="agent">Agent</option>
+                      <option value="admin">Admin</option>
+                    </select>
+                    <div className="flex gap-3 md:col-span-5">
+                      <input
+                        value={formPhone}
+                        onChange={(e) => setFormPhone(e.target.value)}
+                        placeholder="Phone (optional)"
+                        className="flex-1 rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                      />
+                      <button
+                        type="submit"
+                        disabled={creating}
+                        className="px-4 py-2 rounded-md bg-gray-900 text-white dark:bg-white dark:text-gray-900 disabled:opacity-60"
+                      >
+                        {creating ? "Creating..." : "Create User"}
+                      </button>
+                    </div>
+                  </form>
+                )}
               </div>
 
               {error && (

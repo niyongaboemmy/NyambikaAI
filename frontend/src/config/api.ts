@@ -144,6 +144,7 @@ export const API_ENDPOINTS = {
   ADMIN_AGENTS: "/api/admin/agents",
   ADMIN_CUSTOMERS: "/api/admin/customers",
   ADMIN_ADMINS: "/api/admin/admins",
+  ADMIN_CREATE_USER: "/api/admin/users",
   ADMIN_ORDERS: "/api/admin/orders",
   ADMIN_PENDING_APPROVALS: "/api/admin/pending-approvals",
   ADMIN_VERIFY_PRODUCER: (producerId: string) =>
