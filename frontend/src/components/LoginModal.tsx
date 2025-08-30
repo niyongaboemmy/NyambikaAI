@@ -59,7 +59,7 @@ export default function LoginModal() {
       <DialogContent
         // allow closing; onOpenChange will handle navigation
         className="p-0 overflow-hidden border-0 shadow-xl max-h-[95vh] overflow-y-auto rounded-2xl bg-transparent"
-        hideClose={true}
+        hideClose={false}
       >
         <DialogHeader className="sr-only">
           <DialogTitle>Sign In</DialogTitle>
