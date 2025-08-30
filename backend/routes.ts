@@ -933,16 +933,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const frontendBase =
         process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
 
-      // Return HTML that sets localStorage and redirects
+      // Redirect to frontend with token in URL hash so it can be stored on frontend origin
+      const redirectUrl = `${frontendBase}/auth/oauth-complete#token=${encodeURIComponent(
+        token
+      )}`;
       const html = `<!doctype html>
 <html><head><meta charset="utf-8"><script>
-try {
-  localStorage.setItem('auth_token', ${JSON.stringify(token)});
-  window.location.replace(${JSON.stringify(frontendBase)});
-} catch (e) {
-  document.write('Login successful. Please return to the app.');
-}
-</script></head><body></body></html>`;
+  window.location.replace(${JSON.stringify(redirectUrl)});
+  </script></head><body></body></html>`;
       res.setHeader("Content-Type", "text/html");
       res.send(html);
     } catch (error) {
