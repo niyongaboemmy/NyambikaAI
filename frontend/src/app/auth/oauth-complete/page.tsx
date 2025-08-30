@@ -28,12 +28,20 @@ export default function OAuthCompletePage() {
       const redirect = params.get("redirect") || "/";
 
       setStatus("Signed in! Redirecting...");
-      // Use replace to avoid keeping the intermediate page in history
-      router.replace(redirect);
+      // Force full reload so AuthContext runs initial check with the token present
+      if (typeof window !== "undefined") {
+        window.location.replace(redirect);
+      } else {
+        router.replace(redirect);
+      }
     } catch (e) {
       console.error("OAuth completion failed:", e);
       setStatus("Sign-in completed, redirecting...");
-      router.replace("/");
+      if (typeof window !== "undefined") {
+        window.location.replace("/");
+      } else {
+        router.replace("/");
+      }
     }
   }, [params, router]);
 
