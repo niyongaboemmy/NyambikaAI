@@ -12,8 +12,8 @@ import {
   ChevronDown,
   Eye,
 } from "lucide-react";
-import { Skeleton } from "../../components/ui/skeleton";
-import { Input } from "@/components/ui/input";
+import { Skeleton } from "../../components/custom-ui/skeleton";
+import { Input } from "@/components/custom-ui/input";
 import TryOnWidget from "@/components/TryOnWidget";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 

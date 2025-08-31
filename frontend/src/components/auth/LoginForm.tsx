@@ -1,8 +1,13 @@
 "use client";
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { FormInput } from "@/components/ui/form-input";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/custom-ui/button";
+import { FormInput } from "@/components/custom-ui/form-input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
 import { Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";

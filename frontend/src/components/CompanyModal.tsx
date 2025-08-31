@@ -1,22 +1,43 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { useCompany } from '@/contexts/CompanyContext';
-import { useAuth } from '@/contexts/AuthContext';
-import { FormInput } from '@/components/ui/form-input';
-import { Building2, Mail, Phone, MapPin, Hash, Image, Link as LinkIcon } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/custom-ui/dialog";
+import { Button } from "@/components/custom-ui/button";
+import { useCompany } from "@/contexts/CompanyContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { FormInput } from "@/components/custom-ui/form-input";
+import {
+  Building2,
+  Mail,
+  Phone,
+  MapPin,
+  Hash,
+  Image,
+  Link as LinkIcon,
+} from "lucide-react";
 
 export default function CompanyModal() {
-  const { company, isMissing, modalOpen, setModalOpen, createCompany, updateCompany } = useCompany();
+  const {
+    company,
+    isMissing,
+    modalOpen,
+    setModalOpen,
+    createCompany,
+    updateCompany,
+  } = useCompany();
   const { user, logout } = useAuth();
   const [form, setForm] = useState({
-    tin: '',
-    name: '',
-    email: '',
-    phone: '',
-    location: '',
-    logoUrl: '',
-    websiteUrl: ''
+    tin: "",
+    name: "",
+    email: "",
+    phone: "",
+    location: "",
+    logoUrl: "",
+    websiteUrl: "",
   });
   const isEdit = useMemo(() => !!company?.id, [company?.id]);
   const isFormValid = useMemo(() => {
@@ -31,16 +52,24 @@ export default function CompanyModal() {
   useEffect(() => {
     if (company) {
       setForm({
-        tin: company.tin || '',
-        name: company.name || '',
-        email: company.email || '',
-        phone: company.phone || '',
-        location: company.location || '',
-        logoUrl: company.logoUrl || '',
-        websiteUrl: company.websiteUrl || ''
+        tin: company.tin || "",
+        name: company.name || "",
+        email: company.email || "",
+        phone: company.phone || "",
+        location: company.location || "",
+        logoUrl: company.logoUrl || "",
+        websiteUrl: company.websiteUrl || "",
       });
     } else {
-      setForm({ tin: '', name: '', email: user?.email || '', phone: '', location: '', logoUrl: '', websiteUrl: '' });
+      setForm({
+        tin: "",
+        name: "",
+        email: user?.email || "",
+        phone: "",
+        location: "",
+        logoUrl: "",
+        websiteUrl: "",
+      });
     }
   }, [company, user?.email]);
 
@@ -61,9 +90,10 @@ export default function CompanyModal() {
 
   // Open only when we have confirmed the company is missing (isMissing)
   // This avoids opening during initial load before data is fetched
-  const shouldOpen = (!!user && user.role === 'producer' && isMissing) || (isEdit && modalOpen);
+  const shouldOpen =
+    (!!user && user.role === "producer" && isMissing) || (isEdit && modalOpen);
 
-  if (!user || user.role !== 'producer') return null;
+  if (!user || user.role !== "producer") return null;
 
   return (
     <Dialog
@@ -86,9 +116,13 @@ export default function CompanyModal() {
         }}
       >
         <DialogHeader>
-          <DialogTitle>{isEdit ? 'Edit Company Details' : 'Set Up Your Company'}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Edit Company Details" : "Set Up Your Company"}
+          </DialogTitle>
           <DialogDescription>
-            {isEdit ? 'Update your business information used across the platform.' : 'Please provide your business details to start selling.'}
+            {isEdit
+              ? "Update your business information used across the platform."
+              : "Please provide your business details to start selling."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={onSubmit} className="space-y-4">
@@ -97,7 +131,9 @@ export default function CompanyModal() {
               id="name"
               label="Company Name"
               value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.currentTarget.value })}
+              onChange={(e) =>
+                setForm({ ...form, name: e.currentTarget.value })
+              }
               required
               icon={Building2}
               placeholder="e.g., Nyambika Ltd"
@@ -107,7 +143,9 @@ export default function CompanyModal() {
               type="email"
               label="Company Email"
               value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.currentTarget.value })}
+              onChange={(e) =>
+                setForm({ ...form, email: e.currentTarget.value })
+              }
               required
               icon={Mail}
               placeholder="company@example.com"
@@ -117,7 +155,9 @@ export default function CompanyModal() {
               id="phone"
               label="Phone"
               value={form.phone}
-              onChange={(e) => setForm({ ...form, phone: e.currentTarget.value })}
+              onChange={(e) =>
+                setForm({ ...form, phone: e.currentTarget.value })
+              }
               required
               icon={Phone}
               placeholder="e.g., +2507..."
@@ -127,7 +167,9 @@ export default function CompanyModal() {
               id="location"
               label="Location"
               value={form.location}
-              onChange={(e) => setForm({ ...form, location: e.currentTarget.value })}
+              onChange={(e) =>
+                setForm({ ...form, location: e.currentTarget.value })
+              }
               required
               icon={MapPin}
               placeholder="City, Country"
@@ -145,7 +187,9 @@ export default function CompanyModal() {
               type="url"
               label="Logo URL (optional)"
               value={form.logoUrl}
-              onChange={(e) => setForm({ ...form, logoUrl: e.currentTarget.value })}
+              onChange={(e) =>
+                setForm({ ...form, logoUrl: e.currentTarget.value })
+              }
               icon={Image}
               placeholder="https://..."
             />
@@ -154,7 +198,9 @@ export default function CompanyModal() {
               type="url"
               label="Website URL (optional)"
               value={form.websiteUrl}
-              onChange={(e) => setForm({ ...form, websiteUrl: e.currentTarget.value })}
+              onChange={(e) =>
+                setForm({ ...form, websiteUrl: e.currentTarget.value })
+              }
               icon={LinkIcon}
               placeholder="https://..."
             />
@@ -182,7 +228,9 @@ export default function CompanyModal() {
               >
                 Close
               </Button>
-              <Button type="submit" disabled={!isFormValid}>{isEdit ? 'Save Changes' : 'Save Company'}</Button>
+              <Button type="submit" disabled={!isFormValid}>
+                {isEdit ? "Save Changes" : "Save Company"}
+              </Button>
             </div>
           </div>
         </form>

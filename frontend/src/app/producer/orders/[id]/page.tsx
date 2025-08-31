@@ -4,9 +4,14 @@ import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/custom-ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Badge } from "@/components/custom-ui/badge";
 import { format } from "date-fns";
 import { ArrowLeft, Loader2, Camera, Eye } from "lucide-react";
 import { handleApiError } from "@/lib/utils";
@@ -78,11 +83,11 @@ export default function ProducerOrderDetailsPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/orders/${id}`] });
-      queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
+      queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
     },
     onError: (error) => {
-      console.error('Error updating order status:', error);
-      alert('Failed to update order status');
+      console.error("Error updating order status:", error);
+      alert("Failed to update order status");
     },
   });
 
@@ -233,36 +238,39 @@ export default function ProducerOrderDetailsPage() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 gap-4">
-                  {order.sizeEvidenceImages.map((imageUrl: string, index: number) => (
-                    <div key={index} className="relative group">
-                      <div className="aspect-square bg-muted rounded-lg overflow-hidden border">
-                        <img
-                          src={imageUrl}
-                          alt={`Size evidence ${index + 1}`}
-                          className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
-                        />
+                  {order.sizeEvidenceImages.map(
+                    (imageUrl: string, index: number) => (
+                      <div key={index} className="relative group">
+                        <div className="aspect-square bg-muted rounded-lg overflow-hidden border">
+                          <img
+                            src={imageUrl}
+                            alt={`Size evidence ${index + 1}`}
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 rounded-lg flex items-center justify-center">
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                            onClick={() => window.open(imageUrl, "_blank")}
+                          >
+                            <Eye className="mr-2 h-4 w-4" />
+                            View Full Size
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2 text-center">
+                          Photo {index + 1}
+                        </p>
                       </div>
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-200 rounded-lg flex items-center justify-center">
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                          onClick={() => window.open(imageUrl, '_blank')}
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Full Size
-                        </Button>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        Photo {index + 1}
-                      </p>
-                    </div>
-                  ))}
+                    )
+                  )}
                 </div>
                 <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    <strong>Customer provided these photos</strong> to help you understand their size requirements. 
-                    Use these as reference when preparing their order.
+                    <strong>Customer provided these photos</strong> to help you
+                    understand their size requirements. Use these as reference
+                    when preparing their order.
                   </p>
                 </div>
               </CardContent>
@@ -276,7 +284,9 @@ export default function ProducerOrderDetailsPage() {
                 <CardTitle>Customer Notes</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground whitespace-pre-wrap">{order.notes}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap">
+                  {order.notes}
+                </p>
               </CardContent>
             </Card>
           )}
@@ -348,83 +358,99 @@ export default function ProducerOrderDetailsPage() {
 
           <div className="space-y-2">
             <h3 className="font-medium mb-3">Update Order Status</h3>
-            
-            {order.status === 'pending' && (
+
+            {order.status === "pending" && (
               <>
-                <Button 
-                  className="w-full" 
-                  onClick={() => handleStatusUpdate('processing')}
+                <Button
+                  className="w-full"
+                  onClick={() => handleStatusUpdate("processing")}
                   disabled={updating}
                 >
-                  {updating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {updating ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   Mark as Processing
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
-                  onClick={() => handleStatusUpdate('handled')}
+                  onClick={() => handleStatusUpdate("handled")}
                   disabled={updating}
                 >
-                  {updating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {updating ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   Mark as Handled
                 </Button>
               </>
             )}
-            
-            {order.status === 'processing' && (
+
+            {order.status === "processing" && (
               <>
-                <Button 
+                <Button
                   className="w-full"
-                  onClick={() => handleStatusUpdate('handled')}
+                  onClick={() => handleStatusUpdate("handled")}
                   disabled={updating}
                 >
-                  {updating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {updating ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   Mark as Handled
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
-                  onClick={() => handleStatusUpdate('shipped')}
+                  onClick={() => handleStatusUpdate("shipped")}
                   disabled={updating}
                 >
-                  {updating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  {updating ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : null}
                   Mark as Shipped
                 </Button>
               </>
             )}
-            
-            {order.status === 'handled' && (
-              <Button 
+
+            {order.status === "handled" && (
+              <Button
                 className="w-full"
-                onClick={() => handleStatusUpdate('shipped')}
+                onClick={() => handleStatusUpdate("shipped")}
                 disabled={updating}
               >
-                {updating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {updating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
                 Mark as Shipped
               </Button>
             )}
-            
-            {order.status === 'shipped' && (
-              <Button 
+
+            {order.status === "shipped" && (
+              <Button
                 className="w-full"
-                onClick={() => handleStatusUpdate('delivered')}
+                onClick={() => handleStatusUpdate("delivered")}
                 disabled={updating}
               >
-                {updating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                {updating ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
                 Mark as Delivered
               </Button>
             )}
-            
-            {(order.status === 'delivered' || order.status === 'confirmed') && (
+
+            {(order.status === "delivered" || order.status === "confirmed") && (
               <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
                 <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                  {order.status === 'confirmed' ? 'Order Confirmed by Customer' : 'Order Delivered'}
+                  {order.status === "confirmed"
+                    ? "Order Confirmed by Customer"
+                    : "Order Delivered"}
                 </p>
-                {order.isConfirmedByCustomer && order.customerConfirmationDate && (
-                  <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                    Confirmed on {format(new Date(order.customerConfirmationDate), 'PPP')}
-                  </p>
-                )}
+                {order.isConfirmedByCustomer &&
+                  order.customerConfirmationDate && (
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      Confirmed on{" "}
+                      {format(new Date(order.customerConfirmationDate), "PPP")}
+                    </p>
+                  )}
               </div>
             )}
           </div>

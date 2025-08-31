@@ -7,12 +7,17 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { FormInput } from "@/components/ui/form-input";
-import FormReactSelect from "@/components/ui/form-react-select";
-import { FormTextarea } from "@/components/ui/form-textarea";
+import { Button } from "@/components/custom-ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Label } from "@/components/custom-ui/label";
+import { FormInput } from "@/components/custom-ui/form-input";
+import FormReactSelect from "@/components/custom-ui/form-react-select";
+import { FormTextarea } from "@/components/custom-ui/form-textarea";
 
 export type ProductFormData = {
   name: string;

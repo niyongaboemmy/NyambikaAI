@@ -3,7 +3,7 @@ import { useRef, useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { useSafeToast as useToast } from "@/hooks/use-safe-toast";
 import {
   Upload,
@@ -1187,7 +1187,9 @@ export default function TryOnWidget({
       {!isFullscreen && (
         <div className="lg:sticky lg:top-24">{widgetContent}</div>
       )}
-      {isFullscreen && mounted && portalTarget &&
+      {isFullscreen &&
+        mounted &&
+        portalTarget &&
         createPortal(
           <motion.div
             className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1337,7 +1339,9 @@ export default function TryOnWidget({
         )}
 
       {/* Camera Preview Modal */}
-      {showCameraModal && mounted && portalTarget &&
+      {showCameraModal &&
+        mounted &&
+        portalTarget &&
         createPortal(
           <motion.div
             className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"

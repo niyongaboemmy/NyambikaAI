@@ -2,12 +2,12 @@
 
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { AppLoader } from "@/components/ui/AppLoader";
+import { AppLoader } from "@/components/custom-ui/AppLoader";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useCompany } from "@/contexts/CompanyContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import ProducerPendingVerificationModal from "@/components/ProducerPendingVerificationModal";
 
 // Route protection configuration
@@ -249,7 +249,10 @@ export function RouteProtection({ children }: RouteProtectionProps) {
   return (
     <>
       {/* Show pending verification warning when applicable */}
-      <ProducerPendingVerificationModal open={!!pendingRole} role={(pendingRole || "producer") as "producer" | "agent"} />
+      <ProducerPendingVerificationModal
+        open={!!pendingRole}
+        role={(pendingRole || "producer") as "producer" | "agent"}
+      />
       {children}
     </>
   );

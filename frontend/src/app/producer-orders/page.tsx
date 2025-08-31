@@ -25,30 +25,53 @@ import {
 } from "lucide-react";
 
 // UI Components
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Calendar } from "@/components/custom-ui/calendar";
+import { Button } from "@/components/custom-ui/button";
+import { Badge } from "@/components/custom-ui/badge";
+import { Skeleton } from "@/components/custom-ui/skeleton";
+import { ScrollArea } from "@/components/custom-ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger } from "@/components/custom-ui/tabs";
+import { Input } from "@/components/custom-ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
+} from "@/components/custom-ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/custom-ui/select";
 import { cn } from "@/lib/utils";
 
 // Types
 import type { ProducerOrder } from "@/types/order";
+
+// Define OrderStatus type if not already defined in order.ts
+type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "processing"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
+
+// API Response Type
+interface OrdersResponse {
+  data: ProducerOrder[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
 
 // Components
 import { OrderCard } from "@/components/orders/order-card";
@@ -139,8 +162,8 @@ const ErrorCard = ({ error }: { error: unknown }) => (
   </Card>
 );
 
-// Status options for filtering
-const statusOptions = [
+// Status options for filtering with proper typing
+const statusOptions: { value: OrderStatus | "all"; label: string }[] = [
   { value: "all", label: "All Orders" },
   { value: "pending", label: "Pending" },
   { value: "confirmed", label: "Confirmed" },
@@ -182,25 +205,39 @@ export default function ProducerOrders() {
 
   // Fetch orders
   const {
-    data: orders = [],
+    data: response,
     isLoading,
     error,
     refetch,
-  } = useQuery({
+  } = useQuery<OrdersResponse, Error>({
     queryKey: ["producer-orders", statusFilter, searchQuery, dateRange],
     queryFn: async () => {
+      if (!user?.id) throw new Error("User not authenticated");
+
       const params = new URLSearchParams();
       if (statusFilter !== "all") params.append("status", statusFilter);
       if (searchQuery) params.append("search", searchQuery);
       if (dateRange.from) params.append("from", dateRange.from.toISOString());
-      if (dateRange.to) params.append("to", dateRange.to.toISOString());
+      if (dateRange.to) {
+        // Set to end of day for proper date range filtering
+        const endOfDay = new Date(dateRange.to);
+        endOfDay.setHours(23, 59, 59, 999);
+        params.append("to", endOfDay.toISOString());
+      }
 
-      const response = await apiClient.get(
-        `/api/orders/producer/${user?.id}?${params}`
-      );
-      return response.data;
+      try {
+        const response = await apiClient.get(
+          `/api/orders/producer/${user.id}?${params}`
+        );
+        return response.data;
+      } catch (error: any) {
+        console.error("Error fetching orders:", error);
+        throw new Error(
+          error.response?.data?.message || "Failed to fetch orders"
+        );
+      }
     },
-    enabled: !!user && hasAccess,
+    enabled: Boolean(user && hasAccess),
     retry: (failureCount, error: any) => {
       // Don't retry on auth errors
       if (error?.response?.status === 401) {
@@ -211,28 +248,59 @@ export default function ProducerOrders() {
     },
   });
 
+  const orders: ProducerOrder[] = response
+    ? Array.isArray(response)
+      ? response
+      : response.data || []
+    : [];
+
   // Filter and sort orders
   const filteredOrders = useMemo(() => {
-    let filtered = orders;
+    let filtered = [...orders];
 
     // Apply search filter
     if (searchQuery) {
-      filtered = filtered.filter(
-        (order: ProducerOrder) =>
-          order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          order.customerName
-            .toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          order.customerEmail.toLowerCase().includes(searchQuery.toLowerCase())
-      );
+      const searchLower = searchQuery.toLowerCase();
+      filtered = filtered.filter((order: ProducerOrder) => {
+        const matchesId = order.id.toLowerCase().includes(searchLower);
+        const matchesName =
+          order.customerName?.toLowerCase().includes(searchLower) || false;
+        const matchesEmail =
+          order.customerEmail?.toLowerCase().includes(searchLower) || false;
+        const matchesProduct =
+          order.items?.some(
+            (item) =>
+              (item as any)?.name?.toLowerCase().includes(searchLower) ||
+              (item as any)?.title?.toLowerCase().includes(searchLower)
+          ) || false;
+
+        return matchesId || matchesName || matchesEmail || matchesProduct;
+      });
     }
 
-    // Apply date range filter
+    // Apply date range filter with proper timezone handling
     if (dateRange.from || dateRange.to) {
-      filtered = filtered.filter((order: ProducerOrder) => {
+      filtered = filtered.filter((order) => {
         const orderDate = new Date(order.createdAt);
-        if (dateRange.from && orderDate < dateRange.from) return false;
-        if (dateRange.to && orderDate > dateRange.to) return false;
+        // Reset time components for accurate date comparison
+        const orderDateOnly = new Date(
+          orderDate.getFullYear(),
+          orderDate.getMonth(),
+          orderDate.getDate()
+        );
+
+        if (dateRange.from) {
+          const fromDate = new Date(dateRange.from);
+          fromDate.setHours(0, 0, 0, 0);
+          if (orderDateOnly < fromDate) return false;
+        }
+
+        if (dateRange.to) {
+          const toDate = new Date(dateRange.to);
+          toDate.setHours(23, 59, 59, 999);
+          if (orderDateOnly > toDate) return false;
+        }
+
         return true;
       });
     }
@@ -339,12 +407,17 @@ export default function ProducerOrders() {
   const stats = useMemo(() => {
     const totalOrders = orders.length;
     const totalRevenue = orders.reduce(
-      (sum: number, order: ProducerOrder) => sum + parseFloat(order.total),
+      (sum: number, order: ProducerOrder) =>
+        sum +
+        (typeof order.total === "number"
+          ? order.total
+          : parseFloat(String(order.total)) || 0),
       0
     );
+
     const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
     const totalItems = orders.reduce(
-      (sum: number, order: ProducerOrder) => sum + order.items.length,
+      (sum: number, order: ProducerOrder) => sum + (order.items?.length || 0),
       0
     );
 

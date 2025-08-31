@@ -6,7 +6,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
+} from "@/components/custom-ui/dialog";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import LoginForm from "@/components/auth/LoginForm";
 import PasswordRecoveryForm from "@/components/auth/PasswordRecoveryForm";
@@ -45,7 +45,8 @@ export default function LoginModal() {
               ];
 
               const isProtectedRoute = protectedRoutes.some(
-                (route) => currentPath.startsWith(route) || currentPath === route
+                (route) =>
+                  currentPath.startsWith(route) || currentPath === route
               );
 
               if (
@@ -55,7 +56,7 @@ export default function LoginModal() {
                 router.push("/");
               }
             } catch (error) {
-              console.warn('Navigation check failed:', error);
+              console.warn("Navigation check failed:", error);
             }
           }, 0);
         }

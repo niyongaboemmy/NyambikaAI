@@ -10,27 +10,27 @@ import {
   ShoppingBag,
   Factory,
 } from "lucide-react";
-import { Button } from "../../components/ui/button";
+import { Button } from "../../components/custom-ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../components/ui/card";
-import { FormInput } from "../../components/ui/form-input";
-import { FormSelect } from "../../components/ui/form-select";
-import { Label } from "../../components/ui/label";
+} from "../../components/custom-ui/card";
+import { FormInput } from "../../components/custom-ui/form-input";
+import { FormSelect } from "../../components/custom-ui/form-select";
+import { Label } from "../../components/custom-ui/label";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLoginPrompt } from "../../contexts/LoginPromptContext";
-import { Checkbox } from "../../components/ui/checkbox";
+import { Checkbox } from "../../components/custom-ui/checkbox";
 import { useToast } from "../../hooks/use-toast";
 import {
   Tabs,
   TabsTrigger,
   TabsContent,
   TabsList,
-} from "../../components/ui/tabs";
-import { Progress } from "../../components/ui/progress";
+} from "../../components/custom-ui/tabs";
+import { Progress } from "../../components/custom-ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 
@@ -519,7 +519,9 @@ export default function Register() {
                         <Tabs
                           value={formData.role}
                           onValueChange={(v) =>
-                            handleRoleChange(v as "customer" | "producer" | "agent")
+                            handleRoleChange(
+                              v as "customer" | "producer" | "agent"
+                            )
                           }
                         >
                           <TabsList className="grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-1">

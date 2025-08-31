@@ -1,5 +1,5 @@
 import { Camera, ChevronsDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { apiClient, handleApiError } from "@/config/api";

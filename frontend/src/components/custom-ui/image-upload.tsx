@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { cn } from "@/lib/utils";
 
 interface ImageUploadProps {
@@ -53,14 +53,14 @@ export function ImageUpload({
       }
 
       validFiles.push(file);
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         if (e.target?.result) {
           newPreviews.push(e.target.result as string);
           if (newPreviews.length === validFiles.length) {
-            setPreviews(prev => [...prev, ...newPreviews]);
+            setPreviews((prev) => [...prev, ...newPreviews]);
           }
         }
       };
@@ -77,7 +77,7 @@ export function ImageUpload({
   const removeImage = (index: number) => {
     const updatedFiles = selectedFiles.filter((_, i) => i !== index);
     const updatedPreviews = previews.filter((_, i) => i !== index);
-    
+
     setSelectedFiles(updatedFiles);
     setPreviews(updatedPreviews);
     onImagesChange(updatedFiles);
@@ -97,7 +97,7 @@ export function ImageUpload({
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       handleFiles(e.dataTransfer.files);
     }
@@ -136,23 +136,23 @@ export function ImageUpload({
           className="hidden"
           disabled={disabled || selectedFiles.length >= maxImages}
         />
-        
+
         <div className="text-center">
           <Upload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <div className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
             {selectedFiles.length >= maxImages
               ? `Maximum ${maxImages} images selected`
-              : "Upload size evidence photos"
-            }
+              : "Upload size evidence photos"}
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             {selectedFiles.length >= maxImages
               ? "Remove an image to upload more"
-              : `Drag and drop up to ${maxImages} images, or click to browse`
-            }
+              : `Drag and drop up to ${maxImages} images, or click to browse`}
           </p>
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-2">
-            Supports: {acceptedTypes.map(type => type.split('/')[1]).join(', ')} • Max {maxSizeMB}MB each
+            Supports:{" "}
+            {acceptedTypes.map((type) => type.split("/")[1]).join(", ")} • Max{" "}
+            {maxSizeMB}MB each
           </p>
         </div>
       </div>

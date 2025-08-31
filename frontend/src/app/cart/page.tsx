@@ -10,8 +10,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button } from "@/components/custom-ui/button";
+import { Card } from "@/components/custom-ui/card";
 import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
 
@@ -147,7 +147,10 @@ function CartPage() {
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          console.log('Deleting item:', { id: item.id, size: item.size });
+                          console.log("Deleting item:", {
+                            id: item.id,
+                            size: item.size,
+                          });
                           removeItem(item.id, item.size);
                         }}
                         className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-red-100 dark:bg-red-500/20 hover:bg-red-200 dark:hover:bg-red-500/30 text-red-600 dark:text-red-400 flex-shrink-0"

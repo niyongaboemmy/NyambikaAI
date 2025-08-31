@@ -1,6 +1,11 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/custom-ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Badge } from "@/components/custom-ui/badge";
 import { format } from "date-fns";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -85,7 +90,12 @@ export function OrderCard({
               <CardTitle className="text-sm sm:text-lg font-semibold truncate">
                 Order #{order.id.slice(-6).toUpperCase()}
               </CardTitle>
-              <Badge className={cn("text-xs font-medium flex-shrink-0", statusConfig.color)}>
+              <Badge
+                className={cn(
+                  "text-xs font-medium flex-shrink-0",
+                  statusConfig.color
+                )}
+              >
                 <span className="hidden sm:inline">{statusConfig.icon} </span>
                 {statusConfig.label}
               </Badge>
@@ -120,9 +130,12 @@ export function OrderCard({
       <CardContent className="p-3 sm:p-4 pt-2">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 sm:gap-0">
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm sm:text-base truncate">{order.customerName}</p>
+            <p className="font-medium text-sm sm:text-base truncate">
+              {order.customerName}
+            </p>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              {order.items.length} item{order.items.length !== 1 ? "s" : ""} • {formatPrice(order.total)}
+              {order.items.length} item{order.items.length !== 1 ? "s" : ""} •{" "}
+              {formatPrice(order.total)}
             </p>
           </div>
           <Button
@@ -144,19 +157,28 @@ export function OrderCard({
             <h4 className="text-xs sm:text-sm font-medium mb-2">Order Items</h4>
             <div className="space-y-1 sm:space-y-2">
               {order.items.map((item) => (
-                <div key={item.id} className="flex justify-between text-xs sm:text-sm">
+                <div
+                  key={item.id}
+                  className="flex justify-between text-xs sm:text-sm"
+                >
                   <div className="flex-1 truncate pr-2">
                     <span className="font-medium">{item.quantity}×</span>{" "}
-                    <span className="truncate">{item.product?.name || "Product"}</span>
+                    <span className="truncate">
+                      {item.product?.name || "Product"}
+                    </span>
                   </div>
-                  <div className="flex-shrink-0 font-medium">{formatPrice(item.price)}</div>
+                  <div className="flex-shrink-0 font-medium">
+                    {formatPrice(item.price)}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="w-full pt-2 border-t">
-            <h4 className="text-xs sm:text-sm font-medium mb-2">Update Status</h4>
+            <h4 className="text-xs sm:text-sm font-medium mb-2">
+              Update Status
+            </h4>
             <div className="flex flex-wrap gap-1 sm:gap-2">
               {nextStatusOptions.map(([status, config]) => (
                 <Button

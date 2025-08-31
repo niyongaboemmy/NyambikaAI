@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useUpdateOrderValidationStatus } from "@/hooks/use-orders";
@@ -81,4 +81,3 @@ export function OrderConfirmationButton({
     </Button>
   );
 }
-

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Camera, Upload, Sparkles, Ruler, Clock } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { useRouter } from "next/navigation";
 
 export default function AITryOnStudio() {

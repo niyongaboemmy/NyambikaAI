@@ -15,10 +15,10 @@ import {
   Download,
   ShoppingBag,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { OrdersSkeleton } from "@/components/ui/OrdersSkeleton";
+import { Button } from "@/components/custom-ui/button";
+import { Card, CardContent } from "@/components/custom-ui/card";
+import { Badge } from "@/components/custom-ui/badge";
+import { OrdersSkeleton } from "@/components/custom-ui/OrdersSkeleton";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError, API_BASE_URL } from "@/config/api";

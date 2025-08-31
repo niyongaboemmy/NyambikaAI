@@ -12,9 +12,9 @@ import {
   RotateCcw,
   Wand2,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/custom-ui/button";
+import { Badge } from "@/components/custom-ui/badge";
+import { Skeleton } from "@/components/custom-ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError } from "@/config/api";

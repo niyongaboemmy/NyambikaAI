@@ -11,15 +11,19 @@ import {
   Package,
   BarChart3,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+} from "@/components/custom-ui/dropdown-menu";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/custom-ui/avatar";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import Link from "next/link";
 import { useRouter } from "next/navigation";

@@ -3,8 +3,8 @@
 import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Skeleton } from "../../components/ui/skeleton";
+import { Input } from "@/components/custom-ui/input";
+import { Skeleton } from "../../components/custom-ui/skeleton";
 import { TrendingUp, Star, Sparkles, Package, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { apiClient, handleApiError } from "@/config/api";

@@ -2,19 +2,24 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Button } from "@/components/custom-ui/button";
+import { Badge } from "@/components/custom-ui/badge";
+import { Input } from "@/components/custom-ui/input";
+import { Label } from "@/components/custom-ui/label";
+import { Textarea } from "@/components/custom-ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/custom-ui/select";
 import {
   CreditCard,
   Smartphone,
@@ -118,12 +123,12 @@ export default function SubscriptionRenewal() {
       },
     ];
 
-    const foundProducer = mockProducers.find(p => p.id === producerId);
-    
+    const foundProducer = mockProducers.find((p) => p.id === producerId);
+
     setTimeout(() => {
       setProducer(foundProducer || null);
       if (foundProducer) {
-        setPaymentData(prev => ({
+        setPaymentData((prev) => ({
           ...prev,
           phoneNumber: foundProducer.phone,
         }));
@@ -140,9 +145,9 @@ export default function SubscriptionRenewal() {
   ];
 
   const handlePlanChange = (duration: number) => {
-    const plan = subscriptionPlans.find(p => p.duration === duration);
+    const plan = subscriptionPlans.find((p) => p.duration === duration);
     if (plan) {
-      setPaymentData(prev => ({
+      setPaymentData((prev) => ({
         ...prev,
         duration,
         amount: plan.price,
@@ -204,9 +209,12 @@ export default function SubscriptionRenewal() {
                 Producer Not Found
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                The producer you're looking for doesn't exist or you don't have access to manage them.
+                The producer you're looking for doesn't exist or you don't have
+                access to manage them.
               </p>
-              <Button onClick={() => router.push("/agent/producers-management")}>
+              <Button
+                onClick={() => router.push("/agent/producers-management")}
+              >
                 Back to Producers
               </Button>
             </div>
@@ -227,8 +235,9 @@ export default function SubscriptionRenewal() {
                 Payment Successful!
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {producer.name}'s subscription has been renewed for {paymentData.duration} month(s).
-                You've earned {(paymentData.amount * 0.2).toLocaleString()} RWF commission.
+                {producer.name}'s subscription has been renewed for{" "}
+                {paymentData.duration} month(s). You've earned{" "}
+                {(paymentData.amount * 0.2).toLocaleString()} RWF commission.
               </p>
               <div className="space-y-2">
                 <Button
@@ -288,7 +297,10 @@ export default function SubscriptionRenewal() {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
-                {producer.name.split(' ').map(n => n[0]).join('')}
+                {producer.name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -296,7 +308,9 @@ export default function SubscriptionRenewal() {
                 </h3>
                 <div className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-gray-400" />
-                  <span className="text-gray-600 dark:text-gray-400">{producer.company}</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {producer.company}
+                  </span>
                 </div>
               </div>
             </div>
@@ -324,21 +338,31 @@ export default function SubscriptionRenewal() {
                 </div>
                 <div>
                   <p className="text-gray-500 dark:text-gray-400">Total Paid</p>
-                  <p className="font-semibold">{producer.totalPaid.toLocaleString()} RWF</p>
+                  <p className="font-semibold">
+                    {producer.totalPaid.toLocaleString()} RWF
+                  </p>
                 </div>
                 <div>
                   <p className="text-gray-500 dark:text-gray-400">Status</p>
-                  <Badge className={
-                    producer.subscriptionStatus === "expired" 
-                      ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                  }>
-                    {producer.subscriptionStatus === "expired" ? "Expired" : "Pending"}
+                  <Badge
+                    className={
+                      producer.subscriptionStatus === "expired"
+                        ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                    }
+                  >
+                    {producer.subscriptionStatus === "expired"
+                      ? "Expired"
+                      : "Pending"}
                   </Badge>
                 </div>
                 <div>
-                  <p className="text-gray-500 dark:text-gray-400">Last Payment</p>
-                  <p className="font-semibold">{new Date(producer.lastPayment).toLocaleDateString()}</p>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Last Payment
+                  </p>
+                  <p className="font-semibold">
+                    {new Date(producer.lastPayment).toLocaleDateString()}
+                  </p>
                 </div>
               </div>
             </div>
@@ -389,7 +413,10 @@ export default function SubscriptionRenewal() {
                 <Select
                   value={paymentData.paymentMethod}
                   onValueChange={(value: "momo" | "airtel" | "bank") =>
-                    setPaymentData(prev => ({ ...prev, paymentMethod: value }))
+                    setPaymentData((prev) => ({
+                      ...prev,
+                      paymentMethod: value,
+                    }))
                   }
                 >
                   <SelectTrigger>
@@ -427,7 +454,10 @@ export default function SubscriptionRenewal() {
                   placeholder="+250788123456"
                   value={paymentData.phoneNumber}
                   onChange={(e) =>
-                    setPaymentData(prev => ({ ...prev, phoneNumber: e.target.value }))
+                    setPaymentData((prev) => ({
+                      ...prev,
+                      phoneNumber: e.target.value,
+                    }))
                   }
                   required
                 />
@@ -441,7 +471,10 @@ export default function SubscriptionRenewal() {
                   placeholder="Add any notes about this payment..."
                   value={paymentData.notes}
                   onChange={(e) =>
-                    setPaymentData(prev => ({ ...prev, notes: e.target.value }))
+                    setPaymentData((prev) => ({
+                      ...prev,
+                      notes: e.target.value,
+                    }))
                   }
                   rows={3}
                 />
@@ -451,7 +484,9 @@ export default function SubscriptionRenewal() {
               <div className="p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg space-y-2">
                 <div className="flex justify-between text-sm">
                   <span>Subscription Amount:</span>
-                  <span className="font-medium">{paymentData.amount.toLocaleString()} RWF</span>
+                  <span className="font-medium">
+                    {paymentData.amount.toLocaleString()} RWF
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Your Commission (20%):</span>
@@ -461,7 +496,9 @@ export default function SubscriptionRenewal() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Duration:</span>
-                  <span className="font-medium">{paymentData.duration} month(s)</span>
+                  <span className="font-medium">
+                    {paymentData.duration} month(s)
+                  </span>
                 </div>
                 <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between font-semibold">

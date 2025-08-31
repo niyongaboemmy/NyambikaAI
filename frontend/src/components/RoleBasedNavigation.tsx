@@ -1,11 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/custom-ui/dropdown-menu";
 import { useCart } from "@/contexts/CartContext";
 import { useTheme } from "@/components/theme-provider";
 import { useCompany } from "@/contexts/CompanyContext";
@@ -35,7 +35,7 @@ import {
   Settings,
   Grid3X3,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Badge } from "@/components/custom-ui/badge";
 import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;

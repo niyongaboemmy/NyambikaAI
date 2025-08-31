@@ -1,6 +1,6 @@
 import React from "react";
 import type { Product } from "@/shared/schema";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { Heart, Pencil, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 

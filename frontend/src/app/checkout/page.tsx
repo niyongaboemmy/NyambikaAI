@@ -7,13 +7,18 @@ import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormInput } from "@/components/ui/form-input";
-import { Textarea } from "@/components/ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
-import { ImageUpload } from "@/components/ui/image-upload";
+import { Button } from "@/components/custom-ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { FormInput } from "@/components/custom-ui/form-input";
+import { Textarea } from "@/components/custom-ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/custom-ui/radio-group";
+import { Separator } from "@/components/custom-ui/separator";
+import { ImageUpload } from "@/components/custom-ui/image-upload";
 import {
   ArrowLeft,
   CreditCard,
@@ -171,7 +176,7 @@ function CheckoutPage() {
     try {
       // Calculate subtotal from cart items
       const subtotal = items.reduce((sum, item) => {
-        return sum + (item.price * item.quantity);
+        return sum + item.price * item.quantity;
       }, 0);
 
       // Calculate total including shipping
@@ -186,15 +191,20 @@ function CheckoutPage() {
         });
 
         try {
-          const uploadResponse = await apiClient.post(API_ENDPOINTS.UPLOAD_SIZE_EVIDENCE, formData, {
-            headers: { "Content-Type": "multipart/form-data" }
-          });
+          const uploadResponse = await apiClient.post(
+            API_ENDPOINTS.UPLOAD_SIZE_EVIDENCE,
+            formData,
+            {
+              headers: { "Content-Type": "multipart/form-data" },
+            }
+          );
           sizeEvidenceUrls = uploadResponse.data.urls;
         } catch (uploadError) {
           console.error("Error uploading size evidence:", uploadError);
           toast({
             title: "Upload Warning",
-            description: "Size evidence images could not be uploaded, but order will proceed.",
+            description:
+              "Size evidence images could not be uploaded, but order will proceed.",
             variant: "destructive",
           });
         }
@@ -213,11 +223,14 @@ function CheckoutPage() {
         sizeEvidenceImages: sizeEvidenceUrls, // Add uploaded image URLs
         total: orderTotal.toFixed(2), // Include shipping in total
         subtotal: subtotal.toFixed(2), // Also send subtotal for reference
-        shipping: shipping.toFixed(2)  // Send shipping amount separately
+        shipping: shipping.toFixed(2), // Send shipping amount separately
       };
 
       // Call backend directly via centralized apiClient (adds Authorization)
-      const { data: order } = await apiClient.post(API_ENDPOINTS.ORDERS, orderData);
+      const { data: order } = await apiClient.post(
+        API_ENDPOINTS.ORDERS,
+        orderData
+      );
 
       // Clear cart and wait for it to complete
       await new Promise<void>((resolve) => {
@@ -442,7 +455,8 @@ function CheckoutPage() {
                 <CardHeader>
                   <CardTitle>Size Evidence Photos (Optional)</CardTitle>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Upload up to 2 photos to help the producer understand your size requirements
+                    Upload up to 2 photos to help the producer understand your
+                    size requirements
                   </p>
                 </CardHeader>
                 <CardContent>

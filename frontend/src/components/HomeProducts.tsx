@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Product, Category } from "@/shared/schema";
 import ProductCard from "@/components/ProductCard";
@@ -92,7 +92,7 @@ export default function HomeProducts() {
     queryKey: ["categories"],
     queryFn: async () => {
       try {
-        const response = await apiClient.get('/api/categories');
+        const response = await apiClient.get("/api/categories");
         return response.data;
       } catch (error) {
         throw new Error(handleApiError(error));
@@ -126,7 +126,9 @@ export default function HomeProducts() {
   }, [products]);
 
   // Fetch verification status for those producers (status lives on producer)
-  const { data: verifiedMap = {}, isLoading: verifyingProducers } = useQuery<{ [id: string]: boolean }>({
+  const { data: verifiedMap = {}, isLoading: verifyingProducers } = useQuery<{
+    [id: string]: boolean;
+  }>({
     queryKey: ["producers-verified-map", producerIds],
     queryFn: async () => {
       const entries: Array<[string, boolean]> = await Promise.all(
@@ -213,7 +215,8 @@ export default function HomeProducts() {
   const addToFavoritesMutation = useMutation({
     mutationFn: async (productId: string) => {
       try {
-        const response = await apiClient.post('/api/favorites', 
+        const response = await apiClient.post(
+          "/api/favorites",
           { productId },
           { headers: { "x-user-id": "demo-user" } }
         );
@@ -231,7 +234,7 @@ export default function HomeProducts() {
     mutationFn: async (productId: string) => {
       try {
         await apiClient.delete(`/api/favorites/${productId}`, {
-          headers: { "x-user-id": "demo-user" }
+          headers: { "x-user-id": "demo-user" },
         });
       } catch (error) {
         throw new Error(handleApiError(error));
@@ -501,24 +504,26 @@ export default function HomeProducts() {
         )}
 
         {/* Empty State */}
-        {!productsLoading && !verifyingProducers && activeProducerProducts.length === 0 && (
-          <div className="text-center py-16">
-            <div className="rounded-3xl p-12 max-w-md mx-auto border">
-              <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-2xl font-bold mb-2">No Products Found</h3>
-              <p className="text-muted-foreground">
-                Try different keywords or choose another category
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => setSearchQuery("")}
-                className="mt-4"
-              >
-                Clear Search
-              </Button>
+        {!productsLoading &&
+          !verifyingProducers &&
+          activeProducerProducts.length === 0 && (
+            <div className="text-center py-16">
+              <div className="rounded-3xl p-12 max-w-md mx-auto border">
+                <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-2xl font-bold mb-2">No Products Found</h3>
+                <p className="text-muted-foreground">
+                  Try different keywords or choose another category
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => setSearchQuery("")}
+                  className="mt-4"
+                >
+                  Clear Search
+                </Button>
+              </div>
             </div>
-          </div>
-        )}
+          )}
       </div>
     </section>
   );

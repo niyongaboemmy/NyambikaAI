@@ -1,4 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
 import { cn } from "@/lib/utils";
 import { LucideIcon } from "lucide-react";
 
@@ -28,9 +33,7 @@ export function StatCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {trend && (
-          <p className="text-xs text-muted-foreground mt-1">{trend}</p>
-        )}
+        {trend && <p className="text-xs text-muted-foreground mt-1">{trend}</p>}
       </CardContent>
     </Card>
   );

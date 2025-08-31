@@ -3,8 +3,13 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePathname, useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Button } from "@/components/custom-ui/button";
 import { CreditCard, Loader2, Sparkles, UserCheck } from "lucide-react";
 import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
 import SubscriptionPlanSelector from "./SubscriptionPlanSelector";

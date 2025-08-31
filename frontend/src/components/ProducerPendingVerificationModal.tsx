@@ -1,6 +1,12 @@
 "use client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/custom-ui/dialog";
+import { Button } from "@/components/custom-ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 
@@ -9,15 +15,26 @@ interface Props {
   role: "producer" | "agent";
 }
 
-export default function ProducerPendingVerificationModal({ open, role }: Props) {
+export default function ProducerPendingVerificationModal({
+  open,
+  role,
+}: Props) {
   const { logout } = useAuth();
   const router = useRouter();
   const isProducer = role === "producer";
 
   return (
-    <Dialog open={open} onOpenChange={() => { /* non-dismissible */ }}>
+    <Dialog
+      open={open}
+      onOpenChange={() => {
+        /* non-dismissible */
+      }}
+    >
       {open && <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />}
-      <DialogContent className="p-0 overflow-hidden border-0 shadow-2xl max-h-[95vh] rounded-2xl bg-white dark:bg-gray-900" hideClose>
+      <DialogContent
+        className="p-0 overflow-hidden border-0 shadow-2xl max-h-[95vh] rounded-2xl bg-white dark:bg-gray-900"
+        hideClose
+      >
         <div className="p-6 sm:p-8">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">

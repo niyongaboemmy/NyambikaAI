@@ -6,11 +6,16 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { OrderDetailsSkeleton } from "@/components/ui/OrderDetailsSkeleton";
+import { Button } from "@/components/custom-ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Badge } from "@/components/custom-ui/badge";
+import { Separator } from "@/components/custom-ui/separator";
+import { OrderDetailsSkeleton } from "@/components/custom-ui/OrderDetailsSkeleton";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import {
   ArrowLeft,
@@ -191,7 +196,9 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/orders", resolvedParams.id] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/orders", resolvedParams.id],
+      });
       toast({
         title: "Order Confirmed",
         description: "Thank you for confirming that you received your order!",
@@ -737,27 +744,31 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     </Button>
                   )}
                   {/* Customer Confirmation Button */}
-                  {order.status === 'delivered' && !order.isConfirmedByCustomer && user?.role === 'customer' && (
-                    <Button
-                      onClick={handleConfirmOrder}
-                      disabled={confirming}
-                      className="w-full text-xs sm:text-sm py-2 bg-green-600 hover:bg-green-700 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-md"
-                    >
-                      {confirming ? (
-                        <>
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                          Confirming...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="mr-2 h-4 w-4" />
-                          <span className="hidden sm:inline">Confirm Order Received</span>
-                          <span className="sm:hidden">Confirm Received</span>
-                        </>
-                      )}
-                    </Button>
-                  )}
-                  
+                  {order.status === "delivered" &&
+                    !order.isConfirmedByCustomer &&
+                    user?.role === "customer" && (
+                      <Button
+                        onClick={handleConfirmOrder}
+                        disabled={confirming}
+                        className="w-full text-xs sm:text-sm py-2 bg-green-600 hover:bg-green-700 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-md"
+                      >
+                        {confirming ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Confirming...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="mr-2 h-4 w-4" />
+                            <span className="hidden sm:inline">
+                              Confirm Order Received
+                            </span>
+                            <span className="sm:hidden">Confirm Received</span>
+                          </>
+                        )}
+                      </Button>
+                    )}
+
                   {/* Order Confirmed Message */}
                   {order.isConfirmedByCustomer && (
                     <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
@@ -767,12 +778,13 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       </p>
                       {order.customerConfirmationDate && (
                         <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                          Confirmed on {formatDate(order.customerConfirmationDate)}
+                          Confirmed on{" "}
+                          {formatDate(order.customerConfirmationDate)}
                         </p>
                       )}
                     </div>
                   )}
-                  
+
                   <Button
                     onClick={() => copyToClipboard(order.id)}
                     variant="outline"

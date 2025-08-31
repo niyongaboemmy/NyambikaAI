@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";

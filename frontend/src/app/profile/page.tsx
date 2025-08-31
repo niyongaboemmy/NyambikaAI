@@ -25,16 +25,16 @@ import {
   Mail,
   Lock,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { FormInput } from "@/components/ui/form-input";
+import { Button } from "@/components/custom-ui/button";
+import { Card, CardContent } from "@/components/custom-ui/card";
+import { FormInput } from "@/components/custom-ui/form-input";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/theme-provider";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/custom-ui/skeleton";
 import { useRouter } from "next/navigation";
 
 function Profile() {
@@ -178,37 +178,65 @@ function Profile() {
 
   // Change password mutation
   const changePasswordMutation = useMutation({
-    mutationFn: async (payload: { currentPassword: string; newPassword: string }) => {
+    mutationFn: async (payload: {
+      currentPassword: string;
+      newPassword: string;
+    }) => {
       try {
-        const { data } = await apiClient.post(API_ENDPOINTS.CHANGE_PASSWORD, payload);
+        const { data } = await apiClient.post(
+          API_ENDPOINTS.CHANGE_PASSWORD,
+          payload
+        );
         return data;
       } catch (error) {
         throw new Error(handleApiError(error));
       }
     },
     onSuccess: () => {
-      toast({ title: "Password changed", description: "Your password was updated successfully." });
+      toast({
+        title: "Password changed",
+        description: "Your password was updated successfully.",
+      });
       setPwdForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     },
     onError: (error: any) => {
-      toast({ title: "Failed to change password", description: error.message, variant: "destructive" });
+      toast({
+        title: "Failed to change password",
+        description: error.message,
+        variant: "destructive",
+      });
     },
   });
 
   const handleChangePassword = () => {
     if (!pwdForm.currentPassword || !pwdForm.newPassword) {
-      toast({ title: "Missing fields", description: "Please fill in all password fields.", variant: "destructive" });
+      toast({
+        title: "Missing fields",
+        description: "Please fill in all password fields.",
+        variant: "destructive",
+      });
       return;
     }
     if (pwdForm.newPassword !== pwdForm.confirmPassword) {
-      toast({ title: "Passwords do not match", description: "New password and confirmation must match.", variant: "destructive" });
+      toast({
+        title: "Passwords do not match",
+        description: "New password and confirmation must match.",
+        variant: "destructive",
+      });
       return;
     }
     if (pwdForm.newPassword.length < 8) {
-      toast({ title: "Weak password", description: "New password must be at least 8 characters.", variant: "destructive" });
+      toast({
+        title: "Weak password",
+        description: "New password must be at least 8 characters.",
+        variant: "destructive",
+      });
       return;
     }
-    changePasswordMutation.mutate({ currentPassword: pwdForm.currentPassword, newPassword: pwdForm.newPassword });
+    changePasswordMutation.mutate({
+      currentPassword: pwdForm.currentPassword,
+      newPassword: pwdForm.newPassword,
+    });
   };
 
   // Prompt login if not authenticated (avoid side effects during render)
@@ -755,14 +783,21 @@ function Profile() {
                       <div className="p-1 rounded-full bg-red-100 dark:bg-red-900/30">
                         <Lock className="h-3 w-3 text-red-600 dark:text-red-400" />
                       </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Change Password</span>
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        Change Password
+                      </span>
                     </div>
                     <div className="space-y-2">
                       <FormInput
                         placeholder="Current password"
                         type="password"
                         value={pwdForm.currentPassword}
-                        onChange={(e) => setPwdForm({ ...pwdForm, currentPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPwdForm({
+                            ...pwdForm,
+                            currentPassword: e.target.value,
+                          })
+                        }
                         icon={Lock}
                         className="text-sm w-full"
                       />
@@ -770,7 +805,12 @@ function Profile() {
                         placeholder="New password"
                         type="password"
                         value={pwdForm.newPassword}
-                        onChange={(e) => setPwdForm({ ...pwdForm, newPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPwdForm({
+                            ...pwdForm,
+                            newPassword: e.target.value,
+                          })
+                        }
                         icon={Lock}
                         className="text-sm w-full"
                       />
@@ -778,7 +818,12 @@ function Profile() {
                         placeholder="Confirm new password"
                         type="password"
                         value={pwdForm.confirmPassword}
-                        onChange={(e) => setPwdForm({ ...pwdForm, confirmPassword: e.target.value })}
+                        onChange={(e) =>
+                          setPwdForm({
+                            ...pwdForm,
+                            confirmPassword: e.target.value,
+                          })
+                        }
                         icon={Lock}
                         className="text-sm w-full"
                       />

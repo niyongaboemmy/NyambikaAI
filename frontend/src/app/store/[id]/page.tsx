@@ -3,17 +3,17 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, handleApiError } from "@/config/api";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/custom-ui/badge";
+import { Button } from "@/components/custom-ui/button";
+import { Input } from "@/components/custom-ui/input";
 import ReactSelect from "react-select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
+} from "@/components/custom-ui/dialog";
+import { Skeleton } from "@/components/custom-ui/skeleton";
 import ProductCard from "@/components/ProductCard";
 import {
   MapPin,

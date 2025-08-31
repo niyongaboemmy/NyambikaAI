@@ -1,27 +1,27 @@
 import { UserInterface } from "@/config/api";
 
-declare module "@/lib/api-client" {
-  import { AxiosInstance } from "axios";
-  const apiClient: AxiosInstance;
-  export default apiClient;
-}
+// declare module "@/lib/api-client" {
+//   import { AxiosInstance } from "axios";
+//   const apiClient: AxiosInstance;
+//   export default apiClient;
+// }
 
 declare module "@/lib/utils" {
   export function cn(...inputs: any[]): string;
   export function handleApiError(error: unknown): string;
 }
 
-declare module "@/contexts/AuthContext" {
-  export const useAuth: () => {
-    user: UserInterface;
-    isAuthenticated: boolean;
-    isLoading: boolean;
-    login: (email: string, password: string) => Promise<void>;
-    logout: () => void;
-    loginWithProvider: (provider: "google" | "facebook") => void;
-    requestPasswordReset: (email: string) => Promise<void>;
-  };
-}
+// declare module "@/contexts/AuthContext" {
+//   export const useAuth: () => {
+//     user: UserInterface;
+//     isAuthenticated: boolean;
+//     isLoading: boolean;
+//     login: (email: string, password: string) => Promise<void>;
+//     logout: () => void;
+//     loginWithProvider: (provider: "google" | "facebook") => void;
+//     requestPasswordReset: (email: string) => Promise<void>;
+//   };
+// }
 
 declare module "@/components/ui/card" {
   import { HTMLAttributes, FC } from "react";

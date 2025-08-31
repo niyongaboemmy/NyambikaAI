@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/custom-ui/button";
+import { Card, CardContent } from "@/components/custom-ui/card";
 import { Home, ArrowLeft, Search, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";

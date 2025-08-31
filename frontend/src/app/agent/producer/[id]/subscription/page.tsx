@@ -2,10 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Button } from "@/components/custom-ui/button";
+import { Badge } from "@/components/custom-ui/badge";
+import { Separator } from "@/components/custom-ui/separator";
 import {
   ArrowLeft,
   Calendar,

@@ -12,9 +12,14 @@ import {
   CreditCard,
   Smartphone,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/custom-ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import { Badge } from "@/components/custom-ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import apiClient from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";

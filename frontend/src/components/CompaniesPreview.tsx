@@ -1,5 +1,5 @@
 import { useCompanies } from "@/hooks/useCompanies";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/custom-ui/button";
 import { useRouter } from "next/navigation";
 
 export default function CompaniesPreview() {

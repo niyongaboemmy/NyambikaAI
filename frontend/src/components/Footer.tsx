@@ -10,9 +10,9 @@ import {
   Mail,
   MapPin,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/custom-ui/button";
+import { Input } from "@/components/custom-ui/input";
+import { Separator } from "@/components/custom-ui/separator";
 import Link from "next/link";
 
 export default function Footer() {

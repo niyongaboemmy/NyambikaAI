@@ -2,8 +2,8 @@
 
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/custom-ui/toaster";
+import { TooltipProvider } from "@/components/custom-ui/tooltip";
 import { AuthProvider } from "../contexts/AuthContext";
 import { LoginPromptProvider } from "@/contexts/LoginPromptContext";
 import { CompanyProvider } from "@/contexts/CompanyContext";
@@ -19,7 +19,7 @@ import LoginModal from "@/components/LoginModal";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { NavigationProgress } from "@/components/navigation-progress";
 import { NavigationEvents } from "@/components/navigation-events";
-import { GlobalAuthLoader } from "@/components/ui/GlobalAuthLoader";
+import { GlobalAuthLoader } from "@/components/custom-ui/GlobalAuthLoader";
 import { RouteProtection } from "@/components/RouteProtection";
 import { ProducerSubscriptionGuard } from "@/components/ProducerSubscriptionGuard";
 import { DOMSafetyWrapper } from "@/components/dom-safety-wrapper";
