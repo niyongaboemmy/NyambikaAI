@@ -193,31 +193,7 @@ function ProductEdit() {
               await updateProductMutation.mutateAsync(data);
             }}
           />
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => router.push(`/product/${productId}`)}
-            className="bg-white dark:bg-gray-900 dark:hover:bg-gray-800 flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to details
-          </Button>
         </div>
-
-        <ProductForm
-          title="Edit Product Details"
-          submitLabel="Save Changes"
-          initialValues={initialValues}
-          categories={(categories as any[]).map((c: any) => ({
-            id: c.id,
-            name: c.name,
-          }))}
-          loading={updateProductMutation.isPending || loadingProduct}
-          onCancel={() => router.push(`/product/${productId}`)}
-          onSubmit={async (data) => {
-            await updateProductMutation.mutateAsync(data);
-          }}
-        />
       </main>
     </ProtectedRoute>
   );
