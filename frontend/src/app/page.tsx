@@ -9,7 +9,7 @@ import Link from "next/link";
 // Lightweight page-level skeleton for the Home hero/header area
 function HomePageSkeleton() {
   return (
-    <div className="min-h-screen pt-8 md:pt-10 pb-12">
+    <div className="min-h-screen pt-[3rem] md:pt-[3rem]">
       <div className="mb-4">
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border bg-gray-50 dark:bg-gray-900 border-gray-200/40 dark:border-white/5">
           <div className="p-4 sm:p-6 md:p-8">
@@ -47,7 +47,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen pt-8 md:pt-10 pb-12">
+    <div className="min-h-screen pt-[3rem] md:pt-[3rem]">
       {/* AI Try-On Banner - Enhanced with Modern AI Design & Mobile Optimized */}
       <div className="mb-4">
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-gray-200/40 dark:border-white/5 bg-gradient-to-br from-white via-blue-50/50 to-purple-50/30 dark:from-gray-950 dark:via-slate-900/40 dark:to-gray-900/60 backdrop-blur-sm">
