@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError } from "@/config/api";
-// import TryOnWidget from "@/components/TryOnWidget";
+import TryOnWidget from "@/components/TryOnWidget";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
@@ -561,12 +561,12 @@ export default function ProductDetail() {
               </div>
 
               {/* AI Try-On Section */}
-              {/* <TryOnWidget
+              <TryOnWidget
                 productId={Array.isArray(id) ? id[0] : id!}
                 productImageUrl={product.imageUrl}
                 autoOpenFullscreen={false}
                 onRegisterControls={setTryOnControls}
-              /> */}
+              />
 
               {/* Action Buttons */}
               <div className="space-y-1.5 sm:space-y-2">
