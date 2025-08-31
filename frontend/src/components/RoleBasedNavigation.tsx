@@ -152,7 +152,7 @@ export default function RoleBasedNavigation() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-2">
-      <nav className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/20 dark:border-gray-700/20 rounded-3xl px-3 py-3 container mx-auto shadow-2xl shadow-blue-500/10">
+      <nav className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/20 dark:border-gray-700/20 rounded-3xl px-3 py-2.5 container mx-auto shadow-2xl shadow-blue-500/10">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center group">
@@ -688,9 +688,9 @@ export default function RoleBasedNavigation() {
                             e.stopPropagation();
                             open();
                           }}
-                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full"
+                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full gap-1"
                         >
-                          <LogIn className="h-4 w-4 mr-2" />
+                          <LogIn className="h-4 w-4" />
                           Sign In
                         </Button>
                       </div>
