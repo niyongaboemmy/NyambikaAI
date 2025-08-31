@@ -354,9 +354,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { email, password, name, role, phone } = req.body || {};
 
         if (!email || !password || !name || !role) {
-          return res
-            .status(400)
-            .json({ message: "Missing required fields: email, password, name, role" });
+          return res.status(400).json({
+            message: "Missing required fields: email, password, name, role",
+          });
         }
 
         const normalizedRole = String(role).toLowerCase();
@@ -753,10 +753,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, fullName, ...userWithoutPassword } = user;
       // Attempt to fetch company for producers to enrich businessName
       let businessName: string | null = null;
+      let businessId: string | null = null;
       try {
         if ((user.role || "").toLowerCase() === "producer") {
           const company = await storage.getCompanyByProducerId(user.id);
           businessName = company?.name || null;
+          businessId = company?.id || null;
         }
       } catch (e) {
         // non-fatal; keep businessName null on error
@@ -770,6 +772,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           user.email.split("@")[0],
         businessName,
         business_name: businessName,
+        business_id: businessId,
       };
 
       console.log("Login successful for user:", mappedUser.id);
@@ -802,10 +805,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { password: _, fullName, ...userWithoutPassword } = user;
       // Attempt to fetch company for producers to enrich businessName
       let businessName: string | null = null;
+      let businessId: string | null = null;
       try {
         if ((user.role || "").toLowerCase() === "producer") {
           const company = await storage.getCompanyByProducerId(user.id);
           businessName = company?.name || null;
+          businessId = company?.id || null;
         }
       } catch (e) {
         // non-fatal; keep businessName null on error
@@ -815,6 +820,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         name: fullName || user.email.split("@")[0],
         businessName,
         business_name: businessName,
+        business_id: businessId,
       };
       res.json(mappedUser);
     } catch (error) {

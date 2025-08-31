@@ -3,6 +3,31 @@ import axios, { AxiosInstance, AxiosError, AxiosResponse } from "axios";
 // API Configuration
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL || "https://nyambikaai.onrender.com";
+export enum RoleEnum {
+  ADMIN = "admin",
+  AGENT = "agent",
+  PRODUCER = "producer",
+  CUSTOMER = "customer",
+}
+
+export interface UserInterface {
+  id: string;
+  username: string;
+  email: string;
+  fullNameRw: string | null;
+  phone: string | null;
+  location: string | null;
+  role: RoleEnum;
+  businessName: string | null;
+  businessLicense: string | null;
+  isVerified: boolean;
+  measurements: string | null;
+  profileImage: string | null;
+  createdAt: string | null;
+  name: string | null;
+  business_name: string | null;
+  business_id: string | null;
+}
 
 // Create centralized axios instance
 const createAxiosInstance = (): AxiosInstance => {

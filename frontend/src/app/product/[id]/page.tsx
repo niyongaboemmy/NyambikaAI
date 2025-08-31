@@ -24,6 +24,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Product } from "@/shared/schema";
 import { useParams, useRouter } from "next/navigation";
+import { useCompany } from "@/contexts/CompanyContext";
 
 interface ExtendedProduct extends Product {
   images?: string[];
@@ -53,7 +54,9 @@ export default function ProductDetail() {
   const { addItem } = useCart();
 
   const handleBack = () => {
-    if (typeof window !== "undefined" && window.history.length > 1) {
+    if (user?.business_id) {
+      return router.push(`/store/${user.business_id}`);
+    } else if (typeof window !== "undefined" && window.history.length > 1) {
       window.history.back();
     } else {
       router.push("/products");

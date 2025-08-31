@@ -1,3 +1,5 @@
+import { UserInterface } from "@/config/api";
+
 declare module "@/lib/api-client" {
   import { AxiosInstance } from "axios";
   const apiClient: AxiosInstance;
@@ -11,7 +13,7 @@ declare module "@/lib/utils" {
 
 declare module "@/contexts/AuthContext" {
   export const useAuth: () => {
-    user: any;
+    user: UserInterface;
     isAuthenticated: boolean;
     isLoading: boolean;
     login: (email: string, password: string) => Promise<void>;
@@ -20,7 +22,6 @@ declare module "@/contexts/AuthContext" {
     requestPasswordReset: (email: string) => Promise<void>;
   };
 }
-
 
 declare module "@/components/ui/card" {
   import { HTMLAttributes, FC } from "react";
@@ -48,4 +49,3 @@ declare module "@/components/ui/badge" {
   const Badge: FC<BadgeProps>;
   export { Badge };
 }
-

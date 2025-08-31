@@ -8,7 +8,12 @@ import React, {
 } from "react";
 import { useRef } from "react";
 import { useSafeToast } from "@/hooks/use-safe-toast";
-import { apiClient, handleApiError, API_BASE_URL } from "@/config/api";
+import {
+  apiClient,
+  handleApiError,
+  API_BASE_URL,
+  UserInterface,
+} from "@/config/api";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 export interface User {
@@ -24,7 +29,7 @@ export interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: UserInterface | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (
@@ -58,7 +63,7 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserInterface | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useSafeToast();
   const didCheckRef = useRef(false);
@@ -75,8 +80,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         }
 
         try {
-          const response = await apiClient.get("/api/auth/me");
-          const userData = response.data;
+          const response = await apiClient.get<UserInterface>("/api/auth/me");
+          const userData: UserInterface = response.data;
           setUser(userData);
         } catch (error) {
           localStorage.removeItem("auth_token");
@@ -115,7 +120,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }, 0);
     } catch (error: any) {
       // Normalize error message
-      const description = handleApiError ? handleApiError(error) : error?.message || "Login failed";
+      const description = handleApiError
+        ? handleApiError(error)
+        : error?.message || "Login failed";
       // React-safe error toast
       setTimeout(() => {
         toast({
