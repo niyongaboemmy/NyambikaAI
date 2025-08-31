@@ -190,7 +190,7 @@ export default function RoleBasedNavigation() {
                     ></div>
 
                     {/* Icon background with blue/violet gradient */}
-                    <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-50 via-violet-50 to-indigo-50 dark:from-slate-800/90 dark:via-violet-900/40 dark:to-cyan-900/40 group-hover:from-blue-100 group-hover:via-violet-100 group-hover:to-indigo-100 dark:group-hover:from-violet-800/50 dark:group-hover:via-fuchsia-800/50 dark:group-hover:to-cyan-800/50 flex items-center justify-center group-hover:scale-110 transition-all duration-500 border-2 border-blue-200/50 dark:border-violet-700/40 group-hover:border-violet-300/70 dark:group-hover:border-violet-600/60 backdrop-blur-sm overflow-hidden">
+                    <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-50 via-violet-50 to-indigo-50 dark:from-slate-800/90 dark:via-violet-900/40 dark:to-cyan-900/40 group-hover:from-blue-100 group-hover:via-violet-100 group-hover:to-indigo-100 dark:group-hover:from-violet-800/50 dark:group-hover:via-fuchsia-800/50 dark:group-hover:to-cyan-800/50 flex items-center justify-center group-hover:scale-110 transition-all duration-500 border-2 border-blue-500/15 dark:border-violet-700/40 group-hover:border-violet-300/70 dark:group-hover:border-violet-600/60 backdrop-blur-sm overflow-hidden">
                       {/* Blue/violet shimmer overlay for light mode */}
                       <div className="absolute inset-0 bg-gradient-to-tr from-blue-200/30 via-violet-100/20 to-indigo-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
