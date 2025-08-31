@@ -9,6 +9,8 @@ export function NavigationProgress() {
   const searchParams = useSearchParams();
   
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     let timeout: NodeJS.Timeout;
 
     const handleStart = () => {
@@ -16,7 +18,14 @@ export function NavigationProgress() {
       clearTimeout(timeout);
       // Show loading immediately
       setIsLoading(true);
-      document.documentElement.setAttribute('data-navigation-loading', 'true');
+      
+      // React-safe DOM manipulation
+      try {
+        document.documentElement.classList.add('navigation-loading');
+        document.documentElement.setAttribute('data-navigation-loading', 'true');
+      } catch (e) {
+        console.warn('Failed to set loading state:', e);
+      }
       
       // Hide after 5s in case navigation fails
       timeout = setTimeout(() => {
@@ -27,7 +36,14 @@ export function NavigationProgress() {
     const handleComplete = () => {
       clearTimeout(timeout);
       setIsLoading(false);
-      document.documentElement.removeAttribute('data-navigation-loading');
+      
+      // React-safe DOM cleanup
+      try {
+        document.documentElement.classList.remove('navigation-loading');
+        document.documentElement.removeAttribute('data-navigation-loading');
+      } catch (e) {
+        console.warn('Failed to clear loading state:', e);
+      }
     };
 
     // Listen to custom events from NavigationEvents
@@ -35,17 +51,28 @@ export function NavigationProgress() {
     const handleRouteChangeComplete = () => handleComplete();
     const handleRouteChangeError = () => handleComplete();
 
-    // Add event listeners
-    window.addEventListener('routeChangeStart', handleRouteChangeStart);
-    window.addEventListener('routeChangeComplete', handleRouteChangeComplete);
-    window.addEventListener('routeChangeError', handleRouteChangeError);
+    // Add event listeners with error handling
+    try {
+      window.addEventListener('routeChangeStart', handleRouteChangeStart);
+      window.addEventListener('routeChangeComplete', handleRouteChangeComplete);
+      window.addEventListener('routeChangeError', handleRouteChangeError);
+    } catch (e) {
+      console.warn('Failed to add navigation event listeners:', e);
+    }
 
     // Clean up on unmount
     return () => {
       clearTimeout(timeout);
-      window.removeEventListener('routeChangeStart', handleRouteChangeStart);
-      window.removeEventListener('routeChangeComplete', handleRouteChangeComplete);
-      window.removeEventListener('routeChangeError', handleRouteChangeError);
+      try {
+        window.removeEventListener('routeChangeStart', handleRouteChangeStart);
+        window.removeEventListener('routeChangeComplete', handleRouteChangeComplete);
+        window.removeEventListener('routeChangeError', handleRouteChangeError);
+        // Ensure loading state is cleared on cleanup
+        document.documentElement.classList.remove('navigation-loading');
+        document.documentElement.removeAttribute('data-navigation-loading');
+      } catch (e) {
+        console.warn('Failed to clean up navigation listeners:', e);
+      }
     };
   }, [pathname, searchParams]);
 

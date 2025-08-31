@@ -22,6 +22,7 @@ import { NavigationEvents } from "@/components/navigation-events";
 import { GlobalAuthLoader } from "@/components/ui/GlobalAuthLoader";
 import { RouteProtection } from "@/components/RouteProtection";
 import { ProducerSubscriptionGuard } from "@/components/ProducerSubscriptionGuard";
+import { DOMSafetyWrapper } from "@/components/dom-safety-wrapper";
 import { useEffect, useState } from "react";
 
 // ClientOnly component to wrap client-side only components
@@ -74,6 +75,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                 <CompanyProvider>
                   <CartProvider>
                     <ClientOnly>
+                      <DOMSafetyWrapper />
                       <RoleBasedNavigation />
                       <NavigationEvents />
                       <NavigationProgress />

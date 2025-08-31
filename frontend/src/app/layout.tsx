@@ -3,8 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
-import { DynamicFavicon } from "@/components/DynamicFavicon";
-import { InstallPrompt } from "@/components/InstallPrompt";
+import ServiceWorkerCleanup from "@/components/service-worker-cleanup";
 
 // Theme script to be injected into the document head
 const themeScript = `
@@ -37,17 +36,6 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
-export const viewport = {
-  width: "device-width",
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#0f0f23" },
-  ],
-};
-
 export const metadata: Metadata = {
   title: "NyambikaAI - AI-Powered Fashion Platform",
   description:
@@ -55,31 +43,25 @@ export const metadata: Metadata = {
   keywords:
     "AI fashion, virtual try-on, Rwanda fashion, e-commerce, artificial intelligence",
   authors: [{ name: "NyambikaAI Team" }],
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "NyambikaAI",
-  },
   icons: {
     icon: [
       {
-        url: '/nyambika_light_icon.png',
-        media: '(prefers-color-scheme: light)',
+        url: "/nyambika_light_icon.png",
+        media: "(prefers-color-scheme: light)",
       },
       {
-        url: '/nyambika_dark_icon.png',
-        media: '(prefers-color-scheme: dark)',
+        url: "/nyambika_dark_icon.png",
+        media: "(prefers-color-scheme: dark)",
       },
     ],
     apple: [
       {
-        url: '/nyambika_light_icon.png',
-        media: '(prefers-color-scheme: light)',
+        url: "/nyambika_light_icon.png",
+        media: "(prefers-color-scheme: light)",
       },
       {
-        url: '/nyambika_dark_icon.png',
-        media: '(prefers-color-scheme: dark)',
+        url: "/nyambika_dark_icon.png",
+        media: "(prefers-color-scheme: dark)",
       },
     ],
   },
@@ -108,45 +90,16 @@ export default function RootLayout({
       lang="en"
       suppressHydrationWarning
       className="light" // Default class to prevent flash of unstyled content
-      data-navigation-loading={
-        typeof window !== "undefined" ? window.__NEXT_NAVIGATION_LOADING : false
-      }
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              // Initialize early loading state
-              window.__NEXT_NAVIGATION_LOADING = false;
-              
-              // Intercept link clicks
-              document.addEventListener('click', function(event) {
-                const target = event.target.closest('a');
-                if (target && target.href && target.href.startsWith(window.location.origin)) {
-                  // Only handle internal navigation
-                  if (event.ctrlKey || event.metaKey) return; // Don't intercept cmd/ctrl+click
-                  
-                  // Show loading immediately
-                  document.documentElement.style.setProperty('--navigation-loading', '1');
-                  window.__NEXT_NAVIGATION_LOADING = true;
-                }
-              }, true);
-              
-              // Handle back/forward navigation
-              window.addEventListener('popstate', function() {
-                document.documentElement.style.setProperty('--navigation-loading', '1');
-                window.__NEXT_NAVIGATION_LOADING = true;
-              });
-            `,
-          }}
-        />
+        {/* Removed inline navigation interception script; NavigationProgress handles this safely */}
         <LoadingIndicatorStyles />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
-          <DynamicFavicon />
-          <InstallPrompt />
+          {/* Ensure any previously registered service workers are unregistered and caches cleared */}
+          <ServiceWorkerCleanup />
           {children}
         </Providers>
       </body>

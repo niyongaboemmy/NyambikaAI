@@ -25,33 +25,39 @@ export default function LoginModal() {
         if (!open) {
           close();
           clearError();
-          // Check if current page is protected and redirect to home if needed
-          const currentPath = window.location.pathname;
-          const protectedRoutes = [
-            "/checkout",
-            "/profile",
-            "/cart",
-            "/orders",
-            "/product-registration",
-            "/product-edit/",
-            "/producer-products",
-            "/producer-orders",
-            "/producer-analytics",
-            "/admin",
-            "/agent-dashboard",
-            "/agent/",
-          ];
+          // React-safe navigation check
+          setTimeout(() => {
+            try {
+              const currentPath = window.location.pathname;
+              const protectedRoutes = [
+                "/checkout",
+                "/profile",
+                "/cart",
+                "/orders",
+                "/product-registration",
+                "/product-edit/",
+                "/producer-products",
+                "/producer-orders",
+                "/producer-analytics",
+                "/admin",
+                "/agent-dashboard",
+                "/agent/",
+              ];
 
-          const isProtectedRoute = protectedRoutes.some(
-            (route) => currentPath.startsWith(route) || currentPath === route
-          );
+              const isProtectedRoute = protectedRoutes.some(
+                (route) => currentPath.startsWith(route) || currentPath === route
+              );
 
-          if (
-            isProtectedRoute &&
-            !window.location.pathname.includes("/product/")
-          ) {
-            router.push("/");
-          }
+              if (
+                isProtectedRoute &&
+                !window.location.pathname.includes("/product/")
+              ) {
+                router.push("/");
+              }
+            } catch (error) {
+              console.warn('Navigation check failed:', error);
+            }
+          }, 0);
         }
       }}
     >

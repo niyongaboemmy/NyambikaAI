@@ -1,9 +1,10 @@
+"use client";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { useSafeToast as useToast } from "@/hooks/use-safe-toast";
 import {
   Upload,
   Loader2,
@@ -19,7 +20,7 @@ import {
   Brain,
   Image as ImageIcon,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { apiClient, handleApiError } from "@/config/api";
 
 interface TryOnWidgetProps {
@@ -47,6 +48,18 @@ export default function TryOnWidget({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+  const viewportHeight =
+    typeof window !== "undefined" && window.innerHeight
+      ? window.innerHeight
+      : 800;
+  const portalTarget =
+    typeof document !== "undefined" ? (document.body as HTMLElement) : null;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const [customerImage, setCustomerImage] = useState<string | null>(null);
   const [tryOnResult, setTryOnResult] = useState<string | null>(null);
   const [recommendations, setRecommendations] = useState<{
@@ -1093,20 +1106,18 @@ export default function TryOnWidget({
                   <>
                     <Button
                       onClick={() => {
-                        // Check if we're already on the product details page
-                        if (
-                          window.location.pathname === `/product/${productId}`
-                        ) {
-                          // Just close the modal if we're already on the product page
+                        const target = `/product/${productId}`;
+                        if (pathname === target) {
                           closeFullscreen();
                           onUnselectProduct && onUnselectProduct();
                         } else {
-                          // Navigate to product details if we're not already there
                           if (onNavigateToProduct) {
                             onNavigateToProduct(productId);
                           } else {
-                            // Fallback navigation
-                            window.location.href = `/product/${productId}`;
+                            // Defer navigation slightly to avoid sync DOM ops during unmount
+                            setTimeout(() => {
+                              router.push(target);
+                            }, 0);
                           }
                         }
                       }}
@@ -1176,7 +1187,7 @@ export default function TryOnWidget({
       {!isFullscreen && (
         <div className="lg:sticky lg:top-24">{widgetContent}</div>
       )}
-      {isFullscreen &&
+      {isFullscreen && mounted && portalTarget &&
         createPortal(
           <motion.div
             className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1289,7 +1300,7 @@ export default function TryOnWidget({
               <motion.div
                 className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/30 dark:via-blue-300/20 to-transparent"
                 animate={{
-                  y: [0, window.innerHeight || 800],
+                  y: [0, viewportHeight],
                 }}
                 transition={{
                   duration: 4,
@@ -1322,11 +1333,11 @@ export default function TryOnWidget({
               {widgetContent}
             </motion.div>
           </motion.div>,
-          document.body
+          portalTarget
         )}
 
       {/* Camera Preview Modal */}
-      {showCameraModal &&
+      {showCameraModal && mounted && portalTarget &&
         createPortal(
           <motion.div
             className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
@@ -1433,7 +1444,7 @@ export default function TryOnWidget({
               </div>
             </motion.div>
           </motion.div>,
-          document.body
+          portalTarget
         )}
     </>
   );

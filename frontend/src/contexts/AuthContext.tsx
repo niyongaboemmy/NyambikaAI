@@ -7,7 +7,7 @@ import React, {
   ReactNode,
 } from "react";
 import { useRef } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { useSafeToast } from "@/hooks/use-safe-toast";
 import { apiClient, handleApiError, API_BASE_URL } from "@/config/api";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
@@ -60,7 +60,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
+  const { toast } = useSafeToast();
   const didCheckRef = useRef(false);
   const { show } = useLoginPrompt();
 
@@ -106,18 +106,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem("auth_token", token);
       setUser(userData);
 
-      toast({
-        title: "Login successful",
-        description: `Welcome back, ${userData.name}!`,
-      });
+      // React-safe toast notification
+      setTimeout(() => {
+        toast({
+          title: "Login successful",
+          description: `Welcome back, ${userData.name}!`,
+        });
+      }, 0);
     } catch (error: any) {
       // Normalize error message
       const description = handleApiError ? handleApiError(error) : error?.message || "Login failed";
-      toast({
-        title: "Login failed",
-        description,
-        variant: "destructive",
-      });
+      // React-safe error toast
+      setTimeout(() => {
+        toast({
+          title: "Login failed",
+          description,
+          variant: "destructive",
+        });
+      }, 0);
       throw error;
     } finally {
       setIsLoading(false);
@@ -145,16 +151,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       localStorage.setItem("auth_token", token);
       setUser(userData);
 
-      toast({
-        title: "Registration successful",
-        description: `Welcome to NyambikaAI, ${userData.name}!`,
-      });
+      // React-safe toast notification
+      setTimeout(() => {
+        toast({
+          title: "Registration successful",
+          description: `Welcome to NyambikaAI, ${userData.name}!`,
+        });
+      }, 0);
     } catch (error: any) {
-      toast({
-        title: "Registration failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // React-safe error toast
+      setTimeout(() => {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }, 0);
       throw error;
     } finally {
       setIsLoading(false);
@@ -168,16 +180,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
         email,
       });
 
-      toast({
-        title: "Password reset sent",
-        description: "Check your email for a reset link.",
-      });
+      // React-safe toast notification
+      setTimeout(() => {
+        toast({
+          title: "Password reset sent",
+          description: "Check your email for a reset link.",
+        });
+      }, 0);
     } catch (error: any) {
-      toast({
-        title: "Password reset failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // React-safe error toast
+      setTimeout(() => {
+        toast({
+          title: "Password reset failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }, 0);
       throw error;
     } finally {
       setIsLoading(false);
@@ -187,10 +205,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     localStorage.removeItem("auth_token");
     setUser(null);
-    toast({
-      title: "Logged out",
-      description: "You have been successfully logged out.",
-    });
+    // React-safe toast notification
+    setTimeout(() => {
+      toast({
+        title: "Logged out",
+        description: "You have been successfully logged out.",
+      });
+    }, 0);
   };
 
   // Initiate OAuth flow via backend routes (server handles redirect & callback)
