@@ -170,7 +170,8 @@ export default function StorePage() {
   const subscriptionBlocked = React.useMemo(() => {
     if (!productsError) return false;
     const raw: any = productsErrorObj as any;
-    const msg: string = typeof raw === "string" ? raw : String(raw?.message || "");
+    const msg: string =
+      typeof raw === "string" ? raw : String(raw?.message || "");
     return (
       msg.toLowerCase().includes("subscription") ||
       msg.toLowerCase().includes("unavailable")
@@ -419,9 +420,9 @@ export default function StorePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-transparent to-purple-500/30 animate-pulse" />
           <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative z-10">
             <div className="text-center text-white space-y-4 sm:space-y-5">
-              <div className="flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
+              <div className="pt-4 md:pt-2 flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
                 <div className="relative">
-                  <Skeleton className="w-16 h-16 sm:w-20 sm:h-20 rounded-full mx-auto" />
+                  <Skeleton className="w-28 h-28 sm:w-24 sm:h-24 rounded-full mx-auto" />
                   <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-20 animate-ping" />
                 </div>
                 <div className="flex flex-col sm:flex-row items-center sm:space-x-2 space-y-2 sm:space-y-0">
@@ -594,9 +595,9 @@ export default function StorePage() {
         <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative z-10">
           <div className="text-center text-white space-y-4 sm:space-y-0">
             <div className="flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
-              <div className="relative group">
+              <div className="relative group pt-3 md:pt-2">
                 {company.logoUrl ? (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl transition-transform group-hover:scale-110">
+                  <div className="w-28 h-28 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-white/20 shadow-2xl transition-transform group-hover:scale-110">
                     <img
                       src={company.logoUrl}
                       alt={`${company.name} logo`}
@@ -604,7 +605,7 @@ export default function StorePage() {
                     />
                   </div>
                 ) : (
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-white/20 to-white/10 border-4 border-white/20 flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
+                  <div className="w-28 h-28 sm:w-24 sm:h-24 rounded-full bg-gradient-to-r from-white/20 to-white/10 border-4 border-white/20 flex items-center justify-center shadow-2xl transition-transform group-hover:scale-110">
                     <Package className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
                 )}

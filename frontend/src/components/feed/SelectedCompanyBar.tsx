@@ -68,34 +68,15 @@ export default function SelectedCompanyBar({ company, onClear }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="hidden md:flex items-center gap-2 flex-shrink-0">
             {company.websiteUrl && (
               <Link
-                href={`/store/${company.id}`}
+                href={"#"}
                 className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium text-sm transition-colors duration-200"
               >
                 View Store
               </Link>
             )}
-            <button
-              onClick={onClear}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-              aria-label="Clear selection"
-            >
-              {/* simple x icon */}
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-4 w-4"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M6.225 4.811a.75.75 0 011.06 0L12 9.525l4.716-4.714a.75.75 0 111.06 1.06L13.06 10.586l4.716 4.716a.75.75 0 11-1.06 1.06L12 11.646l-4.716 4.716a.75.75 0 11-1.06-1.06l4.714-4.716-4.714-4.714a.75.75 0 010-1.06z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </button>
           </div>
         </div>
       </div>
