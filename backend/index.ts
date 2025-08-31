@@ -21,6 +21,8 @@ app.use(
       "https://nyambikaai.onrender.com",
       "https://nyambika-python.onrender.com",
       "https://nyambika-ai.vercel.app", // add this
+      "https://nyambika.com/",
+      "http://nyambika.com/",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
