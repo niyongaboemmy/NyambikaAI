@@ -10,6 +10,8 @@ import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionSt
 import SubscriptionPlanSelector from "./SubscriptionPlanSelector";
 import { apiClient } from "@/config/api";
 import { useToast } from "@/hooks/use-toast";
+import { LoadingIndicatorStyles } from "./loading-indicator-styles";
+import Loading from "@/app/loading";
 
 interface ProducerSubscriptionGuardProps {
   children: React.ReactNode;
@@ -26,7 +28,9 @@ export function ProducerSubscriptionGuard({
     useProducerSubscriptionStatus();
   const [showPrompt, setShowPrompt] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
-  const [selectedBillingCycle, setSelectedBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [selectedBillingCycle, setSelectedBillingCycle] = useState<
+    "monthly" | "annual"
+  >("monthly");
   const [subscriptionLoading, setSubscriptionLoading] = useState(false);
   const { toast } = useToast();
 
@@ -67,7 +71,10 @@ export function ProducerSubscriptionGuard({
     loading,
   ]);
 
-  const handlePlanSelect = (planId: string, billingCycle: "monthly" | "annual") => {
+  const handlePlanSelect = (
+    planId: string,
+    billingCycle: "monthly" | "annual"
+  ) => {
     setSelectedPlanId(planId);
     setSelectedBillingCycle(billingCycle);
   };
@@ -77,7 +84,7 @@ export function ProducerSubscriptionGuard({
 
     try {
       setSubscriptionLoading(true);
-      
+
       // Create subscription for producer
       await apiClient.post("/api/producer/subscribe", {
         planId: selectedPlanId,
@@ -95,7 +102,8 @@ export function ProducerSubscriptionGuard({
       console.error("Error activating subscription:", error);
       toast({
         title: "Subscription Failed",
-        description: error?.response?.data?.message || "Failed to activate subscription",
+        description:
+          error?.response?.data?.message || "Failed to activate subscription",
         variant: "destructive",
       });
     } finally {
@@ -110,11 +118,8 @@ export function ProducerSubscriptionGuard({
   // Show loading while checking
   if (authLoading || isChecking) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading...</span>
-        </div>
+      <div>
+        <Loading />
       </div>
     );
   }
@@ -136,17 +141,18 @@ export function ProducerSubscriptionGuard({
                 Activate Your Producer Account
               </CardTitle>
               <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                To access producer features and start selling your products, please select a subscription plan below.
+                To access producer features and start selling your products,
+                please select a subscription plan below.
               </p>
             </CardHeader>
-            
+
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center justify-center gap-2">
                   <Sparkles className="w-5 h-5 text-purple-600" />
                   Choose Your Plan
                 </h3>
-                
+
                 <SubscriptionPlanSelector
                   onPlanSelect={handlePlanSelect}
                   selectedPlanId={selectedPlanId}
@@ -185,7 +191,8 @@ export function ProducerSubscriptionGuard({
               </div>
 
               <div className="text-xs text-center text-gray-500 dark:text-gray-400">
-                You can access limited features without a subscription, but full producer capabilities require an active plan.
+                You can access limited features without a subscription, but full
+                producer capabilities require an active plan.
               </div>
             </CardContent>
           </Card>
