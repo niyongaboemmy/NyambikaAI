@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
+import { DynamicFavicon } from "@/components/DynamicFavicon";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 // Theme script to be injected into the document head
 const themeScript = `
@@ -35,6 +37,17 @@ const inter = Inter({
   variable: "--font-sans",
 });
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0f0f23" },
+  ],
+};
+
 export const metadata: Metadata = {
   title: "NyambikaAI - AI-Powered Fashion Platform",
   description:
@@ -42,6 +55,34 @@ export const metadata: Metadata = {
   keywords:
     "AI fashion, virtual try-on, Rwanda fashion, e-commerce, artificial intelligence",
   authors: [{ name: "NyambikaAI Team" }],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "NyambikaAI",
+  },
+  icons: {
+    icon: [
+      {
+        url: '/nyambika_light_icon.png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: '/nyambika_dark_icon.png',
+        media: '(prefers-color-scheme: dark)',
+      },
+    ],
+    apple: [
+      {
+        url: '/nyambika_light_icon.png',
+        media: '(prefers-color-scheme: light)',
+      },
+      {
+        url: '/nyambika_dark_icon.png',
+        media: '(prefers-color-scheme: dark)',
+      },
+    ],
+  },
   openGraph: {
     title: "NyambikaAI - AI-Powered Fashion Platform",
     description:
@@ -103,7 +144,11 @@ export default function RootLayout({
         <LoadingIndicatorStyles />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <DynamicFavicon />
+          <InstallPrompt />
+          {children}
+        </Providers>
       </body>
     </html>
   );

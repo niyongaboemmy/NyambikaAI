@@ -158,15 +158,25 @@ export default function RoleBasedNavigation() {
           <Link href="/" className="flex items-center group">
             <div className="relative">
               {userRole === "producer" && company?.logoUrl ? (
-                <div className="relative">
-                  {/* Holographic ring for company logo */}
-                  <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-all duration-500 animate-pulse"></div>
-                  <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
-                  <img
-                    src={company.logoUrl}
-                    alt={company.name}
-                    className="relative w-10 h-10 rounded-2xl object-cover ring-1 ring-white/20 group-hover:scale-105 transition-all duration-300 shadow-lg"
-                  />
+                <div className="flex flex-row items-center gap-2">
+                  <div className="relative">
+                    {/* Holographic ring for company logo */}
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-all duration-500 animate-pulse"></div>
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
+                    <img
+                      src={company.logoUrl}
+                      alt={company.name}
+                      className="relative w-10 h-10 rounded-2xl object-cover ring-1 ring-white/20 group-hover:scale-105 transition-all duration-300 shadow-lg"
+                    />
+                  </div>
+                  <div className="hidden md:flex flex-col">
+                    <div className="max-w-[300px] text-xl md:text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-600 to-purple-600 dark:from-slate-100 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:via-purple-600 group-hover:to-cyan-500 dark:group-hover:from-blue-400 dark:group-hover:via-purple-400 dark:group-hover:to-cyan-400 transition-all duration-500 truncate">
+                      {company.name}
+                    </div>
+                    <span className="max-w-[300px] text-[9px] md:text-[10px] font-medium text-slate-500 dark:text-slate-400 tracking-[0.2em] uppercase opacity-60 group-hover:opacity-100 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-all duration-300 truncate">
+                      {company.location}
+                    </span>
+                  </div>
                 </div>
               ) : (
                 <div className="relative flex items-center gap-2 md:gap-3">

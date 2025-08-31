@@ -106,21 +106,43 @@ export function ThemeProvider({
 
   // Apply theme when it changes
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || typeof window === 'undefined') return;
     
     const handleMediaQuery = (e: MediaQueryListEvent) => {
-      if (theme === 'system' && enableSystem && !forcedTheme) {
-        applyTheme('system');
+      try {
+        if (theme === 'system' && enableSystem && !forcedTheme) {
+          applyTheme('system');
+        }
+      } catch (error) {
+        console.warn('Error handling media query change:', error);
       }
     };
 
-    const media = window.matchMedia('(prefers-color-scheme: dark)');
-    media.addEventListener('change', handleMediaQuery);
+    let media: MediaQueryList | null = null;
     
-    // Apply the current theme
-    applyTheme(theme);
+    try {
+      media = window.matchMedia('(prefers-color-scheme: dark)');
+      if (media && typeof media.addEventListener === 'function') {
+        media.addEventListener('change', handleMediaQuery);
+      }
+      
+      // Apply the current theme
+      applyTheme(theme);
+    } catch (error) {
+      console.warn('Error setting up media query listener:', error);
+      // Fallback: just apply the theme without media query listener
+      applyTheme(theme);
+    }
     
-    return () => media.removeEventListener('change', handleMediaQuery);
+    return () => {
+      try {
+        if (media && typeof media.removeEventListener === 'function') {
+          media.removeEventListener('change', handleMediaQuery);
+        }
+      } catch (error) {
+        console.warn('Error removing media query listener:', error);
+      }
+    };
   }, [theme, forcedTheme, enableSystem, applyTheme, mounted]);
 
   // Handle theme changes
