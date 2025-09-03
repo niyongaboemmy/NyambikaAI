@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
 import ServiceWorkerCleanup from "@/components/service-worker-cleanup";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 // Theme script to be injected into the document head
 const themeScript = `
@@ -85,22 +86,20 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Get Google Analytics ID from environment variables
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
-    <html
-      lang="en"
-      suppressHydrationWarning
-      className="light" // Default class to prevent flash of unstyled content
-    >
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        {/* Removed inline navigation interception script; NavigationProgress handles this safely */}
-        <LoadingIndicatorStyles />
       </head>
-      <body className={`${inter.variable} font-sans antialiased`}>
+      <body className={`font-sans ${inter.variable}`}>
         <Providers>
-          {/* Ensure any previously registered service workers are unregistered and caches cleared */}
-          <ServiceWorkerCleanup />
           {children}
+          <LoadingIndicatorStyles />
+          <ServiceWorkerCleanup />
+          {GA_MEASUREMENT_ID && <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />}
         </Providers>
       </body>
     </html>
