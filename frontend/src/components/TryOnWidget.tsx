@@ -21,6 +21,8 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 // Removed apiClient usage for try-on; using Next.js proxy route instead
 import { MdClose } from "react-icons/md";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 interface TryOnWidgetProps {
   productId: string;
@@ -48,6 +50,8 @@ export default function TryOnWidget({
   const { toast } = useToast();
   const router = useRouter();
   const pathname = usePathname();
+  const { isAuthenticated } = useAuth();
+  const { open: openLoginPrompt } = useLoginPrompt();
   const [mounted, setMounted] = useState(false);
   const viewportHeight =
     typeof window !== "undefined" && window.innerHeight
@@ -95,10 +99,13 @@ export default function TryOnWidget({
 
   // Centralized fullscreen controls
   const openFullscreen = useCallback(() => {
-    // Always start fresh when opening
+    if (!isAuthenticated) {
+      openLoginPrompt();
+      return;
+    }
     clearAll();
     setIsFullscreen(true);
-  }, [clearAll]);
+  }, [clearAll, isAuthenticated, openLoginPrompt]);
 
   const closeFullscreen = useCallback(() => {
     // Always reset to beginning when closing
@@ -482,8 +489,8 @@ export default function TryOnWidget({
         }}
         className="cursor-pointer relative overflow-hidden rounded-xl md:rounded-2xl bg-gradient-to-br from-white/95 via-blue-50/90 to-gray-50/95 dark:from-gray-950/95 dark:via-slate-900/90 dark:to-purple-950/95 border border-violet-300/70 dark:border-violet-500/40 p-3 md:p-4 hover:shadow-md shadow-blue-500/20 dark:shadow-purple-500/20 backdrop-blur-xl"
         whileHover={{ scale: 1.01, y: -1 }}
-        whileTap={{ scale: 0.98 }}
-        transition={{ type: "spring", stiffness: 300 }}
+        whileTap={{ scale: 0.18 }}
+        transition={{ type: "spring", stiffness: 50 }}
       >
         {/* AI Background Effects */}
         <div className="absolute inset-0 pointer-events-none">
@@ -528,7 +535,11 @@ export default function TryOnWidget({
           ))}
         </div>
         <div className="relative flex items-center justify-between z-10 w-full">
-          <div className="flex items-center gap-2 md:gap-3 w-full md:w-1/3">
+          <div
+            className={`flex items-center gap-2 md:gap-3 w-full ${
+              isFullscreen ? "md:w-1/3" : ""
+            }`}
+          >
             <div className="relative flex-shrink-0">
               <motion.div
                 className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-violet-500 via-blue-500 to-indigo-500 dark:from-purple-400 dark:via-blue-400 dark:to-indigo-400 flex items-center justify-center shadow-xl"
@@ -573,12 +584,14 @@ export default function TryOnWidget({
                 <Sparkles className="h-2 w-2 md:h-2.5 md:w-2.5 text-white" />
               </motion.div>
             </div>
-            <div className="min-w-0 flex-1">
-              <motion.h3
+            <div className="min-w-0">
+              <motion.div
                 className="hidden md:inline-block font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
-                animate={{
-                  backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                }}
+                animate={
+                  {
+                    // backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+                  }
+                }
                 transition={{
                   duration: 4,
                   repeat: Infinity,
@@ -589,9 +602,9 @@ export default function TryOnWidget({
                 }}
               >
                 AI Virtual Try-On
-              </motion.h3>
-              <motion.p
-                className="text-xs text-muted-foreground hidden sm:block"
+              </motion.div>
+              <motion.div
+                className="text-xs text-muted-foreground hidden sm:block -mt-2"
                 initial={{ opacity: 0.7 }}
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{
@@ -601,7 +614,7 @@ export default function TryOnWidget({
                 }}
               >
                 Powered by advanced AI technology ✨
-              </motion.p>
+              </motion.div>
             </div>
           </div>
           {/* Compact Progress Steps in Title Bar (modern, mobile-friendly) */}
@@ -780,19 +793,25 @@ export default function TryOnWidget({
             </div>
           )}
           <motion.div
-            className="hidden md:flex md:w-[220px] flex-row items-center justify-end"
+            className={`hidden md:flex ${
+              isFullscreen ? "md:w-[220px]" : ""
+            } flex-row items-center justify-end`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <Button
               variant="ghost"
               size="sm"
-              className="bg-gradient-to-r from-white/90 to-blue-50/90 dark:from-slate-800/90 dark:to-blue-900/90 hover:from-white hover:to-blue-50 dark:hover:from-slate-700 dark:hover:to-blue-800 transition-all duration-300 flex-shrink-0 px-2 md:px-3 border border-red-500 dark:border-red-400 rounded-full"
+              className={`transition-all duration-300 flex-shrink-0 px-2 md:px-3 ${
+                isFullscreen
+                  ? "border-red-500 dark:border-red-400 bg-red-600 text-white hover:bg-red-700 hover:text-white"
+                  : "border bg-gradient-to-r from-blue-500 to-violet-500 text-white dark:from-slate-800/90 dark:to-blue-900/90 hover:from-violet-500 hover:to-blue-500 dark:hover:from-slate-700 dark:hover:to-blue-800"
+              } rounded-full`}
               title={isFullscreen ? "Close" : "Open"}
             >
               {isFullscreen ? (
                 <>
-                  <MdClose className="h-3 w-3 md:h-4 md:w-4 text-red-600 dark:text-red-400" />
+                  <MdClose className="h-3 w-3 md:h-4 md:w-4" />
                   <span className="inline">Close</span>
                 </>
               ) : (
