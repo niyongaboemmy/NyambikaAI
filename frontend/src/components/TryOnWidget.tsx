@@ -113,20 +113,6 @@ export default function TryOnWidget({
     setIsFullscreen(false);
   }, [clearAll]);
 
-  // Prevent background scrolling when widget is open
-  useEffect(() => {
-    if (isFullscreen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    // Cleanup function to reset overflow when component unmounts
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isFullscreen]);
-
   // Expose controls to parent once mounted/when handlers change
   useEffect(() => {
     if (onRegisterControls) {
