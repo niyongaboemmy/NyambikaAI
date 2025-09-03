@@ -586,7 +586,7 @@ export default function TryOnWidget({
             </div>
             <div className="min-w-0">
               <motion.div
-                className="hidden md:inline-block font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
+                className="font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
                 animate={
                   {
                     // backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
@@ -604,7 +604,7 @@ export default function TryOnWidget({
                 AI Virtual Try-On
               </motion.div>
               <motion.div
-                className="text-xs text-muted-foreground hidden sm:block -mt-2"
+                className="text-xs text-muted-foreground -mt-2"
                 initial={{ opacity: 0.7 }}
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{
