@@ -793,7 +793,7 @@ export default function TryOnWidget({
             </div>
           )}
           <motion.div
-            className={`hidden md:flex ${
+            className={`flex ${
               isFullscreen ? "md:w-[220px]" : ""
             } flex-row items-center justify-end`}
             whileHover={{ scale: 1.05 }}
