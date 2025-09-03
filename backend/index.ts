@@ -23,6 +23,8 @@ app.use(
       "https://nyambika-ai.vercel.app", // add this
       "https://nyambika.com",
       "http://nyambika.com",
+      "https://www.nyambika.com",
+      "http://www.nyambika.com",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [

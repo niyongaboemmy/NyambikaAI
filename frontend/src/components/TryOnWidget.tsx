@@ -812,12 +812,12 @@ export default function TryOnWidget({
               {isFullscreen ? (
                 <>
                   <MdClose className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="inline">Close</span>
+                  <span className="hidden md:inline">Close</span>
                 </>
               ) : (
                 <>
                   <Maximize2 className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="inline">Open</span>
+                  <span className="hidden md:inline">Open</span>
                 </>
               )}
             </Button>
