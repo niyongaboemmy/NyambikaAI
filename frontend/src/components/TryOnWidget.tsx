@@ -797,6 +797,10 @@ export default function TryOnWidget({
                   : "border bg-gradient-to-r from-blue-500 to-violet-500 text-white dark:from-slate-800/90 dark:to-blue-900/90 hover:from-violet-500 hover:to-blue-500 dark:hover:from-slate-700 dark:hover:to-blue-800"
               } rounded-full`}
               title={isFullscreen ? "Close" : "Open"}
+              onClick={() => {
+                isFullscreen ? closeFullscreen() : openFullscreen();
+                onUnselectProduct && onUnselectProduct();
+              }}
             >
               {isFullscreen ? (
                 <>
