@@ -113,6 +113,20 @@ export default function TryOnWidget({
     setIsFullscreen(false);
   }, [clearAll]);
 
+  // Prevent background scrolling when widget is open
+  useEffect(() => {
+    if (isFullscreen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    // Cleanup function to reset overflow when component unmounts
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isFullscreen]);
+
   // Expose controls to parent once mounted/when handlers change
   useEffect(() => {
     if (onRegisterControls) {
@@ -536,7 +550,7 @@ export default function TryOnWidget({
         </div>
         <div className="relative flex items-center justify-between z-10 w-full">
           <div
-            className={`flex items-center gap-2 md:gap-3 w-full ${
+            className={`flex items-center gap-2 md:gap-3 md:w-full ${
               isFullscreen ? "md:w-1/3" : ""
             }`}
           >
@@ -584,7 +598,11 @@ export default function TryOnWidget({
                 <Sparkles className="h-2 w-2 md:h-2.5 md:w-2.5 text-white" />
               </motion.div>
             </div>
-            <div className="min-w-0">
+            <div
+              className={`min-w-0 ${
+                isFullscreen ? "hidden md:inline-block" : ""
+              }`}
+            >
               <motion.div
                 className="font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
                 animate={
@@ -776,22 +794,7 @@ export default function TryOnWidget({
             </div>
           )}
           {/* Mobile-only close icon when fullscreen */}
-          {isFullscreen && (
-            <div className="md:hidden flex items-center justify-end">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full border border-red-200/50 dark:border-red-700/50 text-red-600 bg-white dark:bg-transparent dark:text-red-500"
-                aria-label="Close fullscreen"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  closeFullscreen();
-                }}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
+
           <motion.div
             className={`flex ${
               isFullscreen ? "md:w-[220px]" : ""
@@ -812,12 +815,12 @@ export default function TryOnWidget({
               {isFullscreen ? (
                 <>
                   <MdClose className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="hidden md:inline">Close</span>
+                  <span className="inline">Close</span>
                 </>
               ) : (
                 <>
                   <Maximize2 className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="hidden md:inline">Open</span>
+                  <span className="inline">Open</span>
                 </>
               )}
             </Button>
@@ -959,7 +962,8 @@ export default function TryOnWidget({
           {/* Progress steps moved to title bar to save vertical space */}
 
           <div
-            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 p-2 md:p-3 items-start overflow-y-auto h-[calc(100vh-190px)] md:[height:calc(100vh-170px)] pb-8`}
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 p-2 md:p-3 items-start overflow-y-auto h-[calc(100vh-190px)] md:[height:calc(100vh-170px)] pb-24 md:pbb6
+              `}
           >
             {/* Left: Product Image */}
             <div className="animate-in fade-in-0 slide-in-from-left-4 duration-500 delay-100">
