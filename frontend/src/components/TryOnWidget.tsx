@@ -604,7 +604,7 @@ export default function TryOnWidget({
                 AI Virtual Try-On
               </motion.div>
               <motion.div
-                className="text-xs text-muted-foreground -mt-2"
+                className="text-xs text-muted-foreground md:-mt-2"
                 initial={{ opacity: 0.7 }}
                 animate={{ opacity: [0.7, 1, 0.7] }}
                 transition={{
