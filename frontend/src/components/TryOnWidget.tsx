@@ -605,149 +605,163 @@ export default function TryOnWidget({
             </div>
           </div>
           {/* Compact Progress Steps in Title Bar (modern, mobile-friendly) */}
-          <div
-            className="w-ful md:w-1/3 mx-2 flex items-center gap-2 sm:gap-3 no-scrollbar flex-shrink-0 md:flex-shrink max-w-full md:max-w-[60%] lg:max-w-[65%]"
-            aria-label="Try-on progress"
-          >
-            {/* Capsule background for better contrast on all themes */}
-            <div className="flex items-center gap-2 sm:gap-3 px-1.5 sm:px-2 py-1 rounded-full border border-white/30 dark:border-slate-700/40 bg-white/60 dark:bg-slate-900/50 backdrop-blur-md shadow-sm">
-              {/* Step 1: Product */}
-              <div className="flex items-center gap-2">
-                <motion.div
-                  className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    productImageUrl
-                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
-                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
-                  }`}
-                  aria-current={productImageUrl ? "step" : undefined}
-                  title="Step 1: Product"
-                  animate={productImageUrl ? { scale: [1, 1.05, 1] } : {}}
-                  transition={{
-                    duration: 2,
-                    repeat: productImageUrl ? Infinity : 0,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <ImageIcon
-                    className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+          {isFullscreen && (
+            <div
+              className="w-ful md:w-1/3 mx-2 flex items-center gap-2 sm:gap-3 no-scrollbar flex-shrink-0 md:flex-shrink max-w-full md:max-w-[60%] lg:max-w-[65%]"
+              aria-label="Try-on progress"
+            >
+              {/* Capsule background for better contrast on all themes */}
+              <div className="flex items-center gap-2 sm:gap-3 px-1.5 sm:px-2 py-1 rounded-full border border-white/30 dark:border-slate-700/40 bg-white/60 dark:bg-slate-900/50 backdrop-blur-md shadow-sm">
+                {/* Step 1: Product */}
+                <div className="flex items-center gap-2">
+                  <motion.div
+                    className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
                       productImageUrl
-                        ? "text-white"
-                        : "text-slate-500 dark:text-slate-300"
+                        ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
+                        : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
                     }`}
-                  />
-                  <span className="sr-only">Step 1: Product</span>
-                </motion.div>
-                <motion.div
-                  className={`h-0.5 w-6 sm:w-8 rounded-full ${
-                    productImageUrl
-                      ? "bg-gradient-to-r from-purple-500 to-blue-600"
-                      : "bg-gray-200 dark:bg-slate-600"
-                  }`}
-                  animate={
-                    productImageUrl
-                      ? { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
-                      : {}
-                  }
-                  transition={{
-                    duration: 3,
-                    repeat: productImageUrl ? Infinity : 0,
-                    ease: "linear",
-                  }}
-                  style={{ backgroundSize: "200% 200%" }}
-                />
-              </div>
-
-              {/* Step 2: Your Photo */}
-              <div className="flex items-center gap-2">
-                <motion.div
-                  className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    customerImage
-                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
-                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
-                  }`}
-                  aria-current={
-                    customerImage && !tryOnResult && !isProcessingTryOn
-                      ? "step"
-                      : undefined
-                  }
-                  title="Step 2: Your Photo"
-                  animate={customerImage ? { scale: [1, 1.05, 1] } : {}}
-                  transition={{
-                    duration: 2,
-                    repeat: customerImage ? Infinity : 0,
-                    ease: "easeInOut",
-                  }}
-                >
-                  <Camera
-                    className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
-                      customerImage
-                        ? "text-white"
-                        : "text-slate-500 dark:text-slate-300"
-                    }`}
-                  />
-                  <span className="sr-only">Step 2: Your Photo</span>
-                </motion.div>
-                <motion.div
-                  className={`h-0.5 w-6 sm:w-8 rounded-full ${
-                    customerImage
-                      ? "bg-gradient-to-r from-purple-500 to-blue-600"
-                      : "bg-gray-200 dark:bg-slate-600"
-                  }`}
-                  animate={
-                    customerImage
-                      ? { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
-                      : {}
-                  }
-                  transition={{
-                    duration: 3,
-                    repeat: customerImage ? Infinity : 0,
-                    ease: "linear",
-                  }}
-                  style={{ backgroundSize: "200% 200%" }}
-                />
-              </div>
-
-              {/* Step 3: AI Result */}
-              <div className="flex items-center gap-2">
-                <motion.div
-                  className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                    tryOnResult
-                      ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md"
-                      : isProcessingTryOn
-                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
-                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
-                  }`}
-                  aria-current={tryOnResult ? "step" : undefined}
-                  title="Step 3: AI Result"
-                  animate={
-                    tryOnResult
-                      ? { scale: [1, 1.08, 1] }
-                      : isProcessingTryOn
-                      ? { rotate: [0, 0, 0] }
-                      : {}
-                  }
-                  transition={{
-                    duration: 2,
-                    repeat: tryOnResult ? Infinity : 0,
-                    ease: "easeInOut",
-                  }}
-                >
-                  {isProcessingTryOn ? (
-                    <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-                  ) : (
-                    <Sparkles
+                    aria-current={productImageUrl ? "step" : undefined}
+                    title="Step 1: Product"
+                    animate={productImageUrl ? { scale: [1, 1.05, 1] } : {}}
+                    transition={{
+                      duration: 2,
+                      repeat: productImageUrl ? Infinity : 0,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <ImageIcon
                       className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
-                        tryOnResult
+                        productImageUrl
                           ? "text-white"
                           : "text-slate-500 dark:text-slate-300"
                       }`}
                     />
-                  )}
-                  <span className="sr-only">Step 3: AI Result</span>
-                </motion.div>
+                    <span className="sr-only">Step 1: Product</span>
+                  </motion.div>
+                  <motion.div
+                    className={`h-0.5 w-6 sm:w-8 rounded-full ${
+                      productImageUrl
+                        ? "bg-gradient-to-r from-purple-500 to-blue-600"
+                        : "bg-gray-200 dark:bg-slate-600"
+                    }`}
+                    animate={
+                      productImageUrl
+                        ? {
+                            backgroundPosition: [
+                              "0% 50%",
+                              "100% 50%",
+                              "0% 50%",
+                            ],
+                          }
+                        : {}
+                    }
+                    transition={{
+                      duration: 3,
+                      repeat: productImageUrl ? Infinity : 0,
+                      ease: "linear",
+                    }}
+                    style={{ backgroundSize: "200% 200%" }}
+                  />
+                </div>
+
+                {/* Step 2: Your Photo */}
+                <div className="flex items-center gap-2">
+                  <motion.div
+                    className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      customerImage
+                        ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
+                        : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
+                    }`}
+                    aria-current={
+                      customerImage && !tryOnResult && !isProcessingTryOn
+                        ? "step"
+                        : undefined
+                    }
+                    title="Step 2: Your Photo"
+                    animate={customerImage ? { scale: [1, 1.05, 1] } : {}}
+                    transition={{
+                      duration: 2,
+                      repeat: customerImage ? Infinity : 0,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    <Camera
+                      className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                        customerImage
+                          ? "text-white"
+                          : "text-slate-500 dark:text-slate-300"
+                      }`}
+                    />
+                    <span className="sr-only">Step 2: Your Photo</span>
+                  </motion.div>
+                  <motion.div
+                    className={`h-0.5 w-6 sm:w-8 rounded-full ${
+                      customerImage
+                        ? "bg-gradient-to-r from-purple-500 to-blue-600"
+                        : "bg-gray-200 dark:bg-slate-600"
+                    }`}
+                    animate={
+                      customerImage
+                        ? {
+                            backgroundPosition: [
+                              "0% 50%",
+                              "100% 50%",
+                              "0% 50%",
+                            ],
+                          }
+                        : {}
+                    }
+                    transition={{
+                      duration: 3,
+                      repeat: customerImage ? Infinity : 0,
+                      ease: "linear",
+                    }}
+                    style={{ backgroundSize: "200% 200%" }}
+                  />
+                </div>
+
+                {/* Step 3: AI Result */}
+                <div className="flex items-center gap-2">
+                  <motion.div
+                    className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                      tryOnResult
+                        ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md"
+                        : isProcessingTryOn
+                        ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
+                        : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
+                    }`}
+                    aria-current={tryOnResult ? "step" : undefined}
+                    title="Step 3: AI Result"
+                    animate={
+                      tryOnResult
+                        ? { scale: [1, 1.08, 1] }
+                        : isProcessingTryOn
+                        ? { rotate: [0, 0, 0] }
+                        : {}
+                    }
+                    transition={{
+                      duration: 2,
+                      repeat: tryOnResult ? Infinity : 0,
+                      ease: "easeInOut",
+                    }}
+                  >
+                    {isProcessingTryOn ? (
+                      <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
+                    ) : (
+                      <Sparkles
+                        className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                          tryOnResult
+                            ? "text-white"
+                            : "text-slate-500 dark:text-slate-300"
+                        }`}
+                      />
+                    )}
+                    <span className="sr-only">Step 3: AI Result</span>
+                  </motion.div>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           {/* Mobile-only close icon when fullscreen */}
           {isFullscreen && (
             <div className="md:hidden flex items-center justify-end">
