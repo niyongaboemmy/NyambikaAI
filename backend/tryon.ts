@@ -5,7 +5,9 @@ const TRYON_PROVIDER = (
 ).toLowerCase();
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 const TRYON_MODEL = process.env.TRYON_MODEL || "xiong-pku/tryondiffusion"; // configurable
-const CLOTHFLOW_URL = process.env.CLOTHFLOW_URL || "http://localhost:8000";
+// Prefer VIRTUAL_TRYON_URL if provided, else fall back to CLOTHFLOW_URL for backward compatibility
+const VIRTUAL_TRYON_URL =
+  process.env.VIRTUAL_TRYON_URL || process.env.CLOTHFLOW_URL || "http://localhost:8000";
 
 function removeDataUrlPrefix(data: string): string {
   const match = data.match(/^data:image\/(png|jpg|jpeg|webp);base64,(.+)$/i);
@@ -27,6 +29,64 @@ async function toClothFlowInput(val: string): Promise<string> {
   }
   // If already a data URL, pass through; if it's raw base64, let the service decode it.
   return val;
+}
+
+// Python virtual_tryon service integration (supports engines: viton_hd, stable_viton)
+async function generateWithVirtualTryOnService(
+  customerImageBase64OrUrl: string,
+  productImageBase64OrUrl: string,
+  engine: "viton_hd" | "stable_viton" = "viton_hd"
+): Promise<VirtualTryOnResult> {
+  try {
+    const person = await toClothFlowInput(customerImageBase64OrUrl);
+    const cloth = await toClothFlowInput(productImageBase64OrUrl);
+
+    if (!person || !cloth) {
+      return {
+        success: false,
+        error: `Missing inputs for virtual_tryon: person=${Boolean(person)}, cloth=${Boolean(cloth)}`,
+      };
+    }
+
+    const baseUrl = VIRTUAL_TRYON_URL.replace(/\/$/, "");
+    const resp = await fetch(`${baseUrl}/api/try-on`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        person_image: person,
+        cloth_image: cloth,
+        category: "upper",
+        engine,
+        use_preset: true,
+        seed: 42,
+      }),
+    });
+
+    if (!resp.ok) {
+      const text = await resp.text();
+      return { success: false, error: `virtual_tryon error (${resp.status}): ${text || resp.statusText}` };
+    }
+
+    const data = (await resp.json()) as {
+      success: boolean;
+      message?: string;
+      result_path?: string;
+      error?: string;
+    };
+
+    if (!data.success) {
+      return { success: false, error: data.error || data.message || "virtual_tryon failed" };
+    }
+
+    const path = data.result_path || "";
+    const url = /^https?:\/\//i.test(path)
+      ? path
+      : `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
+
+    return { success: true, tryOnImageUrl: url };
+  } catch (e: any) {
+    return { success: false, error: e?.message || "virtual_tryon request failed" };
+  }
 }
 
 async function generateWithReplicate(
@@ -134,67 +194,16 @@ export async function generateVirtualTryOn(
   customerImageBase64OrUrl: string,
   productImageBase64OrUrl: string,
   productType: string,
-  customerMeasurements?: any
+  customerMeasurements?: any,
+  options?: { engine?: "viton_hd" | "stable_viton" }
 ): Promise<VirtualTryOnResult> {
-  // ClothFlow microservice provider
-  if (TRYON_PROVIDER === "clothflow" && CLOTHFLOW_URL) {
-    try {
-      // Normalize inputs: convert URLs to data URLs to reduce dependency on Python-side HTTP reachability
-      const personInput = await toClothFlowInput(customerImageBase64OrUrl);
-      const clothInput = await toClothFlowInput(productImageBase64OrUrl);
-
-      if (!personInput || !clothInput) {
-        return {
-          success: false,
-          error: `Missing inputs for ClothFlow: person=${Boolean(personInput)}, cloth=${Boolean(clothInput)}`,
-        };
-      }
-
-      // Heuristics: use face-anchored sizing so garment width follows face width.
-      // Tune per product type in the ClothFlow service configuration if needed.
-      const res = await fetch(`${CLOTHFLOW_URL.replace(/\/$/, "")}/tryon`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          person: personInput,
-          cloth: clothInput,
-          // Guide ClothFlow placeholder; defer all sizing to service .env unless UI explicitly sets
-          faceAnchor: true,
-          allowUpscale: true,
-          // optional knobs can be added here depending on your ClothFlow server
-        }),
-      });
-      if (!res.ok) {
-        const text = await res.text();
-        return {
-          success: false,
-          error: `ClothFlow error (${res.status}): ${text || res.statusText}`,
-        };
-      }
-      interface ClothFlowResponse {
-        tryOnImageBase64?: string;
-        tryOnImageUrl?: string;
-        output?: string;
-        url?: string;
-      }
-      const data = (await res.json()) as ClothFlowResponse;
-      const base64 = data.tryOnImageBase64;
-      const url = data.tryOnImageUrl || data.output || data.url;
-      return {
-        success: true,
-        // If the service returns base64, ensure consumers receive a data URL
-        tryOnImageUrl:
-          base64 && !/^data:image\//i.test(base64)
-            ? `data:image/jpeg;base64,${base64}`
-            : base64 || url,
-        recommendations: undefined,
-      };
-    } catch (e: any) {
-      return {
-        success: false,
-        error: e?.message || "ClothFlow request failed",
-      };
-    }
+  // Python virtual_tryon microservice provider (new path)
+  if ((TRYON_PROVIDER === "clothflow" || TRYON_PROVIDER === "virtual_tryon") && VIRTUAL_TRYON_URL) {
+    return generateWithVirtualTryOnService(
+      customerImageBase64OrUrl,
+      productImageBase64OrUrl,
+      options?.engine || "viton_hd"
+    );
   }
 
   // Prefer Replicate provider if configured; otherwise fall back to existing OpenAI-based logic

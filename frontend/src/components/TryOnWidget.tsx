@@ -1,7 +1,6 @@
 "use client";
 import { useRef, useState, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { useMutation } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { Button } from "@/components/custom-ui/button";
 import { useSafeToast as useToast } from "@/hooks/use-safe-toast";
@@ -11,7 +10,6 @@ import {
   Wand2,
   X,
   Maximize2,
-  Minimize2,
   Camera,
   ShoppingBag,
   Eye,
@@ -21,7 +19,8 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { apiClient, handleApiError } from "@/config/api";
+// Removed apiClient usage for try-on; using Next.js proxy route instead
+import { MdClose } from "react-icons/md";
 
 interface TryOnWidgetProps {
   productId: string;
@@ -73,6 +72,9 @@ export default function TryOnWidget({
   const [processed, setProcessed] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [selectedEngine, setSelectedEngine] = useState<
+    "viton_hd" | "stable_viton"
+  >("stable_viton");
 
   const [showCameraModal, setShowCameraModal] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
@@ -111,60 +113,28 @@ export default function TryOnWidget({
     }
   }, [onRegisterControls, openFullscreen, closeFullscreen]);
 
-  const createTryOnMutation = useMutation({
-    mutationFn: async (imageBase64: string) => {
-      try {
-        const response = await apiClient.post("/api/try-on-sessions", {
-          productId,
-          customerImageUrl: imageBase64,
-        });
-        return response.data;
-      } catch (error) {
-        throw new Error(handleApiError(error));
-      }
+  // Helpers to convert images to File objects for FormData
+  const dataURLToFile = useCallback(
+    async (dataUrl: string, filename = "person.jpg"): Promise<File> => {
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      return new File([blob], filename, { type: blob.type || "image/jpeg" });
     },
-    onSuccess: async (session) => {
-      setIsProcessingTryOn(true);
-      try {
-        const response = await apiClient.post(
-          `/api/try-on-sessions/${session.id}/process`,
-          {
-            productImageUrl,
-          }
-        );
-        const result = response.data;
-        setTryOnResult(result.tryOnImageUrl || null);
-        if (result.recommendations) setRecommendations(result.recommendations);
-        setProcessed(true);
-        toast({
-          title: "Try-on complete!",
-          description: "Your virtual try-on is ready",
-        });
-        if (result.error) {
-          toast({
-            title: "Using demo fallback",
-            description:
-              "AI quota reached; showing a preview using your uploaded photo.",
-          });
-        }
-      } catch (error) {
-        toast({
-          title: "Try-on failed",
-          description: "Please try again with a different photo",
-          variant: "destructive",
-        });
-      } finally {
-        setIsProcessingTryOn(false);
-      }
+    []
+  );
+
+  const fetchImageAsFile = useCallback(
+    async (url: string, filename = "garment.jpg"): Promise<File> => {
+      // Use server-side proxy to avoid CORS and auth issues
+      const proxied = `/api/tryon/fetch-image?url=${encodeURIComponent(url)}`;
+      const res = await fetch(proxied);
+      if (!res.ok)
+        throw new Error(`Failed to fetch garment image: ${res.status}`);
+      const blob = await res.blob();
+      return new File([blob], filename, { type: blob.type || "image/jpeg" });
     },
-    onError: (error: any) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
+    []
+  );
 
   // Camera functions
   const startCamera = useCallback(async () => {
@@ -399,13 +369,84 @@ export default function TryOnWidget({
         });
         return;
       }
-      createTryOnMutation.mutate(customerImage);
-    } catch (error) {
+
+      if (!productImageUrl) {
+        toast({
+          title: "Missing product image",
+          description: "Cannot generate try-on without a product image",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Map engine to fast_mode for the TryOn API
+      const fast_mode = selectedEngine === "viton_hd";
+
+      // Prepare multipart form-data
+      const form = new FormData();
+      const personFile = await dataURLToFile(customerImage, "person.jpg");
+      const garmentFile = await fetchImageAsFile(
+        productImageUrl,
+        "garment.jpg"
+      );
+      form.append("person_image", personFile);
+      form.append("garment_image", garmentFile);
+      form.append("fast_mode", String(fast_mode));
+
+      const res = await fetch("/api/tryon/tryonapi", {
+        method: "POST",
+        body: form,
+      });
+
+      // 202 means still processing (should be rare here due to server-side polling)
+      if (res.status === 202) {
+        const j = await res.json();
+        toast({
+          title: "Still processing",
+          description: j.message || "Please wait a bit and retry",
+        });
+        setProcessed(true);
+        return;
+      }
+
+      const j = await res.json();
+      if (!res.ok) {
+        throw new Error(
+          j?.error || j?.details || `Try-on failed with status ${res.status}`
+        );
+      }
+
+      // Success path
+      let image: string | null = null;
+      if (j.imageUrl) {
+        image = j.imageUrl as string;
+      } else if (j.imageBase64) {
+        image = `data:image/png;base64,${j.imageBase64}`;
+      }
+
+      if (image) {
+        setTryOnResult(image);
+        setProcessed(true);
+        toast({
+          title: "Try-on complete!",
+          description: "Your virtual try-on is ready",
+        });
+      } else {
+        setProcessed(true);
+        toast({
+          title: "Completed without image",
+          description: "No image payload returned by provider",
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Try-on failed",
-        description: "Please try again with a different photo",
+        description:
+          error?.message || "Please try again with a different photo",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessingTryOn(false);
     }
   };
 
@@ -432,7 +473,7 @@ export default function TryOnWidget({
   }, [productId]);
 
   const widgetContent = (
-    <div className="space-y-3 md:space-y-4">
+    <div className="space-y-0">
       {/* Enhanced Mobile-Optimized Header with AI Branding */}
       <motion.div
         onClick={() => {
@@ -486,8 +527,8 @@ export default function TryOnWidget({
             />
           ))}
         </div>
-        <div className="relative flex items-center justify-between z-10">
-          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+        <div className="relative flex items-center justify-between z-10 w-full">
+          <div className="flex items-center gap-2 md:gap-3 w-full md:w-1/3">
             <div className="relative flex-shrink-0">
               <motion.div
                 className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-violet-500 via-blue-500 to-indigo-500 dark:from-purple-400 dark:via-blue-400 dark:to-indigo-400 flex items-center justify-center shadow-xl"
@@ -534,7 +575,7 @@ export default function TryOnWidget({
             </div>
             <div className="min-w-0 flex-1">
               <motion.h3
-                className="font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
+                className="hidden md:inline-block font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
                 animate={{
                   backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
                 }}
@@ -563,21 +604,186 @@ export default function TryOnWidget({
               </motion.p>
             </div>
           </div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+          {/* Compact Progress Steps in Title Bar (modern, mobile-friendly) */}
+          <div
+            className="w-ful md:w-1/3 mx-2 flex items-center gap-2 sm:gap-3 no-scrollbar flex-shrink-0 md:flex-shrink max-w-full md:max-w-[60%] lg:max-w-[65%]"
+            aria-label="Try-on progress"
+          >
+            {/* Capsule background for better contrast on all themes */}
+            <div className="flex items-center gap-2 sm:gap-3 px-1.5 sm:px-2 py-1 rounded-full border border-white/30 dark:border-slate-700/40 bg-white/60 dark:bg-slate-900/50 backdrop-blur-md shadow-sm">
+              {/* Step 1: Product */}
+              <div className="flex items-center gap-2">
+                <motion.div
+                  className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    productImageUrl
+                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
+                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
+                  }`}
+                  aria-current={productImageUrl ? "step" : undefined}
+                  title="Step 1: Product"
+                  animate={productImageUrl ? { scale: [1, 1.05, 1] } : {}}
+                  transition={{
+                    duration: 2,
+                    repeat: productImageUrl ? Infinity : 0,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <ImageIcon
+                    className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                      productImageUrl
+                        ? "text-white"
+                        : "text-slate-500 dark:text-slate-300"
+                    }`}
+                  />
+                  <span className="sr-only">Step 1: Product</span>
+                </motion.div>
+                <motion.div
+                  className={`h-0.5 w-6 sm:w-8 rounded-full ${
+                    productImageUrl
+                      ? "bg-gradient-to-r from-purple-500 to-blue-600"
+                      : "bg-gray-200 dark:bg-slate-600"
+                  }`}
+                  animate={
+                    productImageUrl
+                      ? { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
+                      : {}
+                  }
+                  transition={{
+                    duration: 3,
+                    repeat: productImageUrl ? Infinity : 0,
+                    ease: "linear",
+                  }}
+                  style={{ backgroundSize: "200% 200%" }}
+                />
+              </div>
+
+              {/* Step 2: Your Photo */}
+              <div className="flex items-center gap-2">
+                <motion.div
+                  className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    customerImage
+                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
+                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
+                  }`}
+                  aria-current={
+                    customerImage && !tryOnResult && !isProcessingTryOn
+                      ? "step"
+                      : undefined
+                  }
+                  title="Step 2: Your Photo"
+                  animate={customerImage ? { scale: [1, 1.05, 1] } : {}}
+                  transition={{
+                    duration: 2,
+                    repeat: customerImage ? Infinity : 0,
+                    ease: "easeInOut",
+                  }}
+                >
+                  <Camera
+                    className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                      customerImage
+                        ? "text-white"
+                        : "text-slate-500 dark:text-slate-300"
+                    }`}
+                  />
+                  <span className="sr-only">Step 2: Your Photo</span>
+                </motion.div>
+                <motion.div
+                  className={`h-0.5 w-6 sm:w-8 rounded-full ${
+                    customerImage
+                      ? "bg-gradient-to-r from-purple-500 to-blue-600"
+                      : "bg-gray-200 dark:bg-slate-600"
+                  }`}
+                  animate={
+                    customerImage
+                      ? { backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }
+                      : {}
+                  }
+                  transition={{
+                    duration: 3,
+                    repeat: customerImage ? Infinity : 0,
+                    ease: "linear",
+                  }}
+                  style={{ backgroundSize: "200% 200%" }}
+                />
+              </div>
+
+              {/* Step 3: AI Result */}
+              <div className="flex items-center gap-2">
+                <motion.div
+                  className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
+                    tryOnResult
+                      ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md"
+                      : isProcessingTryOn
+                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
+                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
+                  }`}
+                  aria-current={tryOnResult ? "step" : undefined}
+                  title="Step 3: AI Result"
+                  animate={
+                    tryOnResult
+                      ? { scale: [1, 1.08, 1] }
+                      : isProcessingTryOn
+                      ? { rotate: [0, 0, 0] }
+                      : {}
+                  }
+                  transition={{
+                    duration: 2,
+                    repeat: tryOnResult ? Infinity : 0,
+                    ease: "easeInOut",
+                  }}
+                >
+                  {isProcessingTryOn ? (
+                    <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
+                  ) : (
+                    <Sparkles
+                      className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
+                        tryOnResult
+                          ? "text-white"
+                          : "text-slate-500 dark:text-slate-300"
+                      }`}
+                    />
+                  )}
+                  <span className="sr-only">Step 3: AI Result</span>
+                </motion.div>
+              </div>
+            </div>
+          </div>
+          {/* Mobile-only close icon when fullscreen */}
+          {isFullscreen && (
+            <div className="md:hidden flex items-center justify-end">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full border border-red-200/50 dark:border-red-700/50 text-red-600 bg-white dark:bg-transparent dark:text-red-500"
+                aria-label="Close fullscreen"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  closeFullscreen();
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+          <motion.div
+            className="hidden md:flex md:w-[220px] flex-row items-center justify-end"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
             <Button
               variant="ghost"
               size="sm"
-              className="bg-gradient-to-r from-white/90 to-blue-50/90 dark:from-slate-800/90 dark:to-blue-900/90 hover:from-white hover:to-blue-50 dark:hover:from-slate-700 dark:hover:to-blue-800 transition-all duration-300 flex-shrink-0 px-2 md:px-3 border border-blue-200/50 dark:border-blue-700/50 shadow-sm"
+              className="bg-gradient-to-r from-white/90 to-blue-50/90 dark:from-slate-800/90 dark:to-blue-900/90 hover:from-white hover:to-blue-50 dark:hover:from-slate-700 dark:hover:to-blue-800 transition-all duration-300 flex-shrink-0 px-2 md:px-3 border border-red-500 dark:border-red-400 rounded-full"
               title={isFullscreen ? "Close" : "Open"}
             >
               {isFullscreen ? (
                 <>
-                  <Minimize2 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                  <MdClose className="h-3 w-3 md:h-4 md:w-4 text-red-600 dark:text-red-400" />
                   <span className="inline">Close</span>
                 </>
               ) : (
                 <>
-                  <Maximize2 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                  <Maximize2 className="h-3 w-3 md:h-4 md:w-4" />
                   <span className="inline">Open</span>
                 </>
               )}
@@ -716,117 +922,21 @@ export default function TryOnWidget({
 
       {/* 3-column preview only when fullscreen modal is open */}
       {isFullscreen && (
-        <div className="space-y-4 animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
-          {/* Enhanced Progress Steps Header */}
-          <div className="flex items-center justify-center">
-            <div className="flex items-center space-x-3 md:space-x-6 bg-white/50 dark:bg-slate-800/50 backdrop-blur-xl rounded-xl md:rounded-2xl px-4 md:px-8 py-3 md:py-4 border border-white/20 dark:border-slate-700/30 shadow-sm overflow-x-auto">
-              <div className="flex items-center gap-3">
-                <div
-                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-500 ${
-                    productImageUrl
-                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-lg scale-110"
-                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-400"
-                  }`}
-                >
-                  {productImageUrl && (
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-blue-600 rounded-xl blur opacity-30" />
-                  )}
-                  <span className="relative">1</span>
-                </div>
-                <div className="text-xs md:text-sm hidden sm:block">
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    Product
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Selected item
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className={`h-1 w-16 rounded-full transition-all duration-500 ${
-                  productImageUrl
-                    ? "bg-gradient-to-r from-purple-500 to-blue-600"
-                    : "bg-gray-200 dark:bg-slate-600"
-                }`}
-              />
-
-              <div className="flex items-center gap-3">
-                <div
-                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-500 ${
-                    customerImage
-                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-lg scale-110"
-                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-400"
-                  }`}
-                >
-                  {customerImage && (
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-blue-600 rounded-xl blur opacity-30" />
-                  )}
-                  <span className="relative">2</span>
-                </div>
-                <div className="text-xs md:text-sm hidden sm:block">
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    Your Photo
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    Upload or capture
-                  </div>
-                </div>
-              </div>
-
-              <div
-                className={`h-1 w-16 rounded-full transition-all duration-500 ${
-                  customerImage
-                    ? "bg-gradient-to-r from-purple-500 to-blue-600"
-                    : "bg-gray-200 dark:bg-slate-600"
-                }`}
-              />
-
-              <div className="flex items-center gap-3">
-                <div
-                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-500 ${
-                    tryOnResult
-                      ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-lg scale-110"
-                      : isProcessingTryOn
-                      ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-lg animate-pulse"
-                      : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-400"
-                  }`}
-                >
-                  {(tryOnResult || isProcessingTryOn) && (
-                    <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 to-blue-600 rounded-xl blur opacity-30" />
-                  )}
-                  <span className="relative">
-                    {isProcessingTryOn ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      "3"
-                    )}
-                  </span>
-                </div>
-                <div className="text-xs md:text-sm hidden sm:block">
-                  <div className="font-semibold text-gray-900 dark:text-white">
-                    AI Result
-                  </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {isProcessingTryOn ? "Processing..." : "AI magic"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="space-y-0 animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
+          {/* Progress steps moved to title bar to save vertical space */}
 
           <div
-            className={`grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 items-start`}
+            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 p-2 md:p-3 items-start overflow-y-auto h-[calc(100vh-190px)] md:[height:calc(100vh-170px)] pb-8`}
           >
             {/* Left: Product Image */}
-            <div className="order-1 md:order-1 animate-in fade-in-0 slide-in-from-left-4 duration-500 delay-100">
-              <div className="rounded-2xl bg-gradient-to-br from-card to-card/80 dark:from-slate-800/90 dark:to-slate-700/80 backdrop-blur-sm border border-white/20 dark:border-slate-600/50 transition-all duration-300 p-3 group">
+            <div className="animate-in fade-in-0 slide-in-from-left-4 duration-500 delay-100">
+              <div className="rounded-2xl bg-gradient-to-br from-card to-card/80 dark:from-slate-800/90 dark:to-slate-700/80 backdrop-blur-sm border border-white/20 dark:border-slate-600/50 transition-all duration-300 p-3 group w-full">
                 {productImageUrl ? (
                   <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/20 to-purple-50/5 dark:from-slate-800/20 dark:to-slate-700/5">
                     <img
                       src={productImageUrl}
                       alt="Selected product"
-                      className="w-full max-h-[220px] object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
+                      className="w-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                   </div>
@@ -843,11 +953,11 @@ export default function TryOnWidget({
               </div>
             </div>
 
-            {/* Enhanced Middle: Upload / Capture Controls */}
-            <div className="order-2 md:order-2 animate-in fade-in-0 slide-in-from-bottom-4 duration-500 delay-200">
+            {/* Middle column hidden; controls moved to bottom bar */}
+            <div className="w-full">
               <div className="relative group">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-                <div className="relative rounded-2xl md:rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/30 dark:border-slate-700/30 p-4 md:p-6">
+                <div className="relative rounded-2xl md:rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/30 dark:border-slate-700/30 p-2 md:p-4">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -893,12 +1003,12 @@ export default function TryOnWidget({
                       </div>
                     </div>
                   ) : (
-                    <div className="animate-in fade-in-0 zoom-in-95 duration-500 space-y-3 md:space-y-4">
+                    <div className="animate-in fade-in-0 zoom-in-95 duration-500 space-y-2 md:space-y-3">
                       <div className="relative rounded-2xl overflow-hidden group">
                         <img
                           src={customerImage}
                           alt="Your uploaded photo"
-                          className="w-full max-h-[180px] md:max-h-[240px] object-contain rounded-xl md:rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700"
+                          className="w-full object-contain rounded-xl md:rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
 
@@ -982,7 +1092,7 @@ export default function TryOnWidget({
                       <img
                         src={tryOnResult}
                         alt="Try-on result"
-                        className="w-full max-h-[250px] object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
+                        className="w-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
                       <div className="absolute top-3 right-3 bg-green-500/90 text-white text-xs px-2 py-1 rounded-full font-medium">
@@ -1100,7 +1210,43 @@ export default function TryOnWidget({
 
           <div className="sticky bottom-0 left-0 right-0 mt-8 animate-in fade-in-0 slide-in-from-bottom-4 duration-500 delay-500">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60 p-3">
-              <div className="flex gap-2"></div>
+              {/* Bottom controls: thumbnails + inputs + quick actions */}
+              <div className="flex items-center gap-3 overflow-x-auto">
+                {/* Hidden input for choosing photo */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+
+                {/* Thumbnails */}
+                <div className="hidden md:flex items-center gap-2">
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                    {customerImage ? (
+                      <img
+                        src={customerImage}
+                        alt="You"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-slate-400" />
+                    )}
+                  </div>
+                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                    {productImageUrl ? (
+                      <img
+                        src={productImageUrl}
+                        alt="Product"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-slate-400" />
+                    )}
+                  </div>
+                </div>
+              </div>
               <div className="flex flex-col md:flex-row gap-2 md:justify-end">
                 {tryOnResult ? (
                   <>
@@ -1326,7 +1472,7 @@ export default function TryOnWidget({
             </div>
 
             <motion.div
-              className="container mx-auto relative bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-900/95 dark:via-slate-900/90 dark:to-purple-950/20 backdrop-blur-xl borde border-white/40 dark:border-purple-500/40 shadow-2xl p-3 md:p-6 rounded-2xl"
+              className="fixed top-0 left-0 right-0 bottom-0 bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-900/95 dark:via-slate-900/90 dark:to-purple-950/20 backdrop-blur-xl borde border-white/40 dark:border-purple-500/40 shadow-2xl p-1 md:p-2"
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}

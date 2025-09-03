@@ -16,7 +16,9 @@ export async function POST(req: Request) {
       );
     }
 
-    const kolorsResponse = await fetch("http://127.0.0.1:8000/try-on", {
+    const backendUrl =
+      process.env.NEXT_PUBLIC_TRYON_API || "http://127.0.0.1:8000/try-on";
+    const kolorsResponse = await fetch(backendUrl, {
       method: "POST",
       body: formData,
     });

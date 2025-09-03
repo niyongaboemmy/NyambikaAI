@@ -2128,7 +2128,8 @@ try {
           session.customerImageUrl,
           productImageToUse,
           product.name,
-          measurements
+          measurements,
+          { engine: (req.body?.engine as any) || undefined }
         );
 
         if (result.success) {
