@@ -11,6 +11,7 @@ import {
   Upload,
   Wand2,
   X,
+  RefreshCw,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
@@ -63,6 +64,14 @@ export default function TryOnWidget({
   const [selectedGarmentUrl, setSelectedGarmentUrl] = useState<string | null>(
     productImageUrl ?? null
   );
+  const [cameraFacing, setCameraFacing] = useState<"user" | "environment">(() =>
+    typeof window !== "undefined" &&
+    localStorage.getItem("nyambika-camera-facing") === "environment"
+      ? "environment"
+      : "user"
+  );
+  const [hasFrontCamera, setHasFrontCamera] = useState(true);
+  const [hasBackCamera, setHasBackCamera] = useState(true);
 
   // Persist selected garment in localStorage
   const getStorageKey = useCallback(
@@ -162,28 +171,134 @@ export default function TryOnWidget({
         stream.getTracks().forEach((t) => t.stop());
         setStream(null);
       }
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error("Camera is not supported in this browser");
+      }
+
       const media = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
+        video: {
+          facingMode: { ideal: cameraFacing },
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+        },
         audio: false,
       });
       setStream(media);
+      // After permission granted, update camera availability from device list
+      if (navigator.mediaDevices?.enumerateDevices) {
+        try {
+          const devices = await navigator.mediaDevices.enumerateDevices();
+          const videos = devices.filter((d) => d.kind === "videoinput");
+          let front = false;
+          let back = false;
+          for (const d of videos) {
+            const lbl = (d.label || "").toLowerCase();
+            if (
+              lbl.includes("front") ||
+              lbl.includes("user") ||
+              lbl.includes("webcam") ||
+              lbl.includes("face")
+            )
+              front = true;
+            if (
+              lbl.includes("back") ||
+              lbl.includes("rear") ||
+              lbl.includes("environment")
+            )
+              back = true;
+          }
+          if (!front && !back) {
+            // If labels are empty (Safari before user gesture), infer from count
+            if (videos.length >= 2) {
+              front = true;
+              back = true;
+            } else if (videos.length === 1) {
+              // Default to front-only when a single camera is detected
+              front = true;
+              back = false;
+            }
+          }
+          setHasFrontCamera(front);
+          setHasBackCamera(back);
+        } catch {}
+      }
       if (videoRef.current) {
-        videoRef.current.srcObject = media;
-        videoRef.current.onloadedmetadata = () => setIsVideoReady(true);
+        const v = videoRef.current;
+        // Clear previous handlers
+        v.onloadedmetadata = null;
+        v.oncanplay = null;
+        v.srcObject = media;
+        // Helper to mark ready safely
+        const markReady = () => {
+          // If dimensions available or readyState suggests we can play
+          if (v.videoWidth > 0 && v.videoHeight > 0) {
+            setIsVideoReady(true);
+          } else if (v.readyState >= 2) {
+            setIsVideoReady(true);
+          }
+        };
+        // Autoplay
+        v.onloadedmetadata = () => {
+          v.play()
+            .catch(() => {})
+            .finally(() => {
+              markReady();
+            });
+        };
+        v.oncanplay = () => {
+          markReady();
+        };
+        // Fallback: if neither event fires promptly
+        setTimeout(() => {
+          if (!isVideoReady) {
+            markReady();
+          }
+        }, 1200);
       }
     } catch (err) {
-      const message =
-        err instanceof Error && err.name === "NotAllowedError"
-          ? "Camera permission denied"
-          : "Unable to access camera";
+      let message = "Unable to access camera";
+      if (err instanceof Error) {
+        if (err.name === "NotAllowedError")
+          message = "Camera permission denied";
+        else if (err.name === "NotFoundError")
+          message = "No camera device found";
+        else if (err.name === "NotReadableError")
+          message = "Camera is already in use by another application";
+        else if (err.name === "OverconstrainedError")
+          message = "Requested camera constraints cannot be satisfied";
+        else if (err.message) message = err.message;
+        // Update availability flags based on the constraint that failed
+        if (
+          err.name === "NotFoundError" ||
+          err.name === "OverconstrainedError"
+        ) {
+          if (cameraFacing === "environment") setHasBackCamera(false);
+          if (cameraFacing === "user") setHasFrontCamera(false);
+        }
+      }
       setCameraError(message);
       toast({
         title: "Camera error",
         description: message,
         variant: "destructive",
       });
+      // Auto-fallback: if back camera unavailable, switch to front and retry
+      if (
+        err instanceof Error &&
+        (err.name === "NotFoundError" || err.name === "OverconstrainedError") &&
+        cameraFacing === "environment"
+      ) {
+        setCameraFacing("user");
+        toast({
+          title: "Falling back to front camera",
+          description: "Rear camera not available. Switched to front camera.",
+        });
+        setTimeout(() => {
+          startCamera();
+        }, 0);
+      }
     }
-  }, [stream, toast]);
+  }, [cameraFacing, isVideoReady, stream, toast]);
 
   const stopCamera = useCallback(() => {
     setIsVideoReady(false);
@@ -191,10 +306,83 @@ export default function TryOnWidget({
       stream.getTracks().forEach((t) => t.stop());
       setStream(null);
     }
+    if (videoRef.current) {
+      // Clear srcObject to fully release the video element
+      videoRef.current.srcObject = null;
+    }
   }, [stream]);
+
+  // Persist camera facing preference
+  useEffect(() => {
+    try {
+      localStorage.setItem("nyambika-camera-facing", cameraFacing);
+    } catch {}
+  }, [cameraFacing]);
+
+  // Listen for device changes (e.g., plugging in a webcam)
+  useEffect(() => {
+    const updateFromDevices = async () => {
+      if (!navigator.mediaDevices?.enumerateDevices) return;
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videos = devices.filter((d) => d.kind === "videoinput");
+        let front = false;
+        let back = false;
+        for (const d of videos) {
+          const lbl = (d.label || "").toLowerCase();
+          if (
+            lbl.includes("front") ||
+            lbl.includes("user") ||
+            lbl.includes("webcam") ||
+            lbl.includes("face")
+          )
+            front = true;
+          if (
+            lbl.includes("back") ||
+            lbl.includes("rear") ||
+            lbl.includes("environment")
+          )
+            back = true;
+        }
+        if (!front && !back) {
+          if (videos.length >= 2) {
+            front = true;
+            back = true;
+          } else if (videos.length === 1) {
+            front = true;
+            back = false;
+          }
+        }
+        setHasFrontCamera(front);
+        setHasBackCamera(back);
+      } catch {}
+    };
+    navigator.mediaDevices?.addEventListener?.(
+      "devicechange",
+      updateFromDevices
+    );
+    // Also run once when mounted
+    updateFromDevices();
+    return () => {
+      navigator.mediaDevices?.removeEventListener?.(
+        "devicechange",
+        updateFromDevices
+      );
+    };
+  }, []);
+
+  const flipCamera = useCallback(() => {
+    setCameraFacing((prev) => (prev === "user" ? "environment" : "user"));
+    // Restart the camera to apply the new facing mode
+    stopCamera();
+    setTimeout(() => {
+      startCamera();
+    }, 0);
+  }, [startCamera, stopCamera]);
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
+    if (!isVideoReady) return;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -207,7 +395,7 @@ export default function TryOnWidget({
     setTryOnResult(null);
     stopCamera();
     toast({ title: "Photo captured", description: "Camera photo saved." });
-  }, [stopCamera, toast]);
+  }, [isVideoReady, stopCamera, toast]);
 
   const handleTryOn = useCallback(async () => {
     if (!isAuthenticated) {
@@ -476,6 +664,14 @@ export default function TryOnWidget({
                   "0 0 0 2px rgba(96, 165, 250, 0.4), 0 0 20px rgba(96, 165, 250, 0.2)",
               }}
             />
+            {!isVideoReady && !cameraError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/30 dark:bg-black/40 rounded-lg">
+                <div className="flex items-center gap-2 text-white text-sm">
+                  <Loader2 className="h-5 w-5 animate-spin" /> Initializing
+                  camera...
+                </div>
+              </div>
+            )}
             {/* Animated corner indicators */}
             <div className="absolute inset-0 pointer-events-none">
               {[
@@ -506,13 +702,14 @@ export default function TryOnWidget({
               ))}
             </div>
             {/* Persistent capture buttons */}
-            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2 sm:gap-3">
+            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
               <motion.div
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
                 <Button
                   onClick={capturePhoto}
+                  disabled={!isVideoReady}
                   className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg"
                 >
                   <Camera className="h-4 w-4 mr-2" />
@@ -524,12 +721,35 @@ export default function TryOnWidget({
                 whileTap={{ scale: 0.97 }}
               >
                 <Button
+                  onClick={flipCamera}
+                  variant="outline"
+                  className="px-3 py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 backdrop-blur-sm"
+                  title={
+                    (cameraFacing === "user" && !hasBackCamera) ||
+                    (cameraFacing === "environment" && !hasFrontCamera)
+                      ? "Other camera not available"
+                      : "Flip camera"
+                  }
+                  disabled={
+                    (cameraFacing === "user" && !hasBackCamera) ||
+                    (cameraFacing === "environment" && !hasFrontCamera)
+                  }
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  {/* {cameraFacing === "user" ? "Front" : "Back"} */}
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
                   onClick={stopCamera}
                   variant="outline"
-                  className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 backdrop-blur-sm"
+                  className="px-3 py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 backdrop-blur-sm"
                 >
-                  <X className="h-4 w-4 mr-2" />
-                  Stop
+                  <X className="h-4 w-4" />
+                  {/* Stop */}
                 </Button>
               </motion.div>
             </div>
