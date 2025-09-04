@@ -11,23 +11,36 @@ async function pollStatus(
   statusUrl: string,
   headers: Record<string, string>,
   timeoutMs = 60000,
-  intervalMs = 2000
+  intervalMs = 2000,
+  maxIntervalMs = 5000,
+  backoffFactor = 1.5
 ) {
   const start = Date.now();
   let last: any = null;
+  let currentInterval = intervalMs;
   while (Date.now() - start < timeoutMs) {
-    const r = await fetch(statusUrl, { headers });
-    const j = await r.json();
-    last = j;
-    if (
-      j.status &&
-      j.status !== "processing" &&
-      j.status !== "queued" &&
-      j.status !== "processing_from_queue"
-    ) {
-      return j;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), Math.min(8000, currentInterval + 3000));
+    try {
+      const r = await fetch(statusUrl, { headers, cache: "no-store", signal: controller.signal });
+      const j = await r.json();
+      last = j;
+      if (
+        j.status &&
+        j.status !== "processing" &&
+        j.status !== "queued" &&
+        j.status !== "processing_from_queue"
+      ) {
+        return j;
+      }
+    } catch (err: any) {
+      // Swallow fetch aborts/timeouts and keep last known state
+      last = last || { status: "processing", message: String(err?.message || err) };
+    } finally {
+      clearTimeout(timeoutId);
     }
-    await new Promise((res) => setTimeout(res, intervalMs));
+    await new Promise((res) => setTimeout(res, currentInterval));
+    currentInterval = Math.min(maxIntervalMs, Math.floor(currentInterval * backoffFactor));
   }
   return last || { status: "timeout", message: "Timed out waiting for result" };
 }
@@ -41,6 +54,9 @@ export async function POST(req: Request) {
       );
     }
 
+    const url = new URL(req.url);
+    const waitParam = url.searchParams.get("wait");
+    const waitForCompletion = waitParam === null ? true : waitParam !== "false";
     const incoming = await req.formData();
     const person = incoming.get("person_image") as File | null;
     const garment = incoming.get("garment_image") as File | null;
@@ -52,6 +68,20 @@ export async function POST(req: Request) {
       return NextResponse.json(
         { error: "Both person_image and garment_image are required" },
         { status: 400 }
+      );
+    }
+
+    // Basic file size validation to avoid oversized payloads (10MB each default)
+    const MAX_BYTES = Number(process.env.TRYON_MAX_UPLOAD_BYTES || 10 * 1024 * 1024);
+    const personSize = (person as any)?.size ?? 0;
+    const garmentSize = (garment as any)?.size ?? 0;
+    if (personSize > MAX_BYTES || garmentSize > MAX_BYTES) {
+      return NextResponse.json(
+        {
+          error: "File too large",
+          details: `Max per-file size is ${Math.floor(MAX_BYTES / (1024 * 1024))}MB`,
+        },
+        { status: 413 }
       );
     }
 
@@ -71,13 +101,16 @@ export async function POST(req: Request) {
     };
 
     // Try multiple base URLs in case one is unreachable in current network/DNS
+    const includeLocal = process.env.NODE_ENV !== "production";
     const candidates = Array.from(
-      new Set([
-        TRYON_BASE_URL,
-        "https://tryon-api.com",
-        "https://api.tryonapi.com",
-        "http://localhost:8787",
-      ])
+      new Set(
+        [
+          TRYON_BASE_URL,
+          "https://tryon-api.com",
+          "https://api.tryonapi.com",
+          includeLocal ? "http://localhost:8787" : undefined,
+        ].filter(Boolean) as string[]
+      )
     );
 
     let submit: Response | null = null;
@@ -143,7 +176,21 @@ export async function POST(req: Request) {
       ? statusUrl
       : `${chosenBase}${statusUrl.startsWith("/") ? "" : "/"}${statusUrl}`;
 
-    const status = await pollStatus(absoluteStatusUrl, headers);
+    // If the client opts out of waiting, return immediately with 202 and status URL
+    if (!waitForCompletion) {
+      return NextResponse.json(
+        {
+          status: "accepted",
+          jobId,
+          statusUrl: absoluteStatusUrl,
+          message: "Job accepted; client opted out of server-side polling",
+        },
+        { status: 202 }
+      );
+    }
+
+    const totalTimeoutMs = Number(process.env.TRYON_POLL_TIMEOUT_MS || 60000);
+    const status = await pollStatus(absoluteStatusUrl, headers, totalTimeoutMs);
 
     if (status.status === "completed") {
       if (status.imageUrl) {
@@ -201,3 +248,4 @@ export async function POST(req: Request) {
     );
   }
 }
+

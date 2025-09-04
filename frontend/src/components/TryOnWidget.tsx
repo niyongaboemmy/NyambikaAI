@@ -445,7 +445,7 @@ export default function TryOnWidget({
         )}
       </div>
 
-      <div className="rounded-xl border p-2 sm:p-4 bg-white dark:bg-slate-900 shadow-sm min-h-[410px] sm:min-h-[410px]">
+      <div className="rounded-xl border p-2 sm:p-4 bg-white dark:bg-slate-900 shadow-sm min-h-[480px] sm:min-h-[410px]">
         <p
           className={`text-sm font-medium text-center ${
             stream || customerImage ? "mb-4" : "mb-20 sm:mb-10"
@@ -1290,7 +1290,7 @@ export default function TryOnWidget({
   );
 
   const widgetContent = (
-    <div className="relative pb-10 md:pb-4">
+    <div className="relative pb-10 md:pb-4 -mx-2 md:mx-0">
       {/* AI Neural Network Particles */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {[...Array(12)].map((_, i) => (
