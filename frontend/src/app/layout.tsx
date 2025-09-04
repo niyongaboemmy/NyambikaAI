@@ -47,17 +47,19 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       {
-        url: "/nyambika_light_icon.png",
-        media: "(prefers-color-scheme: light)",
+        url: "/nyambika_dark_icon.png",
+        type: "image/png",
+        media: "(prefers-color-scheme: dark)",
       },
       {
         url: "/nyambika_dark_icon.png",
-        media: "(prefers-color-scheme: dark)",
+        type: "image/png",
+        media: "(prefers-color-scheme: light)",
       },
     ],
     apple: [
       {
-        url: "/nyambika_light_icon.png",
+        url: "/nyambika_dark_icon.png",
         media: "(prefers-color-scheme: light)",
       },
       {
@@ -99,7 +101,9 @@ export default function RootLayout({
           {children}
           <LoadingIndicatorStyles />
           <ServiceWorkerCleanup />
-          {GA_MEASUREMENT_ID && <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />}
+          {GA_MEASUREMENT_ID && (
+            <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />
+          )}
         </Providers>
       </body>
     </html>

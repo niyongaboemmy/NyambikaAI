@@ -187,10 +187,19 @@ export const notifications = pgTable("notifications", {
   userId: varchar("user_id").references(() => users.id).notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),
-  type: text("type").notNull(), // order, subscription, system, payment
-  relatedId: varchar("related_id"), // ID of related entity (order, subscription, etc.)
   isRead: boolean("is_read").default(false),
+  type: text("type").notNull(), // 'order', 'subscription', 'system', etc.
+  referenceId: text("reference_id"), // ID of the related entity
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const paymentSettings = pgTable("payment_settings", {
+  id: integer("id").primaryKey().notNull().default(sql`nextval('payment_settings_id_seq'::regclass)`),
+  name: text("name").notNull().unique(),
+  description: text("description"),
+  amountInRwf: integer("amount_in_rwf").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 // Insert schemas
@@ -263,6 +272,11 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   createdAt: true,
 });
 
+export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -305,3 +319,6 @@ export type InsertSubscriptionPayment = z.infer<typeof insertSubscriptionPayment
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+export type PaymentSetting = typeof paymentSettings.$inferSelect;
+export type InsertPaymentSetting = z.infer<typeof insertPaymentSettingSchema>;
