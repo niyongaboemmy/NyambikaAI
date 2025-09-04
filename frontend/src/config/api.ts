@@ -188,6 +188,12 @@ export const API_ENDPOINTS = {
   CREATE_PAYMENT_INTENT: "/api/create-payment-intent",
   UPLOAD_SIZE_EVIDENCE: "/api/upload/size-evidence",
 
+  // Wallet
+  WALLET: "/api/wallet",
+  WALLET_TOPUP: "/api/wallet/topup",
+  WALLET_WEBHOOK: "/api/wallet/webhook",
+  WALLET_PAYMENTS: "/api/wallet/payments",
+
   // AI
   AI_ANALYZE_FASHION: "/api/ai/analyze-fashion",
   AI_SIZE_RECOMMENDATION: "/api/ai/size-recommendation",

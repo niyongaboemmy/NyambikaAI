@@ -24,6 +24,10 @@ import {
   Sun,
   Mail,
   Lock,
+  Stars,
+  Cpu,
+  Atom,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Card, CardContent } from "@/components/custom-ui/card";
@@ -36,6 +40,61 @@ import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Skeleton } from "@/components/custom-ui/skeleton";
 import { useRouter } from "next/navigation";
+import UserWallet from "@/components/UserWallet";
+
+// Animated AI Brain SVG Component
+const AnimatedAIBrain = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g className="animate-pulse">
+      <path
+        d="M12 2C8.5 2 6 4.5 6 8c0 1.5 0.5 3 1.5 4L12 22l4.5-10c1-1 1.5-2.5 1.5-4 0-3.5-2.5-6-6-6z"
+        fill="currentColor"
+        fillOpacity="0.1"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="animate-[pulse_3s_ease-in-out_infinite]"
+      />
+      <circle
+        cx="12"
+        cy="8"
+        r="2"
+        fill="currentColor"
+        className="animate-[bounce_2s_ease-in-out_infinite]"
+      />
+      <path
+        d="M9 8h6M10 6h4M10 10h4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        className="animate-[fadeInOut_4s_ease-in-out_infinite]"
+      />
+    </g>
+  </svg>
+);
+
+// Animated Neural Network SVG
+const AnimatedNeuralNetwork = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <g>
+      <circle cx="6" cy="6" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite]" />
+      <circle cx="18" cy="6" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
+      <circle cx="6" cy="18" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite_1s]" />
+      <circle cx="18" cy="18" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite_1.5s]" />
+      <circle cx="12" cy="12" r="3" fill="currentColor" className="animate-[bounce_3s_ease-in-out_infinite]" />
+      <path d="M6 6L12 12M18 6L12 12M6 18L12 12M18 18L12 12" stroke="currentColor" strokeWidth="1" className="animate-[fadeInOut_3s_ease-in-out_infinite]" />
+    </g>
+  </svg>
+);
 
 function Profile() {
   const { user, isAuthenticated } = useAuth();
@@ -401,63 +460,66 @@ function Profile() {
   return (
     <ProtectedRoute>
       <main className="relative pt-11 sm:pt-12 pb-6 sm:pb-8">
-        {/* Holographic Background */}
+        {/* Subtle Background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/4 left-1/4 w-32 sm:w-64 h-32 sm:h-64 bg-gray-100/50 dark:bg-gray-800/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-24 sm:w-48 h-24 sm:h-48 bg-gray-200/30 dark:bg-gray-700/10 rounded-full blur-2xl"></div>
         </div>
 
         <div className="relative z-10">
-          {/* AI Profile Header */}
+          {/* Profile Header */}
           <div className="mb-4 sm:mb-6">
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="relative">
-                <div className="p-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg">
-                  <Brain className="h-6 w-6 text-white" />
+                <div className="p-3 sm:p-4 rounded-xl bg-blue-600 shadow-lg">
+                  <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 animate-ping opacity-20"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full"></div>
               </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  AI Profile Dashboard
+              <div className="flex-1">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                  Profile Dashboard
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Manage your fashion journey with AI insights
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+                  Manage your fashion journey and preferences
                 </p>
+              </div>
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+                <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">Active</span>
               </div>
             </div>
           </div>
 
           {/* Flex Layout for Better Space Management */}
-          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4">
+          <div className="flex flex-col lg:flex-row gap-3 sm:gap-4 px-2 sm:px-0">
             {/* Main Content - Flexible */}
             <div className="flex-1 space-y-3 sm:space-y-4">
               {/* Stats Dashboard */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-3">
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1 sm:p-1.5 rounded-full bg-rose-100 dark:bg-rose-900/30">
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-rose-100 dark:bg-rose-900/30">
                         <Heart className="h-3 w-3 sm:h-4 sm:w-4 text-rose-600 dark:text-rose-400" />
                       </div>
                     </div>
-                    <p className="text-lg sm:text-xl font-bold text-black dark:text-white">
+                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                       {favorites.length}
                     </p>
-                    <p className="text-xs sm:text-xs text-gray-600 dark:text-gray-400">
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
                       Favorites
                     </p>
                   </CardContent>
                 </Card>
-
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                        <ShoppingBag className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
+                        <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
                       </div>
                     </div>
-                    <p className="text-xl font-bold text-black dark:text-white">
+                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                       {orders.length}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -465,15 +527,14 @@ function Profile() {
                     </p>
                   </CardContent>
                 </Card>
-
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1.5 rounded-full bg-purple-100 dark:bg-purple-900/30">
-                        <Sparkles className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30">
+                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-purple-600 dark:text-purple-400" />
                       </div>
                     </div>
-                    <p className="text-xl font-bold text-black dark:text-white">
+                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                       {tryOnSessions.length}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -481,16 +542,15 @@ function Profile() {
                     </p>
                   </CardContent>
                 </Card>
-
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-                        <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-emerald-100 dark:bg-emerald-900/30">
+                        <Target className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 dark:text-emerald-400" />
                       </div>
                     </div>
-                    <p className="text-xl font-bold text-black dark:text-white">
-                      95%
+                    <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                      92%
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
                       Match Score
@@ -501,23 +561,27 @@ function Profile() {
               {/* Compact Profile Section with Flex Layout */}
               <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                 {/* Profile Info Card */}
-                <Card className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <Card className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
                   <CardContent className="p-3 sm:p-4">
-                    <div className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                      <div>
-                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-slate-700/10 to-slate-900/10 dark:from-slate-200 dark:to-slate-400 rounded-full flex items-center justify-center text-white dark:text-slate-900 text-lg sm:text-xl font-bold">
-                          {userInfo.name.charAt(0).toUpperCase() || "U"}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                      <div className="relative flex-shrink-0">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-600 flex items-center justify-center shadow-lg">
+                          <User className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
+                        </div>
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
+                          <Check className="h-3 w-3 text-white" />
                         </div>
                       </div>
-                      <div className="flex-1">
-                        <h2 className="text-base sm:text-lg font-bold text-black dark:text-white">
+                      <div className="flex-1 space-y-1 sm:space-y-2 min-w-0">
+                        <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white truncate">
                           {userInfo.name || "User"}
                         </h2>
-                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                          {userInfo.email}
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 truncate">
+                          <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+                          <span className="truncate">{userInfo.email}</span>
                         </p>
-                        <div className="flex items-center gap-1 sm:gap-2 text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          <MapPin className="h-3 w-3 flex-shrink-0" />
+                        <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                           <span className="truncate">
                             {userInfo.location || "Location not set"}
                           </span>
@@ -530,81 +594,111 @@ function Profile() {
                         size="sm"
                         className={`${
                           isEditing
-                            ? "bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
+                            ? "bg-blue-600 hover:bg-blue-700 text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
-                        } border border-gray-200 dark:border-0 transition-all duration-200`}
+                        } transition-all duration-200 border border-gray-200 dark:border-gray-700 px-3 py-2 sm:px-4 flex-shrink-0 w-full sm:w-auto`}
                         disabled={updateProfileMutation.isPending}
                       >
-                        <div>
+                        <div className="flex items-center justify-center gap-2">
                           {updateProfileMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
                           ) : (
-                            <Edit3 className="h-4 w-4" />
+                            <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                           )}
+                          <span className="text-sm">{isEditing ? "Save" : "Edit"}</span>
                         </div>
-                        <span>Edit</span>
                       </Button>
                     </div>
 
                     {isEditing && (
-                      <div className="grid grid-cols-1 gap-2 sm:gap-3 animate-in slide-in-from-top-2 duration-300">
-                        <FormInput
-                          placeholder="Full Name"
-                          value={userInfo.name}
-                          onChange={(e) =>
-                            setUserInfo({ ...userInfo, name: e.target.value })
-                          }
-                          icon={User}
-                          className="text-sm w-full"
-                        />
-                        <FormInput
-                          placeholder="Email"
-                          type="email"
-                          value={userInfo.email}
-                          onChange={(e) =>
-                            setUserInfo({ ...userInfo, email: e.target.value })
-                          }
-                          icon={Mail}
-                          className="text-sm w-full"
-                        />
-                        <FormInput
-                          placeholder="Phone"
-                          value={userInfo.phone}
-                          onChange={(e) =>
-                            setUserInfo({
-                              ...userInfo,
-                              phone: e.target.value,
-                            })
-                          }
-                          icon={Phone}
-                          className="text-sm w-full"
-                        />
-                        <FormInput
-                          placeholder="Location"
-                          value={userInfo.location}
-                          onChange={(e) =>
-                            setUserInfo({
-                              ...userInfo,
-                              location: e.target.value,
-                            })
-                          }
-                          icon={MapPin}
-                          className="text-sm w-full"
-                        />
+                      <div className="mt-4 space-y-3 animate-in slide-in-from-top-2 duration-300">
+                        <div className="grid grid-cols-1 gap-3">
+                          <FormInput
+                            placeholder="Full Name"
+                            value={userInfo.name}
+                            onChange={(e) =>
+                              setUserInfo({ ...userInfo, name: e.target.value })
+                            }
+                            icon={User}
+                            className="text-sm w-full"
+                          />
+                          <FormInput
+                            placeholder="Email"
+                            type="email"
+                            value={userInfo.email}
+                            onChange={(e) =>
+                              setUserInfo({ ...userInfo, email: e.target.value })
+                            }
+                            icon={Mail}
+                            className="text-sm w-full"
+                          />
+                          <FormInput
+                            placeholder="Phone"
+                            value={userInfo.phone}
+                            onChange={(e) =>
+                              setUserInfo({
+                                ...userInfo,
+                                phone: e.target.value,
+                              })
+                            }
+                            icon={Phone}
+                            className="text-sm w-full"
+                          />
+                          <FormInput
+                            placeholder="Location"
+                            value={userInfo.location}
+                            onChange={(e) =>
+                              setUserInfo({
+                                ...userInfo,
+                                location: e.target.value,
+                              })
+                            }
+                            icon={MapPin}
+                            className="text-sm w-full"
+                          />
+                        </div>
+                        
+                        {/* Mobile Action Buttons */}
+                        <div className="flex flex-col sm:flex-row gap-2 sm:hidden">
+                          <Button
+                            onClick={handleSaveProfile}
+                            className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
+                            disabled={updateProfileMutation.isPending}
+                          >
+                            <div className="flex items-center justify-center gap-2">
+                              {updateProfileMutation.isPending ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Check className="h-4 w-4" />
+                              )}
+                              <span>Save Changes</span>
+                            </div>
+                          </Button>
+                          <Button
+                            onClick={() => setIsEditing(false)}
+                            variant="outline"
+                            className="flex-1"
+                          >
+                            Cancel
+                          </Button>
+                        </div>
                       </div>
                     )}
                   </CardContent>
                 </Card>
               </div>
 
+              {/* Wallet */}
+              <UserWallet />
+
               {/* Recent Activity */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
-                <CardContent className="p-4">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="p-1.5 rounded-full bg-indigo-100 dark:bg-indigo-900/30">
-                      <Activity className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30">
+                      <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       Recent Activity
                     </h3>
                   </div>
@@ -661,44 +755,48 @@ function Profile() {
             </div>
 
             {/* Sidebar */}
-            <div className="lg:w-80 space-y-2 sm:space-y-3">
+            <div className="lg:w-80 xl:w-96 space-y-3 sm:space-y-4">
               {/* Quick Actions */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
-                <CardContent className="relative p-2 sm:p-3">
-                  <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                    <div className="p-1 sm:p-1.5 rounded-full bg-amber-100 dark:bg-amber-900/30">
-                      <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-amber-600 dark:text-amber-400" />
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+                <CardContent className="p-2 sm:p-3">
+                  <div className="flex items-center gap-3 mb-3 sm:mb-4">
+                    <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
+                      <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
                     </div>
-                    <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
+                    <h3 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">
                       Quick Actions
                     </h3>
                   </div>
-                  <div className="space-y-1 sm:space-y-2">
+                  <div className="space-y-2 sm:space-y-3">
                     <Button
                       onClick={() => router.push("/try-on")}
                       size="sm"
-                      className="w-full justify-start bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-sm text-sm py-2"
+                      className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
                     >
-                      <Sparkles className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
+                      <Sparkles className="mr-3 h-4 w-4" />
                       Try-On
                     </Button>
                     <Button
                       onClick={() => router.push("/favorites")}
                       size="sm"
-                      className="w-full justify-start bg-gray-100 hover:bg-gray-200 text-black dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white text-sm py-2"
+                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-700"
                     >
-                      <Heart className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      Favorites
-                      <ChevronRight className="ml-auto h-3 w-3" />
+                      <div className="flex items-center">
+                        <Heart className="mr-3 h-4 w-4" />
+                        Favorites
+                      </div>
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                     <Button
                       onClick={() => router.push("/orders")}
                       size="sm"
-                      className="w-full justify-start bg-gray-100 hover:bg-gray-200 text-black dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-white text-sm py-2"
+                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-700"
                     >
-                      <ShoppingBag className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />
-                      Orders
-                      <ChevronRight className="ml-auto h-3 w-3" />
+                      <div className="flex items-center">
+                        <ShoppingBag className="mr-3 h-4 w-4" />
+                        Orders
+                      </div>
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
                 </CardContent>

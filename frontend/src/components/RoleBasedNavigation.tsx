@@ -34,9 +34,14 @@ import {
   User2,
   Settings,
   Grid3X3,
+  Lock,
+  Wallet,
 } from "lucide-react";
 import { Badge } from "@/components/custom-ui/badge";
 import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
+import { useWallet } from "@/hooks/useWallet";
+import { useUserWalletDialog } from "@/contexts/UserWalletDialogContext";
+import { useChangePassword } from "@/contexts/ChangePasswordContext";
 
 type IconType = ComponentType<SVGProps<SVGSVGElement>>;
 type NavItem = { href: string; label: string; icon: IconType | null };
@@ -53,6 +58,10 @@ export default function RoleBasedNavigation() {
   const pathname = usePathname();
   const router = useRouter();
   const { status, plan } = useProducerSubscriptionStatus();
+  // Fetch wallet only when authenticated
+  const { data: wallet, formattedBalance, isLoading: walletLoading } = useWallet({ enabled: !!isAuthenticated });
+  const { open: openUserWalletDialog } = useUserWalletDialog();
+  const { openChangePassword } = useChangePassword();
   const daysLeft = status?.expiresAt
     ? Math.ceil(
         (new Date(status.expiresAt).getTime() - Date.now()) /
@@ -459,6 +468,24 @@ export default function RoleBasedNavigation() {
                       <p className="text-xs text-gray-500 dark:text-gray-400">
                         {user?.email}
                       </p>
+                      {/* Modern Wallet Display */}
+                      {isAuthenticated && (
+                        <button
+                          type="button"
+                          onClick={() => openUserWalletDialog()}
+                          className="mt-3 w-full flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 group"
+                        >
+                          <div className="p-1.5 rounded-md bg-blue-600 group-hover:bg-blue-700 transition-colors">
+                            <Wallet className="h-3 w-3 text-white" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Wallet Balance</div>
+                            <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                              {walletLoading ? "Loading..." : formattedBalance}
+                            </div>
+                          </div>
+                        </button>
+                      )}
                     </div>
                     {config.menu.map((item, i) => {
                       const Icon = item.icon;
@@ -484,6 +511,15 @@ export default function RoleBasedNavigation() {
                     >
                       <User className="h-4 w-4" />
                       Profile Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      className="cursor-pointer gap-3"
+                      onSelect={() => {
+                        openChangePassword();
+                      }}
+                    >
+                      <Lock className="h-4 w-4" />
+                      Change Password
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -636,6 +672,22 @@ export default function RoleBasedNavigation() {
                             <div className="text-xs text-gray-500 dark:text-gray-400 w-[190px] truncate">
                               {user?.email}
                             </div>
+                            {/* Modern Wallet Display (mobile) */}
+                            <button
+                              type="button"
+                              onClick={() => openUserWalletDialog()}
+                              className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 group"
+                            >
+                              <div className="p-1 rounded bg-blue-600 group-hover:bg-blue-700 transition-colors">
+                                <Wallet className="h-3 w-3 text-white" />
+                              </div>
+                              <div className="text-left">
+                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Balance</div>
+                                <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                                  {walletLoading ? "Loading..." : formattedBalance}
+                                </div>
+                              </div>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -667,10 +719,22 @@ export default function RoleBasedNavigation() {
                           router.push("/profile");
                         }}
                       >
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                        <div className="p-1 rounded-md bg-blue-100 dark:bg-blue-900/30">
                           <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         </div>
                         <span className="font-medium">Profile Settings</span>
+                      </DropdownMenuItem>
+
+                      <DropdownMenuItem
+                        className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
+                        onSelect={() => {
+                          openChangePassword();
+                        }}
+                      >
+                        <div className="p-1 rounded-md bg-blue-100 dark:bg-blue-900/30">
+                          <Lock className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        </div>
+                        <span className="font-medium">Change Password</span>
                       </DropdownMenuItem>
 
                       <DropdownMenuItem

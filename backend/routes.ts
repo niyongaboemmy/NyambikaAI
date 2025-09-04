@@ -10,7 +10,7 @@ import { generateVirtualTryOn } from "./tryon";
 import crypto from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
-import { subscriptions, users, products, orders } from "./shared/schema";
+import { subscriptions, users, products, orders, userWallets, walletPayments } from "./shared/schema";
 import { and, eq, desc, sql, inArray } from "drizzle-orm";
 import {
   createSubscription,
@@ -121,6 +121,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   );
+
+  // ===== Wallet Endpoints =====
+  // Get current user's wallet (creates one if missing)
+  app.get("/api/wallet", requireAuth, async (req: any, res) => {
+    try {
+      // Ensure wallet exists
+      let [wallet] = await db
+        .select()
+        .from(userWallets)
+        .where(eq(userWallets.userId, req.userId))
+        .limit(1);
+
+      if (!wallet) {
+        const [created] = await db
+          .insert(userWallets)
+          .values({ userId: req.userId, balance: "0", status: "active" })
+          .returning();
+        wallet = created as any;
+      }
+
+      res.json({
+        id: wallet.id,
+        balance: wallet.balance,
+        status: wallet.status,
+        createdAt: wallet.createdAt,
+        updatedAt: wallet.updatedAt,
+      });
+    } catch (error) {
+      console.error("Error in GET /api/wallet:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Initiate a demo Mobile Money top-up (mock)
+  app.post("/api/wallet/topup", requireAuth, async (req: any, res) => {
+    try {
+      const { amount, provider = "mtn", phone } = req.body || {};
+      const parsedAmount = Number(amount);
+      if (!parsedAmount || parsedAmount <= 0) {
+        return res.status(400).json({ message: "Invalid amount" });
+      }
+
+      // Ensure wallet exists
+      let [wallet] = await db
+        .select()
+        .from(userWallets)
+        .where(eq(userWallets.userId, req.userId))
+        .limit(1);
+      if (!wallet) {
+        const [created] = await db
+          .insert(userWallets)
+          .values({ userId: req.userId, balance: "0", status: "active" })
+          .returning();
+        wallet = created as any;
+      }
+
+      // Create a pending wallet payment record
+      const [payment] = await db
+        .insert(walletPayments)
+        .values({
+          walletId: wallet.id,
+          userId: req.userId,
+          type: "topup",
+          amount: String(parsedAmount.toFixed(2)),
+          method: "mobile_money",
+          provider,
+          phone: phone || null,
+          status: "pending",
+          description: "Demo Mobile Money top-up",
+          externalReference: `DEMO-${Date.now()}`,
+        })
+        .returning();
+
+      // In demo mode, immediately mark as completed and update balance
+      await db
+        .update(walletPayments)
+        .set({ status: "completed" })
+        .where(eq(walletPayments.id, payment.id));
+
+      const newBalance = String(
+        (Number(wallet.balance) || 0) + parsedAmount
+      );
+      const [updatedWallet] = await db
+        .update(userWallets)
+        .set({ balance: newBalance })
+        .where(eq(userWallets.id, wallet.id))
+        .returning();
+
+      res.status(201).json({
+        payment: { ...payment, status: "completed" },
+        wallet: updatedWallet,
+      });
+    } catch (error) {
+      console.error("Error in POST /api/wallet/topup:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Wallet webhook (mock) — accepts paymentId and marks it completed
+  app.post("/api/wallet/webhook", async (req: any, res) => {
+    try {
+      const { paymentId, status = "completed" } = req.body || {};
+      if (!paymentId) {
+        return res.status(400).json({ message: "paymentId is required" });
+      }
+
+      const [payment] = await db
+        .select()
+        .from(walletPayments)
+        .where(eq(walletPayments.id, paymentId))
+        .limit(1);
+      if (!payment) {
+        return res.status(404).json({ message: "Payment not found" });
+      }
+
+      // Update payment status
+      await db
+        .update(walletPayments)
+        .set({ status })
+        .where(eq(walletPayments.id, paymentId));
+
+      if (status === "completed") {
+        // Credit wallet
+        const [wallet] = await db
+          .select()
+          .from(userWallets)
+          .where(eq(userWallets.id, payment.walletId))
+          .limit(1);
+        if (wallet) {
+          const newBalance = String(
+            (Number(wallet.balance) || 0) + Number(payment.amount)
+          );
+          await db
+            .update(userWallets)
+            .set({ balance: newBalance })
+            .where(eq(userWallets.id, wallet.id));
+        }
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error in POST /api/wallet/webhook:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // List wallet payments for current user
+  app.get("/api/wallet/payments", requireAuth, async (req: any, res) => {
+    try {
+      const list = await db
+        .select()
+        .from(walletPayments)
+        .where(eq(walletPayments.userId, req.userId))
+        .orderBy(desc(walletPayments.createdAt))
+        .limit(100);
+      res.json(list);
+    } catch (error) {
+      console.error("Error in GET /api/wallet/payments:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
 
   const requireRole = (roles: string[]) => {
     const normalized = roles.map((r) => r.toLowerCase());

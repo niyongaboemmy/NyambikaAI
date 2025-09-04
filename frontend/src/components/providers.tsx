@@ -24,6 +24,10 @@ import { RouteProtection } from "@/components/RouteProtection";
 import { ProducerSubscriptionGuard } from "@/components/ProducerSubscriptionGuard";
 import { DOMSafetyWrapper } from "@/components/dom-safety-wrapper";
 import { useEffect, useState } from "react";
+import { UserWalletDialogProvider } from "@/contexts/UserWalletDialogContext";
+import UserWalletDialog from "@/components/UserWalletDialog";
+import { ChangePasswordProvider } from "@/contexts/ChangePasswordContext";
+import { ChangePasswordDialogWrapper } from "@/components/ChangePasswordDialogWrapper";
 
 // ClientOnly component to wrap client-side only components
 function ClientOnly({ children }: { children: React.ReactNode }) {
@@ -63,7 +67,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Determine container class outside of JSX to avoid conditional hook calls
   const containerClass = pathname?.includes("/store/")
     ? "min-h-screen"
-    : "min-h-screen container mx-auto px-3 sm:px-0";
+    : "min-h-screen container mx-auto px-2 sm:px-0";
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -74,27 +78,40 @@ export function Providers({ children }: { children: React.ReactNode }) {
               <AuthProviderWrapper>
                 <CompanyProvider>
                   <CartProvider>
-                    <ClientOnly>
-                      <DOMSafetyWrapper />
-                      <RoleBasedNavigation />
-                      <NavigationEvents />
-                      <NavigationProgress />
-                    </ClientOnly>
-                    <AnimatedAIBackground>
-                      <RouteProtection>
-                        <ProducerSubscriptionGuard>
-                          <div className={containerClass}>{children}</div>
-                          <Footer />
-                          <AddProductFAB />
-                        </ProducerSubscriptionGuard>
-                      </RouteProtection>
-                    </AnimatedAIBackground>
-                    <ClientOnly>
-                      <CompanyModal />
-                      <LoginModal />
-                      <GlobalAuthLoader />
-                    </ClientOnly>
-                    <Toaster />
+                    <UserWalletDialogProvider>
+                      <ChangePasswordProvider>
+                        <ClientOnly>
+                          <DOMSafetyWrapper />
+                          <RoleBasedNavigation />
+                          <NavigationEvents />
+                          <NavigationProgress />
+                        </ClientOnly>
+                        <AnimatedAIBackground>
+                          <RouteProtection>
+                            <ProducerSubscriptionGuard>
+                              <div className={containerClass}>
+                                <ClientOnly>
+                                  <DOMSafetyWrapper />
+                                  <NavigationProgress />
+                                  <NavigationEvents />
+                                  <GlobalAuthLoader />
+                                  <LoginModal />
+                                  <UserWalletDialog />
+                                  <ChangePasswordDialogWrapper />
+                                  {children}
+                                </ClientOnly>
+                              </div>
+                              <Footer />
+                            </ProducerSubscriptionGuard>
+                          </RouteProtection>
+                        </AnimatedAIBackground>
+                        <ClientOnly>
+                          <CompanyModal />
+                          <GlobalAuthLoader />
+                        </ClientOnly>
+                        <Toaster />
+                      </ChangePasswordProvider>
+                    </UserWalletDialogProvider>
                   </CartProvider>
                 </CompanyProvider>
               </AuthProviderWrapper>

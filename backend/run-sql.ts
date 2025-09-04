@@ -4,30 +4,50 @@ import * as path from 'path';
 import 'dotenv/config';
 
 async function runSQL() {
-  // Get database connection string from environment variables
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     console.error('DATABASE_URL environment variable is not set');
     process.exit(1);
   }
 
-  // Create a new pool
   const pool = new Pool({
     connectionString,
     ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
   });
 
   try {
-    // Read and execute the SQL file
     const migrationsDir = path.join(process.cwd(), 'migrations');
-    const sqlPath = path.join(migrationsDir, '0007_create_payment_settings.sql');
-    const sql = fs.readFileSync(sqlPath, 'utf8');
-    
-    console.log('Running SQL migration...');
-    await pool.query(sql);
-    console.log('Migration completed successfully!');
+    if (!fs.existsSync(migrationsDir)) {
+      console.log('No migrations directory found, skipping.');
+      return;
+    }
+
+    const files = fs
+      .readdirSync(migrationsDir)
+      .filter((f) => f.endsWith('.sql'))
+      .sort((a, b) => a.localeCompare(b));
+
+    if (files.length === 0) {
+      console.log('No .sql migration files found, nothing to do.');
+      return;
+    }
+
+    console.log(`Found ${files.length} migration file(s). Running in order...`);
+    for (const file of files) {
+      const sqlPath = path.join(migrationsDir, file);
+      const sql = fs.readFileSync(sqlPath, 'utf8');
+      console.log(`\n>>> Running migration: ${file}`);
+      try {
+        await pool.query(sql);
+        console.log(`<<< Completed: ${file}`);
+      } catch (err) {
+        console.error(`!!! Error in ${file}:`, (err as any)?.message || err);
+        // Continue to next migration, assuming idempotency (CREATE IF NOT EXISTS, etc.)
+      }
+    }
+    console.log('\nAll migrations processed.');
   } catch (error) {
-    console.error('Error running migration:', error);
+    console.error('Error running migrations:', error);
     process.exit(1);
   } finally {
     await pool.end();

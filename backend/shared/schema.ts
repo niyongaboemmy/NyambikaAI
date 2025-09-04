@@ -193,6 +193,33 @@ export const notifications = pgTable("notifications", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// User wallets table
+export const userWallets = pgTable("user_wallets", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("0"),
+  status: text("status").notNull().default("active"), // active, frozen
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Wallet payments table (top-ups and debits)
+export const walletPayments = pgTable("wallet_payments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  walletId: varchar("wallet_id").references(() => userWallets.id).notNull(),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  type: text("type").notNull().default("topup"), // topup | debit
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  currency: text("currency").notNull().default("RWF"),
+  method: text("method").notNull().default("mobile_money"), // mobile_money
+  provider: text("provider").default("mtn"), // mtn | airtel
+  phone: text("phone"),
+  status: text("status").notNull().default("pending"), // pending, completed, failed
+  externalReference: text("external_reference"),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const paymentSettings = pgTable("payment_settings", {
   id: integer("id").primaryKey().notNull().default(sql`nextval('payment_settings_id_seq'::regclass)`),
   name: text("name").notNull().unique(),
@@ -272,6 +299,17 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
   createdAt: true,
 });
 
+export const insertUserWalletSchema = createInsertSchema(userWallets).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({
   id: true,
   createdAt: true,
@@ -319,6 +357,12 @@ export type InsertSubscriptionPayment = z.infer<typeof insertSubscriptionPayment
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+
+export type UserWallet = typeof userWallets.$inferSelect;
+export type InsertUserWallet = z.infer<typeof insertUserWalletSchema>;
+
+export type WalletPayment = typeof walletPayments.$inferSelect;
+export type InsertWalletPayment = z.infer<typeof insertWalletPaymentSchema>;
 
 export type PaymentSetting = typeof paymentSettings.$inferSelect;
 export type InsertPaymentSetting = z.infer<typeof insertPaymentSettingSchema>;
