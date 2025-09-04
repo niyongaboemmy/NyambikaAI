@@ -649,26 +649,45 @@ export default function TryOnWidget({
           onChange={handleImageUpload}
         />
         {stream ? (
-          <div className="relative">
+          <div className="flex md:fixed items-center justify-center h-[500px] md:h-full inset-0 z-50 bg-black">
             <motion.video
               ref={videoRef}
               autoPlay
               playsInline
               muted
-              className="w-full h-80 sm:h-72 object-cover bg-slate-50 dark:bg-slate-800 rounded-lg relative"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-              style={{
-                boxShadow:
-                  "0 0 0 2px rgba(96, 165, 250, 0.4), 0 0 20px rgba(96, 165, 250, 0.2)",
-              }}
+              className="w-full h-full lg:w-[300px] object-cover bg-black rounded-xl"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
             />
             {!isVideoReady && !cameraError && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/30 dark:bg-black/40 rounded-lg">
-                <div className="flex items-center gap-2 text-white text-sm">
-                  <Loader2 className="h-5 w-5 animate-spin" /> Initializing
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                <div className="flex items-center gap-3 text-white text-base font-medium">
+                  <Loader2 className="h-6 w-6 animate-spin" /> Initializing
                   camera...
+                </div>
+              </div>
+            )}
+            {cameraError && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/80">
+                <div className="text-center text-white p-6 max-w-sm">
+                  <div className="text-xl font-semibold mb-3">Camera Error</div>
+                  <div className="text-base opacity-90 mb-6">{cameraError}</div>
+                  <div className="flex gap-3 justify-center">
+                    <Button
+                      onClick={startCamera}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-base"
+                    >
+                      Retry
+                    </Button>
+                    <Button
+                      onClick={stopCamera}
+                      variant="outline"
+                      className="border-white/40 text-white hover:bg-white/10 px-6 py-3 text-base"
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
               </div>
             )}
@@ -701,8 +720,23 @@ export default function TryOnWidget({
                 />
               ))}
             </div>
-            {/* Persistent capture buttons */}
-            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-1">
+            {/* Close button - top right like real camera apps */}
+            <div className="absolute top-6 right-6 z-10">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  onClick={stopCamera}
+                  variant="ghost"
+                  className="w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 border-0 text-white backdrop-blur-sm p-0"
+                >
+                  <X className="h-6 w-6" />
+                </Button>
+              </motion.div>
+            </div>
+            {/* Camera controls - bottom center like real camera apps */}
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-4 items-center">
               <motion.div
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
@@ -710,10 +744,11 @@ export default function TryOnWidget({
                 <Button
                   onClick={capturePhoto}
                   disabled={!isVideoReady}
-                  className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg"
+                  className="w-20 h-20 rounded-full bg-white hover:bg-gray-100 text-black shadow-2xl border-4 border-white/20 p-0 disabled:opacity-50"
                 >
-                  <Camera className="h-4 w-4 mr-2" />
-                  Capture
+                  <div className="w-16 h-16 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-white border border-gray-400"></div>
+                  </div>
                 </Button>
               </motion.div>
               <motion.div
@@ -722,8 +757,8 @@ export default function TryOnWidget({
               >
                 <Button
                   onClick={flipCamera}
-                  variant="outline"
-                  className="px-3 py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 backdrop-blur-sm"
+                  variant="ghost"
+                  className="w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 border-0 text-white backdrop-blur-sm p-0"
                   title={
                     (cameraFacing === "user" && !hasBackCamera) ||
                     (cameraFacing === "environment" && !hasFrontCamera)
@@ -735,22 +770,14 @@ export default function TryOnWidget({
                     (cameraFacing === "environment" && !hasFrontCamera)
                   }
                 >
-                  <RefreshCw className="h-4 w-4" />
-                  {/* {cameraFacing === "user" ? "Front" : "Back"} */}
+                  <RefreshCw className="h-6 w-6" />
                 </Button>
               </motion.div>
               <motion.div
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}
               >
-                <Button
-                  onClick={stopCamera}
-                  variant="outline"
-                  className="px-3 py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 backdrop-blur-sm"
-                >
-                  <X className="h-4 w-4" />
-                  {/* Stop */}
-                </Button>
+                <div className="w-12 h-12"></div> {/* Spacer for symmetry */}
               </motion.div>
             </div>
             {cameraError && (
