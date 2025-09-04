@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Heart,
@@ -564,12 +565,12 @@ export default function ProductDetail() {
               </div>
 
               {/* AI Try-On Section */}
-              <TryOnWidget
+              {/* <TryOnWidget
                 productId={Array.isArray(id) ? id[0] : id!}
                 productImageUrl={product.imageUrl}
                 autoOpenFullscreen={false}
                 onRegisterControls={setTryOnControls}
-              />
+              /> */}
 
               {/* Action Buttons */}
               <div className="space-y-1.5 sm:space-y-2">
@@ -620,6 +621,28 @@ export default function ProductDetail() {
           </div>
         </div>
       </main>
+
+      {/* Fixed Try-On Widget Button */}
+      {product && (
+        <div className="fixed bottom-4 left-4 right-4 z-50 flex justify-center">
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="max-w-md w-full"
+          >
+            <Button
+              onClick={() => router.push(`/try-on-widget/${product.id}`)}
+              className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-bold rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg flex items-center justify-center gap-3 border-2 border-white/20"
+            >
+              <Wand2 className="h-6 w-6" />
+              Try On with AI
+            </Button>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

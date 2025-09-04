@@ -1,39 +1,34 @@
 "use client";
-import { useRef, useState, useCallback, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/custom-ui/button";
-import { useSafeToast as useToast } from "@/hooks/use-safe-toast";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Upload,
+  ArrowLeft,
+  Camera,
   Loader2,
+  ShoppingBag,
+  Upload,
   Wand2,
   X,
-  Maximize2,
-  Camera,
-  ShoppingBag,
-  Eye,
-  Sparkles,
-  Zap,
-  Brain,
-  Image as ImageIcon,
 } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-// Removed apiClient usage for try-on; using Next.js proxy route instead
-import { MdClose } from "react-icons/md";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
+import { useSafeToast as useToast } from "@/hooks/use-safe-toast";
 
 interface TryOnWidgetProps {
   productId: string;
   productImageUrl?: string;
+  productName: string;
+  productPrice: string;
+  otherImages: string[];
   onUnselectProduct?: () => void;
   onNavigateToProduct?: (productId: string) => void;
-  autoOpenFullscreen?: boolean;
   onRegisterControls?: (controls: {
     open: () => void;
     close: () => void;
   }) => void;
+  onBack?: () => void;
 }
 
 export default function TryOnWidget({
@@ -41,378 +36,224 @@ export default function TryOnWidget({
   productImageUrl,
   onUnselectProduct,
   onNavigateToProduct,
-  autoOpenFullscreen = true,
   onRegisterControls,
+  productName,
+  productPrice,
+  otherImages,
+  onBack,
 }: TryOnWidgetProps) {
+  const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
+  const { open: openLoginPrompt } = useLoginPrompt();
+  const router = useRouter();
+
+  // Refs
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { toast } = useToast();
-  const router = useRouter();
-  const pathname = usePathname();
-  const { isAuthenticated } = useAuth();
-  const { open: openLoginPrompt } = useLoginPrompt();
-  const [mounted, setMounted] = useState(false);
-  const viewportHeight =
-    typeof window !== "undefined" && window.innerHeight
-      ? window.innerHeight
-      : 800;
-  const portalTarget =
-    typeof document !== "undefined" ? (document.body as HTMLElement) : null;
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // State
   const [customerImage, setCustomerImage] = useState<string | null>(null);
   const [tryOnResult, setTryOnResult] = useState<string | null>(null);
-  const [recommendations, setRecommendations] = useState<{
-    fit: "perfect" | "loose" | "tight";
-    confidence: number;
-    suggestedSize?: string;
-    notes: string;
-  } | null>(null);
   const [isProcessingTryOn, setIsProcessingTryOn] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [processed, setProcessed] = useState(false);
-  const [isCameraActive, setIsCameraActive] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-  const [selectedEngine, setSelectedEngine] = useState<
-    "viton_hd" | "stable_viton"
-  >("stable_viton");
-
-  const [showCameraModal, setShowCameraModal] = useState(false);
   const [isVideoReady, setIsVideoReady] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  // Track fullscreen transitions
-  const prevIsFullscreen = useRef(isFullscreen);
-  // Track previous product to clear state when switching products
-  const prevProductId = useRef<string | null>(productId);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
+  const [selectedGarmentUrl, setSelectedGarmentUrl] = useState<string | null>(
+    productImageUrl ?? null
+  );
 
-  // Helper to clear all try-on related state
-  const clearAll = useCallback(() => {
-    setCustomerImage(null);
-    setTryOnResult(null);
-    setRecommendations(null);
-    setProcessed(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+  // Persist selected garment in localStorage
+  const getStorageKey = useCallback(
+    () => `nyambika-selected-garment-${productId}`,
+    [productId]
+  );
+
+  // Load persisted selection on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(getStorageKey());
+    if (
+      stored &&
+      (stored === productImageUrl || otherImages?.includes(stored))
+    ) {
+      setSelectedGarmentUrl(stored);
+    } else {
+      setSelectedGarmentUrl(productImageUrl ?? null);
+    }
+  }, [productImageUrl, otherImages, productId, getStorageKey]);
+
+  // Save selection to localStorage when changed
+  useEffect(() => {
+    if (selectedGarmentUrl) {
+      localStorage.setItem(getStorageKey(), selectedGarmentUrl);
+    }
+  }, [selectedGarmentUrl, getStorageKey]);
+
+  // Mount
+  useEffect(() => {
+    return () => {
+      // cleanup camera if open
+      if (stream) {
+        stream.getTracks().forEach((t) => t.stop());
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Centralized fullscreen controls
-  const openFullscreen = useCallback(() => {
-    if (!isAuthenticated) {
-      openLoginPrompt();
-      return;
-    }
-    clearAll();
-    setIsFullscreen(true);
-  }, [clearAll, isAuthenticated, openLoginPrompt]);
-
+  // Controls registration
+  const openFullscreen = useCallback(() => {}, []);
   const closeFullscreen = useCallback(() => {
-    // Always reset to beginning when closing
-    clearAll();
-    setIsFullscreen(false);
-  }, [clearAll]);
+    onUnselectProduct && onUnselectProduct();
+  }, [onUnselectProduct]);
 
-  // Expose controls to parent once mounted/when handlers change
   useEffect(() => {
-    if (onRegisterControls) {
-      onRegisterControls({ open: openFullscreen, close: closeFullscreen });
-    }
+    onRegisterControls?.({ open: openFullscreen, close: closeFullscreen });
   }, [onRegisterControls, openFullscreen, closeFullscreen]);
 
-  // Helpers to convert images to File objects for FormData
-  const dataURLToFile = useCallback(
-    async (dataUrl: string, filename = "person.jpg"): Promise<File> => {
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      return new File([blob], filename, { type: blob.type || "image/jpeg" });
+  // Handlers
+  const clearAll = useCallback(() => {
+    // Revoke any previous blob URL
+    setTryOnResult((prev) => {
+      if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
+      return null;
+    });
+    // Reset primary states
+    setCustomerImage(null);
+    setIsProcessingTryOn(false);
+    setCelebrate(false);
+    setCameraError(null);
+    // Stop camera if running
+    if (stream) {
+      stream.getTracks().forEach((t) => t.stop());
+    }
+    setStream(null);
+    // Also clear any canvas content
+    if (canvasRef.current) {
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx)
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    }
+  }, [stream]);
+
+  const handleImageUpload = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        setCustomerImage(reader.result as string);
+        setTryOnResult(null);
+        toast({
+          title: "Image Uploaded",
+          description: "Photo added successfully.",
+        });
+      };
+      reader.readAsDataURL(file);
     },
-    []
+    [toast]
   );
 
-  const fetchImageAsFile = useCallback(
-    async (url: string, filename = "garment.jpg"): Promise<File> => {
-      // Use server-side proxy to avoid CORS and auth issues
-      const proxied = `/api/tryon/fetch-image?url=${encodeURIComponent(url)}`;
-      const res = await fetch(proxied);
-      if (!res.ok)
-        throw new Error(`Failed to fetch garment image: ${res.status}`);
-      const blob = await res.blob();
-      return new File([blob], filename, { type: blob.type || "image/jpeg" });
-    },
-    []
-  );
-
-  // Camera functions
   const startCamera = useCallback(async () => {
     try {
-      // Open modal immediately so user sees the popup while permissions are requested
-      setShowCameraModal(true);
-      setIsVideoReady(false);
       setCameraError(null);
-      // If a previous stream exists, stop it before requesting a new one
+      setIsVideoReady(false);
       if (stream) {
         stream.getTracks().forEach((t) => t.stop());
         setStream(null);
       }
-      const mediaStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: 640, height: 480 },
+      const media = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user" },
+        audio: false,
       });
-      setStream(mediaStream);
+      setStream(media);
       if (videoRef.current) {
-        videoRef.current.srcObject = mediaStream;
-        // Ensure video is playable before marking camera as active
-        const video = videoRef.current;
-        const onReady = async () => {
-          try {
-            await video.play();
-          } catch (_) {
-            // autoplay may fail; user can press capture/play button
-          }
-          setIsCameraActive(true);
-          setIsVideoReady(true);
-          video.removeEventListener("loadedmetadata", onReady);
-        };
-        if (video.readyState >= 1 && video.videoWidth > 0) {
-          // Metadata already available
-          try {
-            await video.play();
-          } catch (_) {}
-          setIsCameraActive(true);
-          setIsVideoReady(true);
-        } else {
-          video.addEventListener("loadedmetadata", onReady);
-        }
+        videoRef.current.srcObject = media;
+        videoRef.current.onloadedmetadata = () => setIsVideoReady(true);
       }
-    } catch (error) {
+    } catch (err) {
       const message =
-        (error as Error)?.message ||
-        "Please allow camera access to use photo capture";
+        err instanceof Error && err.name === "NotAllowedError"
+          ? "Camera permission denied"
+          : "Unable to access camera";
       setCameraError(message);
       toast({
         title: "Camera error",
         description: message,
         variant: "destructive",
       });
-      // Keep modal open so user can retry or switch permissions
     }
-  }, [toast, stream]);
+  }, [stream, toast]);
 
   const stopCamera = useCallback(() => {
+    setIsVideoReady(false);
     if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
+      stream.getTracks().forEach((t) => t.stop());
       setStream(null);
     }
-    setIsCameraActive(false);
-    setIsVideoReady(false);
-    setCameraError(null);
   }, [stream]);
-
-  const closeModal = useCallback(() => {
-    // Stop camera if running, then hide modal
-    stopCamera();
-    setShowCameraModal(false);
-  }, [stopCamera]);
 
   const capturePhoto = useCallback(() => {
     if (!videoRef.current || !canvasRef.current) return;
-
-    const video = videoRef.current;
     const canvas = canvasRef.current;
     const ctx = canvas.getContext("2d");
-
     if (!ctx) return;
-
-    // Ensure the video has valid dimensions before capture
-    if (video.videoWidth === 0 || video.videoHeight === 0) {
-      toast({
-        title: "Camera not ready",
-        description: "Please wait a moment and try again",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    ctx.drawImage(video, 0, 0);
-
-    const dataUrl = canvas.toDataURL("image/jpeg", 0.8);
+    const video = videoRef.current;
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
     setCustomerImage(dataUrl);
+    setTryOnResult(null);
     stopCamera();
-    setShowCameraModal(false);
+    toast({ title: "Photo captured", description: "Camera photo saved." });
   }, [stopCamera, toast]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      stopCamera();
-    };
-  }, [stopCamera]);
-
-  // When the modal is shown and stream is set, ensure the video attempts to play
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!showCameraModal || !video || !stream) return;
-    (async () => {
-      try {
-        await video.play();
-      } catch (_) {
-        // ignore; user interaction may be required on some browsers
-      }
-    })();
-  }, [showCameraModal, stream]);
-
-  // Lock body scroll and handle Escape key when modal is open
-  useEffect(() => {
-    if (showCameraModal) {
-      const onKey = (e: KeyboardEvent) => {
-        if (e.key === "Escape") closeModal();
-      };
-      document.body.style.overflow = "hidden";
-      window.addEventListener("keydown", onKey);
-      return () => {
-        window.removeEventListener("keydown", onKey);
-        document.body.style.overflow = "";
-      };
+  const handleTryOn = useCallback(async () => {
+    if (!isAuthenticated) {
+      openLoginPrompt();
+      return;
     }
-  }, [showCameraModal, closeModal]);
-
-  // On closing fullscreen: if only an uploaded image exists and no try-on result, clear everything
-  useEffect(() => {
-    if (prevIsFullscreen.current && !isFullscreen) {
-      if (customerImage && !tryOnResult) {
-        clearAll();
-      }
-    }
-    prevIsFullscreen.current = isFullscreen;
-  }, [isFullscreen, customerImage, tryOnResult, clearAll]);
-
-  // Compress image to stay under ~2MB by reducing dimensions/quality iteratively
-  const handleImageUpload = async (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    setProcessed(false);
-
-    if (!file.type.startsWith("image/")) {
+    if (!customerImage) {
       toast({
-        title: "Invalid file type",
-        description: "Please select an image file",
-        variant: "destructive",
+        title: "Missing photo",
+        description: "Please upload or capture your photo first.",
       });
       return;
     }
-
-    try {
-      // Read file as data URL
-      const dataUrl: string = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-
-      // Create image for canvas resizing
-      const img = await new Promise<HTMLImageElement>((resolve, reject) => {
-        const image = new Image();
-        image.onload = () => resolve(image);
-        image.onerror = reject;
-        image.src = dataUrl;
-      });
-
-      const targetBytes = 2 * 1024 * 1024; // ~2MB
-      let quality = 0.85;
-      let maxDim = 1400;
-      let compressedDataUrl = dataUrl;
-
-      for (let i = 0; i < 5; i++) {
-        let { width, height } = img;
-        if (width > maxDim || height > maxDim) {
-          const ratio = Math.min(maxDim / width, maxDim / height);
-          width = Math.round(width * ratio);
-          height = Math.round(height * ratio);
-        }
-
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) throw new Error("Canvas not supported");
-        ctx.drawImage(img, 0, 0, width, height);
-
-        compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
-        // Estimate size from base64 length
-        const approxBytes = Math.ceil(
-          ((compressedDataUrl.length - "data:image/jpeg;base64,".length) * 3) /
-            4
-        );
-        if (approxBytes <= targetBytes) break;
-
-        // Reduce further and try again
-        quality = Math.max(0.6, quality - 0.1);
-        maxDim = Math.max(800, Math.round(maxDim * 0.85));
-      }
-
-      setCustomerImage(compressedDataUrl);
-    } catch (err) {
-      toast({
-        title: "Upload failed",
-        description: "Could not process the selected image",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleTryOn = async () => {
     try {
       setIsProcessingTryOn(true);
-      setProcessed(false);
-      if (!customerImage) {
-        toast({
-          title: "Upload a photo first",
-          description: "Please upload your photo to continue",
-        });
-        return;
+
+      // Convert base64 customer image to Blob
+      const personResp = await fetch(customerImage);
+      const personBlob = await personResp.blob();
+
+      // Obtain garment image as Blob
+      if (!selectedGarmentUrl) {
+        throw new Error("Product image is required");
       }
+      const garmentResp = await fetch(selectedGarmentUrl);
+      const garmentBlob = await garmentResp.blob();
 
-      if (!productImageUrl) {
-        toast({
-          title: "Missing product image",
-          description: "Cannot generate try-on without a product image",
-          variant: "destructive",
-        });
-        return;
-      }
+      // Build FormData for server route
+      const formData = new FormData();
+      formData.append("person_image", personBlob, "person.jpg");
+      formData.append("garment_image", garmentBlob, "garment.jpg");
+      formData.append("fast_mode", "true");
 
-      // Map engine to fast_mode for the TryOn API
-      const fast_mode = selectedEngine === "viton_hd";
-
-      // Prepare multipart form-data
-      const form = new FormData();
-      const personFile = await dataURLToFile(customerImage, "person.jpg");
-      const garmentFile = await fetchImageAsFile(
-        productImageUrl,
-        "garment.jpg"
-      );
-      form.append("person_image", personFile);
-      form.append("garment_image", garmentFile);
-      form.append("fast_mode", String(fast_mode));
-
-      const res = await fetch("/api/tryon/tryonapi", {
+      // Call JSON-based Next.js API route which integrates with TryOn API per docs
+      const res = await fetch("/api/tryon", {
         method: "POST",
-        body: form,
+        body: formData,
       });
 
-      // 202 means still processing (should be rare here due to server-side polling)
+      // 202 => still processing (rare due to server-side polling)
       if (res.status === 202) {
         const j = await res.json();
         toast({
           title: "Still processing",
           description: j.message || "Please wait a bit and retry",
         });
-        setProcessed(true);
         return;
       }
 
@@ -423,7 +264,7 @@ export default function TryOnWidget({
         );
       }
 
-      // Success path
+      // Success path: imageUrl or imageBase64
       let image: string | null = null;
       if (j.imageUrl) {
         image = j.imageUrl as string;
@@ -432,1197 +273,1128 @@ export default function TryOnWidget({
       }
 
       if (image) {
-        setTryOnResult(image);
-        setProcessed(true);
+        // Revoke old blob URL if any
+        setTryOnResult((prev) => {
+          if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
+          return image as string;
+        });
+        setCelebrate(true);
+        setTimeout(() => setCelebrate(false), 1200);
         toast({
           title: "Try-on complete!",
           description: "Your virtual try-on is ready",
         });
       } else {
-        setProcessed(true);
         toast({
           title: "Completed without image",
           description: "No image payload returned by provider",
         });
       }
-    } catch (error: any) {
+    } catch (e) {
+      console.error("Try-on error:", e);
       toast({
         title: "Try-on failed",
-        description:
-          error?.message || "Please try again with a different photo",
+        description: e instanceof Error ? e.message : "Please try again.",
         variant: "destructive",
       });
     } finally {
       setIsProcessingTryOn(false);
     }
-  };
+  }, [
+    customerImage,
+    selectedGarmentUrl,
+    productId,
+    isAuthenticated,
+    openLoginPrompt,
+    toast,
+  ]);
 
-  // Removed auto-open on image select to honor "Open" as a fresh start action
+  // UI pieces
+  const Header = (
+    <motion.div
+      className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 px-3 py-3 bg-white dark:bg-slate-900 relative overflow-hidden"
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
+      {/* AI Circuit pattern background */}
+      <div className="absolute inset-0 opacity-5">
+        <div
+          className="w-full h-full"
+          style={{
+            backgroundImage: `
+            radial-gradient(circle at 20% 50%, #3b82f6 2px, transparent 2px),
+            radial-gradient(circle at 80% 50%, #8b5cf6 2px, transparent 2px),
+            linear-gradient(90deg, transparent 48%, #06b6d4 50%, transparent 52%)
+          `,
+            backgroundSize: "40px 20px, 40px 20px, 60px 20px",
+          }}
+        />
+      </div>
 
-  // Auto-open fullscreen when a product is selected/changed from TryOnStart (configurable)
-  useEffect(() => {
-    if (productId && autoOpenFullscreen) {
-      openFullscreen();
-    }
-  }, [productId, autoOpenFullscreen, openFullscreen]);
+      <div className="flex items-center gap-2 relative z-10">
+        <Button
+          variant="ghost"
+          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-800 bg-gray-100 dark:bg-gray-800"
+          onClick={() => (onBack ? onBack() : router.back())}
+        >
+          <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+      </div>
 
-  // When productId changes, clear any existing uploaded image, result, and recommendations
-  useEffect(() => {
-    if (
-      prevProductId.current &&
-      productId &&
-      prevProductId.current !== productId
-    ) {
-      clearAll();
-    }
-    prevProductId.current = productId;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [productId]);
+      <div className="flex items-center gap-3 relative z-10">
+        <motion.div
+          className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center"
+          animate={{ rotate: 360 }}
+          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+        >
+          <div className="w-3 h-3 rounded-full bg-white/90" />
+        </motion.div>
+        <span className="text-sm font-medium bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent">
+          AI Try-On Studio
+        </span>
+        <motion.span
+          className="hidden md:inline-block text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          #{productName}
+        </motion.span>
+      </div>
 
-  const widgetContent = (
-    <div className="space-y-0">
-      {/* Enhanced Mobile-Optimized Header with AI Branding */}
-      <motion.div
-        onClick={() => {
-          isFullscreen ? closeFullscreen() : openFullscreen();
-          onUnselectProduct && onUnselectProduct();
-        }}
-        className="cursor-pointer relative overflow-hidden rounded-xl md:rounded-2xl bg-gradient-to-br from-white/95 via-blue-50/90 to-gray-50/95 dark:from-gray-950/95 dark:via-slate-900/90 dark:to-purple-950/95 border border-violet-300/70 dark:border-violet-500/40 p-3 md:p-4 hover:shadow-md shadow-blue-500/20 dark:shadow-purple-500/20 backdrop-blur-xl"
-        whileHover={{ scale: 1.01, y: -1 }}
-        whileTap={{ scale: 0.18 }}
-        transition={{ type: "spring", stiffness: 50 }}
-      >
-        {/* AI Background Effects */}
-        <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-violet-500/25 to-blue-500/20 dark:from-blue-400/8 dark:via-purple-400/12 dark:to-pink-400/8 rounded-xl"
-            animate={{
-              opacity: [0.5, 0.8, 0.5],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
-          {/* Cute floating particles */}
-          {[...Array(3)].map((_, i) => (
+      <div className="hidden md:flex items-center gap-2 relative z-10">
+        <motion.div
+          className="flex gap-1"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              className={`absolute w-1 h-1 rounded-full ${
-                i === 0
-                  ? "bg-blue-400/40"
-                  : i === 1
-                  ? "bg-purple-400/40"
-                  : "bg-pink-400/40"
-              }`}
-              style={{
-                left: `${20 + i * 30}%`,
-                top: `${20 + i * 10}%`,
-              }}
+              className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-400"
               animate={{
-                y: [0, -5, 0],
-                opacity: [0.4, 0.8, 0.4],
                 scale: [1, 1.2, 1],
+                opacity: [0.5, 1, 0.5],
               }}
               transition={{
-                duration: 2 + i * 0.5,
+                duration: 1.5,
                 repeat: Infinity,
-                delay: i * 0.5,
-                ease: "easeInOut",
+                delay: i * 0.2,
               }}
             />
           ))}
-        </div>
-        <div className="relative flex items-center justify-between z-10 w-full">
-          <div
-            className={`flex items-center gap-2 md:gap-3 md:w-full ${
-              isFullscreen ? "md:w-1/3" : ""
-            }`}
-          >
-            <div className="relative flex-shrink-0">
-              <motion.div
-                className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-gradient-to-br from-violet-500 via-blue-500 to-indigo-500 dark:from-purple-400 dark:via-blue-400 dark:to-indigo-400 flex items-center justify-center shadow-xl"
-                animate={{
-                  boxShadow: [
-                    "0 4px 10px rgba(147, 51, 234, 0.3)",
-                    "0 4px 15px rgba(59, 130, 246, 0.4)",
-                    "0 4px 10px rgba(147, 51, 234, 0.3)",
-                  ],
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                <motion.div
-                  animate={{
-                    rotate: [0, 180, 360],
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+
+  const Body = (
+    <div className="p-0 sm:p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="rounded-xl border p-4 sm:p-5 bg-white dark:bg-slate-900 shadow-sm">
+        <p className="text-sm font-medium mb-2 sm:mb-3 text-center">
+          {productName}
+        </p>
+        {/* Thumbnails selector */}
+        <div className="mt-4 mb-3 flex flex-wrap gap-1 sm:gap-2 items-center justify-center">
+          {otherImages.length > 0 &&
+            [
+              ...(productImageUrl ? [productImageUrl] : []),
+              ...(otherImages || []),
+            ]
+              .filter((v, i, arr) => v && arr.indexOf(v) === i)
+              .map((img) => (
+                <button
+                  key={img}
+                  onClick={() => {
+                    setSelectedGarmentUrl(img);
                   }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
+                  className={`relative h-10 w-10 sm:h-12 sm:w-12 md:h-10 md:w-10 lg:h-12 lg:w-12 rounded-lg overflow-hidden border transition-all ${
+                    selectedGarmentUrl === img
+                      ? "border-blue-500 ring-2 ring-blue-300"
+                      : "border-slate-200 dark:border-slate-700 hover:border-slate-400"
+                  }`}
+                  title="Choose this image for try-on"
                 >
-                  <Brain className="h-4 w-4 md:h-5 md:w-5 text-white" />
-                </motion.div>
-              </motion.div>
-              <motion.div
-                className="absolute -top-0.5 -right-0.5 md:-top-1 md:-right-1 w-3 h-3 md:w-4 md:h-4 bg-gradient-to-r from-yellow-400 via-orange-400 to-red-400 dark:from-yellow-300 dark:via-orange-300 dark:to-red-300 rounded-full flex items-center justify-center shadow-lg"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 180, 360],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                <Sparkles className="h-2 w-2 md:h-2.5 md:w-2.5 text-white" />
-              </motion.div>
-            </div>
-            <div
-              className={`min-w-0 ${
-                isFullscreen ? "hidden md:inline-block" : ""
-              }`}
-            >
-              <motion.div
-                className="font-bold text-base md:text-lg bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 dark:from-purple-300 dark:via-blue-300 dark:to-indigo-300 bg-clip-text text-transparent truncate"
-                animate={
-                  {
-                    // backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-                  }
-                }
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-                style={{
-                  backgroundSize: "200% 200%",
-                }}
-              >
-                AI Virtual Try-On
-              </motion.div>
-              <motion.div
-                className="text-xs text-muted-foreground md:-mt-2"
-                initial={{ opacity: 0.7 }}
-                animate={{ opacity: [0.7, 1, 0.7] }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              >
-                Powered by advanced AI technology ✨
-              </motion.div>
-            </div>
-          </div>
-          {/* Compact Progress Steps in Title Bar (modern, mobile-friendly) */}
-          {isFullscreen && (
-            <div
-              className="w-ful md:w-1/3 mx-2 flex items-center gap-2 sm:gap-3 no-scrollbar flex-shrink-0 md:flex-shrink max-w-full md:max-w-[60%] lg:max-w-[65%]"
-              aria-label="Try-on progress"
-            >
-              {/* Capsule background for better contrast on all themes */}
-              <div className="flex items-center gap-2 sm:gap-3 px-1.5 sm:px-2 py-1 rounded-full border border-white/30 dark:border-slate-700/40 bg-white/60 dark:bg-slate-900/50 backdrop-blur-md shadow-sm">
-                {/* Step 1: Product */}
-                <div className="flex items-center gap-2">
-                  <motion.div
-                    className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      productImageUrl
-                        ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
-                        : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
-                    }`}
-                    aria-current={productImageUrl ? "step" : undefined}
-                    title="Step 1: Product"
-                    animate={productImageUrl ? { scale: [1, 1.05, 1] } : {}}
-                    transition={{
-                      duration: 2,
-                      repeat: productImageUrl ? Infinity : 0,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <ImageIcon
-                      className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
-                        productImageUrl
-                          ? "text-white"
-                          : "text-slate-500 dark:text-slate-300"
-                      }`}
-                    />
-                    <span className="sr-only">Step 1: Product</span>
-                  </motion.div>
-                  <motion.div
-                    className={`h-0.5 w-6 sm:w-8 rounded-full ${
-                      productImageUrl
-                        ? "bg-gradient-to-r from-purple-500 to-blue-600"
-                        : "bg-gray-200 dark:bg-slate-600"
-                    }`}
-                    animate={
-                      productImageUrl
-                        ? {
-                            backgroundPosition: [
-                              "0% 50%",
-                              "100% 50%",
-                              "0% 50%",
-                            ],
-                          }
-                        : {}
-                    }
-                    transition={{
-                      duration: 3,
-                      repeat: productImageUrl ? Infinity : 0,
-                      ease: "linear",
-                    }}
-                    style={{ backgroundSize: "200% 200%" }}
+                  <img
+                    src={img}
+                    alt="Option"
+                    className="h-full w-full object-cover"
+                    loading="lazy"
                   />
-                </div>
-
-                {/* Step 2: Your Photo */}
-                <div className="flex items-center gap-2">
-                  <motion.div
-                    className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      customerImage
-                        ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
-                        : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
-                    }`}
-                    aria-current={
-                      customerImage && !tryOnResult && !isProcessingTryOn
-                        ? "step"
-                        : undefined
-                    }
-                    title="Step 2: Your Photo"
-                    animate={customerImage ? { scale: [1, 1.05, 1] } : {}}
-                    transition={{
-                      duration: 2,
-                      repeat: customerImage ? Infinity : 0,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    <Camera
-                      className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
-                        customerImage
-                          ? "text-white"
-                          : "text-slate-500 dark:text-slate-300"
-                      }`}
-                    />
-                    <span className="sr-only">Step 2: Your Photo</span>
-                  </motion.div>
-                  <motion.div
-                    className={`h-0.5 w-6 sm:w-8 rounded-full ${
-                      customerImage
-                        ? "bg-gradient-to-r from-purple-500 to-blue-600"
-                        : "bg-gray-200 dark:bg-slate-600"
-                    }`}
-                    animate={
-                      customerImage
-                        ? {
-                            backgroundPosition: [
-                              "0% 50%",
-                              "100% 50%",
-                              "0% 50%",
-                            ],
-                          }
-                        : {}
-                    }
-                    transition={{
-                      duration: 3,
-                      repeat: customerImage ? Infinity : 0,
-                      ease: "linear",
-                    }}
-                    style={{ backgroundSize: "200% 200%" }}
-                  />
-                </div>
-
-                {/* Step 3: AI Result */}
-                <div className="flex items-center gap-2">
-                  <motion.div
-                    className={`relative w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      tryOnResult
-                        ? "bg-gradient-to-br from-green-500 to-emerald-600 text-white shadow-md"
-                        : isProcessingTryOn
-                        ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white shadow-md"
-                        : "bg-gradient-to-br from-gray-200 to-gray-300 dark:from-slate-600 dark:to-slate-700 text-gray-500 dark:text-slate-300"
-                    }`}
-                    aria-current={tryOnResult ? "step" : undefined}
-                    title="Step 3: AI Result"
-                    animate={
-                      tryOnResult
-                        ? { scale: [1, 1.08, 1] }
-                        : isProcessingTryOn
-                        ? { rotate: [0, 0, 0] }
-                        : {}
-                    }
-                    transition={{
-                      duration: 2,
-                      repeat: tryOnResult ? Infinity : 0,
-                      ease: "easeInOut",
-                    }}
-                  >
-                    {isProcessingTryOn ? (
-                      <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
-                    ) : (
-                      <Sparkles
-                        className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${
-                          tryOnResult
-                            ? "text-white"
-                            : "text-slate-500 dark:text-slate-300"
-                        }`}
-                      />
-                    )}
-                    <span className="sr-only">Step 3: AI Result</span>
-                  </motion.div>
-                </div>
-              </div>
-            </div>
-          )}
-          {/* Mobile-only close icon when fullscreen */}
-
-          <motion.div
-            className={`flex ${
-              isFullscreen ? "md:w-[220px]" : ""
-            } flex-row items-center justify-end`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <Button
-              variant="ghost"
-              size="sm"
-              className={`transition-all duration-300 flex-shrink-0 px-2 md:px-3 ${
-                isFullscreen
-                  ? "border-red-500 dark:border-red-400 bg-red-600 text-white hover:bg-red-700 hover:text-white"
-                  : "border bg-gradient-to-r from-blue-500 to-violet-500 text-white dark:from-slate-800/90 dark:to-blue-900/90 hover:from-violet-500 hover:to-blue-500 dark:hover:from-slate-700 dark:hover:to-blue-800"
-              } rounded-full`}
-              title={isFullscreen ? "Close" : "Open"}
-              onClick={() => {
-                isFullscreen ? closeFullscreen() : openFullscreen();
-                onUnselectProduct && onUnselectProduct();
-              }}
-            >
-              {isFullscreen ? (
-                <>
-                  <MdClose className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="inline">Close</span>
-                </>
-              ) : (
-                <>
-                  <Maximize2 className="h-3 w-3 md:h-4 md:w-4" />
-                  <span className="inline">Open</span>
-                </>
-              )}
-            </Button>
-          </motion.div>
+                </button>
+              ))}
         </div>
-      </motion.div>
+        {selectedGarmentUrl ? (
+          <div className="h-full">
+            <motion.img
+              key={selectedGarmentUrl}
+              src={selectedGarmentUrl}
+              alt="Product"
+              className="w-full object-cover bg-slate-50 dark:bg-slate-800 rounded-lg"
+              initial={{ opacity: 0, y: 6, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              whileHover={{ scale: 1.02, rotate: 0.2 }}
+              transition={{ type: "spring", stiffness: 260, damping: 20 }}
+            />
+          </div>
+        ) : (
+          <div className="w-full h-64 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800 rounded">
+            No product image
+          </div>
+        )}
+      </div>
 
-      {/* Enhanced Compact result view with AI animations */}
-      {!isFullscreen && tryOnResult && (
-        <motion.div
-          className="animate-in fade-in-0 duration-700 slide-in-from-bottom-4"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      <div className="rounded-xl border p-2 sm:p-4 bg-white dark:bg-slate-900 shadow-sm min-h-[410px] sm:min-h-[410px]">
+        <p
+          className={`text-sm font-medium text-center ${
+            stream || customerImage ? "mb-4" : "mb-20 sm:mb-10"
+          }`}
         >
-          <div className="relative group">
-            {/* Enhanced AI Glow Effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-purple-500/25 via-blue-500/30 to-indigo-500/25 dark:from-purple-400/20 dark:via-blue-400/25 dark:to-indigo-400/20 rounded-2xl md:rounded-3xl blur-xl"
-              animate={{
-                opacity: [0.6, 0.9, 0.6],
-                scale: [1, 1.02, 1],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
+          Your Photo
+        </p>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImageUpload}
+        />
+        {stream ? (
+          <div className="relative">
+            <motion.video
+              ref={videoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-80 sm:h-72 object-cover bg-slate-50 dark:bg-slate-800 rounded-lg relative"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{
+                boxShadow:
+                  "0 0 0 2px rgba(96, 165, 250, 0.4), 0 0 20px rgba(96, 165, 250, 0.2)",
               }}
             />
-            <motion.div
-              className="relative rounded-2xl md:rounded-3xl bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-950/95 dark:via-slate-900/90 dark:to-purple-950/95 backdrop-blur-xl border border-blue-200/40 dark:border-purple-500/40 shadow-2xl p-3 md:p-6"
-              whileHover={{ scale: 1.02, y: -4 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              <div className="relative rounded-2xl overflow-hidden">
-                {/* AI Processing Border Animation */}
+            {/* Animated corner indicators */}
+            <div className="absolute inset-0 pointer-events-none">
+              {[
+                { top: "8px", left: "8px", rotate: 0 },
+                { top: "8px", right: "8px", rotate: 90 },
+                { bottom: "8px", right: "8px", rotate: 180 },
+                { bottom: "8px", left: "8px", rotate: 270 },
+              ].map((pos, i) => (
                 <motion.div
-                  className="absolute inset-0 rounded-2xl"
+                  key={i}
+                  className="absolute w-4 h-4 border-2 border-sky-400"
                   style={{
-                    background:
-                      "linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.4), transparent, rgba(147, 51, 234, 0.4), transparent, rgba(6, 182, 212, 0.3), transparent)",
-                    backgroundSize: "400% 400%",
+                    ...pos,
+                    borderBottomColor: "transparent",
+                    borderRightColor: "transparent",
+                    transform: `rotate(${pos.rotate}deg)`,
                   }}
                   animate={{
-                    backgroundPosition: ["0% 0%", "100% 100%", "0% 0%"],
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: Infinity,
-                    ease: "linear",
-                  }}
-                />
-                <div className="relative bg-gradient-to-br from-white via-blue-50 to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-purple-900 rounded-2xl p-1">
-                  <img
-                    src={tryOnResult}
-                    alt="AI Try-on result"
-                    className="w-full max-h-[200px] md:max-h-[280px] object-contain rounded-xl"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 via-transparent to-transparent rounded-xl" />
-                </div>
-
-                {/* Enhanced Success Badge with Animation */}
-                <motion.div
-                  className="absolute top-4 right-4 flex items-center gap-2 bg-gradient-to-r from-green-500 via-emerald-500 to-teal-500 dark:from-green-400 dark:via-emerald-400 dark:to-teal-400 text-white text-xs px-3 py-1.5 rounded-full font-medium shadow-xl"
-                  animate={{
+                    opacity: [0.6, 1, 0.6],
                     scale: [1, 1.1, 1],
-                    boxShadow: [
-                      "0 4px 15px rgba(34, 197, 94, 0.3)",
-                      "0 4px 20px rgba(34, 197, 94, 0.5)",
-                      "0 4px 15px rgba(34, 197, 94, 0.3)",
-                    ],
                   }}
                   transition={{
                     duration: 2,
                     repeat: Infinity,
-                    ease: "easeInOut",
+                    delay: i * 0.2,
                   }}
+                />
+              ))}
+            </div>
+            {/* Persistent capture buttons */}
+            <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2 sm:gap-3">
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
+                  onClick={capturePhoto}
+                  className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg"
                 >
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
+                  <Camera className="h-4 w-4 mr-2" />
+                  Capture
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <Button
+                  onClick={stopCamera}
+                  variant="outline"
+                  className="px-4 py-2 sm:px-6 sm:py-3 text-sm sm:text-base rounded-xl sm:rounded-full touch-manipulation bg-white/90 hover:bg-white dark:bg-slate-800/90 dark:hover:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 backdrop-blur-sm"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Stop
+                </Button>
+              </motion.div>
+            </div>
+            {cameraError && (
+              <p className="text-xs text-red-500 mt-2 text-center">
+                {cameraError}
+              </p>
+            )}
+          </div>
+        ) : !customerImage ? (
+          <div className="flex flex-col items-center justify-center h-80 sm:h-72 gap-3 sm:gap-4 text-slate-500 px-2">
+            {/* Step-by-step SVG Guide */}
+            <motion.div
+              className="relative w-full max-w-xs sm:max-w-sm h-24 sm:h-28 md:h-32 mb-1 sm:mb-2"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              <svg
+                viewBox="0 0 200 120"
+                className="w-full h-full"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                {/* Step 1: Upload Photo */}
+                <motion.g
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.8 }}
+                >
+                  {/* Phone/Camera outline */}
+                  <motion.rect
+                    x="20"
+                    y="20"
+                    width="50"
+                    height="70"
+                    rx="8"
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="2"
+                    strokeDasharray="4,2"
+                    animate={{
+                      strokeDashoffset: [0, -12, 0],
+                    }}
                     transition={{
                       duration: 2,
                       repeat: Infinity,
                       ease: "linear",
                     }}
-                  >
-                    <Zap className="h-3 w-3" />
-                  </motion.div>
-                  AI Ready
-                </motion.div>
+                  />
 
-                {/* Clear Button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearAll}
-                  className="absolute top-4 left-4 h-8 w-8 p-0 bg-red-500/20 hover:bg-red-500/30 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-110"
-                  aria-label="Clear try-on"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Enhanced Quick Action with AI Effects */}
-              <div className="mt-3 md:mt-4 flex justify-center">
-                <motion.div
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    onClick={openFullscreen}
-                    className="relative bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 text-sm md:text-base overflow-hidden"
+                  {/* Person silhouette */}
+                  <motion.g
+                    animate={{
+                      y: [0, -2, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
                   >
-                    {/* Shimmer effect */}
-                    <motion.div
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                    {/* Head */}
+                    <circle
+                      cx="45"
+                      cy="35"
+                      r="8"
+                      fill="#8b5cf6"
+                      opacity="0.7"
+                    />
+                    {/* Body */}
+                    <rect
+                      x="38"
+                      y="45"
+                      width="14"
+                      height="25"
+                      rx="7"
+                      fill="#8b5cf6"
+                      opacity="0.7"
+                    />
+                    {/* Arms */}
+                    <rect
+                      x="30"
+                      y="48"
+                      width="8"
+                      height="3"
+                      rx="1.5"
+                      fill="#8b5cf6"
+                      opacity="0.7"
+                    />
+                    <rect
+                      x="52"
+                      y="48"
+                      width="8"
+                      height="3"
+                      rx="1.5"
+                      fill="#8b5cf6"
+                      opacity="0.7"
+                    />
+                    {/* Legs */}
+                    <rect
+                      x="40"
+                      y="70"
+                      width="4"
+                      height="12"
+                      rx="2"
+                      fill="#8b5cf6"
+                      opacity="0.7"
+                    />
+                    <rect
+                      x="46"
+                      y="70"
+                      width="4"
+                      height="12"
+                      rx="2"
+                      fill="#8b5cf6"
+                      opacity="0.7"
+                    />
+                  </motion.g>
+                </motion.g>
+
+                {/* Arrow */}
+                <motion.g
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.8, duration: 0.6 }}
+                >
+                  <motion.path
+                    d="M 80 55 L 95 55 M 90 50 L 95 55 L 90 60"
+                    stroke="#06b6d4"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    animate={{
+                      x: [0, 5, 0],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+                </motion.g>
+
+                {/* Step 2: AI Processing */}
+                <motion.g
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 1.2, duration: 0.8 }}
+                >
+                  {/* AI Brain */}
+                  <motion.circle
+                    cx="120"
+                    cy="40"
+                    r="15"
+                    fill="none"
+                    stroke="#3b82f6"
+                    strokeWidth="2"
+                    animate={{
+                      scale: [1, 1.1, 1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                  />
+
+                  {/* Neural connections */}
+                  {[0, 1, 2].map((i) => (
+                    <motion.circle
+                      key={i}
+                      cx={115 + i * 5}
+                      cy={35 + i * 3}
+                      r="2"
+                      fill="#06b6d4"
                       animate={{
-                        x: ["-100%", "100%"],
+                        opacity: [0.3, 1, 0.3],
+                        scale: [0.8, 1.2, 0.8],
                       }}
                       transition={{
-                        duration: 2,
+                        duration: 1.5,
                         repeat: Infinity,
-                        ease: "linear",
+                        delay: i * 0.3,
                       }}
                     />
-                    <Eye className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2 relative z-10" />
-                    <span className="relative z-10">View Details</span>
-                  </Button>
-                </motion.div>
+                  ))}
+
+                  {/* Processing text */}
+                  <motion.text
+                    x="120"
+                    y="65"
+                    textAnchor="middle"
+                    fontSize="8"
+                    fill="#6366f1"
+                    animate={{
+                      opacity: [0.5, 1, 0.5],
+                    }}
+                    transition={{
+                      duration: 1,
+                      repeat: Infinity,
+                    }}
+                  >
+                    AI Magic
+                  </motion.text>
+                </motion.g>
+
+                {/* Arrow 2 */}
+                <motion.g
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 1.6, duration: 0.6 }}
+                >
+                  <motion.path
+                    d="M 145 55 L 160 55 M 155 50 L 160 55 L 155 60"
+                    stroke="#06b6d4"
+                    strokeWidth="2"
+                    fill="none"
+                    strokeLinecap="round"
+                    animate={{
+                      x: [0, 5, 0],
+                    }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: 0.5,
+                    }}
+                  />
+                </motion.g>
+
+                {/* Step 3: Result */}
+                <motion.g
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 2, duration: 0.8 }}
+                >
+                  {/* Result frame */}
+                  <motion.rect
+                    x="170"
+                    y="25"
+                    width="25"
+                    height="35"
+                    rx="3"
+                    fill="none"
+                    stroke="#8b5cf6"
+                    strokeWidth="2"
+                    animate={{
+                      boxShadow: [
+                        "0 0 0 0 rgba(139, 92, 246, 0)",
+                        "0 0 0 4px rgba(139, 92, 246, 0.3)",
+                        "0 0 0 0 rgba(139, 92, 246, 0)",
+                      ],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                    }}
+                  />
+
+                  {/* Sparkles */}
+                  {[0, 1, 2, 3].map((i) => (
+                    <motion.g key={i}>
+                      <motion.path
+                        d={`M ${175 + (i % 2) * 10} ${
+                          30 + Math.floor(i / 2) * 15
+                        } l 2 0 l -1 -2 l -1 2 l 0 2 l 1 -1 l 1 1 z`}
+                        fill="#fbbf24"
+                        animate={{
+                          scale: [0, 1, 0],
+                          rotate: [0, 180, 360],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          delay: i * 0.2,
+                        }}
+                      />
+                    </motion.g>
+                  ))}
+                </motion.g>
+
+                {/* Step indicators */}
+                <motion.g
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 2.5, duration: 0.5 }}
+                >
+                  <text
+                    x="45"
+                    y="105"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="#3b82f6"
+                    fontWeight="600"
+                  >
+                    1
+                  </text>
+                  <text
+                    x="120"
+                    y="105"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="#3b82f6"
+                    fontWeight="600"
+                  >
+                    2
+                  </text>
+                  <text
+                    x="182"
+                    y="105"
+                    textAnchor="middle"
+                    fontSize="10"
+                    fill="#3b82f6"
+                    fontWeight="600"
+                  >
+                    3
+                  </text>
+
+                  <text
+                    x="45"
+                    y="115"
+                    textAnchor="middle"
+                    fontSize="6"
+                    fill="#64748b"
+                  >
+                    Upload
+                  </text>
+                  <text
+                    x="120"
+                    y="115"
+                    textAnchor="middle"
+                    fontSize="6"
+                    fill="#64748b"
+                  >
+                    Process
+                  </text>
+                  <text
+                    x="182"
+                    y="115"
+                    textAnchor="middle"
+                    fontSize="6"
+                    fill="#64748b"
+                  >
+                    Result
+                  </text>
+                </motion.g>
+              </svg>
+            </motion.div>
+
+            {/* Instructions */}
+            <motion.div
+              className="text-center space-y-2 px-4 sm:px-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1, duration: 0.6 }}
+            >
+              <p className="text-sm sm:text-base font-semibold text-slate-700 dark:text-slate-200">
+                Take a full-body photo
+                <br />
+                <span className="text-sm">For best results</span>
+              </p>
+              <p className="text-xs text-slate-600 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
+                Stand straight, arms slightly away from body, good lighting
+              </p>
+            </motion.div>
+
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-2 justify-center mt-6 px-4 sm:px-2">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.4 }}
+                className="w-full sm:w-auto"
+              >
+                <Button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full sm:w-auto min-h-[48px] px-6 py-3 text-base sm:text-sm font-semibold bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 dark:from-blue-600 dark:to-purple-600 dark:hover:from-blue-700 dark:hover:to-purple-700 shadow-lg hover:shadow-xl shadow-blue-500/25 dark:shadow-blue-400/30 dark:hover:shadow-blue-400/40 touch-manipulation rounded-full border-0 text-white transition-all duration-200"
+                >
+                  <Upload className="h-5 w-5 sm:h-4 sm:w-4 mr-3 sm:mr-2" />
+                  <span className="sm:hidden">Choose Photo from Gallery</span>
+                  <span className="hidden sm:inline">Upload</span>
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.6, duration: 0.4 }}
+                className="w-full sm:w-auto"
+              >
+                <Button
+                  onClick={startCamera}
+                  variant="outline"
+                  className="w-full sm:w-auto min-h-[48px] px-6 py-3 text-base sm:text-sm font-semibold border-2 border-blue-300 hover:border-blue-400 bg-white/95 hover:bg-blue-50 dark:bg-slate-800/95 dark:hover:bg-slate-700/95 dark:border-blue-500 dark:hover:border-blue-400 text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 shadow-md hover:shadow-lg dark:shadow-slate-900/20 dark:hover:shadow-slate-900/30 backdrop-blur-sm touch-manipulation rounded-full transition-all duration-200"
+                >
+                  <Camera className="h-5 w-5 sm:h-4 sm:w-4 mr-3 sm:mr-2" />
+                  <span className="sm:hidden">Take Photo with Camera</span>
+                  <span className="hidden sm:inline">Camera</span>
+                </Button>
+              </motion.div>
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            <motion.img
+              src={customerImage}
+              alt="Customer"
+              className="w-full min-h-full object-cover bg-slate-50 dark:bg-slate-800 rounded-lg"
+              initial={{ opacity: 0.6, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              whileHover={{ scale: 1.01 }}
+              transition={{ type: "spring", stiffness: 280, damping: 25 }}
+            />
+            <Button
+              aria-label="Remove photo"
+              variant="ghost"
+              className="absolute top-2 right-2 h-10 w-10 sm:h-9 sm:w-9 p-0 rounded-full bg-red-500/10 hover:bg-red-500/20 dark:bg-red-400/10 dark:hover:bg-red-400/20 backdrop-blur-sm border border-red-200/50 dark:border-red-400/30 touch-manipulation"
+              onClick={clearAll}
+            >
+              <X className="h-5 w-5 sm:h-4 sm:w-4 text-red-600 dark:text-red-400" />
+            </Button>
+          </div>
+        )}
+        <canvas ref={canvasRef} className="hidden" />
+      </div>
+
+      <div className="rounded-xl relative border p-2 sm:p-4 bg-white dark:bg-slate-900 shadow-sm min-h-[360px] sm:min-h-[320px] overflow-hidden">
+        <p className="text-sm font-medium mb-3 sm:mb-4 text-center">Result</p>
+        <AnimatePresence mode="wait">
+          {isProcessingTryOn ? (
+            <motion.div
+              key="result"
+              className="relative h-80 sm:h-72 flex items-center justify-center bg-slate-50 dark:bg-slate-800 rounded overflow-hidden"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+            >
+              {/* AI Scan line animation */}
+              <motion.div
+                className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent"
+                initial={{ y: 0, opacity: 0.8 }}
+                animate={{ y: 256, opacity: 0 }}
+                transition={{
+                  duration: 1.5,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatType: "loop",
+                }}
+              />
+              {/* Grid pattern overlay */}
+              <div className="absolute inset-0 opacity-10">
+                <div
+                  className="w-full h-full"
+                  style={{
+                    backgroundImage: `
+                    linear-gradient(rgba(96, 165, 250, 0.3) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(96, 165, 250, 0.3) 1px, transparent 1px)
+                  `,
+                    backgroundSize: "20px 20px",
+                  }}
+                />
+              </div>
+              <div className="relative z-10 flex flex-row items-center justify-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin" />{" "}
+                <div>Processing...</div>
               </div>
             </motion.div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* 3-column preview only when fullscreen modal is open */}
-      {isFullscreen && (
-        <div className="space-y-0 animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
-          {/* Progress steps moved to title bar to save vertical space */}
-
-          <div
-            className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 p-2 md:p-3 items-start overflow-y-auto h-[calc(100vh-190px)] md:[height:calc(100vh-170px)] pb-24 md:pbb6
-              `}
-          >
-            {/* Left: Product Image */}
-            <div className="animate-in fade-in-0 slide-in-from-left-4 duration-500 delay-100">
-              <div className="rounded-2xl bg-gradient-to-br from-card to-card/80 dark:from-slate-800/90 dark:to-slate-700/80 backdrop-blur-sm border border-white/20 dark:border-slate-600/50 transition-all duration-300 p-3 group w-full">
-                {productImageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/20 to-purple-50/5 dark:from-slate-800/20 dark:to-slate-700/5">
-                    <img
-                      src={productImageUrl}
-                      alt="Selected product"
-                      className="w-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
+          ) : tryOnResult ? (
+            <div className="relative overflow-hidden rounded">
+              <motion.img
+                key={tryOnResult}
+                src={tryOnResult}
+                alt="Try-on result"
+                className="w-full min-h-full object-cover"
+                initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                whileHover={{ scale: 1.02 }}
+              />
+              {/* Shimmer overlay */}
+              <motion.div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                initial={{ x: "-100%" }}
+                animate={{ x: "100%" }}
+                transition={{
+                  duration: 2,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  repeatDelay: 3,
+                  delay: 0.5,
+                }}
+              />
+            </div>
+          ) : (
+            <motion.div
+              key="placeholder"
+              className="h-64 flex flex-col items-center justify-center gap-4 text-slate-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              {/* Waiting for result SVG */}
+              <motion.div
+                className="w-32 h-24"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6 }}
+              >
+                <svg
+                  viewBox="0 0 120 80"
+                  className="w-full h-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  {/* Magic wand */}
+                  <motion.g
+                    animate={{
+                      rotate: [0, 10, -10, 0],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }}
+                    style={{ transformOrigin: "60px 40px" }}
+                  >
+                    {/* Wand handle */}
+                    <rect
+                      x="45"
+                      y="35"
+                      width="30"
+                      height="4"
+                      rx="2"
+                      fill="#8b5cf6"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border-2 border-dashed border-blue-300/30 dark:border-slate-600/30 bg-gradient-to-br from-blue-50/10 to-transparent dark:from-slate-800/10 p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center">
-                      <Upload className="h-8 w-8 text-blue-500/60 dark:text-blue-400/60" />
-                    </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Product image will appear here
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
+                    {/* Wand tip */}
+                    <circle cx="77" cy="37" r="3" fill="#fbbf24" />
 
-            {/* Middle column hidden; controls moved to bottom bar */}
-            <div className="w-full">
-              <div className="relative group">
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-3xl blur-xl opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
-                <div className="relative rounded-2xl md:rounded-3xl bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/30 dark:border-slate-700/30 p-2 md:p-4">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                  {!customerImage ? (
-                    <div className="text-center space-y-4 md:space-y-6">
-                      <div className="relative">
-                        <div className="w-16 h-16 md:w-20 md:h-20 mx-auto rounded-xl md:rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 flex items-center justify-center border-2 border-dashed border-purple-300/50 dark:border-purple-600/50">
-                          <ImageIcon className="h-8 w-8 md:h-10 md:w-10 text-purple-500/60" />
-                        </div>
-                        <div className="absolute -top-1 -right-1 md:-top-2 md:-right-2 w-6 h-6 md:w-8 md:h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-                          <Sparkles className="h-3 w-3 md:h-4 md:w-4 text-white" />
-                        </div>
-                      </div>
-                      <div>
-                        <h3 className="text-lg md:text-xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                          AI Virtual Try-On
-                        </h3>
-                        <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-                          Upload your photo or use camera to see how this item
-                          looks on you with AI magic
-                        </p>
-                      </div>
-                      <div className="flex flex-col gap-2 md:gap-3">
-                        <Button
-                          onClick={() => fileInputRef.current?.click()}
-                          className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 font-medium text-sm md:text-base"
-                        >
-                          <Upload className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />{" "}
-                          <span className="text-sm">Choose Photo</span>
-                        </Button>
-                        <Button
-                          onClick={startCamera}
-                          variant="outline"
-                          className="border-2 border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20 px-4 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl transition-all duration-300 hover:scale-105 font-medium text-sm md:text-base"
-                        >
-                          <Camera className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />{" "}
-                          <span className="text-sm">Take Photo</span>
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="animate-in fade-in-0 zoom-in-95 duration-500 space-y-2 md:space-y-3">
-                      <div className="relative rounded-2xl overflow-hidden group">
-                        <img
-                          src={customerImage}
-                          alt="Your uploaded photo"
-                          className="w-full object-contain rounded-xl md:rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-700"
+                    {/* Magic sparkles */}
+                    {[0, 1, 2, 3, 4].map((i) => (
+                      <motion.g key={i}>
+                        <motion.path
+                          d={`M ${80 + (i % 3) * 8} ${
+                            25 + Math.floor(i / 3) * 12
+                          } l 1.5 0 l -0.75 -1.5 l -0.75 1.5 l 0 1.5 l 0.75 -0.75 l 0.75 0.75 z`}
+                          fill="#fbbf24"
+                          animate={{
+                            scale: [0, 1.2, 0],
+                            rotate: [0, 180, 360],
+                            opacity: [0, 1, 0],
+                          }}
+                          transition={{
+                            duration: 1.8,
+                            repeat: Infinity,
+                            delay: i * 0.3,
+                          }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+                      </motion.g>
+                    ))}
+                  </motion.g>
 
-                        {/* Success indicator */}
-                        <div className="absolute top-2 left-2 md:top-3 md:left-3 flex items-center gap-1 md:gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs px-2 md:px-3 py-1 md:py-1.5 rounded-full font-medium shadow-lg">
-                          <Zap className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                          Ready for AI
-                        </div>
+                  {/* Placeholder frame */}
+                  <motion.rect
+                    x="20"
+                    y="15"
+                    width="35"
+                    height="50"
+                    rx="4"
+                    fill="none"
+                    stroke="#cbd5e1"
+                    strokeWidth="2"
+                    strokeDasharray="5,3"
+                    animate={{
+                      strokeDashoffset: [0, -16, 0],
+                    }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                  />
 
-                        {/* Enhanced Remove Button */}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="absolute top-2 right-2 md:top-3 md:right-3 h-7 w-7 md:h-8 md:w-8 p-0 bg-red-500/20 hover:bg-red-500/30 text-red-600 dark:text-red-400 rounded-full backdrop-blur-sm transition-all duration-300 hover:scale-110 shadow-lg"
-                          onClick={clearAll}
-                          aria-label="Remove photo"
-                        >
-                          <X className="h-3 w-3 md:h-4 md:w-4" />
-                        </Button>
-                      </div>
+                  {/* Question mark in frame */}
+                  <motion.text
+                    x="37.5"
+                    y="45"
+                    textAnchor="middle"
+                    fontSize="20"
+                    fill="#94a3b8"
+                    animate={{
+                      opacity: [0.3, 0.8, 0.3],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                    }}
+                  >
+                    ?
+                  </motion.text>
+                </svg>
+              </motion.div>
 
-                      {/* Quick retry option */}
-                      <div className="flex gap-1 md:gap-2 justify-center">
-                        <Button
-                          onClick={() => fileInputRef.current?.click()}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs px-3 py-1.5 rounded-lg border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500"
-                        >
-                          <Upload className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />{" "}
-                          <span className="hidden sm:inline">Change </span>Photo
-                        </Button>
-                        <Button
-                          onClick={startCamera}
-                          variant="outline"
-                          size="sm"
-                          className="text-xs px-3 py-1.5 rounded-lg border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500"
-                        >
-                          <Camera className="h-2.5 w-2.5 md:h-3 md:w-3 mr-0.5 md:mr-1" />{" "}
-                          Retake
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Result */}
-            <div className="order-3 md:order-3 animate-in fade-in-0 slide-in-from-right-4 duration-500 delay-300">
-              <div className="rounded-2xl bg-gradient-to-br from-card to-card/80 dark:from-slate-800/90 dark:to-slate-700/80 backdrop-blur-sm border border-white/20 dark:border-slate-600/50 hover:shadow-xl dark:shadow-slate-900/50 transition-all duration-300 p-3 group">
-                {isProcessingTryOn ? (
-                  <div className="flex flex-col items-center justify-center py-16 px-8">
-                    <div className="relative">
-                      <Loader2 className="h-12 w-12 animate-spin text-blue-500 dark:text-blue-400" />
-                      <div className="absolute inset-0 bg-blue-500/20 dark:bg-blue-400/20 rounded-full blur-lg animate-pulse" />
-                    </div>
-                    <div className="mt-6 text-center">
-                      <p className="text-sm font-medium text-blue-600 dark:text-blue-400 mb-2">
-                        Creating your try-on...
-                      </p>
-                      <div className="flex items-center justify-center space-x-1">
-                        <div
-                          className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce"
-                          style={{ animationDelay: "0ms" }}
-                        ></div>
-                        <div
-                          className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce"
-                          style={{ animationDelay: "150ms" }}
-                        ></div>
-                        <div
-                          className="w-2 h-2 bg-blue-500/60 dark:bg-blue-400/60 rounded-full animate-bounce"
-                          style={{ animationDelay: "300ms" }}
-                        ></div>
-                      </div>
-                    </div>
-                  </div>
-                ) : tryOnResult ? (
-                  <div className="animate-in fade-in-0 zoom-in-95 duration-700">
-                    <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/20 to-purple-50/5 dark:from-slate-800/20 dark:to-slate-700/5 border border-blue-300/20 dark:border-slate-600/20">
-                      <img
-                        src={tryOnResult}
-                        alt="Try-on result"
-                        className="w-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
-                      <div className="absolute top-3 right-3 bg-green-500/90 text-white text-xs px-2 py-1 rounded-full font-medium">
-                        Ready
-                      </div>
-                    </div>
-                    {/* AI Success Message */}
-                    <div className="mt-3 animate-in fade-in-0 slide-in-from-bottom-2 duration-700 delay-200">
-                      <div className="relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-indigo-500/20 rounded-2xl blur-xl opacity-60 animate-pulse" />
-                        <div className="relative bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl border border-white/30 dark:border-slate-700/30 rounded-2xl p-3 shadow-2xl">
-                          <div className="flex items-center gap-2">
-                            <div className="relative">
-                              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg">
-                                <Sparkles className="h-4 w-4 text-white animate-pulse" />
-                              </div>
-                              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce" />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <h4 className="text-sm font-bold bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 bg-clip-text text-transparent">
-                                  AI Magic Complete!
-                                </h4>
-                                <div className="flex gap-0.5">
-                                  <div
-                                    className="w-1 h-1 bg-purple-500 rounded-full animate-bounce"
-                                    style={{ animationDelay: "0ms" }}
-                                  />
-                                  <div
-                                    className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                                    style={{ animationDelay: "150ms" }}
-                                  />
-                                  <div
-                                    className="w-1 h-1 bg-indigo-500 rounded-full animate-bounce"
-                                    style={{ animationDelay: "300ms" }}
-                                  />
-                                </div>
-                              </div>
-                              <p className="text-xs text-muted-foreground">
-                                Your AI-powered try-on is ready ✨
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : processed ? (
-                  <div className="rounded-2xl border-2 border-dashed border-blue-300/30 dark:border-slate-600/30 bg-gradient-to-br from-blue-50/10 to-transparent dark:from-slate-800/10 p-8 text-center">
-                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-blue-500/10 dark:bg-blue-400/10 flex items-center justify-center">
-                      <Wand2 className="h-8 w-8 text-blue-500/60 dark:text-blue-400/60" />
-                    </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      Try-on result will appear here
-                    </p>
-                  </div>
-                ) : (
-                  <div className="rounded-2xl border-2 border-dashed border-slate-300/30 dark:border-slate-600/30 bg-gradient-to-br from-slate-50/5 to-transparent dark:from-slate-800/5 p-8 text-center">
-                    <div className="w-16 h-16 mx-auto my-7 rounded-full bg-slate-200/20 dark:bg-slate-700/20 flex items-center justify-center">
-                      <Wand2 className="h-16 w-16 text-slate-400/40 dark:text-slate-500/40" />
-                    </div>
-                    <p className="text-sm text-slate-500/60 dark:text-slate-400/60">
-                      Upload a photo to see the magic
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {processed && !tryOnResult && (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow p-4">
-              <p className="text-sm font-semibold mb-1">
-                No AI image available
-              </p>
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                We couldn’t generate a try-on image right now (likely due to AI
-                quota). Please try again later or continue shopping.
-              </p>
-            </div>
-          )}
-
-          {recommendations && (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 shadow p-4">
-              <p className="text-sm font-semibold mb-2">Fit Recommendation</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-                <div>
-                  <span className="text-slate-600 dark:text-slate-400">
-                    Fit:{" "}
-                  </span>
-                  <span className="capitalize">{recommendations.fit}</span>
-                </div>
-                {recommendations.suggestedSize && (
-                  <div>
-                    <span className="text-slate-600 dark:text-slate-400">
-                      Suggested size:{" "}
-                    </span>
-                    <span>{recommendations.suggestedSize}</span>
-                  </div>
-                )}
-                <div>
-                  <span className="text-slate-600 dark:text-slate-400">
-                    Confidence:{" "}
-                  </span>
-                  <span>{Math.round(recommendations.confidence * 100)}%</span>
-                </div>
-              </div>
-              {recommendations.notes && (
-                <p className="text-sm mt-2 text-slate-600 dark:text-slate-400">
-                  {recommendations.notes}
+              <div className="text-center">
+                <p className="text-sm font-medium text-slate-600 dark:text-slate-400 mb-1">
+                  Ready for AI magic!
                 </p>
-              )}
-            </div>
-          )}
-
-          <div className="sticky bottom-0 left-0 right-0 mt-8 animate-in fade-in-0 slide-in-from-bottom-4 duration-500 delay-500">
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/80 dark:bg-slate-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-slate-900/60 p-3">
-              {/* Bottom controls: thumbnails + inputs + quick actions */}
-              <div className="flex items-center gap-3 overflow-x-auto">
-                {/* Hidden input for choosing photo */}
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
-
-                {/* Thumbnails */}
-                <div className="hidden md:flex items-center gap-2">
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-                    {customerImage ? (
-                      <img
-                        src={customerImage}
-                        alt="You"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <ImageIcon className="w-5 h-5 text-slate-400" />
-                    )}
-                  </div>
-                  <div className="w-12 h-12 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center">
-                    {productImageUrl ? (
-                      <img
-                        src={productImageUrl}
-                        alt="Product"
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <ImageIcon className="w-5 h-5 text-slate-400" />
-                    )}
-                  </div>
-                </div>
+                <p className="text-xs text-slate-500 dark:text-slate-500">
+                  Upload your photo to see the try-on result
+                </p>
               </div>
-              <div className="flex flex-col md:flex-row gap-2 md:justify-end">
-                {tryOnResult ? (
+            </motion.div>
+          )}
+        </AnimatePresence>
+        {/* Celebration burst overlay */}
+        <AnimatePresence>
+          {celebrate && (
+            <motion.div
+              key="celebrate"
+              className="pointer-events-none absolute inset-0 overflow-hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <div className="relative w-full h-full">
+                {[
+                  "#3b82f6",
+                  "#8b5cf6",
+                  "#06b6d4",
+                  "#6366f1",
+                  "#0ea5e9",
+                  "#7c3aed",
+                ].map((c, i) => (
+                  <motion.span
+                    key={i}
+                    className="absolute block rounded-full"
+                    style={{
+                      background: `linear-gradient(135deg, ${c}, ${c}aa)`,
+                      width: i % 2 === 0 ? 10 : 8,
+                      height: i % 2 === 0 ? 10 : 8,
+                      left: `${15 + i * 12}%`,
+                      top: `${45 + (i % 2 === 0 ? -8 : 8)}%`,
+                      boxShadow: `0 0 15px ${c}88, 0 0 25px ${c}44`,
+                    }}
+                    initial={{ scale: 0, opacity: 1, y: 0, rotate: 0 }}
+                    animate={{
+                      scale: [0, 2, 0],
+                      opacity: [1, 0.8, 0],
+                      y: i % 2 === 0 ? -50 : -35,
+                      x: (i - 2.5) * 15,
+                      rotate: [0, 360],
+                    }}
+                    transition={{
+                      duration: 1.2,
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                      delay: i * 0.08,
+                    }}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Generate Try-On Button moved here - Fixed to bottom */}
+        <div className="absolute bottom-0 left-0 right-0 p-2 sm:p-3 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700">
+          {!tryOnResult && (
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.95 }}
+              animate={
+                customerImage && !isProcessingTryOn
+                  ? {
+                      boxShadow: [
+                        "0 0 0 0 rgba(59, 130, 246, 0)",
+                        "0 0 0 8px rgba(59, 130, 246, 0.15)",
+                        "0 0 0 0 rgba(59, 130, 246, 0)",
+                      ],
+                    }
+                  : {}
+              }
+              transition={{
+                boxShadow: { duration: 2, repeat: Infinity },
+              }}
+              className="w-full rounded-full"
+            >
+              <Button
+                onClick={handleTryOn}
+                disabled={!customerImage || isProcessingTryOn}
+                className={`w-full min-h-[52px] px-6 py-4 text-base sm:text-sm font-semibold touch-manipulation rounded-full transition-all duration-200 ${
+                  customerImage && !isProcessingTryOn
+                    ? "bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-600 dark:from-blue-600 dark:via-indigo-600 dark:to-purple-600 dark:hover:from-blue-700 dark:hover:via-indigo-700 dark:hover:to-purple-700 shadow-lg hover:shadow-xl shadow-blue-500/25 dark:shadow-blue-400/30 text-white"
+                    : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed"
+                }`}
+              >
+                {isProcessingTryOn ? (
                   <>
-                    <Button
-                      onClick={() => {
-                        const target = `/product/${productId}`;
-                        if (pathname === target) {
-                          closeFullscreen();
-                          onUnselectProduct && onUnselectProduct();
-                        } else {
-                          if (onNavigateToProduct) {
-                            onNavigateToProduct(productId);
-                          } else {
-                            // Defer navigation slightly to avoid sync DOM ops during unmount
-                            setTimeout(() => {
-                              router.push(target);
-                            }, 0);
-                          }
-                        }
-                      }}
-                      className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white hover:scale-105 transition-all duration-200 hover:shadow-lg"
-                    >
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      Choose & Continue
-                    </Button>
-                    <Button
-                      onClick={() => {
-                        closeFullscreen();
-                        onUnselectProduct && onUnselectProduct();
-                      }}
-                      variant="outline"
-                      className="border-purple-200 dark:border-purple-700 hover:border-purple-400 dark:hover:border-purple-500 hover:bg-purple-50 dark:hover:bg-purple-900/20"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Keep Browsing
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={clearAll}
-                      className="border-destructive/30 hover:border-destructive/60 hover:bg-destructive/10"
-                    >
-                      <X className="h-4 w-4 mr-2" /> Clear All
-                    </Button>
+                    <Loader2 className="h-5 w-5 sm:h-4 sm:w-4 mr-3 sm:mr-2 animate-spin" />
+                    <span className="sm:hidden">Generating AI Try-On...</span>
+                    <span className="hidden sm:inline">Generating</span>
                   </>
                 ) : (
                   <>
-                    <Button
-                      onClick={handleTryOn}
-                      disabled={!customerImage || isProcessingTryOn}
-                      className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white disabled:opacity-50"
-                    >
-                      {isProcessingTryOn ? (
-                        <>
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />{" "}
-                          Creating Magic...
-                        </>
-                      ) : (
-                        <>
-                          <Wand2 className="h-4 w-4 mr-2" /> Generate Try-On
-                        </>
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        closeFullscreen();
-                        onUnselectProduct && onUnselectProduct();
-                      }}
-                    >
-                      Close
-                    </Button>
+                    <Wand2 className="h-5 w-5 sm:h-4 sm:w-4 mr-3 sm:mr-2" />
+                    <span className="sm:hidden">Generate AI Try-On</span>
+                    <span className="hidden sm:inline">Generate Try-On</span>
                   </>
                 )}
-              </div>
+              </Button>
+            </motion.div>
+          )}
+          {tryOnResult && (
+            <div className="flex flex-col sm:flex-row gap-3 w-full">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-full"
+              >
+                <Button
+                  onClick={clearAll}
+                  variant="outline"
+                  className="px-5 py-3 text-sm touch-manipulation rounded-full w-full"
+                >
+                  Reset & Try Again
+                </Button>
+              </motion.div>
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-full"
+              >
+                <Button
+                  onClick={() => {
+                    if (onNavigateToProduct) {
+                      onNavigateToProduct(productId);
+                    } else {
+                      // Fallback navigation to product details
+                      window.open(`/products/${productId}`, "_blank");
+                    }
+                  }}
+                  variant="outline"
+                  className="px-5 py-3 cursor-pointer text-sm touch-manipulation rounded-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 shadow-md hover:shadow-lg w-full"
+                >
+                  <ShoppingBag className="h-4 w-4 mr-2" /> Send Order
+                </Button>
+              </motion.div>
             </div>
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 
-  return (
-    <>
-      {!isFullscreen && (
-        <div className="lg:sticky lg:top-24">{widgetContent}</div>
-      )}
-      {isFullscreen &&
-        mounted &&
-        portalTarget &&
-        createPortal(
+  const widgetContent = (
+    <div className="relative pb-10 md:pb-4">
+      {/* AI Neural Network Particles */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        {[...Array(12)].map((_, i) => (
           <motion.div
-            className="fixed inset-0 z-[9999] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-            role="dialog"
-            aria-modal="true"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* AI-Inspired Animated Background */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {/* Holographic Aurora Background */}
-              <div className="absolute inset-0">
-                {/* Multiple layered gradient orbs for depth */}
-                <motion.div
-                  className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-blue-400/25 via-purple-400/25 to-indigo-400/20 dark:from-blue-400/15 dark:via-purple-400/15 dark:to-indigo-400/12 rounded-full blur-3xl"
-                  animate={{
-                    x: [0, 100, -50, 0],
-                    y: [0, -50, 100, 0],
-                    scale: [1, 1.2, 0.8, 1],
-                  }}
-                  transition={{
-                    duration: 8,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                <motion.div
-                  className="absolute top-3/4 right-1/4 w-80 h-80 bg-gradient-to-r from-indigo-400/20 via-blue-400/20 to-purple-400/15 dark:from-indigo-400/12 dark:via-blue-400/12 dark:to-purple-400/10 rounded-full blur-3xl"
-                  animate={{
-                    x: [0, -80, 60, 0],
-                    y: [0, 80, -40, 0],
-                    scale: [1, 0.9, 1.1, 1],
-                  }}
-                  transition={{
-                    duration: 6,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-                <motion.div
-                  className="absolute top-1/2 left-1/2 w-72 h-72 bg-gradient-to-r from-purple-400/18 via-pink-400/18 to-blue-400/15 dark:from-purple-400/10 dark:via-pink-400/10 dark:to-blue-400/8 rounded-full blur-3xl"
-                  animate={{
-                    x: [0, 60, -80, 0],
-                    y: [0, -60, 40, 0],
-                    scale: [1, 1.1, 0.9, 1],
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                />
-              </div>
+            key={i}
+            className="absolute rounded-full opacity-70"
+            style={{
+              background: [
+                "linear-gradient(135deg, #0ea5e9, #3b82f6)", // AI Blue
+                "linear-gradient(135deg, #8b5cf6, #a855f7)", // Neural Purple
+                "linear-gradient(135deg, #06b6d4, #0891b2)", // Cyan Data
+                "linear-gradient(135deg, #6366f1, #8b5cf6)", // Indigo AI
+                "linear-gradient(135deg, #0284c7, #0369a1)", // Deep Blue
+                "linear-gradient(135deg, #7c3aed, #6d28d9)", // Deep Purple
+              ][i % 6],
+              width: i % 3 === 0 ? "6px" : "4px",
+              height: i % 3 === 0 ? "6px" : "4px",
+              left: `${5 + ((i * 8) % 90)}%`,
+              top: `${10 + ((i * 12) % 80)}%`,
+              boxShadow: "0 0 8px rgba(59, 130, 246, 0.4)",
+            }}
+            animate={{
+              y: [0, -30, 0],
+              x: [0, 15, -10, 0],
+              scale: [1, 1.4, 0.6, 1],
+              opacity: [0.7, 1, 0.3, 0.7],
+              rotate: [0, 180, 360],
+            }}
+            transition={{
+              duration: 6 + i * 0.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.2,
+            }}
+          />
+        ))}
 
-              {/* Neural Network Grid Pattern */}
-              <div className="absolute inset-0 opacity-30 dark:opacity-18">
-                <div className="absolute inset-0 bg-gradient-to-br from-transparent via-blue-400/8 to-purple-400/5 dark:via-blue-400/4 dark:to-purple-400/2" />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `
-                      radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-                      radial-gradient(circle at 75% 75%, rgba(147, 51, 234, 0.12) 0%, transparent 50%),
-                      linear-gradient(45deg, transparent 49%, rgba(59, 130, 246, 0.04) 50%, transparent 51%),
-                      linear-gradient(-45deg, transparent 49%, rgba(147, 51, 234, 0.04) 50%, transparent 51%)
-                    `,
-                    backgroundSize:
-                      "100px 100px, 150px 150px, 20px 20px, 20px 20px",
-                  }}
-                />
-              </div>
-
-              {/* Animated AI Particles */}
-              <div className="absolute inset-0">
-                {[...Array(8)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className={`absolute w-1 h-1 rounded-full ${
-                      i % 4 === 0
-                        ? "bg-blue-500/60 dark:bg-blue-400/40"
-                        : i % 4 === 1
-                        ? "bg-purple-500/60 dark:bg-purple-400/40"
-                        : i % 4 === 2
-                        ? "bg-indigo-500/60 dark:bg-indigo-400/40"
-                        : "bg-pink-500/60 dark:bg-pink-400/40"
-                    }`}
-                    style={{
-                      left: `${Math.random() * 100}%`,
-                      top: `${Math.random() * 100}%`,
-                    }}
-                    animate={{
-                      x: [0, Math.random() * 200 - 100],
-                      y: [0, Math.random() * 200 - 100],
-                      opacity: [0.4, 0.8, 0.4],
-                      scale: [1, 1.5, 1],
-                    }}
-                    transition={{
-                      duration: 3 + Math.random() * 2,
-                      repeat: Infinity,
-                      delay: Math.random() * 2,
-                      ease: "easeInOut",
-                    }}
-                  />
-                ))}
-              </div>
-
-              {/* Scanning Line Effect */}
-              <motion.div
-                className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/30 dark:via-blue-300/20 to-transparent"
-                animate={{
-                  y: [0, viewportHeight],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "linear",
-                }}
-              />
-
-              {/* Bottom Scanning Line */}
-              <motion.div
-                className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-400/20 dark:via-purple-300/15 to-transparent"
-                animate={{
-                  scaleX: [0, 1, 0],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
-            </div>
-
-            <motion.div
-              className="fixed top-0 left-0 right-0 bottom-0 bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-900/95 dark:via-slate-900/90 dark:to-purple-950/20 backdrop-blur-xl borde border-white/40 dark:border-purple-500/40 shadow-2xl p-1 md:p-2"
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            >
-              {widgetContent}
-            </motion.div>
-          </motion.div>,
-          portalTarget
-        )}
-
-      {/* Camera Preview Modal */}
-      {showCameraModal &&
-        mounted &&
-        portalTarget &&
-        createPortal(
+        {/* Neural connection lines */}
+        {[...Array(4)].map((_, i) => (
           <motion.div
-            className="fixed inset-0 z-[99999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4"
-            role="dialog"
-            aria-modal="true"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* AI Background for Camera Modal */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-              {/* Cute animated particles for camera mode */}
-              <div className="absolute inset-0">
-                {[...Array(6)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className={`absolute w-2 h-2 rounded-full ${
-                      i % 3 === 0
-                        ? "bg-blue-500/35 dark:bg-blue-400/25"
-                        : i % 3 === 1
-                        ? "bg-purple-500/35 dark:bg-purple-400/25"
-                        : "bg-indigo-500/35 dark:bg-indigo-400/25"
-                    }`}
-                    style={{
-                      left: `${Math.random() * 100}%`,
-                      top: `${Math.random() * 100}%`,
-                    }}
-                    animate={{
-                      y: [0, -20, 0],
-                      opacity: [0.3, 0.7, 0.3],
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                      duration: 2 + Math.random(),
-                      repeat: Infinity,
-                      delay: Math.random() * 2,
-                      ease: "easeInOut",
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
+            key={`line-${i}`}
+            className="absolute h-px opacity-30"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent, #3b82f6, transparent)",
+              width: "120px",
+              left: `${20 + i * 20}%`,
+              top: `${30 + i * 15}%`,
+              transformOrigin: "left center",
+            }}
+            animate={{
+              scaleX: [0, 1, 0],
+              opacity: [0, 0.6, 0],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              delay: i * 0.8,
+            }}
+          />
+        ))}
+      </div>
 
-            <motion.div
-              className="relative bg-gradient-to-br from-white/98 via-blue-50/95 to-purple-50/98 dark:from-gray-950/98 dark:via-slate-900/95 dark:to-purple-950/98 backdrop-blur-xl border border-blue-200/40 dark:border-purple-500/30 rounded-2xl shadow-2xl w-full max-w-md"
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 20 }}
-              transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Take Photo</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={closeModal}
-                    className="h-8 w-8 p-0"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
+      {/* Animated gradient background with parallax */}
+      <motion.div
+        className="absolute inset-0 -z-10 blur-3xl opacity-50"
+        style={{
+          background:
+            "radial-gradient(50% 50% at 50% 50%, #3b82f6 0%, #8b5cf6 30%, #06b6d4 60%, transparent 100%)",
+        }}
+        animate={{
+          scale: [1, 1.08, 1],
+          rotate: [0, 2, 0],
+          opacity: [0.5, 0.7, 0.5],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
 
-                <div className="relative mb-4">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    muted
-                    className="w-full rounded-xl bg-black aspect-[4/3] object-cover"
-                  />
-                  <canvas ref={canvasRef} className="hidden" />
-                  {/* Loading overlay while initializing camera */}
-                  {!isVideoReady && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/60 rounded-xl">
-                      <div className="text-white text-sm">Starting camera…</div>
-                    </div>
-                  )}
-                </div>
-
-                {cameraError && (
-                  <div className="mb-4 p-3 rounded-lg bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-300 flex items-center justify-between gap-3">
-                    <span className="text-sm">{cameraError}</span>
-                    <Button size="sm" variant="outline" onClick={startCamera}>
-                      Retry
-                    </Button>
-                  </div>
-                )}
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={capturePhoto}
-                    className="flex-1 bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white"
-                    disabled={!isVideoReady || !!cameraError}
-                  >
-                    <Camera className="h-4 w-4 mr-2" />
-                    {!isVideoReady ? "Waiting for camera" : "Take Photo"}
-                  </Button>
-                  <Button onClick={closeModal} variant="outline">
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>,
-          portalTarget
-        )}
-    </>
+      <motion.div
+        className="rounded-xl sm:rounded-2xl sm:dark:p-0.5"
+        style={{
+          background:
+            "linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4, #6366f1)",
+        }}
+        animate={{
+          backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: "linear",
+        }}
+      >
+        <div className="rounded-xl sm:rounded-2xl overflow-hidden bg-white dark:bg-slate-900/95 backdrop-blur-sm text-slate-900 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/50">
+          {Header}
+          {Body}
+        </div>
+      </motion.div>
+    </div>
   );
+
+  return widgetContent;
 }
