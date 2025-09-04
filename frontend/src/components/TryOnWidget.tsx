@@ -1168,7 +1168,7 @@ export default function TryOnWidget({
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.6, duration: 0.4 }}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto hidden md:inline-block"
               >
                 <Button
                   onClick={startCamera}
