@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { ArrowLeft, Loader2, Camera, Eye } from "lucide-react";
 import { handleApiError } from "@/lib/utils";
 import apiClient from "@/lib/api-client";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 type OrderStatus =
   | "pending"
@@ -40,6 +41,7 @@ export default function ProducerOrderDetailsPage() {
   const router = useRouter();
   const { id } = useParams();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { open } = useLoginPrompt();
   const queryClient = useQueryClient();
   const [updating, setUpdating] = useState(false);
 
@@ -63,7 +65,7 @@ export default function ProducerOrderDetailsPage() {
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push("/login");
+      open();
     } else if (
       !authLoading &&
       isAuthenticated &&
@@ -72,7 +74,7 @@ export default function ProducerOrderDetailsPage() {
     ) {
       router.push("/");
     }
-  }, [authLoading, isAuthenticated, user?.role, router]);
+  }, [authLoading, isAuthenticated, user?.role, open, router]);
 
   const updateOrderStatus = useMutation({
     mutationFn: async (newStatus: OrderStatus) => {

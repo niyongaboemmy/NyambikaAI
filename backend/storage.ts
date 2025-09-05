@@ -32,7 +32,7 @@ import {
   type InsertReview,
 } from "./shared/schema";
 import { db } from "./db";
-import { eq, like, and, desc, asc, inArray, gt } from "drizzle-orm";
+import { eq, like, and, desc, asc, inArray, gt, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations
@@ -259,7 +259,12 @@ export class DatabaseStorage implements IStorage {
       query = query.where(and(...conditions));
     }
 
-    query = query.orderBy(desc(products.createdAt));
+    // Order by display_order (non-null first, ascending), then newest
+    query = query.orderBy(
+      sql`CASE WHEN ${products.displayOrder} IS NULL THEN 1 ELSE 0 END`,
+      sql`${products.displayOrder} ASC`,
+      desc(products.createdAt)
+    );
 
     if (options?.limit) {
       query = query.limit(options.limit);
@@ -723,7 +728,11 @@ export class DatabaseStorage implements IStorage {
             gt(subscriptions.endDate, now)
           )
         )
-        .orderBy(asc(products.name));
+        .orderBy(
+          sql`CASE WHEN ${products.displayOrder} IS NULL THEN 1 ELSE 0 END`,
+          sql`${products.displayOrder} ASC`,
+          desc(products.createdAt)
+        );
 
       return companyProducts;
     } catch (error) {

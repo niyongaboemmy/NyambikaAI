@@ -71,11 +71,26 @@ const createAxiosInstance = (): AxiosInstance => {
         const requestUrl = (error.config?.url || "").toString();
         // Do not redirect on login request failures; let the caller (LoginForm) handle UI state
         const isLoginRequest = requestUrl.includes("/api/auth/login");
-        if (!isLoginRequest && typeof window !== "undefined") {
+        // Allow callers to explicitly suppress opening the auth modal for public-page background calls
+        const suppressAuthModal =
+          (error.config as any)?.suppressAuthModal === true;
+        if (
+          !isLoginRequest &&
+          !suppressAuthModal &&
+          typeof window !== "undefined"
+        ) {
+          // Clear any stale auth token
           localStorage.removeItem("auth_token");
-          // Avoid redundant reload if we're already on the login page
-          if (window.location.pathname !== "/login") {
-            window.location.href = "/login";
+          // Dispatch a global event to trigger the login modal without navigation
+          try {
+            window.dispatchEvent(
+              new CustomEvent("auth:unauthorized", {
+                detail: { source: "axios", url: requestUrl },
+              })
+            );
+          } catch (e) {
+            // Fallback: no-op if CustomEvent fails for any reason
+            console.warn("Failed to dispatch auth:unauthorized event", e);
           }
         }
       }
@@ -113,6 +128,7 @@ export const API_ENDPOINTS = {
   // Products
   PRODUCTS: "/api/products",
   PRODUCT_BY_ID: (id: string) => `/api/products/${id}`,
+  PRODUCT_BOOST: (id: string) => `/api/products/${id}/boost`,
   PRODUCT_SEARCH: "/api/search",
 
   // Categories
@@ -187,6 +203,7 @@ export const API_ENDPOINTS = {
   // Payments
   CREATE_PAYMENT_INTENT: "/api/create-payment-intent",
   UPLOAD_SIZE_EVIDENCE: "/api/upload/size-evidence",
+  PAYMENT_SETTINGS_PRODUCT_BOOST: "/api/payment-settings/product-boost",
 
   // Wallet
   WALLET: "/api/wallet",

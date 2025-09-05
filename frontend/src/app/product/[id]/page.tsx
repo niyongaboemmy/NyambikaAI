@@ -12,13 +12,17 @@ import {
   Shield,
   RotateCcw,
   Wand2,
+  Trash2,
+  Edit3,
+  Zap,
+  MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Badge } from "@/components/custom-ui/badge";
 import { Skeleton } from "@/components/custom-ui/skeleton";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import TryOnWidget from "@/components/TryOnWidget";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,6 +30,7 @@ import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Product } from "@/shared/schema";
 import { useParams, useRouter } from "next/navigation";
 import { useCompany } from "@/contexts/CompanyContext";
+import BoostProductDialog from "@/components/BoostProductDialog";
 
 interface ExtendedProduct extends Product {
   images?: string[];
@@ -40,6 +45,9 @@ export default function ProductDetail() {
   const { id } = useParams();
   const router = useRouter();
   const { user, isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
+  const [boostOpen, setBoostOpen] = useState(false);
+  const [confirmChecked, setConfirmChecked] = useState(false);
   const { open: openLoginPrompt } = useLoginPrompt();
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -53,6 +61,7 @@ export default function ProductDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { addItem } = useCart();
+  const productIdStr = Array.isArray(id) ? (id ? id[0] : "") : (id as string);
 
   const handleBack = () => {
     if (user?.business_id) {
@@ -62,6 +71,126 @@ export default function ProductDetail() {
     } else {
       router.push("/products");
     }
+  };
+
+  // Share handler
+  const handleShare = async () => {
+    try {
+      const url = typeof window !== "undefined" ? window.location.href : "";
+      const title = product ? `${product.name} • Nyambika` : "Nyambika";
+      if (navigator.share) {
+        await navigator.share({ title, url });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        toast({
+          title: "Link copied",
+          description: "Product link copied to clipboard.",
+        });
+      }
+    } catch (e) {
+      // swallow
+    }
+  };
+
+  // Favorites: initial status
+  const { data: isFavInitial } = useQuery<{ favorited: boolean }>({
+    queryKey: ["favorite-status", productIdStr],
+    queryFn: async () => {
+      if (!productIdStr) return { favorited: false };
+      try {
+        const res = await apiClient.get(
+          API_ENDPOINTS.FAVORITES_CHECK(productIdStr),
+          { suppressAuthModal: true } as any
+        );
+        return res.data || { favorited: false };
+      } catch {
+        return { favorited: false };
+      }
+    },
+    enabled: !!productIdStr,
+    staleTime: 30_000,
+  });
+
+  // Sync local favorite state with server once
+  const [isFavHydrated, setIsFavHydrated] = useState(false);
+  if (!isFavHydrated && typeof isFavInitial?.favorited === "boolean") {
+    setIsFavorite(isFavInitial.favorited);
+    setIsFavHydrated(true);
+  }
+
+  const addFavMutation = useMutation({
+    mutationFn: async () => {
+      await apiClient.post(API_ENDPOINTS.FAVORITES_ITEM(productIdStr));
+    },
+    onError: () => {
+      setIsFavorite(false);
+      toast({
+        title: "Failed",
+        description: "Could not add to favorites.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeFavMutation = useMutation({
+    mutationFn: async () => {
+      await apiClient.delete(API_ENDPOINTS.FAVORITES_ITEM(productIdStr));
+    },
+    onError: () => {
+      setIsFavorite(true);
+      toast({
+        title: "Failed",
+        description: "Could not remove from favorites.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleFavoriteServer = () => {
+    if (!productIdStr) return;
+    // Require login for toggling favorites
+    if (!isAuthenticated) {
+      openLoginPrompt();
+      return;
+    }
+    const next = !isFavorite;
+    setIsFavorite(next);
+    if (next) addFavMutation.mutate();
+    else removeFavMutation.mutate();
+  };
+
+  // Delete product
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      if (!productIdStr) throw new Error("Missing product id");
+      await apiClient.delete(API_ENDPOINTS.PRODUCT_BY_ID(productIdStr));
+    },
+    onSuccess: () => {
+      toast({ title: "Deleted", description: "Product deleted successfully." });
+      // Invalidate related queries
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["infinite-products"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      // Navigate away
+      handleBack();
+    },
+    onError: (e) => {
+      const msg = handleApiError(e);
+      toast({
+        title: "Delete failed",
+        description: msg,
+        variant: "destructive",
+      });
+    },
+  });
+  const handleDelete = async () => {
+    if (!product) return;
+    const ok =
+      typeof window !== "undefined"
+        ? window.confirm("Delete this product? This cannot be undone.")
+        : false;
+    if (!ok) return;
+    deleteMutation.mutate();
   };
 
   // Fetch product from API
@@ -95,6 +224,69 @@ export default function ProductDetail() {
       }
     },
     enabled: !!id,
+  });
+
+  // Fetch wallet to display balance
+  const { data: wallet } = useQuery<
+    { id: string; balance: string } | undefined
+  >({
+    queryKey: ["wallet"],
+    queryFn: async () => {
+      try {
+        const res = await apiClient.get(
+          API_ENDPOINTS.WALLET,
+          { suppressAuthModal: true } as any
+        );
+        return res.data;
+      } catch (error) {
+        // Fail silently for non-auth users
+        return undefined;
+      }
+    },
+    enabled: !!user,
+    staleTime: 30_000,
+  });
+
+  // Boost mutation
+  const boostMutation = useMutation({
+    mutationFn: async () => {
+      const productId = Array.isArray(id) ? id[0] : (id as string);
+      const res = await apiClient.post(API_ENDPOINTS.PRODUCT_BOOST(productId));
+      return res.data as any;
+    },
+    onSuccess: () => {
+      setBoostOpen(false);
+      setConfirmChecked(false);
+      // Refresh any product-related queries so ordering reflects across app
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["infinite-products"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      // Feedback
+      toast({ title: "Boosted", description: "Product boosted successfully." });
+    },
+    onError: (e: any) => {
+      const msg = handleApiError(e);
+      try {
+        const data = e?.response?.data;
+        if (e?.response?.status === 402 && data?.required != null) {
+          toast({
+            title: "Insufficient balance",
+            description: `Required: RF ${Number(
+              data.required
+            ).toLocaleString()} | Your balance: RF ${Number(
+              data.balance || 0
+            ).toLocaleString()}`,
+            variant: "destructive",
+          });
+          return;
+        }
+      } catch {}
+      toast({
+        title: "Boost failed",
+        description: msg,
+        variant: "destructive",
+      });
+    },
   });
 
   // Try-on is now handled by TryOnWidget
@@ -213,6 +405,8 @@ export default function ProductDetail() {
                 <Skeleton className="h-10 w-20" />
                 <Skeleton className="h-6 w-32" />
               </div>
+
+              {/* Boost dialog only renders on main page when product is loaded */}
               <div className="flex items-center gap-1 sm:gap-2">
                 <Skeleton className="h-8 w-8 rounded-full" />
                 <Skeleton className="h-8 w-8 rounded-full" />
@@ -334,59 +528,123 @@ export default function ProductDetail() {
 
       <main className="relative z-10 pt-6 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
         <div className="">
-          {/* Compact Header */}
-          <div className="flex items-center justify-between mb-2 sm:mb-4">
-            <div className="flex flex-row items-center gap-2 pt-4 md:pt-0">
-              <Button
-                variant="ghost"
-                onClick={handleBack}
-                className="flex items-center gap-1 sm:gap-1 bg-gradient-to-r from-white/95 via-blue-50/90 to-white dark:from-slate-800/95 dark:via-indigo-900/90 dark:to-purple-900/95 backdrop-blur-md rounded-full px-4 sm:px-5 py-1.5 sm:py-2 text-xs sm:text-sm hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 dark:hover:from-slate-700 dark:hover:via-indigo-800 dark:hover:to-purple-800 transition-all duration-300 dark:shadow-indigo-500/20"
+          {/* Modern Header with Responsive Toolbar */}
+          <div className="relative mb-4 sm:mb-6">
+            {/* Back Navigation */}
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <motion.div
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="flex items-center gap-2 sm:gap-3"
               >
-                <ArrowLeft className="h-4 w-4 text-blue-600 dark:text-violet-500" />
-                <span className="hidden sm:inline">Back </span>
-                <span className="sm:hidden">Back</span>
-              </Button>
-              <div className="font-bold text-xl hidden md:inline-block">
-                Product Details
-              </div>
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2">
-              {(user?.role === "admin" ||
-                (user?.role === "producer" &&
-                  product.producerId === user?.id)) && (
                 <Button
-                  variant="outline"
-                  size="sm"
-                  className="bg-gradient-to-r from-white/95 via-emerald-50/90 to-teal-50/95 dark:from-slate-800/95 dark:via-emerald-900/90 dark:to-teal-900/95 backdrop-blur-md border border-emerald-200/40 dark:border-emerald-700/40 rounded-lg sm:rounded-xl text-xs px-2 py-1 shadow-lg shadow-emerald-500/10 dark:shadow-emerald-500/20"
-                  onClick={() => router.push(`/product-edit/${id}`)}
+                  variant="ghost"
+                  onClick={handleBack}
+                  className="group relative overflow-hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                  Edit
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="relative flex items-center gap-1.5 sm:gap-2">
+                    <ArrowLeft className="h-4 w-4 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300" />
+                    <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                      Back
+                    </span>
+                  </div>
                 </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-r from-white/95 via-cyan-50/90 to-blue-50/95 dark:from-slate-800/95 dark:via-cyan-900/90 dark:to-blue-900/95 backdrop-blur-md border border-cyan-200/40 dark:border-cyan-700/40 rounded-lg sm:rounded-xl shadow-lg shadow-cyan-500/10 dark:shadow-cyan-500/20 hover:shadow-cyan-500/20 dark:hover:shadow-cyan-500/30 transition-all duration-300"
-              >
-                <Share2 className="h-3 w-3 sm:h-4 sm:w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`w-7 h-7 sm:w-8 sm:h-8 backdrop-blur-md rounded-lg sm:rounded-xl transition-all duration-300 ${
-                  isFavorite
-                    ? "bg-gradient-to-r from-rose-100/95 via-pink-100/90 to-red-100/95 dark:from-rose-900/80 dark:via-pink-900/70 dark:to-red-900/80 border border-rose-300/50 dark:border-rose-600/50 text-rose-600 dark:text-rose-400 shadow-lg shadow-rose-500/20 dark:shadow-rose-500/30"
-                    : "bg-gradient-to-r from-white/95 via-rose-50/90 to-pink-50/95 dark:from-slate-800/95 dark:via-rose-900/90 dark:to-pink-900/95 border border-rose-200/40 dark:border-rose-700/40 shadow-lg shadow-rose-500/10 dark:shadow-rose-500/20 hover:shadow-rose-500/20 dark:hover:shadow-rose-500/30"
-                }`}
-                onClick={() => setIsFavorite(!isFavorite)}
-              >
-                <Heart
-                  className={`h-3 w-3 sm:h-4 sm:w-4 ${
-                    isFavorite ? "fill-current" : ""
-                  }`}
-                />
-              </Button>
+                <div className="hidden md:block">
+                  <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
+                    Product Details
+                  </h1>
+                </div>
+              </motion.div>
             </div>
+
+            {/* Desktop Toolbar - Top Right Floating */}
+            <motion.div
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+              className="absolute top-0 right-0 z-20"
+            >
+              <div className="flex items-center gap-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-2xl p-2 shadow-xl shadow-gray-500/10 dark:shadow-black/20">
+                {/* Management Tools - Only for owners */}
+                {(user?.role === "admin" ||
+                  (user?.role === "producer" &&
+                    product.producerId === user?.id)) && (
+                  <>
+                    <div className="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-gray-700">
+                      {/* Edit Button */}
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => router.push(`/product-edit/${id}`)}
+                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200/50 dark:border-emerald-700/50 hover:from-emerald-100 hover:to-teal-100 dark:hover:from-emerald-800/40 dark:hover:to-teal-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+                          title="Edit product"
+                        >
+                          <Edit3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-200" />
+                        </Button>
+                      </motion.div>
+
+                      {/* Boost Button */}
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setBoostOpen(true)}
+                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200/50 dark:border-amber-700/50 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-800/40 dark:hover:to-orange-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20"
+                          title="Boost product"
+                        >
+                          <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform duration-200" />
+                        </Button>
+                      </motion.div>
+
+                      {/* Delete Button */}
+                      <motion.div
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          disabled={deleteMutation.isPending}
+                          onClick={handleDelete}
+                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-900/30 dark:to-red-900/30 border border-rose-200/50 dark:border-rose-700/50 hover:from-rose-100 hover:to-red-100 dark:hover:from-rose-800/40 dark:hover:to-red-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Delete product"
+                        >
+                          <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform duration-200" />
+                        </Button>
+                      </motion.div>
+                    </div>
+                  </>
+                )}
+
+                {/* Social Actions */}
+                <div className="flex items-center gap-1">
+                  {/* Share Button */}
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleShare}
+                      className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200/50 dark:border-blue-700/50 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-800/40 dark:hover:to-cyan-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
+                      title="Share product"
+                    >
+                      <Share2 className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
+                    </Button>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
@@ -643,6 +901,16 @@ export default function ProductDetail() {
           </motion.div>
         </div>
       )}
+
+      {/* Boost Dialog (renders only when product is loaded and user can manage) */}
+      {(user?.role === "admin" || user?.role === "producer") &&
+        product.producerId === user?.id && (
+          <BoostProductDialog
+            open={boostOpen}
+            onOpenChange={setBoostOpen}
+            productId={product.id}
+          />
+        )}
     </div>
   );
 }

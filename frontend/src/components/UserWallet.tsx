@@ -7,17 +7,17 @@ import { Card, CardContent } from "@/components/custom-ui/card";
 import { Button } from "@/components/custom-ui/button";
 import { FormInput } from "@/components/custom-ui/form-input";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Wallet, 
-  TrendingUp, 
-  TrendingDown, 
-  Sparkles, 
-  Clock, 
-  CheckCircle, 
+import {
+  Wallet,
+  TrendingUp,
+  TrendingDown,
+  Sparkles,
+  Clock,
+  CheckCircle,
   AlertCircle,
   ArrowUpRight,
   ArrowDownLeft,
-  Coins
+  Coins,
 } from "lucide-react";
 
 interface WalletInfo {
@@ -144,7 +144,13 @@ export default function UserWallet() {
   });
 
   const topUpMutation = useMutation({
-    mutationFn: async ({ amount, phone }: { amount: number; phone?: string }) => {
+    mutationFn: async ({
+      amount,
+      phone,
+    }: {
+      amount: number;
+      phone?: string;
+    }) => {
       try {
         const { data } = await apiClient.post(API_ENDPOINTS.WALLET_TOPUP, {
           amount,
@@ -157,21 +163,32 @@ export default function UserWallet() {
       }
     },
     onSuccess: () => {
-      toast({ title: "✨ Top-up successful", description: "Your wallet has been credited with sparkles!" });
+      toast({
+        title: "✨ Top-up successful",
+        description: "Your wallet has been credited with sparkles!",
+      });
       setAmount("");
       setPhone("");
       qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
       qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
     },
     onError: (err: any) => {
-      toast({ title: "💫 Oops!", description: err.message, variant: "destructive" });
+      toast({
+        title: "💫 Oops!",
+        description: err.message,
+        variant: "destructive",
+      });
     },
   });
 
   const handleTopUp = () => {
     const amt = Number(amount);
     if (!amt || amt <= 0) {
-      toast({ title: "🎯 Invalid amount", description: "Enter a positive amount to add some magic!", variant: "destructive" });
+      toast({
+        title: "🎯 Invalid amount",
+        description: "Enter a positive amount to add some magic!",
+        variant: "destructive",
+      });
       return;
     }
     topUpMutation.mutate({ amount: amt, phone: phone || undefined });
@@ -202,7 +219,7 @@ export default function UserWallet() {
         </div>
       </div>
 
-      <Card className="relative bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/10 border border-blue-200/50 dark:border-blue-800/30 shadow-lg hover:shadow-xl transition-all duration-500 hover:scale-[1.02] backdrop-blur-sm">
+      <Card className="relative bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/10 border border-blue-200/50 dark:border-blue-800/30 shadow-lg hover:shadow-xl transition-all duration-500 backdrop-blur-sm">
         <CardContent className="p-3 sm:p-4 md:p-6">
           {/* Header with animated icon */}
           <div className="flex items-center justify-between mb-4 sm:mb-6">
@@ -215,7 +232,9 @@ export default function UserWallet() {
                 <h3 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                   My Wallet
                 </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">Digital currency hub</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+                  Digital currency hub
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
@@ -238,7 +257,9 @@ export default function UserWallet() {
                   {walletLoading ? (
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 animate-spin"></div>
-                      <span className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-400">Loading...</span>
+                      <span className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-400">
+                        Loading...
+                      </span>
                     </div>
                   ) : (
                     <>
@@ -276,7 +297,7 @@ export default function UserWallet() {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   <span className="relative text-xs sm:text-sm font-medium">
-                    {(quickAmount / 1000)}K
+                    {quickAmount / 1000}K
                   </span>
                 </Button>
               ))}
@@ -328,9 +349,11 @@ export default function UserWallet() {
               <div className="p-2 rounded-xl bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
                 <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
               </div>
-              <h4 className="font-semibold text-gray-900 dark:text-gray-100">Recent Activity</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                Recent Activity
+              </h4>
             </div>
-            
+
             {paymentsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 animate-spin"></div>
@@ -340,8 +363,12 @@ export default function UserWallet() {
                 <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
                   <Sparkles className="h-8 w-8 text-gray-400 animate-pulse" />
                 </div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">No transactions yet</p>
-                <p className="text-xs text-gray-400">Your wallet activity will appear here</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  No transactions yet
+                </p>
+                <p className="text-xs text-gray-400">
+                  Your wallet activity will appear here
+                </p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -353,11 +380,13 @@ export default function UserWallet() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className={`p-2 rounded-lg ${
-                          payment.type === "topup" 
-                            ? "bg-emerald-100 dark:bg-emerald-900/30" 
-                            : "bg-red-100 dark:bg-red-900/30"
-                        }`}>
+                        <div
+                          className={`p-2 rounded-lg ${
+                            payment.type === "topup"
+                              ? "bg-emerald-100 dark:bg-emerald-900/30"
+                              : "bg-red-100 dark:bg-red-900/30"
+                          }`}
+                        >
                           {payment.type === "topup" ? (
                             <ArrowUpRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                           ) : (
@@ -370,17 +399,21 @@ export default function UserWallet() {
                             {getStatusIcon(payment.status)}
                           </p>
                           <p className="text-xs text-gray-500 dark:text-gray-400">
-                            {new Date(payment.createdAt).toLocaleDateString()} • {payment.provider?.toUpperCase() || payment.method}
+                            {new Date(payment.createdAt).toLocaleDateString()} •{" "}
+                            {payment.provider?.toUpperCase() || payment.method}
                           </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className={`text-sm font-bold ${
-                          payment.type === "debit" 
-                            ? "text-red-600 dark:text-red-400" 
-                            : "text-emerald-600 dark:text-emerald-400"
-                        }`}>
-                          {payment.type === "debit" ? "-" : "+"} RWF {Number(payment.amount).toLocaleString()}
+                        <p
+                          className={`text-sm font-bold ${
+                            payment.type === "debit"
+                              ? "text-red-600 dark:text-red-400"
+                              : "text-emerald-600 dark:text-emerald-400"
+                          }`}
+                        >
+                          {payment.type === "debit" ? "-" : "+"} RWF{" "}
+                          {Number(payment.amount).toLocaleString()}
                         </p>
                       </div>
                     </div>

@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { useCompany } from "@/contexts/CompanyContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
-import { Button } from "@/components/custom-ui/button";
 import ProducerPendingVerificationModal from "@/components/ProducerPendingVerificationModal";
 
 // Route protection configuration
@@ -15,12 +14,13 @@ const ROUTE_CONFIG = {
   // Public routes (no authentication required)
   public: [
     "/",
-    "/try-on",
     "/companies",
     "/products",
     "/product/[id]",
     "/store/[id]",
     "/register",
+    "/try-on-widget/[productId]",
+    "/try-on",
   ],
 
   // Protected routes (authentication required)
@@ -65,7 +65,7 @@ export function RouteProtection({ children }: RouteProtectionProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
   const { company } = useCompany();
   const router = useRouter();
-  const { open, show } = useLoginPrompt();
+  const { open } = useLoginPrompt();
   const warnedRef = useRef(false);
   const pendingRole: "producer" | "agent" | null = (() => {
     if (!user) return null;
@@ -80,31 +80,11 @@ export function RouteProtection({ children }: RouteProtectionProps) {
     return null;
   })();
 
-  const renderNotAuthenticated = () => (
-    <div className="min-h-[60vh] -mt-12 flex items-center justify-center p-6">
-      <div className="w-full max-w-md text-center space-y-4">
-        <h2 className="text-2xl font-semibold">Authentication required</h2>
-        <p className="text-sm text-gray-600 dark:text-gray-400">
-          Please log in to continue.
-        </p>
-        <div className="flex items-center justify-center gap-3">
-          <Button
-            variant="outline"
-            onClick={() => router.push("/")}
-            className="min-w-[140px]"
-          >
-            Go back home
-          </Button>
-          <Button
-            onClick={() => open()}
-            className="min-w-[140px] dark:text-white"
-          >
-            Click to login
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+  const renderNotAuthenticated = () => {
+    // The login modal is opened via useEffect above. While waiting, avoid showing a CTA screen.
+    // Render a lightweight loader to prevent layout jank.
+    return <AppLoader />;
+  };
 
   // Helper function to match dynamic routes
   const matchesRoute = (pattern: string, path: string): boolean => {

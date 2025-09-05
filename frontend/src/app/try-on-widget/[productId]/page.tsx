@@ -29,11 +29,11 @@ export default function TryOnWidgetPage() {
       ? params.productId[0]
       : params.productId) || "";
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      openLoginPrompt();
-    }
-  }, [isAuthenticated, openLoginPrompt]);
+  // useEffect(() => {
+  //   if (!isAuthenticated) {
+  //     openLoginPrompt();
+  //   }
+  // }, [isAuthenticated, openLoginPrompt]);
 
   useEffect(() => {
     const fetchProduct = async () => {

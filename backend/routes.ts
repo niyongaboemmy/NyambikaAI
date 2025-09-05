@@ -10,7 +10,7 @@ import { generateVirtualTryOn } from "./tryon";
 import crypto from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
-import { subscriptions, users, products, orders, userWallets, walletPayments } from "./shared/schema";
+import { subscriptions, users, products, orders, userWallets, walletPayments, paymentSettings } from "./shared/schema";
 import { and, eq, desc, sql, inArray } from "drizzle-orm";
 import {
   createSubscription,
@@ -148,6 +148,151 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdAt: wallet.createdAt,
         updatedAt: wallet.updatedAt,
       });
+
+  // Public endpoint to fetch product boost fee from payment_settings
+  app.get("/api/payment-settings/product-boost", async (_req, res) => {
+    try {
+      let [setting] = await db
+        .select()
+        .from(paymentSettings)
+        .where(eq(paymentSettings.id, 2))
+        .limit(1);
+      if (!setting) {
+        const rows = await db
+          .select()
+          .from(paymentSettings)
+          .where(eq(paymentSettings.name, "product_boost"))
+          .limit(1);
+        setting = rows[0] as any;
+      }
+      if (!setting) return res.status(404).json({ message: "product_boost not configured" });
+      return res.json(setting);
+    } catch (e) {
+      console.error("Error fetching product boost payment setting:", e);
+      return res.status(500).json({ message: "Failed to load boost fee" });
+    }
+  });
+
+  // Boost a product: charge boost fee from producer wallet and move product to top
+  app.post(
+    "/api/products/:id/boost",
+    requireAuth,
+    requireRole(["producer", "admin"]),
+    async (req: any, res) => {
+      try {
+        const productId = req.params.id as string;
+        // Fetch product
+        const [product] = await db
+          .select()
+          .from(products)
+          .where(eq(products.id, productId))
+          .limit(1);
+        if (!product) {
+          return res.status(404).json({ message: "Product not found" });
+        }
+        // Authorization: producer can only boost own product unless admin
+        if (req.userRole !== "admin" && product.producerId !== req.userId) {
+          return res.status(403).json({ message: "You can only boost your own product" });
+        }
+
+        // Read boost fee (by id=2 per requirement), fallback by name 'product_boost'
+        let [boostSetting] = await db
+          .select()
+          .from(paymentSettings)
+          .where(eq(paymentSettings.id, 2))
+          .limit(1);
+        if (!boostSetting) {
+          const rows = await db
+            .select()
+            .from(paymentSettings)
+            .where(eq(paymentSettings.name, "product_boost"))
+            .limit(1);
+          boostSetting = rows[0] as any;
+        }
+        if (!boostSetting) {
+          return res
+            .status(500)
+            .json({ message: "Boost pricing not configured" });
+        }
+        const amount = Number(boostSetting.amountInRwf);
+        if (!amount || amount <= 0) {
+          return res.status(500).json({ message: "Invalid boost amount" });
+        }
+
+        // Ensure wallet exists
+        let [wallet] = await db
+          .select()
+          .from(userWallets)
+          .where(eq(userWallets.userId, req.userId))
+          .limit(1);
+        if (!wallet) {
+          const [created] = await db
+            .insert(userWallets)
+            .values({ userId: req.userId, balance: "0", status: "active" })
+            .returning();
+          wallet = created as any;
+        }
+
+        const currentBalance = Number(wallet.balance) || 0;
+        if (currentBalance < amount) {
+          return res.status(402).json({
+            message: "Insufficient wallet balance to boost product",
+            required: amount,
+            balance: currentBalance,
+          });
+        }
+
+        // Record wallet payment (debit)
+        const [payment] = await db
+          .insert(walletPayments)
+          .values({
+            walletId: wallet.id,
+            userId: req.userId,
+            type: "debit",
+            amount: String(amount.toFixed(2)),
+            method: "mobile_money",
+            provider: "mtn",
+            status: "completed",
+            description: `Product boost fee for product ${productId}`,
+            externalReference: `BOOST-${Date.now()}`,
+          })
+          .returning();
+
+        // Update wallet balance
+        const newBalance = String((currentBalance - amount).toFixed(2));
+        const [updatedWallet] = await db
+          .update(userWallets)
+          .set({ balance: newBalance, updatedAt: new Date() as any })
+          .where(eq(userWallets.id, wallet.id))
+          .returning();
+
+        // Set product to top by assigning smallest display_order - 1 (NULLs treated as large)
+        const [{ min_order } = { min_order: null }] = (await db
+          .select({ min_order: sql<number>`MIN(${products.displayOrder})` })
+          .from(products)) as any;
+        const nextOrder =
+          typeof min_order === "number" && !isNaN(min_order)
+            ? min_order - 1
+            : 0;
+
+        const [updatedProduct] = await db
+          .update(products)
+          .set({ displayOrder: nextOrder as any })
+          .where(eq(products.id, productId))
+          .returning();
+
+        res.json({
+          product: updatedProduct,
+          wallet: updatedWallet,
+          payment,
+          boostAmount: amount,
+        });
+      } catch (error) {
+        console.error("Error boosting product:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
     } catch (error) {
       console.error("Error in GET /api/wallet:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -989,6 +1134,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Internal server error" });
     }
   });
+
+  // Change password (supports both PUT and POST for flexibility)
+  const changePasswordHandler = async (req: any, res: any) => {
+    try {
+      const { currentPassword, newPassword } = req.body || {};
+
+      if (!currentPassword || !newPassword) {
+        return res
+          .status(400)
+          .json({ message: "currentPassword and newPassword are required" });
+      }
+
+      if (typeof newPassword !== "string" || newPassword.length < 6) {
+        return res
+          .status(400)
+          .json({ message: "New password must be at least 6 characters" });
+      }
+
+      const user = await storage.getUserById(req.userId);
+      if (!user || !user.password) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!isMatch) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+
+      const isSame = await bcrypt.compare(newPassword, user.password);
+      if (isSame) {
+        return res
+          .status(400)
+          .json({ message: "New password must be different from current password" });
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(user.id, { password: hashed } as any);
+
+      return res.json({ success: true, message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error in change-password:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  };
+
+  app.put("/api/auth/change-password", requireAuth, changePasswordHandler);
+  app.post("/api/auth/change-password", requireAuth, changePasswordHandler);
 
   // Google OAuth 2.0
   app.get("/api/auth/oauth/google", async (req, res) => {

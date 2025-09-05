@@ -93,7 +93,7 @@ export default function Footer() {
       />
 
       {/* AI CTA banner */}
-      <div className="container mx-auto px-3 md:px-0 pt-12">
+      <div className="container mx-auto px-2 sm:px-0 pt-12">
         <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur supports-[backdrop-filter]:bg-white/5">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-fuchsia-500/10 to-cyan-500/10" />
           <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-6 md:p-8">
@@ -137,7 +137,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="container mx-auto px-3 md:px-0 py-10 md:py-14">
+      <div className="container mx-auto px-2 sm:px-0 py-10 md:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
           {/* Brand */}
           <div className="space-y-5">

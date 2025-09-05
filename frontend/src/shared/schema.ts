@@ -53,6 +53,7 @@ export type Product = {
   stockQuantity?: number | null;
   inStock?: boolean;
   isApproved?: boolean;
+  displayOrder?: number | null;
   createdAt?: Date | null;
 };
 

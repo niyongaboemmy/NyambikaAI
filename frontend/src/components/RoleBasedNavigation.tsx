@@ -161,7 +161,7 @@ export default function RoleBasedNavigation() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 p-2">
-      <nav className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/20 dark:border-gray-700/20 rounded-3xl px-3 py-2.5 container mx-auto shadow-2xl shadow-blue-500/10">
+      <nav className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/20 dark:border-gray-700/20 rounded-3xl px-2 sm:px-3 py-2.5 container mx-auto shadow-2xl shadow-blue-500/10">
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center group">

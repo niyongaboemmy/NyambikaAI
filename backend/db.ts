@@ -23,4 +23,16 @@ export async function ensureSchemaMigrations() {
     // Add the column with default 'pending'
     await pool.query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS validation_status TEXT DEFAULT 'pending'`);
   }
+
+  // Ensure products.display_order exists for custom product ordering
+  const checkDisplayOrderSql = `
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'products' AND column_name = 'display_order'
+  `;
+  const displayOrderResult = await pool.query(checkDisplayOrderSql);
+  if (displayOrderResult.rowCount === 0) {
+    await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS display_order INTEGER`);
+    // Helpful index to speed up ordering queries
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_products_display_order ON products (display_order ASC NULLS LAST)`);
+  }
 }

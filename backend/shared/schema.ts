@@ -59,6 +59,8 @@ export const products = pgTable("products", {
   stockQuantity: integer("stock_quantity").default(0),
   inStock: boolean("in_stock").default(true),
   isApproved: boolean("is_approved").default(false), // admin approval
+  // Lower values appear first. NULL means not prioritized; treated as large number in ordering.
+  displayOrder: integer("display_order"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

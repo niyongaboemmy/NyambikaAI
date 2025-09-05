@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import {
   Tabs,
   TabsContent,
@@ -33,11 +34,12 @@ type OrderStatus =
 export default function ProducerOrdersPage() {
   const router = useRouter();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { open } = useLoginPrompt();
   const [status, setStatus] = useState<OrderStatus>("all");
 
   useEffect(() => {
     if (!authLoading && !isAuthenticated) {
-      router.push("/login");
+      open();
     } else if (
       !authLoading &&
       isAuthenticated &&
@@ -46,7 +48,7 @@ export default function ProducerOrdersPage() {
     ) {
       router.push("/");
     }
-  }, [authLoading, isAuthenticated, user?.role, router]);
+  }, [authLoading, isAuthenticated, user?.role, open, router]);
 
   const {
     data: orders = [],

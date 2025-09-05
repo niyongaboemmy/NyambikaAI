@@ -5,7 +5,9 @@ import {
   Dialog,
   DialogContent,
   DialogClose,
+  DialogTitle,
 } from "@/components/custom-ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useUserWalletDialog } from "@/contexts/UserWalletDialogContext";
 import { X } from "lucide-react";
 import UserWallet from "@/components/UserWallet";
@@ -16,10 +18,14 @@ export default function UserWalletDialog() {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => (!open ? close() : null)}>
       <DialogContent
-        className="max-w-4xl p-2 gap-0 border-0 bg-transparent shadow-none rounded-3xl overflow-hidden"
+        className="max-w-4xl p-0 gap-0 border-0 bg-transparent shadow-none rounded-3xl overflow-hidden"
         hideClose
         title="Wallet"
       >
+        <VisuallyHidden.Root>
+          <DialogTitle>User Wallet</DialogTitle>
+        </VisuallyHidden.Root>
+        
         {/* Fixed close button */}
         <DialogClose
           onClick={close}

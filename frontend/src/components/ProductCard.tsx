@@ -1,7 +1,7 @@
 import React from "react";
 import type { Product } from "@/shared/schema";
 import { Button } from "@/components/custom-ui/button";
-import { Heart, Pencil, Trash } from "lucide-react";
+import { Heart, Pencil, Trash, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type ProductCardProps = {
@@ -14,6 +14,8 @@ export type ProductCardProps = {
   onViewDetails: (productId: string) => void;
   onEdit?: (productId: string) => void;
   onDelete?: (productId: string) => void;
+  onBoost?: (productId: string) => void;
+  showBoostLabel?: boolean;
   containerClassName?: string;
   hideActions?: boolean;
   onCardClick?: (productId: string) => void;
@@ -43,6 +45,8 @@ export default function ProductCard({
   onViewDetails,
   onEdit,
   onDelete,
+  onBoost,
+  showBoostLabel,
   containerClassName,
   hideActions,
   onCardClick,
@@ -114,7 +118,7 @@ export default function ProductCard({
         </Button>
 
         {canManage && (
-          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200">
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 transition-all duration-200">
             {onEdit && (
               <Button
                 size="icon"
@@ -128,6 +132,27 @@ export default function ProductCard({
                 title="Edit"
               >
                 <Pencil className="h-4 w-4 text-gray-700" />
+              </Button>
+            )}
+            {onBoost && (
+              <Button
+                size={showBoostLabel ? "sm" : "icon"}
+                variant="default"
+                className={cn(
+                  "rounded-full bg-green-600 hover:bg-green-700 text-white shadow-lg",
+                  showBoostLabel ? "h-8 px-2" : "h-8 w-8"
+                )}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onBoost(product.id);
+                }}
+                aria-label="Boost product"
+                title="Boost to top"
+              >
+                <Zap className="h-4 w-4" />
+                {showBoostLabel && (
+                  <span className="mr-1 text-xs font-semibold">Boost</span>
+                )}
               </Button>
             )}
             {onDelete && (

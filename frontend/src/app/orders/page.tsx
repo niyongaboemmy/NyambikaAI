@@ -29,6 +29,7 @@ import { useState } from "react";
 import { generateReceipt } from "@/utils/receiptGenerator";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { OrderConfirmationButton } from "@/components/OrderConfirmationButton";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 interface Order {
   id: string;
@@ -129,6 +130,7 @@ function OrdersPage() {
   const router = useRouter();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { open } = useLoginPrompt();
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(
     null
   );
@@ -258,7 +260,7 @@ function OrdersPage() {
               Please log in to view your orders.
             </p>
             <Button
-              onClick={() => router.push("/login")}
+              onClick={() => open()}
               className="gradient-bg text-white"
             >
               Log In

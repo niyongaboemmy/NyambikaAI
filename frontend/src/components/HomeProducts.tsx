@@ -4,6 +4,7 @@ import { Button } from "@/components/custom-ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Product, Category } from "@/shared/schema";
 import ProductCard from "@/components/ProductCard";
+import BoostProductDialog from "@/components/BoostProductDialog";
 import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
 import CompactSearchBar from "@/components/feed/CompactSearchBar";
 import CategoryPills from "@/components/feed/CategoryPills";
@@ -11,7 +12,7 @@ import SelectedCompanyBar from "@/components/feed/SelectedCompanyBar";
 import { useCompanies } from "@/hooks/useCompanies";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 
 // Page-level skeleton shown during initial load
 function HomeProductsSkeleton() {
@@ -78,6 +79,10 @@ export default function HomeProducts() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
   const isProducer = user?.role === "producer";
+  const [boostProductId, setBoostProductId] = useState<{
+    id: string;
+    producer_id: string;
+  } | null>(null);
 
   // Debounce search typing for smoother UX
   useEffect(() => {
@@ -257,6 +262,39 @@ export default function HomeProducts() {
 
   const onViewDetails = (productId: string) =>
     router.push(`/product/${productId}`);
+
+  // Boost mutation for producers/admin
+  const boostMutation = useMutation({
+    mutationFn: async (productId: string) => {
+      try {
+        const res = await apiClient.post(
+          API_ENDPOINTS.PRODUCT_BOOST(productId)
+        );
+        return res.data;
+      } catch (error) {
+        throw new Error(handleApiError(error));
+      }
+    },
+    onSuccess: () => {
+      // Refresh products so ordering updates
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["infinite-products"] });
+    },
+  });
+
+  const handleBoost = async (productId: string) => {
+    if (!isProducer && !isAdmin) return;
+    const confirmed = window.confirm(
+      "Boost this product to the top? This will deduct the boost fee from your wallet."
+    );
+    if (!confirmed) return;
+    try {
+      await boostMutation.mutateAsync(productId);
+      window.alert("Product boosted successfully.");
+    } catch (e: any) {
+      window.alert(e?.message || "Failed to boost product.");
+    }
+  };
 
   // Companies for stories
   const { data: companies = [] } = useCompanies();
@@ -487,9 +525,24 @@ export default function HomeProducts() {
               <ProductCard
                 key={product.id}
                 product={product}
+                isProducer={isProducer}
+                isAdmin={isAdmin}
+                currentUserId={user?.id || undefined}
+                showBoostLabel={true}
                 isFavorited={favorites.includes(product.id)}
                 onToggleFavorite={toggleFavorite}
                 onViewDetails={onViewDetails}
+                onBoost={() => {
+                  if (
+                    (isAdmin || isProducer) &&
+                    (product as any).producerId === user?.id
+                  ) {
+                    setBoostProductId({
+                      id: product.id,
+                      producer_id: product.producerId || "",
+                    });
+                  }
+                }}
                 hideDesc={true}
               />
             ))}
@@ -523,6 +576,18 @@ export default function HomeProducts() {
                 </Button>
               </div>
             </div>
+          )}
+        {/* Boost Dialog for home products */}
+        {boostProductId &&
+          (isAdmin || isProducer) &&
+          user.id === boostProductId?.producer_id && (
+            <BoostProductDialog
+              open={!!boostProductId}
+              onOpenChange={(open) => {
+                if (!open) setBoostProductId(null);
+              }}
+              productId={boostProductId?.id || ""}
+            />
           )}
       </div>
     </section>

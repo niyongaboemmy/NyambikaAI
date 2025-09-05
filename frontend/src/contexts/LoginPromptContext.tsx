@@ -61,13 +61,13 @@ export function LoginPromptProvider({
 
   const open = useCallback(() => {
     if (!isMountedRef.current) return;
-    
+
     // Prevent rapid successive calls only if modal is already open
     if (openingRef.current && isOpen) return;
-    
+
     openingRef.current = true;
     setIsOpen(true);
-    
+
     // Reset the opening ref after a short delay to allow future opens
     setTimeout(() => {
       if (isMountedRef.current) {
@@ -100,6 +100,25 @@ export function LoginPromptProvider({
     },
     [open]
   );
+
+  // Listen for global unauthorized events dispatched by API client
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const onUnauthorized = (e: Event) => {
+      if (!isMountedRef.current) return;
+      // Attempt to set a friendly default error if none set
+      if (!error) {
+        setError("Your session has expired. Please log in to continue.");
+      }
+      open();
+    };
+
+    window.addEventListener("auth:unauthorized", onUnauthorized as any);
+    return () => {
+      window.removeEventListener("auth:unauthorized", onUnauthorized as any);
+    };
+  }, [error, open]);
 
   // Global fetch interceptor for 401
   useEffect(() => {
@@ -151,7 +170,6 @@ export function LoginPromptProvider({
       }
     };
   }, [open]);
-
 
   const value = useMemo(
     () => ({

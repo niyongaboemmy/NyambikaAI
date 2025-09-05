@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { apiClient, handleApiError } from "@/config/api";
+import { apiClient, handleApiError, RoleEnum } from "@/config/api";
 import { Badge } from "@/components/custom-ui/badge";
 import { Button } from "@/components/custom-ui/button";
 import { Input } from "@/components/custom-ui/input";
@@ -15,6 +15,7 @@ import {
 } from "@/components/custom-ui/dialog";
 import { Skeleton } from "@/components/custom-ui/skeleton";
 import ProductCard from "@/components/ProductCard";
+import BoostProductDialog from "@/components/BoostProductDialog";
 import {
   MapPin,
   Phone,
@@ -35,38 +36,13 @@ import {
   Grid3X3,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { useParams, useRouter } from "next/navigation";
-import { Category } from "@/shared/schema";
-
-type Company = {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  logoUrl?: string;
-  websiteUrl?: string;
-  tin?: string;
-  createdAt: string;
-};
+import { Category, Company, Product } from "@/shared/schema";
 
 type Producer = {
   id: string;
   isVerified?: boolean;
-};
-
-type Product = {
-  id: string;
-  name: string;
-  nameRw: string;
-  description: string;
-  price: string;
-  imageUrl: string;
-  categoryId: string;
-  categoryName?: string;
-  inStock: boolean;
-  sizes?: string[];
-  colors?: string[];
 };
 
 type GroupedProducts = {
@@ -77,11 +53,14 @@ export default function StorePage() {
   const { id } = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
+  const isAdmin = user?.role === RoleEnum.ADMIN;
+  const isProducer = user?.role === RoleEnum.PRODUCER;
 
   // State for smart filtering and search
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState("featured");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [priceRange, setPriceRange] = useState("all");
 
@@ -96,6 +75,10 @@ export default function StorePage() {
   const [compareList, setCompareList] = useState<Set<string>>(new Set());
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [boostProductId, setBoostProductId] = useState<{
+    id: string;
+    producer_id: string;
+  } | null>(null);
 
   // Detect dark mode from document class (ThemeProvider sets 'dark' class)
   const [isDark, setIsDark] = useState<boolean>(() =>
@@ -128,7 +111,7 @@ export default function StorePage() {
   });
 
   // Fetch the producer to check verification status (status is on producer, not company)
-  const { data: producer } = useQuery<Producer>({
+  const { data: producer } = useQuery<Product>({
     queryKey: ["/api/producers", (company as any)?.producerId],
     queryFn: async () => {
       try {
@@ -211,10 +194,10 @@ export default function StorePage() {
 
       // Category filter
       const matchesCategory =
-        selectedCategory === "all" || product.categoryName === selectedCategory;
+        selectedCategory === "all" || product.categoryId === selectedCategory;
 
       // Price range filter
-      const price = parseFloat(product.price);
+      const price = parseFloat(String(product.price));
       let matchesPrice = true;
       if (priceRange === "low") matchesPrice = price < 50000;
       else if (priceRange === "medium")
@@ -225,20 +208,20 @@ export default function StorePage() {
     });
 
     // Sort products
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case "price-low":
-          return parseFloat(a.price) - parseFloat(b.price);
-        case "price-high":
-          return parseFloat(b.price) - parseFloat(a.price);
-        case "name":
-          return a.name.localeCompare(b.name);
-        case "newest":
-          return a.name.localeCompare(b.name); // Fallback to name sorting since createdAt doesn't exist
-        default:
-          return 0;
-      }
-    });
+    if (sortBy !== "featured") {
+      filtered.sort((a, b) => {
+        switch (sortBy) {
+          case "price-low":
+            return parseFloat(String(a.price)) - parseFloat(String(b.price));
+          case "price-high":
+            return parseFloat(String(b.price)) - parseFloat(String(a.price));
+          case "name":
+            return a.name.localeCompare(b.name);
+          default:
+            return 0; // 'featured' preserves API order
+        }
+      });
+    }
 
     return filtered;
   }, [productsList, searchQuery, selectedCategory, sortBy, priceRange]);
@@ -249,7 +232,7 @@ export default function StorePage() {
     return Array.from(
       new Set(
         productsList
-          .map((p) => p.categoryName)
+          .map((p) => p.categoryId)
           .filter((cat): cat is string => Boolean(cat))
       )
     );
@@ -276,10 +259,10 @@ export default function StorePage() {
 
   const sortOptions = useMemo(
     () => [
+      { value: "featured", label: "Featured" }, // honors server order (displayOrder -> newest)
       { value: "name", label: "Name A-Z" },
       { value: "price-low", label: "Price: Low to High" },
       { value: "price-high", label: "Price: High to Low" },
-      { value: "newest", label: "Featured" },
     ],
     []
   );
@@ -561,11 +544,11 @@ export default function StorePage() {
   // Group products by category
   const groupedProducts: GroupedProducts = (products || []).reduce(
     (acc, product) => {
-      const categoryName = product.categoryName || "Uncategorized";
-      if (!acc[categoryName]) {
-        acc[categoryName] = [];
+      const categoryId = product.categoryId || "Uncategorized";
+      if (!acc[categoryId]) {
+        acc[categoryId] = [];
       }
-      acc[categoryName].push(product);
+      acc[categoryId].push(product);
       return acc;
     },
     {} as GroupedProducts
@@ -656,7 +639,7 @@ export default function StorePage() {
                   className="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
                   onClick={() =>
                     window.open(
-                      company.websiteUrl,
+                      company.websiteUrl || "#",
                       "_blank",
                       "noopener,noreferrer"
                     )
@@ -807,7 +790,7 @@ export default function StorePage() {
                 {/* Category Buttons */}
                 {categories.map((category) => {
                   const categoryData = allCategories.find(
-                    (c) => c.name === category
+                    (c) => c.id === category
                   );
                   return (
                     <button
@@ -857,9 +840,9 @@ export default function StorePage() {
                             : "text-gray-700 dark:text-gray-300"
                         }`}
                       >
-                        {category.length > 8
-                          ? category.substring(0, 8) + "..."
-                          : category}
+                        {categoryData && categoryData?.name.length > 12
+                          ? categoryData?.name.substring(0, 12) + "..."
+                          : categoryData?.name}
                       </span>
                       {selectedCategory === category && (
                         <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
@@ -1058,16 +1041,26 @@ export default function StorePage() {
                       colors: product.colors || null,
                       inStock: product.inStock,
                       createdAt: null,
-                      producerId: null,
+                      producerId: (company as any)?.producerId || null,
                       additionalImages: null,
                       stockQuantity: null,
                       //   isApproved: null,
                     }}
+                    isProducer={isProducer}
+                    isAdmin={isAdmin}
+                    currentUserId={user?.id || undefined}
+                    showBoostLabel={true}
                     isFavorited={wishlist.has(product.id)}
                     onToggleFavorite={toggleWishlist}
                     onViewDetails={(productId: string) => {
                       router.push(`/product/${productId}`);
                     }}
+                    onBoost={() =>
+                      setBoostProductId({
+                        id: product.id,
+                        producer_id: product.producerId || "",
+                      })
+                    }
                     hideActions={false}
                     containerClassName="hover:shadow-2xl transition-all duration-500 hover:shadow-blue-500/25 transform hover:-translate-y-2"
                   />
@@ -1090,16 +1083,29 @@ export default function StorePage() {
                       colors: product.colors || null,
                       inStock: product.inStock,
                       createdAt: null,
-                      producerId: null,
+                      producerId: (company as any)?.producerId || null,
                       additionalImages: null,
                       stockQuantity: null,
                       //   isApproved: null,
                     }}
+                    isProducer={isProducer}
+                    isAdmin={isAdmin}
+                    currentUserId={user?.id || undefined}
+                    showBoostLabel={true}
                     isFavorited={wishlist.has(product.id)}
                     onToggleFavorite={toggleWishlist}
                     onViewDetails={(productId: string) => {
                       router.push(`/product/${productId}`);
                     }}
+                    onBoost={() =>
+                      (isAdmin || isProducer) &&
+                      (company as any)?.producerId === user?.id
+                        ? setBoostProductId({
+                            id: product.id,
+                            producer_id: product.producerId || "",
+                          })
+                        : null
+                    }
                     hideActions={false}
                     containerClassName="col-span-12 hover:shadow-lg transition-shadow"
                   />
@@ -1162,9 +1168,7 @@ export default function StorePage() {
                 <div className="space-y-6">
                   <div>
                     <div className="flex items-center gap-3 mb-2">
-                      <Badge variant="outline">
-                        {selectedProduct.categoryName}
-                      </Badge>
+                      <Badge variant="outline">{selectedProduct.name}</Badge>
                       {selectedProduct.inStock ? (
                         <Badge className="bg-green-500">
                           <CheckCircle className="w-3 h-3 mr-1" />
@@ -1186,7 +1190,8 @@ export default function StorePage() {
                   </div>
 
                   <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                    {parseFloat(selectedProduct.price).toLocaleString()} RWF
+                    {parseFloat(String(selectedProduct.price)).toLocaleString()}{" "}
+                    RWF
                   </div>
 
                   {(selectedProduct.sizes || selectedProduct.colors) && (
@@ -1346,7 +1351,10 @@ export default function StorePage() {
                             className="p-2 sm:p-3 text-center"
                           >
                             <div className="text-sm sm:text-xl font-bold text-green-600">
-                              {parseFloat(product.price).toLocaleString()} RWF
+                              {parseFloat(
+                                String(product.price)
+                              ).toLocaleString()}{" "}
+                              RWF
                             </div>
                           </td>
                         ))}
@@ -1405,10 +1413,10 @@ export default function StorePage() {
                               variant="outline"
                               className="bg-white/80 text-xs"
                             >
-                              {product.categoryName &&
-                              product.categoryName.length > 10
-                                ? product.categoryName.substring(0, 10) + "..."
-                                : product.categoryName}
+                              {product.categoryId &&
+                              product.categoryId.length > 10
+                                ? product.categoryId.substring(0, 10) + "..."
+                                : product.name}
                             </Badge>
                           </td>
                         ))}
@@ -1566,6 +1574,20 @@ export default function StorePage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Boost Dialog for store page */}
+      {boostProductId &&
+        boostProductId?.id &&
+        (isAdmin || isProducer) &&
+        (company as any)?.producerId === user?.id && (
+          <BoostProductDialog
+            open={!!boostProductId}
+            onOpenChange={(open) => {
+              if (!open) setBoostProductId(null);
+            }}
+            productId={boostProductId?.id || ""}
+          />
+        )}
     </div>
   );
 }

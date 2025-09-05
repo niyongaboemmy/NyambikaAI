@@ -38,6 +38,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
+import { useChangePassword } from "@/contexts/ChangePasswordContext";
 import { Skeleton } from "@/components/custom-ui/skeleton";
 import { useRouter } from "next/navigation";
 import UserWallet from "@/components/UserWallet";
@@ -86,23 +87,59 @@ const AnimatedNeuralNetwork = ({ className }: { className?: string }) => (
     xmlns="http://www.w3.org/2000/svg"
   >
     <g>
-      <circle cx="6" cy="6" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite]" />
-      <circle cx="18" cy="6" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite_0.5s]" />
-      <circle cx="6" cy="18" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite_1s]" />
-      <circle cx="18" cy="18" r="2" fill="currentColor" className="animate-[pulse_2s_ease-in-out_infinite_1.5s]" />
-      <circle cx="12" cy="12" r="3" fill="currentColor" className="animate-[bounce_3s_ease-in-out_infinite]" />
-      <path d="M6 6L12 12M18 6L12 12M6 18L12 12M18 18L12 12" stroke="currentColor" strokeWidth="1" className="animate-[fadeInOut_3s_ease-in-out_infinite]" />
+      <circle
+        cx="6"
+        cy="6"
+        r="2"
+        fill="currentColor"
+        className="animate-[pulse_2s_ease-in-out_infinite]"
+      />
+      <circle
+        cx="18"
+        cy="6"
+        r="2"
+        fill="currentColor"
+        className="animate-[pulse_2s_ease-in-out_infinite_0.5s]"
+      />
+      <circle
+        cx="6"
+        cy="18"
+        r="2"
+        fill="currentColor"
+        className="animate-[pulse_2s_ease-in-out_infinite_1s]"
+      />
+      <circle
+        cx="18"
+        cy="18"
+        r="2"
+        fill="currentColor"
+        className="animate-[pulse_2s_ease-in-out_infinite_1.5s]"
+      />
+      <circle
+        cx="12"
+        cy="12"
+        r="3"
+        fill="currentColor"
+        className="animate-[bounce_3s_ease-in-out_infinite]"
+      />
+      <path
+        d="M6 6L12 12M18 6L12 12M6 18L12 12M18 18L12 12"
+        stroke="currentColor"
+        strokeWidth="1"
+        className="animate-[fadeInOut_3s_ease-in-out_infinite]"
+      />
     </g>
   </svg>
 );
 
 function Profile() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { theme, actualTheme, setTheme } = useTheme();
   const { toast } = useToast();
   const router = useRouter();
   const queryClient = useQueryClient();
   const { open } = useLoginPrompt();
+  const { openChangePassword } = useChangePassword();
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState({
     name: "",
@@ -110,11 +147,6 @@ function Profile() {
     email: "",
     phone: "",
     location: "",
-  });
-  const [pwdForm, setPwdForm] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
   });
 
   // Initialize form with user data
@@ -235,67 +267,11 @@ function Profile() {
     updateProfileMutation.mutate(userInfo);
   };
 
-  // Change password mutation
-  const changePasswordMutation = useMutation({
-    mutationFn: async (payload: {
-      currentPassword: string;
-      newPassword: string;
-    }) => {
-      try {
-        const { data } = await apiClient.post(
-          API_ENDPOINTS.CHANGE_PASSWORD,
-          payload
-        );
-        return data;
-      } catch (error) {
-        throw new Error(handleApiError(error));
-      }
-    },
-    onSuccess: () => {
-      toast({
-        title: "Password changed",
-        description: "Your password was updated successfully.",
-      });
-      setPwdForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-    },
-    onError: (error: any) => {
-      toast({
-        title: "Failed to change password",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const handleChangePassword = () => {
-    if (!pwdForm.currentPassword || !pwdForm.newPassword) {
-      toast({
-        title: "Missing fields",
-        description: "Please fill in all password fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (pwdForm.newPassword !== pwdForm.confirmPassword) {
-      toast({
-        title: "Passwords do not match",
-        description: "New password and confirmation must match.",
-        variant: "destructive",
-      });
-      return;
-    }
-    if (pwdForm.newPassword.length < 8) {
-      toast({
-        title: "Weak password",
-        description: "New password must be at least 8 characters.",
-        variant: "destructive",
-      });
-      return;
-    }
-    changePasswordMutation.mutate({
-      currentPassword: pwdForm.currentPassword,
-      newPassword: pwdForm.newPassword,
-    });
+  // Sign out handler
+  const handleLogout = () => {
+    logout();
+    // Navigate to home after logout
+    router.push("/");
   };
 
   // Prompt login if not authenticated (avoid side effects during render)
@@ -471,22 +447,24 @@ function Profile() {
           <div className="mb-4 sm:mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="relative">
-                <div className="p-3 sm:p-4 rounded-xl bg-blue-600 shadow-lg">
+                <div className="p-3 sm:p-3 rounded-full bg-blue-600 shadow-lg">
                   <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
                 <div className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full"></div>
               </div>
               <div className="flex-1">
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900 dark:text-white">
                   Profile Dashboard
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
+                <p className="text-sm sm:text-sm text-gray-600 dark:text-gray-400">
                   Manage your fashion journey and preferences
                 </p>
               </div>
               <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
                 <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
-                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">Active</span>
+                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  Active
+                </span>
               </div>
             </div>
           </div>
@@ -605,7 +583,9 @@ function Profile() {
                           ) : (
                             <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                           )}
-                          <span className="text-sm">{isEditing ? "Save" : "Edit"}</span>
+                          <span className="text-sm">
+                            {isEditing ? "Save" : "Edit"}
+                          </span>
                         </div>
                       </Button>
                     </div>
@@ -627,7 +607,10 @@ function Profile() {
                             type="email"
                             value={userInfo.email}
                             onChange={(e) =>
-                              setUserInfo({ ...userInfo, email: e.target.value })
+                              setUserInfo({
+                                ...userInfo,
+                                email: e.target.value,
+                              })
                             }
                             icon={Mail}
                             className="text-sm w-full"
@@ -657,7 +640,7 @@ function Profile() {
                             className="text-sm w-full"
                           />
                         </div>
-                        
+
                         {/* Mobile Action Buttons */}
                         <div className="flex flex-col sm:flex-row gap-2 sm:hidden">
                           <Button
@@ -854,14 +837,14 @@ function Profile() {
                     </div>
                     <ChevronRight className="h-4 w-4 text-gray-400" />
                   </div>
-                  <div className="flex items-center justify-between mt-2">
+                  <div className="flex items-center justify-between mt-2 w-full">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() =>
                         setTheme(actualTheme === "light" ? "dark" : "light")
                       }
-                      className="flex items-center gap-2 p-1 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all"
+                      className="w-full flex justify-start items-center gap-2 p-2 pr-3 bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg transition-all"
                     >
                       <div className="p-1 rounded-full bg-slate-100 dark:bg-slate-800">
                         {actualTheme === "light" ? (
@@ -877,71 +860,21 @@ function Profile() {
                   </div>
                   {/* Change Password */}
                   <div className="mt-3">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1 rounded-full bg-red-100 dark:bg-red-900/30">
-                        <Lock className="h-3 w-3 text-red-600 dark:text-red-400" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                        Change Password
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <FormInput
-                        placeholder="Current password"
-                        type="password"
-                        value={pwdForm.currentPassword}
-                        onChange={(e) =>
-                          setPwdForm({
-                            ...pwdForm,
-                            currentPassword: e.target.value,
-                          })
-                        }
-                        icon={Lock}
-                        className="text-sm w-full"
-                      />
-                      <FormInput
-                        placeholder="New password"
-                        type="password"
-                        value={pwdForm.newPassword}
-                        onChange={(e) =>
-                          setPwdForm({
-                            ...pwdForm,
-                            newPassword: e.target.value,
-                          })
-                        }
-                        icon={Lock}
-                        className="text-sm w-full"
-                      />
-                      <FormInput
-                        placeholder="Confirm new password"
-                        type="password"
-                        value={pwdForm.confirmPassword}
-                        onChange={(e) =>
-                          setPwdForm({
-                            ...pwdForm,
-                            confirmPassword: e.target.value,
-                          })
-                        }
-                        icon={Lock}
-                        className="text-sm w-full"
-                      />
-                      <div className="flex justify-end">
-                        <Button
-                          size="sm"
-                          onClick={handleChangePassword}
-                          disabled={changePasswordMutation.isPending}
-                          className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
-                        >
-                          {changePasswordMutation.isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <span>Update Password</span>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
+                    <Button
+                      size="sm"
+                      onClick={openChangePassword}
+                      className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
+                    >
+                      <Lock className="mr-3 h-4 w-4" />
+                      Open Change Password
+                    </Button>
                   </div>
-                  <div className="flex items-center justify-between mt-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleLogout}
+                    className="w-full flex justify-between items-center mt-2 p-2 hover:bg-red-50 dark:hover:bg-gray-800 rounded-lg transition-all"
+                  >
                     <div className="flex items-center gap-2">
                       <div className="p-1 rounded-full bg-red-100 dark:bg-red-900/30">
                         <LogOut className="h-3 w-3 text-red-600 dark:text-red-400" />
@@ -951,7 +884,7 @@ function Profile() {
                       </span>
                     </div>
                     <ChevronRight className="h-3 w-3 text-gray-400" />
-                  </div>
+                  </Button>
                 </CardContent>
               </Card>
             </div>
