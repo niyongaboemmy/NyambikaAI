@@ -10,7 +10,15 @@ import { generateVirtualTryOn } from "./tryon";
 import crypto from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
-import { subscriptions, users, products, orders, userWallets, walletPayments, paymentSettings } from "./shared/schema";
+import {
+  subscriptions,
+  users,
+  products,
+  orders,
+  userWallets,
+  walletPayments,
+  paymentSettings,
+} from "./shared/schema";
 import { and, eq, desc, sql, inArray } from "drizzle-orm";
 import {
   createSubscription,
@@ -108,6 +116,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   };
 
+  // Utility: normalize msisdn to international format without '+'
+  const normalizeMsisdn = (raw: string) => {
+    let msisdn = (raw || "").trim();
+    if (!msisdn) return msisdn;
+    if (msisdn.startsWith("+")) msisdn = msisdn.slice(1);
+    // If local Rwandan format 0xxxxxxxxx, convert to 250xxxxxxxxx
+    if (/^0\d{9}$/.test(msisdn)) {
+      msisdn = `250${msisdn.slice(1)}`;
+    }
+    return msisdn;
+  };
+
+  // Utility: ensure a wallet exists for given user and return it
+  const ensureUserWallet = async (userId: string) => {
+    let [wallet] = await db
+      .select()
+      .from(userWallets)
+      .where(eq(userWallets.userId, userId))
+      .limit(1);
+    if (!wallet) {
+      const [created] = await db
+        .insert(userWallets)
+        .values({ userId, balance: "0", status: "active" })
+        .returning();
+      wallet = created as any;
+    }
+    return wallet as any;
+  };
+
   // Orders: validation status update
   app.put(
     "/api/orders/:id/validation-status",
@@ -149,150 +186,157 @@ export async function registerRoutes(app: Express): Promise<Server> {
         updatedAt: wallet.updatedAt,
       });
 
-  // Public endpoint to fetch product boost fee from payment_settings
-  app.get("/api/payment-settings/product-boost", async (_req, res) => {
-    try {
-      let [setting] = await db
-        .select()
-        .from(paymentSettings)
-        .where(eq(paymentSettings.id, 2))
-        .limit(1);
-      if (!setting) {
-        const rows = await db
-          .select()
-          .from(paymentSettings)
-          .where(eq(paymentSettings.name, "product_boost"))
-          .limit(1);
-        setting = rows[0] as any;
-      }
-      if (!setting) return res.status(404).json({ message: "product_boost not configured" });
-      return res.json(setting);
-    } catch (e) {
-      console.error("Error fetching product boost payment setting:", e);
-      return res.status(500).json({ message: "Failed to load boost fee" });
-    }
-  });
+      // NOTE: response ends above; following routes continue
 
-  // Boost a product: charge boost fee from producer wallet and move product to top
-  app.post(
-    "/api/products/:id/boost",
-    requireAuth,
-    requireRole(["producer", "admin"]),
-    async (req: any, res) => {
-      try {
-        const productId = req.params.id as string;
-        // Fetch product
-        const [product] = await db
-          .select()
-          .from(products)
-          .where(eq(products.id, productId))
-          .limit(1);
-        if (!product) {
-          return res.status(404).json({ message: "Product not found" });
-        }
-        // Authorization: producer can only boost own product unless admin
-        if (req.userRole !== "admin" && product.producerId !== req.userId) {
-          return res.status(403).json({ message: "You can only boost your own product" });
-        }
-
-        // Read boost fee (by id=2 per requirement), fallback by name 'product_boost'
-        let [boostSetting] = await db
-          .select()
-          .from(paymentSettings)
-          .where(eq(paymentSettings.id, 2))
-          .limit(1);
-        if (!boostSetting) {
-          const rows = await db
+      // Public endpoint to fetch product boost fee from payment_settings
+      app.get("/api/payment-settings/product-boost", async (_req, res) => {
+        try {
+          let [setting] = await db
             .select()
             .from(paymentSettings)
-            .where(eq(paymentSettings.name, "product_boost"))
+            .where(eq(paymentSettings.id, 2))
             .limit(1);
-          boostSetting = rows[0] as any;
+          if (!setting) {
+            const rows = await db
+              .select()
+              .from(paymentSettings)
+              .where(eq(paymentSettings.name, "product_boost"))
+              .limit(1);
+            setting = rows[0] as any;
+          }
+          if (!setting)
+            return res
+              .status(404)
+              .json({ message: "product_boost not configured" });
+          return res.json(setting);
+        } catch (e) {
+          console.error("Error fetching product boost payment setting:", e);
+          return res.status(500).json({ message: "Failed to load boost fee" });
         }
-        if (!boostSetting) {
-          return res
-            .status(500)
-            .json({ message: "Boost pricing not configured" });
+      });
+
+      // Boost a product: charge boost fee from producer wallet and move product to top
+      app.post(
+        "/api/products/:id/boost",
+        requireAuth,
+        requireRole(["producer", "admin"]),
+        async (req: any, res) => {
+          try {
+            const productId = req.params.id as string;
+            // Fetch product
+            const [product] = await db
+              .select()
+              .from(products)
+              .where(eq(products.id, productId))
+              .limit(1);
+            if (!product) {
+              return res.status(404).json({ message: "Product not found" });
+            }
+            // Authorization: producer can only boost own product unless admin
+            if (req.userRole !== "admin" && product.producerId !== req.userId) {
+              return res
+                .status(403)
+                .json({ message: "You can only boost your own product" });
+            }
+
+            // Read boost fee (by id=2 per requirement), fallback by name 'product_boost'
+            let [boostSetting] = await db
+              .select()
+              .from(paymentSettings)
+              .where(eq(paymentSettings.id, 2))
+              .limit(1);
+            if (!boostSetting) {
+              const rows = await db
+                .select()
+                .from(paymentSettings)
+                .where(eq(paymentSettings.name, "product_boost"))
+                .limit(1);
+              boostSetting = rows[0] as any;
+            }
+            if (!boostSetting) {
+              return res
+                .status(500)
+                .json({ message: "Boost pricing not configured" });
+            }
+            const amount = Number(boostSetting.amountInRwf);
+            if (!amount || amount <= 0) {
+              return res.status(500).json({ message: "Invalid boost amount" });
+            }
+
+            // Ensure wallet exists
+            let [wallet] = await db
+              .select()
+              .from(userWallets)
+              .where(eq(userWallets.userId, req.userId))
+              .limit(1);
+            if (!wallet) {
+              const [created] = await db
+                .insert(userWallets)
+                .values({ userId: req.userId, balance: "0", status: "active" })
+                .returning();
+              wallet = created as any;
+            }
+
+            const currentBalance = Number(wallet.balance) || 0;
+            if (currentBalance < amount) {
+              return res.status(402).json({
+                message: "Insufficient wallet balance to boost product",
+                required: amount,
+                balance: currentBalance,
+              });
+            }
+
+            // Record wallet payment (debit)
+            const [payment] = await db
+              .insert(walletPayments)
+              .values({
+                walletId: wallet.id,
+                userId: req.userId,
+                type: "debit",
+                amount: String(amount.toFixed(2)),
+                method: "mobile_money",
+                provider: "mtn",
+                status: "completed",
+                description: `Product boost fee for product ${productId}`,
+                externalReference: `BOOST-${Date.now()}`,
+              })
+              .returning();
+
+            // Update wallet balance
+            const newBalance = String((currentBalance - amount).toFixed(2));
+            const [updatedWallet] = await db
+              .update(userWallets)
+              .set({ balance: newBalance, updatedAt: new Date() as any })
+              .where(eq(userWallets.id, wallet.id))
+              .returning();
+
+            // Set product to top by assigning smallest display_order - 1 (NULLs treated as large)
+            const [{ min_order } = { min_order: null }] = (await db
+              .select({ min_order: sql<number>`MIN(${products.displayOrder})` })
+              .from(products)) as any;
+            const nextOrder =
+              typeof min_order === "number" && !isNaN(min_order)
+                ? min_order - 1
+                : 0;
+
+            const [updatedProduct] = await db
+              .update(products)
+              .set({ displayOrder: nextOrder as any })
+              .where(eq(products.id, productId))
+              .returning();
+
+            res.json({
+              product: updatedProduct,
+              wallet: updatedWallet,
+              payment,
+              boostAmount: amount,
+            });
+          } catch (error) {
+            console.error("Error boosting product:", error);
+            res.status(500).json({ message: "Internal server error" });
+          }
         }
-        const amount = Number(boostSetting.amountInRwf);
-        if (!amount || amount <= 0) {
-          return res.status(500).json({ message: "Invalid boost amount" });
-        }
-
-        // Ensure wallet exists
-        let [wallet] = await db
-          .select()
-          .from(userWallets)
-          .where(eq(userWallets.userId, req.userId))
-          .limit(1);
-        if (!wallet) {
-          const [created] = await db
-            .insert(userWallets)
-            .values({ userId: req.userId, balance: "0", status: "active" })
-            .returning();
-          wallet = created as any;
-        }
-
-        const currentBalance = Number(wallet.balance) || 0;
-        if (currentBalance < amount) {
-          return res.status(402).json({
-            message: "Insufficient wallet balance to boost product",
-            required: amount,
-            balance: currentBalance,
-          });
-        }
-
-        // Record wallet payment (debit)
-        const [payment] = await db
-          .insert(walletPayments)
-          .values({
-            walletId: wallet.id,
-            userId: req.userId,
-            type: "debit",
-            amount: String(amount.toFixed(2)),
-            method: "mobile_money",
-            provider: "mtn",
-            status: "completed",
-            description: `Product boost fee for product ${productId}`,
-            externalReference: `BOOST-${Date.now()}`,
-          })
-          .returning();
-
-        // Update wallet balance
-        const newBalance = String((currentBalance - amount).toFixed(2));
-        const [updatedWallet] = await db
-          .update(userWallets)
-          .set({ balance: newBalance, updatedAt: new Date() as any })
-          .where(eq(userWallets.id, wallet.id))
-          .returning();
-
-        // Set product to top by assigning smallest display_order - 1 (NULLs treated as large)
-        const [{ min_order } = { min_order: null }] = (await db
-          .select({ min_order: sql<number>`MIN(${products.displayOrder})` })
-          .from(products)) as any;
-        const nextOrder =
-          typeof min_order === "number" && !isNaN(min_order)
-            ? min_order - 1
-            : 0;
-
-        const [updatedProduct] = await db
-          .update(products)
-          .set({ displayOrder: nextOrder as any })
-          .where(eq(products.id, productId))
-          .returning();
-
-        res.json({
-          product: updatedProduct,
-          wallet: updatedWallet,
-          payment,
-          boostAmount: amount,
-        });
-      } catch (error) {
-        console.error("Error boosting product:", error);
-        res.status(500).json({ message: "Internal server error" });
-      }
-    }
-  );
+      );
     } catch (error) {
       console.error("Error in GET /api/wallet:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -345,9 +389,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .set({ status: "completed" })
         .where(eq(walletPayments.id, payment.id));
 
-      const newBalance = String(
-        (Number(wallet.balance) || 0) + parsedAmount
-      );
+      const newBalance = String((Number(wallet.balance) || 0) + parsedAmount);
       const [updatedWallet] = await db
         .update(userWallets)
         .set({ balance: newBalance })
@@ -424,6 +466,362 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(list);
     } catch (error) {
       console.error("Error in GET /api/wallet/payments:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // ===== OPAY (Kpay/Esicia) Integration =====
+  // Initiate OPAY top-up (Esicia)
+  // ✅ Initiate payment
+  app.post(
+    "/api/payments/opay/initiate",
+    requireAuth,
+    async (req: any, res) => {
+      try {
+        const {
+          amount,
+          phone,
+          email,
+          details = "wallet_topup",
+          cname,
+          cnumber,
+          pmethod = "momo",
+          retailerid,
+          bankid,
+          currency = "RWF",
+        } = req.body || {};
+
+        const parsedAmount = Number(amount);
+        if (!parsedAmount || parsedAmount <= 0) {
+          return res.status(400).json({ message: "Invalid amount" });
+        }
+        if (!phone || typeof phone !== "string") {
+          return res.status(400).json({ message: "Phone is required" });
+        }
+
+        // Get user details
+        const userProfile = await storage
+          .getUserById(req.userId)
+          .catch(() => null as any);
+        const resolvedEmail = String(
+          email || userProfile?.email || "support@nyambika.com"
+        );
+        const resolvedCname = String(
+          cname || userProfile?.fullName || userProfile?.username || "Customer"
+        );
+        const resolvedCnumber = String(
+          cnumber || userProfile?.phone || userProfile?.id || req.userId
+        );
+
+        // Ensure wallet exists
+        const wallet = await ensureUserWallet(req.userId);
+
+        const externalReference = `OPAY-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`;
+
+        const [payment] = await db
+          .insert(walletPayments)
+          .values({
+            walletId: wallet.id,
+            userId: req.userId,
+            type: "topup",
+            amount: String(parsedAmount.toFixed(2)),
+            method: "mobile_money",
+            provider: "opay",
+            phone,
+            status: "pending",
+            description: "OPAY wallet top-up",
+            externalReference,
+          })
+          .returning();
+
+        const isMock =
+          String(process.env.OPAY_MOCK || "").toLowerCase() === "true";
+        const esiciaBase = (
+          process.env.ESICIA_BASE_URL || "https://pay.esicia.com/"
+        ).trim();
+        const esiciaRetailerId = retailerid || process.env.ESICIA_RETAILER_ID;
+        const esiciaBankId = bankid || process.env.ESICIA_BANK_ID || "130";
+        const redirectUrl =
+          process.env.ESICIA_REDIRECT_URL ||
+          (process.env.FRONTEND_URL
+            ? `${process.env.FRONTEND_URL}/profile`
+            : "https://nyambika-ai.vercel.app/profile");
+        const callbackBase =
+          process.env.PUBLIC_CALLBACK_BASE_URL ||
+          "https://nyambikaai.onrender.com";
+        const returl = new URL(
+          "/api/payments/opay/callback",
+          callbackBase
+        ).toString();
+
+        const hasAuth = Boolean(
+          process.env.ESICIA_USERNAME && process.env.ESICIA_PASSWORD
+        );
+        const debug =
+          String(process.env.PAY_DEBUG || "").toLowerCase() === "true";
+
+        if (debug) {
+          console.log("[Esicia] Config", {
+            isMock,
+            hasAuth,
+            esiciaBase,
+            esiciaRetailerId,
+            esiciaBankId,
+          });
+        }
+
+        if (isMock) {
+          if (debug)
+            console.log("[Esicia] Using MOCK mode: auto-completing payment");
+          await db
+            .update(walletPayments)
+            .set({ status: "completed" })
+            .where(eq(walletPayments.id, payment.id));
+
+          const newBalance = String(
+            (Number(wallet.balance) || 0) + parsedAmount
+          );
+          const [updatedWallet] = await db
+            .update(userWallets)
+            .set({ balance: newBalance, updatedAt: new Date() as any })
+            .where(eq(userWallets.id, wallet.id))
+            .returning();
+
+          return res.status(201).json({
+            payment: { ...payment, status: "completed" },
+            wallet: updatedWallet,
+            mode: "mock",
+          });
+        }
+
+        if (!hasAuth) {
+          return res
+            .status(500)
+            .json({ message: "Payment gateway credentials missing" });
+        }
+
+        // Normalize fields
+        const msisdn = String(phone).replace(/[^0-9]/g, "");
+        const safeDetails = String(details || "wallet_topup");
+        const safeAmount = Math.max(1, Math.round(parsedAmount));
+        const safeCnumber =
+          String(resolvedCnumber).replace(/[^0-9]/g, "") || "000000000";
+
+        const params = new URLSearchParams();
+        params.set("action", "pay");
+        params.set("msisdn", msisdn);
+        params.set("details", safeDetails);
+        params.set("refid", externalReference);
+        params.set("amount", String(safeAmount));
+        params.set("currency", String(currency || "RWF"));
+        params.set("email", resolvedEmail);
+        params.set("cname", resolvedCname);
+        params.set("cnumber", safeCnumber);
+        params.set("pmethod", pmethod);
+        params.set("method", pmethod);
+        if (esiciaRetailerId) params.set("retailerid", esiciaRetailerId);
+        params.set("returl", returl);
+        params.set("redirecturl", redirectUrl);
+        params.set("bankid", String(esiciaBankId));
+        if (process.env.OPAY_AUTH_KEY)
+          params.set("authkey", String(process.env.OPAY_AUTH_KEY));
+
+        const endpoint = esiciaBase;
+        const urlWithQuery = endpoint.includes("?")
+          ? `${endpoint}&${params}`
+          : `${endpoint}?${params}`;
+
+        // Ensure msisdn follows local format 07xxxxxxxx for JSON body (per Esicia samples)
+        const msisdnDigits = msisdn.replace(/\D/g, "");
+        const msisdnLocal = msisdnDigits.startsWith("2507")
+          ? "0" + msisdnDigits.slice(3)
+          : msisdnDigits.startsWith("07")
+          ? msisdnDigits
+          : msisdnDigits.length === 9 && msisdnDigits.startsWith("7")
+          ? "0" + msisdnDigits
+          : msisdn;
+
+        // Send payment request
+        const timeoutMs = Number(process.env.ESICIA_TIMEOUT_MS || 20000);
+
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json, text/plain, */*",
+            "User-Agent": "NyambikaAI/1.0",
+            Authorization:
+              "Basic " +
+              Buffer.from(
+                `${process.env.ESICIA_USERNAME}:${process.env.ESICIA_PASSWORD}`
+              ).toString("base64"),
+          },
+          body: JSON.stringify({
+            action: "pay",
+            msisdn: msisdnLocal,
+            details: safeDetails,
+            refid: externalReference,
+            amount: safeAmount,
+            currency: String(currency || "RWF"),
+            email: resolvedEmail,
+            cname: resolvedCname,
+            cnumber: safeCnumber,
+            pmethod,
+            retailerid: esiciaRetailerId,
+            returl,
+            redirecturl: redirectUrl,
+            bankid: String(esiciaBankId),
+            authkey: process.env.OPAY_AUTH_KEY,
+          }),
+          signal: AbortSignal.timeout(timeoutMs),
+        });
+
+        const json = (await response.json()) as any;
+        if (debug) console.log("[Esicia] Initiate response", json);
+
+        const mapRetcode = (code: string) => {
+          switch (code) {
+            case "0":
+              return "No error. Transaction being processed";
+            case "01":
+              return "Successful payment";
+            case "02":
+              return "Payment failed";
+            case "03":
+              return "Pending transaction";
+            case "401":
+              return "Missing authentication header";
+            case "500":
+              return "Non HTTPS request";
+            case "600":
+              return "Invalid username / password combination";
+            case "601":
+              return "Invalid remote user";
+            case "602":
+              return "Location / IP not whitelisted";
+            case "603":
+              return "Missing required parameters";
+            case "604":
+              return "Unknown retailer";
+            case "605":
+              return "Retailer not enabled";
+            case "606":
+              return "Error processing";
+            case "607":
+              return "Failed mobile money transaction";
+            case "608":
+              return "Used ref id (not unique)";
+            case "609":
+              return "Unknown payment method";
+            case "610":
+              return "Unknown or not enabled financial institution";
+            case "611":
+              return "Transaction not found";
+            default:
+              return "Unknown gateway status";
+          }
+        };
+
+        const retcode = String(json?.retcode ?? "");
+        const success = Number(json?.success) === 1;
+        const url = typeof json?.url === "string" ? json.url.trim() : "";
+
+        if (retcode !== "0") {
+          // Hard failure per gateway retcode
+          await db
+            .update(walletPayments)
+            .set({ status: "failed" })
+            .where(eq(walletPayments.id, payment.id));
+          return res.status(400).json({
+            message: mapRetcode(retcode),
+            gateway: json,
+          });
+        }
+
+        if (success && url) {
+          return res.status(200).json({
+            ok: true,
+            payment,
+            redirectUrl: url,
+          });
+        }
+
+        // retcode 0 but no usable URL: treat as gateway-side issue; do not proceed
+        await db
+          .update(walletPayments)
+          .set({ status: "failed" })
+          .where(eq(walletPayments.id, payment.id));
+        return res.status(400).json({
+          message: "Gateway returned retcode 0 but no checkout URL",
+          gateway: json,
+        });
+      } catch (error) {
+        console.error("Error in POST /api/payments/opay/initiate:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // ✅ Payment callback route (separated)
+  app.post("/api/payments/opay/callback", async (req: any, res) => {
+    try {
+      const { reference, refid, reply, status, statusid } = req.body || {};
+      const ref = reference || refid;
+
+      if (!ref)
+        return res.status(400).json({ message: "Missing reference/refid" });
+
+      const [payment] = await db
+        .select()
+        .from(walletPayments)
+        .where(eq(walletPayments.externalReference, ref))
+        .limit(1);
+
+      if (!payment)
+        return res.status(404).json({ message: "Payment not found" });
+      if ((payment.status || "").toLowerCase() !== "pending") {
+        return res.json({ ok: true, alreadyProcessed: true });
+      }
+
+      const norm = String(reply || status || "").toLowerCase();
+      let finalStatus: "completed" | "failed" | "pending" = "pending";
+
+      if (["ok", "success", "successful", "completed"].includes(norm))
+        finalStatus = "completed";
+      else if (
+        ["failed", "error", "cancelled"].includes(norm) ||
+        (statusid && String(statusid) !== "0")
+      )
+        finalStatus = "failed";
+
+      await db
+        .update(walletPayments)
+        .set({ status: finalStatus })
+        .where(eq(walletPayments.id, payment.id));
+
+      if (finalStatus === "completed") {
+        const [wallet] = await db
+          .select()
+          .from(userWallets)
+          .where(eq(userWallets.id, payment.walletId))
+          .limit(1);
+
+        if (wallet) {
+          const newBalance = String(
+            (Number(wallet.balance) || 0) + Number(payment.amount)
+          );
+          await db
+            .update(userWallets)
+            .set({ balance: newBalance, updatedAt: new Date() as any })
+            .where(eq(userWallets.id, wallet.id));
+        }
+      }
+
+      return res.json({ ok: true });
+    } catch (error) {
+      console.error("Error in POST /api/payments/opay/callback:", error);
       res.status(500).json({ message: "Internal server error" });
     }
   });
@@ -1159,20 +1557,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
-        return res.status(400).json({ message: "Current password is incorrect" });
+        return res
+          .status(400)
+          .json({ message: "Current password is incorrect" });
       }
 
       const isSame = await bcrypt.compare(newPassword, user.password);
       if (isSame) {
-        return res
-          .status(400)
-          .json({ message: "New password must be different from current password" });
+        return res.status(400).json({
+          message: "New password must be different from current password",
+        });
       }
 
       const hashed = await bcrypt.hash(newPassword, 10);
       await storage.updateUser(user.id, { password: hashed } as any);
 
-      return res.json({ success: true, message: "Password updated successfully" });
+      return res.json({
+        success: true,
+        message: "Password updated successfully",
+      });
     } catch (error) {
       console.error("Error in change-password:", error);
       return res.status(500).json({ message: "Internal server error" });

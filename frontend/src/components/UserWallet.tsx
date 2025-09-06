@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
 import { Card, CardContent } from "@/components/custom-ui/card";
@@ -125,6 +125,26 @@ export default function UserWallet() {
   const [amount, setAmount] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
 
+  // Prefill phone number from authenticated user profile
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const { data } = await apiClient.get(API_ENDPOINTS.ME, {
+          // ensure we don't spam login modal on public pages
+          // but ME requires auth anyway; keep default behavior
+        } as any);
+        const userPhone = data?.user?.phone || data?.phone;
+        if (mounted && userPhone && !phone) {
+          setPhone(userPhone);
+        }
+      } catch {}
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   const { data: wallet, isLoading: walletLoading } = useQuery<WalletInfo>({
     queryKey: [API_ENDPOINTS.WALLET],
     queryFn: async () => {
@@ -142,6 +162,7 @@ export default function UserWallet() {
       return data || [];
     },
   });
+  const hasPending = (payments || []).some((p) => p.status === "pending");
 
   const topUpMutation = useMutation({
     mutationFn: async ({
@@ -152,9 +173,9 @@ export default function UserWallet() {
       phone?: string;
     }) => {
       try {
-        const { data } = await apiClient.post(API_ENDPOINTS.WALLET_TOPUP, {
+        const { data } = await apiClient.post(API_ENDPOINTS.OPAY_INITIATE, {
           amount,
-          provider: "mtn", // Default to MTN
+          provider: "mtn", // default
           phone,
         });
         return data;
@@ -162,11 +183,67 @@ export default function UserWallet() {
         throw new Error(handleApiError(error));
       }
     },
-    onSuccess: () => {
-      toast({
-        title: "✨ Top-up successful",
-        description: "Your wallet has been credited with sparkles!",
-      });
+    onSuccess: (data: any) => {
+      const status = data?.payment?.status;
+      const url =
+        data?.gateway?.body?.url ||
+        data?.opay?.body?.url ||
+        data?.gateway?.url ||
+        data?.opay?.url;
+      const reply =
+        data?.gateway?.body?.reply || data?.opay?.body?.reply || undefined;
+      const successFlag =
+        data?.gateway?.body?.success ?? data?.opay?.body?.success;
+      const retcode = data?.gateway?.body?.retcode ?? data?.opay?.body?.retcode;
+      if (status === "completed") {
+        toast({
+          title: "✨ Top-up successful",
+          description: "Your wallet has been credited!",
+        });
+      } else {
+        // If gateway explicitly returns a failure or no URL, show a helpful message
+        if (
+          successFlag === 0 ||
+          (reply && String(reply).toUpperCase() === "FAILED") ||
+          (!url && successFlag !== 1)
+        ) {
+          toast({
+            title: "⚠️ Payment not initiated",
+            description:
+              typeof retcode !== "undefined"
+                ? `Gateway returned code ${retcode}. Please verify your details and try again.`
+                : "The gateway could not start your payment. Please verify your phone number and try again.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "📲 Payment initiated",
+            description:
+              "We sent a payment request to your phone. Approve it to complete top-up.",
+          });
+        }
+        if (url && typeof window !== "undefined") {
+          // Prefer same-tab navigation for better mobile UX
+          try {
+            window.location.href = url;
+          } catch {
+            window.open(url, "_blank");
+          }
+        }
+        // Light polling to auto-refresh while waiting for callback
+        setTimeout(() => {
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+        }, 3000);
+        setTimeout(() => {
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+        }, 8000);
+        setTimeout(() => {
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+        }, 15000);
+      }
       setAmount("");
       setPhone("");
       qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
@@ -191,7 +268,15 @@ export default function UserWallet() {
       });
       return;
     }
-    topUpMutation.mutate({ amount: amt, phone: phone || undefined });
+    if (!phone || phone.trim().length < 8) {
+      toast({
+        title: "📞 Phone required",
+        description: "Please enter your mobile number to initiate payment.",
+        variant: "destructive",
+      });
+      return;
+    }
+    topUpMutation.mutate({ amount: amt, phone: phone.trim() });
   };
 
   const getStatusIcon = (status: string) => {
@@ -244,6 +329,18 @@ export default function UserWallet() {
               </span>
             </div>
           </div>
+
+          {/* Pending Payment Banner */}
+          {hasPending && (
+            <div className="mb-4 sm:mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/40 flex items-start gap-3">
+              <Clock className="h-4 w-4 text-amber-600 mt-0.5" />
+              <div className="text-xs sm:text-sm text-amber-800 dark:text-amber-200">
+                We’re waiting for your payment confirmation. This can take up to
+                a few minutes depending on your provider. This page will
+                auto-refresh.
+              </div>
+            </div>
+          )}
 
           {/* Balance Display with Floating Animation */}
           <div className="relative mb-4 sm:mb-6 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 dark:from-blue-500/20 dark:via-purple-500/20 dark:to-pink-500/20 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm">
@@ -313,30 +410,30 @@ export default function UserWallet() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 icon={Coins}
-                className="text-sm transition-all duration-300 focus:scale-105"
+                className="text-sm transition-all duration-300"
               />
               <FormInput
-                placeholder="Mobile Number (optional)"
+                placeholder="Mobile Number (required)"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 icon={Sparkles}
-                className="text-sm transition-all duration-300 focus:scale-105"
+                className="text-sm transition-all duration-300"
               />
             </div>
             <Button
               onClick={handleTopUp}
-              disabled={topUpMutation.isPending || !amount}
+              disabled={topUpMutation.isPending || !amount || !phone}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 sm:py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               {topUpMutation.isPending ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
-                  <span>Adding Magic...</span>
+                  <span>Initiating payment...</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 animate-pulse" />
-                  <span>Add Funds</span>
+                  <span>Add Funds (OPAY)</span>
                   <ArrowUpRight className="h-4 w-4" />
                 </div>
               )}
@@ -349,9 +446,17 @@ export default function UserWallet() {
               <div className="p-2 rounded-xl bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
                 <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
               </div>
-              <h4 className="font-semibold text-gray-900 dark:text-gray-100">
-                Recent Activity
-              </h4>
+              <div className="flex items-center gap-3 w-full justify-between">
+                <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                  Recent Activity
+                </h4>
+                <a
+                  href="/wallet/transactions"
+                  className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                >
+                  View all
+                </a>
+              </div>
             </div>
 
             {paymentsLoading ? (

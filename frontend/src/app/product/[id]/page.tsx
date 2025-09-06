@@ -233,10 +233,9 @@ export default function ProductDetail() {
     queryKey: ["wallet"],
     queryFn: async () => {
       try {
-        const res = await apiClient.get(
-          API_ENDPOINTS.WALLET,
-          { suppressAuthModal: true } as any
-        );
+        const res = await apiClient.get(API_ENDPOINTS.WALLET, {
+          suppressAuthModal: true,
+        } as any);
         return res.data;
       } catch (error) {
         // Fail silently for non-auth users
@@ -663,7 +662,7 @@ export default function ProductDetail() {
                 </div>
               </div>
               {product.images && product.images.length > 1 && (
-                <div className="grid grid-cols-6 sm:grid-cols-5 gap-1 sm:gap-2">
+                <div className="grid grid-cols-6 sm:grid-cols-7 gap-1 sm:gap-2">
                   {product.images.map((image, index) => (
                     <button
                       key={index}

@@ -211,6 +211,10 @@ export const API_ENDPOINTS = {
   WALLET_WEBHOOK: "/api/wallet/webhook",
   WALLET_PAYMENTS: "/api/wallet/payments",
 
+  // OPAY (Kpay)
+  OPAY_INITIATE: "/api/payments/opay/initiate",
+  OPAY_CALLBACK: "/api/payments/opay/callback",
+
   // AI
   AI_ANALYZE_FASHION: "/api/ai/analyze-fashion",
   AI_SIZE_RECOMMENDATION: "/api/ai/size-recommendation",
