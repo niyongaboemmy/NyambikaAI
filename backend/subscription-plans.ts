@@ -49,7 +49,7 @@ export const createSubscriptionPlan = async (req: Request, res: Response) => {
     
     const newPlan = await db
       .insert(subscriptionPlans)
-      .values(planData)
+      .values({ id: randomUUID(), ...planData })
       .returning();
 
     res.status(201).json(newPlan[0]);

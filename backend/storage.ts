@@ -194,9 +194,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCategory(category: InsertCategory): Promise<Category> {
+    const id = crypto.randomUUID();
     const [newCategory] = await db
       .insert(categories)
-      .values(category)
+      .values({ id, ...category })
       .returning();
     return newCategory;
   }
@@ -296,7 +297,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createProduct(product: InsertProduct): Promise<Product> {
-    const [newProduct] = await db.insert(products).values(product).returning();
+    const id = crypto.randomUUID();
+    const [newProduct] = await db
+      .insert(products)
+      .values({ id, ...product })
+      .returning();
     return newProduct;
   }
 
@@ -362,8 +367,12 @@ export class DatabaseStorage implements IStorage {
         .returning();
       return updatedItem;
     } else {
-      // Insert new item
-      const [newItem] = await db.insert(cartItems).values(cartItem).returning();
+      // Insert new item with explicit UUID
+      const id = crypto.randomUUID();
+      const [newItem] = await db
+        .insert(cartItems)
+        .values({ id, ...cartItem })
+        .returning();
       return newItem;
     }
   }
@@ -510,11 +519,16 @@ export class DatabaseStorage implements IStorage {
     order: InsertOrder,
     items: InsertOrderItem[]
   ): Promise<Order> {
-    const [newOrder] = await db.insert(orders).values(order).returning();
+    const id = crypto.randomUUID();
+    const [newOrder] = await db
+      .insert(orders)
+      .values({ id, ...order })
+      .returning();
 
     const orderItemsWithOrderId = items.map((item) => ({
+      id: crypto.randomUUID(),
       ...item,
-      orderId: newOrder.id,
+      orderId: id,
     }));
 
     await db.insert(orderItems).values(orderItemsWithOrderId);
@@ -555,9 +569,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async addToFavorites(favorite: InsertFavorite): Promise<Favorite> {
+    const id = crypto.randomUUID();
     const [newFavorite] = await db
       .insert(favorites)
-      .values(favorite)
+      .values({ id, ...favorite })
       .returning();
     return newFavorite;
   }
@@ -604,9 +619,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTryOnSession(session: InsertTryOnSession): Promise<TryOnSession> {
+    const id = crypto.randomUUID();
     const [newSession] = await db
       .insert(tryOnSessions)
-      .values(session)
+      .values({ id, ...session })
       .returning();
     return newSession;
   }
@@ -636,7 +652,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createReview(review: InsertReview): Promise<Review> {
-    const [newReview] = await db.insert(reviews).values(review).returning();
+    const id = crypto.randomUUID();
+    const [newReview] = await db
+      .insert(reviews)
+      .values({ id, ...review })
+      .returning();
     return newReview;
   }
 
@@ -679,7 +699,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCompany(company: InsertCompany): Promise<Company> {
-    const [newCompany] = await db.insert(companies).values(company).returning();
+    const id = crypto.randomUUID();
+    const [newCompany] = await db
+      .insert(companies)
+      .values({ id, ...company })
+      .returning();
     return newCompany;
   }
 

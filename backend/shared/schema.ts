@@ -294,99 +294,40 @@ export const paymentSettings = pgTable("payment_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({
-  // id: true,
-  createdAt: true,
-});
+// Insert schemas (allow app-provided UUIDs; only paymentSettings keeps id omitted)
+export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true });
 
-export const insertCompanySchema = createInsertSchema(companies).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertCompanySchema = createInsertSchema(companies).omit({ createdAt: true });
 
-export const insertCategorySchema = createInsertSchema(categories).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertCategorySchema = createInsertSchema(categories).omit({ createdAt: true });
 
-export const insertProductSchema = createInsertSchema(products).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertProductSchema = createInsertSchema(products).omit({ createdAt: true });
 
-export const insertCartItemSchema = createInsertSchema(cartItems).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({ createdAt: true });
 
-export const insertOrderSchema = createInsertSchema(orders).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertOrderSchema = createInsertSchema(orders).omit({ createdAt: true });
 
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
-  id: true,
-});
+export const insertOrderItemSchema = createInsertSchema(orderItems);
 
-export const insertFavoriteSchema = createInsertSchema(favorites).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({ createdAt: true });
 
-export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({ createdAt: true });
 
-export const insertReviewSchema = createInsertSchema(reviews).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertReviewSchema = createInsertSchema(reviews).omit({ createdAt: true });
 
-export const insertSubscriptionPlanSchema = createInsertSchema(
-  subscriptionPlans
-).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({ createdAt: true });
 
-export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ createdAt: true });
 
-export const insertSubscriptionPaymentSchema = createInsertSchema(
-  subscriptionPayments
-).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPayments).omit({ createdAt: true });
 
-export const insertNotificationSchema = createInsertSchema(notifications).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ createdAt: true });
 
-export const insertUserWalletSchema = createInsertSchema(userWallets).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertUserWalletSchema = createInsertSchema(userWallets).omit({ createdAt: true, updatedAt: true });
 
-export const insertWalletPaymentSchema = createInsertSchema(
-  walletPayments
-).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({ createdAt: true });
 
-export const insertPaymentSettingSchema = createInsertSchema(
-  paymentSettings
-).omit({
-  id: true,
-  createdAt: true,
-});
+export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({ id: true, createdAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;

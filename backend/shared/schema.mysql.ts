@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import {
   mysqlTable as table,
   varchar,
@@ -15,7 +14,7 @@ import { z } from "zod";
 // Note: MySQL uses UUID() for default id generation
 
 export const users = table("users", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
@@ -33,7 +32,7 @@ export const users = table("users", {
 });
 
 export const companies = table("companies", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   producerId: varchar("producer_id", { length: 36 }).notNull().references(() => users.id),
   tin: text("tin"),
   name: text("name").notNull(),
@@ -46,7 +45,7 @@ export const companies = table("companies", {
 });
 
 export const categories = table("categories", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   name: text("name").notNull(),
   nameRw: text("name_rw").notNull(),
   description: text("description"),
@@ -55,7 +54,7 @@ export const categories = table("categories", {
 });
 
 export const products = table("products", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   name: text("name").notNull(),
   nameRw: text("name_rw").notNull(),
   description: text("description").notNull(),
@@ -74,7 +73,7 @@ export const products = table("products", {
 });
 
 export const cartItems = table("cart_items", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).references(() => users.id),
   productId: varchar("product_id", { length: 36 }).references(() => products.id),
   quantity: int("quantity").default(1),
@@ -84,7 +83,7 @@ export const cartItems = table("cart_items", {
 });
 
 export const orders = table("orders", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   customerId: varchar("customer_id", { length: 36 }).references(() => users.id),
   producerId: varchar("producer_id", { length: 36 }).references(() => users.id),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
@@ -102,7 +101,7 @@ export const orders = table("orders", {
 });
 
 export const orderItems = table("order_items", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   orderId: varchar("order_id", { length: 36 }).references(() => orders.id),
   productId: varchar("product_id", { length: 36 }).references(() => products.id),
   quantity: int("quantity").default(1),
@@ -112,14 +111,14 @@ export const orderItems = table("order_items", {
 });
 
 export const favorites = table("favorites", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).references(() => users.id),
   productId: varchar("product_id", { length: 36 }).references(() => products.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const tryOnSessions = table("try_on_sessions", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).references(() => users.id),
   customerImageUrl: text("customer_image_url").notNull(),
   productId: varchar("product_id", { length: 36 }).references(() => products.id),
@@ -130,7 +129,7 @@ export const tryOnSessions = table("try_on_sessions", {
 });
 
 export const reviews = table("reviews", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).references(() => users.id),
   productId: varchar("product_id", { length: 36 }).references(() => products.id),
   orderId: varchar("order_id", { length: 36 }).references(() => orders.id),
@@ -142,7 +141,7 @@ export const reviews = table("reviews", {
 });
 
 export const subscriptionPlans = table("subscription_plans", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   name: text("name").notNull(),
   nameRw: text("name_rw").notNull(),
   description: text("description").notNull(),
@@ -161,7 +160,7 @@ export const subscriptionPlans = table("subscription_plans", {
 });
 
 export const subscriptions = table("subscriptions", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).references(() => users.id).notNull(),
   planId: varchar("plan_id", { length: 36 }).references(() => subscriptionPlans.id).notNull(),
   agentId: varchar("agent_id", { length: 36 }).references(() => users.id),
@@ -177,7 +176,7 @@ export const subscriptions = table("subscriptions", {
 });
 
 export const subscriptionPayments = table("subscription_payments", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   subscriptionId: varchar("subscription_id", { length: 36 }).references(() => subscriptions.id).notNull(),
   agentId: varchar("agent_id", { length: 36 }).references(() => users.id),
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
@@ -190,7 +189,7 @@ export const subscriptionPayments = table("subscription_payments", {
 });
 
 export const notifications = table("notifications", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).references(() => users.id).notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),
@@ -201,7 +200,7 @@ export const notifications = table("notifications", {
 });
 
 export const userWallets = table("user_wallets", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).notNull().unique().references(() => users.id),
   balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("0"),
   status: text("status").notNull().default("active"),
@@ -210,7 +209,7 @@ export const userWallets = table("user_wallets", {
 });
 
 export const walletPayments = table("wallet_payments", {
-  id: varchar("id", { length: 36 }).primaryKey().default(sql`(UUID())`),
+  id: varchar("id", { length: 36 }).primaryKey(),
   walletId: varchar("wallet_id", { length: 36 }).notNull().references(() => userWallets.id),
   userId: varchar("user_id", { length: 36 }).notNull().references(() => users.id),
   type: text("type").notNull().default("topup"),
@@ -235,22 +234,22 @@ export const paymentSettings = table("payment_settings", {
 });
 
 // Insert schemas
-export const insertUserSchema = createInsertSchema(users).omit({ id: true, createdAt: true });
-export const insertCompanySchema = createInsertSchema(companies).omit({ id: true, createdAt: true });
-export const insertCategorySchema = createInsertSchema(categories).omit({ id: true, createdAt: true });
-export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true });
-export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true, createdAt: true });
-export const insertOrderSchema = createInsertSchema(orders).omit({ id: true, createdAt: true });
-export const insertOrderItemSchema = createInsertSchema(orderItems).omit({ id: true });
-export const insertFavoriteSchema = createInsertSchema(favorites).omit({ id: true, createdAt: true });
-export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({ id: true, createdAt: true });
-export const insertReviewSchema = createInsertSchema(reviews).omit({ id: true, createdAt: true });
-export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({ id: true, createdAt: true });
-export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ id: true, createdAt: true });
-export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPayments).omit({ id: true, createdAt: true });
-export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
-export const insertUserWalletSchema = createInsertSchema(userWallets).omit({ id: true, createdAt: true, updatedAt: true });
-export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({ id: true, createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true });
+export const insertCompanySchema = createInsertSchema(companies).omit({ createdAt: true });
+export const insertCategorySchema = createInsertSchema(categories).omit({ createdAt: true });
+export const insertProductSchema = createInsertSchema(products).omit({ createdAt: true });
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({ createdAt: true });
+export const insertOrderSchema = createInsertSchema(orders).omit({ createdAt: true });
+export const insertOrderItemSchema = createInsertSchema(orderItems);
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({ createdAt: true });
+export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({ createdAt: true });
+export const insertReviewSchema = createInsertSchema(reviews).omit({ createdAt: true });
+export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({ createdAt: true });
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ createdAt: true });
+export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPayments).omit({ createdAt: true });
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ createdAt: true });
+export const insertUserWalletSchema = createInsertSchema(userWallets).omit({ createdAt: true, updatedAt: true });
+export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({ createdAt: true });
 export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({ id: true, createdAt: true });
 
 // Types

@@ -156,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!wallet) {
       const [created] = await db
         .insert(userWallets)
-        .values({ userId, balance: "0", status: "active" })
+        .values({ id: randomUUID(), userId, balance: "0", status: "active" })
         .returning();
       wallet = created as any;
     }
@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!wallet) {
         const [created] = await db
           .insert(userWallets)
-          .values({ userId: req.userId, balance: "0", status: "active" })
+          .values({ id: randomUUID(), userId: req.userId, balance: "0", status: "active" })
           .returning();
         wallet = created as any;
       }
@@ -386,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (!wallet) {
               const [created] = await db
                 .insert(userWallets)
-                .values({ userId: req.userId, balance: "0", status: "active" })
+                .values({ id: randomUUID(), userId: req.userId, balance: "0", status: "active" })
                 .returning();
               wallet = created as any;
             }
@@ -404,12 +404,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const [payment] = await db
               .insert(walletPayments)
               .values({
+                id: randomUUID(),
                 walletId: wallet.id,
                 userId: req.userId,
                 type: "debit",
                 amount: String(amount.toFixed(2)),
                 method: "mobile_money",
                 provider: "mtn",
+                phone: (req.body && (req.body as any).phone) || null,
                 status: "completed",
                 description: `Product boost fee for product ${productId}`,
                 externalReference: `BOOST-${Date.now()}`,
@@ -475,7 +477,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!wallet) {
         const [created] = await db
           .insert(userWallets)
-          .values({ userId: req.userId, balance: "0", status: "active" })
+          .values({ id: randomUUID(), userId: req.userId, balance: "0", status: "active" })
           .returning();
         wallet = created as any;
       }
@@ -484,6 +486,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const [payment] = await db
         .insert(walletPayments)
         .values({
+          id: randomUUID(),
           walletId: wallet.id,
           userId: req.userId,
           type: "topup",
@@ -637,6 +640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const [payment] = await db
           .insert(walletPayments)
           .values({
+            id: randomUUID(),
             walletId: wallet.id,
             userId: req.userId,
             type: "topup",

@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { randomUUID } from 'crypto';
 import { db } from './db';
 import { subscriptions, subscriptionPlans, subscriptionPayments, users, InsertSubscription } from './shared/schema';
 import { eq, and, gte, desc } from 'drizzle-orm';
@@ -59,6 +60,7 @@ export const createSubscription = async (req: Request, res: Response) => {
     const newSubscription = await db
       .insert(subscriptions)
       .values({
+        id: randomUUID(),
         ...subscriptionData,
         startDate,
         endDate,
@@ -133,6 +135,7 @@ export const renewSubscription = async (req: Request, res: Response) => {
     const payment = await db
       .insert(subscriptionPayments)
       .values({
+        id: randomUUID(),
         subscriptionId: id,
         agentId,
         amount,
