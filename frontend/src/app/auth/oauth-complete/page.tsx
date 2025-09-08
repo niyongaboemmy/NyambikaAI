@@ -14,20 +14,20 @@ export default function OAuthCompletePage() {
         // Read token from URL search parameters
         const { search } = window.location;
         const urlParams = new URLSearchParams(search);
-        const token = urlParams.get('token');
+        const token = urlParams.get("token");
 
         if (!token) {
           console.error("No token found in URL hash");
-          setStatus("Authentication failed. Redirecting to login...");
+          setStatus("Authentication verification. Redirecting to login...");
           setTimeout(() => router.push("/"), 2000);
           return;
         }
 
         // Clean up the URL by removing the token and user data from the URL
         const cleanUrl = new URL(window.location.href);
-        cleanUrl.searchParams.delete('token');
-        cleanUrl.searchParams.delete('user');
-        window.history.replaceState(null, '', cleanUrl.toString());
+        cleanUrl.searchParams.delete("token");
+        cleanUrl.searchParams.delete("user");
+        window.history.replaceState(null, "", cleanUrl.toString());
 
         // Store the token in localStorage
         localStorage.setItem("auth_token", token);
@@ -54,7 +54,7 @@ export default function OAuthCompletePage() {
         window.location.href = redirect;
       } catch (e) {
         console.error("OAuth completion failed:", e);
-        setStatus("Authentication failed. Redirecting to login...");
+        setStatus("Authentication verification. Redirecting to login...");
         setTimeout(() => router.push("/"), 2000);
       }
     };
