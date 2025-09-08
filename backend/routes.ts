@@ -10,6 +10,8 @@ import { generateVirtualTryOn } from "./tryon";
 import crypto from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
+
+type UserRole = 'customer' | 'producer' | 'admin' | 'agent';
 import {
   subscriptions,
   users,
@@ -1904,29 +1906,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
         username: email,
         email,
         password: hashed,
-        fullName: name || email.split("@")[0],
         role,
+        fullName: payload.name || email.split("@")[0],
         phone: phone || null,
-      } as any);
+      });
 
-      // Issue normal JWT
+      // Return sanitized user
+      const { password: _pw, ...safe } = created as any;
+      const mappedUser = {
+        ...safe,
+        id: safe.id.toString(),
+        role: safe.role as UserRole,
+        name: safe.fullName || safe.email.split("@")[0],
+      };
+
+      // Generate JWT token
       const token = jwt.sign(
-        { userId: created.id, role: created.role || "customer" },
+        { userId: mappedUser.id, role: mappedUser.role },
         jwtSecret,
         { expiresIn: "7d" }
       );
 
-      const {
-        password: _pw2,
-        fullName: createdFullName,
-        ...userWithoutPassword
-      } = created;
-      const mappedUser = {
-        ...userWithoutPassword,
-        name: createdFullName || created.email.split("@")[0],
-      } as any;
+      // Set HTTP-only cookie for automatic login
+      res.cookie("auth_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: "/",
+      });
 
-      return res.status(201).json({ user: mappedUser, token });
+      // Also set the token in the Authorization header for immediate use
+      res.setHeader('Authorization', `Bearer ${token}`);
+
+      return res.status(201).json({ 
+        user: mappedUser, 
+        token,
+        message: "Registration successful. You are now logged in."
+      });
     } catch (error) {
       console.error("register-oauth error:", error);
       return res.status(500).json({ message: "Internal server error" });
