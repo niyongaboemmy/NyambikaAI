@@ -1009,15 +1009,16 @@ export default function Register() {
                             </motion.div>
                           </div>
 
-                          {/* Social sign-in */}
-                          <div className="space-y-4">
-                            <div className="relative text-center text-sm text-gray-500 dark:text-gray-400">
-                              <span className="bg-white dark:bg-gray-900 px-3 relative z-10">
-                                or continue with
-                              </span>
-                              <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-gray-200 dark:bg-gray-700" />
-                            </div>
-                            <div className="grid grid-cols-2 gap-3">
+                          {/* Social sign-in (hidden in OAuth completion mode) */}
+                          {!searchParams.get("oauthToken") && (
+                            <div className="space-y-4">
+                              <div className="relative text-center text-sm text-gray-500 dark:text-gray-400">
+                                <span className="bg-white dark:bg-gray-900 px-3 relative z-10">
+                                  or continue with
+                                </span>
+                                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-gray-200 dark:bg-gray-700" />
+                              </div>
+                              <div className="grid grid-cols-2 gap-3">
                               <Button
                                 type="button"
                                 variant="outline"
@@ -1114,6 +1115,7 @@ export default function Register() {
                               </Button>
                             </div>
                           </div>
+                          )}
                         </div>
                       )}
                     </AnimatePresence>

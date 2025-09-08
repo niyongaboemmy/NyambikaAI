@@ -42,6 +42,7 @@ const ROUTE_CONFIG = {
     "/producer/[producerId]/orders",
     "/product-registration",
     "/product-edit/[id]",
+    "/producer-subscription",
   ],
 
   // Agent only routes
