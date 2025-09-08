@@ -1825,11 +1825,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.send(html);
       }
 
-      // Issue JWT with user role
+      // Get user's display name (fallback to email username if not set)
+      const displayName = user.fullName || user.email.split('@')[0];
+      
+      // Issue JWT with user role and additional user data
       const token = jwt.sign(
         { 
           userId: user.id, 
-          role: user.role || 'customer' // Ensure role is always set
+          role: user.role || 'customer',
+          email: user.email,
+          name: displayName
         }, 
         jwtSecret,
         { expiresIn: "7d" }
@@ -1842,17 +1847,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: '/',
+        domain: process.env.NODE_ENV === 'production' ? '.nyambikaai.com' : undefined
       });
+
+      // Prepare user data to be passed to the frontend
+      const userData = {
+        id: user.id,
+        email: user.email,
+        name: displayName,
+        role: user.role || 'customer',
+        isVerified: user.isVerified || false
+      };
 
       // Redirect to frontend with token in hash for client-side auth
       const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
-      const redirectUrl = `${frontendBase}/auth/oauth-complete#token=${encodeURIComponent(token)}`;
+      const redirectUrl = new URL(`${frontendBase}/auth/oauth-complete`);
+      
+      // Add token to URL hash
+      redirectUrl.hash = `#token=${encodeURIComponent(token)}`;
+      
+      // Add user data as URL parameters
+      redirectUrl.searchParams.set('user', encodeURIComponent(JSON.stringify(userData)));
       
       // Return HTML that will handle the redirect
       const html = `<!doctype html>
-<html><head><meta charset="utf-8"><script>
-  window.location.replace(${JSON.stringify(redirectUrl)});
-  </script></head><body></body></html>`;
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+      // Store user data in session storage before redirecting
+      const userData = ${JSON.stringify(userData)};
+      sessionStorage.setItem('user', JSON.stringify(userData));
+      
+      // Redirect to the frontend
+      window.location.href = ${JSON.stringify(redirectUrl.toString())};
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to NyambikaAI...</p>
+    <script>
+      // Fallback in case the redirect doesn't work
+      setTimeout(function() {
+        window.location.href = ${JSON.stringify(redirectUrl.toString())};
+      }, 1000);
+    </script>
+  </body>
+</html>`;
   
       res.setHeader("Content-Type", "text/html");
       res.send(html);

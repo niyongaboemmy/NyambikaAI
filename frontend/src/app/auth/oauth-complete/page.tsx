@@ -1,80 +1,65 @@
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function OAuthCompletePage() {
   const [status, setStatus] = useState<string>("Finishing sign-in...");
+  const router = useRouter();
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
         if (typeof window === "undefined") return;
 
-        // Read token from location.hash
+        // Read token from URL hash
         const { hash, search } = window.location;
         const tokenMatch = hash.match(/token=([^&]+)/);
         const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
 
         if (!token) {
-          setStatus("Missing token from OAuth callback.");
-          // Fallback: go home after a short delay
-          setTimeout(() => window.location.replace("/"), 1200);
+          console.error("No token found in URL hash");
+          setStatus("Authentication failed. Redirecting to login...");
+          setTimeout(() => router.push("/login"), 2000);
           return;
         }
 
-        // Persist token - ensure it's properly formatted
-        const formattedToken =
-          token.startsWith('"') && token.endsWith('"')
-            ? token.slice(1, -1)
-            : token;
+        // Clean up the URL by removing the token from the hash
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
 
-        localStorage.setItem("auth_token", formattedToken);
+        // Store the token in localStorage
+        localStorage.setItem("auth_token", token);
 
-        // Optional redirect param from query string (?redirect=/profile)
-        const redirectParam = new URLSearchParams(search).get("redirect");
+        // Try to get user data from URL parameters (passed from backend)
+        const urlParams = new URLSearchParams(search);
+        const userDataParam = urlParams.get('user');
+        
+        if (userDataParam) {
+          try {
+            const userData = JSON.parse(decodeURIComponent(userDataParam));
+            localStorage.setItem("user", JSON.stringify(userData));
+            console.log("User data stored from URL parameters");
+          } catch (e) {
+            console.error("Failed to parse user data from URL:", e);
+          }
+        }
+
+        // Optional redirect param from query string
+        const redirectParam = urlParams.get("redirect");
         const redirect = redirectParam || "/";
 
-        // Fetch user data to ensure the token is valid
-        try {
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/api/auth/me`,
-            {
-              headers: {
-                Authorization: `Bearer ${formattedToken}`,
-                "Content-Type": "application/json",
-              },
-              credentials: "include", // Important for cookies
-            }
-          );
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch user data");
-          }
-
-          const userData = await response.json();
-
-          // Store user data in localStorage for immediate access
-          localStorage.setItem("user", JSON.stringify(userData));
-
-          setStatus("Signed in! Redirecting...");
-
-          // Force a full page reload to ensure all context is properly initialized
-          window.location.href = redirect;
-        } catch (error) {
-          console.error("Error initializing session:", error);
-          // Fallback to simple redirect if user data fetch fails
-          window.location.href = redirect;
-        }
+        // Force a full page reload to ensure all context is properly initialized
+        console.log("Authentication successful, redirecting to:", redirect);
+        window.location.href = redirect;
+        
       } catch (e) {
         console.error("OAuth completion failed:", e);
-        setStatus("Sign-in completed, redirecting...");
-        if (typeof window !== "undefined") {
-          window.location.replace("/");
-        }
+        setStatus("Authentication failed. Redirecting to login...");
+        setTimeout(() => router.push("/login"), 2000);
       }
     };
 
     handleOAuthCallback();
-  }, []);
+  }, [router]);
 
   const manualContinue = () => {
     try {

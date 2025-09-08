@@ -69,10 +69,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const didCheckRef = useRef(false);
   const { show } = useLoginPrompt();
 
-  // Check for existing session on app load
+  // Check for existing session on app load and handle OAuth callback
   useEffect(() => {
     const checkAuth = async () => {
       try {
+        // Check for OAuth callback with token in URL hash
+        const hash = window.location.hash;
+        const tokenMatch = hash.match(/token=([^&]+)/);
+        
+        if (tokenMatch) {
+          const token = decodeURIComponent(tokenMatch[1]);
+          localStorage.setItem("auth_token", token);
+          // Clean up the URL
+          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        }
+
         const token = localStorage.getItem("auth_token");
         if (!token) {
           setIsLoading(false);
@@ -82,9 +93,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
         try {
           const response = await apiClient.get<UserInterface>("/api/auth/me");
           const userData: UserInterface = response.data;
-          setUser(userData);
+          
+          // Also check for user data in localStorage (set by OAuth complete page)
+          const storedUser = localStorage.getItem("user");
+          if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser);
+          } else {
+            setUser(userData);
+          }
         } catch (error) {
+          console.error("Failed to fetch user data:", error);
           localStorage.removeItem("auth_token");
+          localStorage.removeItem("user");
         }
       } catch (error) {
         console.error("Auth check failed:", error);
