@@ -82,6 +82,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     );
   }
 
+  // Static Esicia/Kpay configuration (for debugging without env)
+  const ESICIA_STATIC = {
+    BASE_URL: "https://pay.esicia.com/",
+    BANK_ID: "130",
+    RETAILER_ID: "01", // REPLACE with your real merchant retailer id
+    REDIRECT_URL: "https://nyambika.com/profile",
+    CALLBACK_BASE: "http://localhost:3003",
+    USERNAME: "nyambika",
+    PASSWORD: "3Pcg3l",
+    AUTH_KEY: "6v0d5a5rr3ccjv7m3dufu773ts",
+    TIMEOUT_MS: 20000,
+  } as const;
+
   // Auth middleware with JWT
 
   const requireAuth = async (req: any, res: any, next: any) => {
@@ -185,6 +198,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdAt: wallet.createdAt,
         updatedAt: wallet.updatedAt,
       });
+
+      // Manual status check for push/STK payments
+      app.post(
+        "/api/payments/opay/checkstatus",
+        requireAuth,
+        async (req: any, res) => {
+          try {
+            const { refid } = req.body || {};
+            if (!refid)
+              return res.status(400).json({ message: "refid is required" });
+
+            const [payment] = await db
+              .select()
+              .from(walletPayments)
+              .where(eq(walletPayments.externalReference, refid))
+              .limit(1);
+            if (!payment)
+              return res.status(404).json({ message: "Payment not found" });
+
+            const endpoint = ESICIA_STATIC.BASE_URL;
+            const timeoutMs = ESICIA_STATIC.TIMEOUT_MS;
+            const payload = {
+              action: "checkstatus",
+              refid,
+              authkey: ESICIA_STATIC.AUTH_KEY,
+            } as any;
+
+            const resp = await fetch(endpoint, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json, text/plain, */*",
+                "User-Agent": "NyambikaAI/1.0",
+                Authorization:
+                  "Basic " +
+                  Buffer.from(
+                    `${ESICIA_STATIC.USERNAME}:${ESICIA_STATIC.PASSWORD}`
+                  ).toString("base64"),
+              },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(timeoutMs),
+            });
+
+            const json = (await resp.json()) as any;
+
+            // Map status by statusid; fallback to reply/status text
+            let finalStatus: "completed" | "failed" | "pending" = "pending";
+            const sid = String(json?.statusid || "");
+            if (sid === "01") finalStatus = "completed";
+            else if (sid === "02") finalStatus = "failed";
+            else if (sid === "03") finalStatus = "pending";
+            else {
+              const norm = String(
+                json?.reply || json?.status || ""
+              ).toLowerCase();
+              if (["ok", "success", "successful", "completed"].includes(norm))
+                finalStatus = "completed";
+              else if (["failed", "error", "cancelled"].includes(norm))
+                finalStatus = "failed";
+            }
+
+            // Update DB if changed
+            if (finalStatus !== (payment.status as any)) {
+              await db
+                .update(walletPayments)
+                .set({ status: finalStatus })
+                .where(eq(walletPayments.id, payment.id));
+
+              if (finalStatus === "completed") {
+                const [wallet] = await db
+                  .select()
+                  .from(userWallets)
+                  .where(eq(userWallets.id, payment.walletId))
+                  .limit(1);
+                if (wallet) {
+                  const newBalance = String(
+                    (Number(wallet.balance) || 0) + Number(payment.amount)
+                  );
+                  await db
+                    .update(userWallets)
+                    .set({ balance: newBalance, updatedAt: new Date() as any })
+                    .where(eq(userWallets.id, wallet.id));
+                }
+              }
+            }
+
+            return res.json({ ok: true, status: finalStatus, gateway: json });
+          } catch (error) {
+            console.error(
+              "Error in POST /api/payments/opay/checkstatus:",
+              error
+            );
+            res.status(500).json({ message: "Internal server error" });
+          }
+        }
+      );
 
       // NOTE: response ends above; following routes continue
 
@@ -538,19 +647,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const isMock =
           String(process.env.OPAY_MOCK || "").toLowerCase() === "true";
-        const esiciaBase = (
-          process.env.ESICIA_BASE_URL || "https://pay.esicia.com/"
-        ).trim();
-        const esiciaRetailerId = retailerid || process.env.ESICIA_RETAILER_ID;
-        const esiciaBankId = bankid || process.env.ESICIA_BANK_ID || "130";
-        const redirectUrl =
-          process.env.ESICIA_REDIRECT_URL ||
-          (process.env.FRONTEND_URL
-            ? `${process.env.FRONTEND_URL}/profile`
-            : "https://nyambika-ai.vercel.app/profile");
-        const callbackBase =
-          process.env.PUBLIC_CALLBACK_BASE_URL ||
-          "https://nyambikaai.onrender.com";
+        const esiciaBase = ESICIA_STATIC.BASE_URL;
+        const esiciaRetailerId = retailerid || ESICIA_STATIC.RETAILER_ID;
+        const esiciaBankId = bankid || ESICIA_STATIC.BANK_ID;
+        const redirectUrl = ESICIA_STATIC.REDIRECT_URL;
+        const callbackBase = ESICIA_STATIC.CALLBACK_BASE;
         const returl = new URL(
           "/api/payments/opay/callback",
           callbackBase
@@ -629,9 +730,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           params.set("authkey", String(process.env.OPAY_AUTH_KEY));
 
         const endpoint = esiciaBase;
-        const urlWithQuery = endpoint.includes("?")
-          ? `${endpoint}&${params}`
-          : `${endpoint}?${params}`;
 
         // Ensure msisdn follows local format 07xxxxxxxx for JSON body (per Esicia samples)
         const msisdnDigits = msisdn.replace(/\D/g, "");
@@ -644,7 +742,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           : msisdn;
 
         // Send payment request
-        const timeoutMs = Number(process.env.ESICIA_TIMEOUT_MS || 20000);
+        const timeoutMs = ESICIA_STATIC.TIMEOUT_MS;
 
         const response = await fetch(endpoint, {
           method: "POST",
@@ -655,7 +753,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             Authorization:
               "Basic " +
               Buffer.from(
-                `${process.env.ESICIA_USERNAME}:${process.env.ESICIA_PASSWORD}`
+                `${ESICIA_STATIC.USERNAME}:${ESICIA_STATIC.PASSWORD}`
               ).toString("base64"),
           },
           body: JSON.stringify({
@@ -673,7 +771,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             returl,
             redirecturl: redirectUrl,
             bankid: String(esiciaBankId),
-            authkey: process.env.OPAY_AUTH_KEY,
+            authkey: ESICIA_STATIC.AUTH_KEY,
           }),
           signal: AbortSignal.timeout(timeoutMs),
         });
@@ -748,14 +846,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
-        // retcode 0 but no usable URL: treat as gateway-side issue; do not proceed
-        await db
-          .update(walletPayments)
-          .set({ status: "failed" })
-          .where(eq(walletPayments.id, payment.id));
-        return res.status(400).json({
-          message: "Gateway returned retcode 0 but no checkout URL",
-          gateway: json,
+        // retcode 0, success 1, but no checkout URL: treat as USSD push/STK flow
+        // Keep wallet payment as pending and let client poll or wait for callback
+        return res.status(200).json({
+          ok: true,
+          payment,
+          mode: "push",
+          message: "Payment request sent. Please approve on your phone.",
+          refid: payment.externalReference,
+          gateway: debug ? json : undefined,
         });
       } catch (error) {
         console.error("Error in POST /api/payments/opay/initiate:", error);
@@ -785,16 +884,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ ok: true, alreadyProcessed: true });
       }
 
-      const norm = String(reply || status || "").toLowerCase();
+      // Prefer statusid mapping; fallback to textual reply/status
       let finalStatus: "completed" | "failed" | "pending" = "pending";
-
-      if (["ok", "success", "successful", "completed"].includes(norm))
-        finalStatus = "completed";
-      else if (
-        ["failed", "error", "cancelled"].includes(norm) ||
-        (statusid && String(statusid) !== "0")
-      )
-        finalStatus = "failed";
+      const sid = String(statusid || "");
+      if (sid === "01") finalStatus = "completed";
+      else if (sid === "02") finalStatus = "failed";
+      else if (sid === "03") finalStatus = "pending";
+      else {
+        const norm = String(reply || status || "").toLowerCase();
+        if (["ok", "success", "successful", "completed"].includes(norm))
+          finalStatus = "completed";
+        else if (["failed", "error", "cancelled"].includes(norm))
+          finalStatus = "failed";
+      }
 
       await db
         .update(walletPayments)
@@ -1675,15 +1777,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Upsert user
       let user = await storage.getUserByEmail(email);
       if (!user) {
-        const randomPassword = crypto.randomBytes(16).toString("hex");
-        const hashed = await bcrypt.hash(randomPassword, 10);
-        user = await storage.createUser({
-          username: email,
-          email,
-          password: hashed,
-          fullName: name,
-          role: "customer",
-        } as any);
+        // Do NOT auto-create a user. Require explicit role selection on the frontend.
+        // Issue a short-lived OAuth pending token containing minimal identity to complete registration.
+        const pendingToken = jwt.sign(
+          {
+            kind: "oauth_pending",
+            provider: "google",
+            email,
+            name,
+          },
+          jwtSecret,
+          { expiresIn: "15m" }
+        );
+
+        const frontendBase =
+          process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
+        const registerUrl = `${frontendBase}/register?oauth=google&email=${encodeURIComponent(
+          email
+        )}&name=${encodeURIComponent(name)}&oauthToken=${encodeURIComponent(
+          pendingToken
+        )}`;
+        const html = `<!doctype html>
+<html><head><meta charset="utf-8"><script>
+  window.location.replace(${JSON.stringify(registerUrl)});
+  </script></head><body></body></html>`;
+        res.setHeader("Content-Type", "text/html");
+        return res.send(html);
       }
 
       // Issue JWT
@@ -1709,6 +1828,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Google OAuth callback error:", error);
       res.status(500).send("Authentication failed");
+    }
+  });
+
+  // Finalize OAuth registration by choosing a role
+  app.post("/api/auth/register-oauth", async (req, res) => {
+    try {
+      const { oauthToken, role, phone } = req.body || {};
+      if (!oauthToken || !role) {
+        return res.status(400).json({ message: "oauthToken and role are required" });
+      }
+
+      const allowedRoles = ["customer", "producer", "agent"];
+      if (!allowedRoles.includes(String(role))) {
+        return res.status(400).json({ message: "Invalid role" });
+      }
+
+      // Verify pending token
+      let payload: any;
+      try {
+        payload = jwt.verify(String(oauthToken), jwtSecret);
+      } catch (e) {
+        return res.status(401).json({ message: "Invalid or expired OAuth session" });
+      }
+
+      if (!payload || payload.kind !== "oauth_pending" || !payload.email) {
+        return res.status(400).json({ message: "Invalid OAuth payload" });
+      }
+
+      const email = String(payload.email).toLowerCase();
+      const name = String(payload.name || "");
+
+      // If already exists (e.g., race condition), log them in instead
+      let existing = await storage.getUserByEmail(email);
+      if (existing) {
+        const token = jwt.sign(
+          { userId: existing.id, role: existing.role || "customer" },
+          jwtSecret,
+          { expiresIn: "7d" }
+        );
+        const { password: _pw, fullName, ...userWithoutPassword } = existing;
+        const mappedUser = {
+          ...userWithoutPassword,
+          name: fullName || existing.email.split("@")[0],
+        } as any;
+        return res.json({ user: mappedUser, token });
+      }
+
+      // Create user with generated password; role chosen explicitly
+      const randomPassword = crypto.randomBytes(16).toString("hex");
+      const hashed = await bcrypt.hash(randomPassword, 10);
+      const created = await storage.createUser({
+        username: email,
+        email,
+        password: hashed,
+        fullName: name || email.split("@")[0],
+        role,
+        phone: phone || null,
+      } as any);
+
+      // Issue normal JWT
+      const token = jwt.sign(
+        { userId: created.id, role: created.role || "customer" },
+        jwtSecret,
+        { expiresIn: "7d" }
+      );
+
+      const { password: _pw2, fullName: createdFullName, ...userWithoutPassword } = created;
+      const mappedUser = {
+        ...userWithoutPassword,
+        name: createdFullName || created.email.split("@")[0],
+      } as any;
+
+      return res.status(201).json({ user: mappedUser, token });
+    } catch (error) {
+      console.error("register-oauth error:", error);
+      return res.status(500).json({ message: "Internal server error" });
     }
   });
 

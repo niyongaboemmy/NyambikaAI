@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
 import { Card, CardContent } from "@/components/custom-ui/card";
@@ -124,6 +124,8 @@ export default function UserWallet() {
   const qc = useQueryClient();
   const [amount, setAmount] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
+  const [pollingRefId, setPollingRefId] = useState<string | null>(null);
+  const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Prefill phone number from authenticated user profile
   useEffect(() => {
@@ -185,11 +187,15 @@ export default function UserWallet() {
     },
     onSuccess: (data: any) => {
       const status = data?.payment?.status;
-      const url =
+      const redirectUrl =
+        data?.redirectUrl ||
         data?.gateway?.body?.url ||
         data?.opay?.body?.url ||
         data?.gateway?.url ||
         data?.opay?.url;
+      const mode = data?.mode;
+      const refid =
+        data?.refid || data?.payment?.externalReference || data?.payment?.refid;
       const reply =
         data?.gateway?.body?.reply || data?.opay?.body?.reply || undefined;
       const successFlag =
@@ -201,12 +207,8 @@ export default function UserWallet() {
           description: "Your wallet has been credited!",
         });
       } else {
-        // If gateway explicitly returns a failure or no URL, show a helpful message
-        if (
-          successFlag === 0 ||
-          (reply && String(reply).toUpperCase() === "FAILED") ||
-          (!url && successFlag !== 1)
-        ) {
+        // Failure from gateway
+        if (successFlag === 0 || (reply && String(reply).toUpperCase() === "FAILED")) {
           toast({
             title: "⚠️ Payment not initiated",
             description:
@@ -218,16 +220,24 @@ export default function UserWallet() {
         } else {
           toast({
             title: "📲 Payment initiated",
-            description:
-              "We sent a payment request to your phone. Approve it to complete top-up.",
+            description: mode === "push"
+              ? "We sent a payment request to your phone. Approve it to complete top-up."
+              : "Redirecting to payment page...",
           });
         }
-        if (url && typeof window !== "undefined") {
+        if (redirectUrl && typeof window !== "undefined") {
           // Prefer same-tab navigation for better mobile UX
           try {
-            window.location.href = url;
+            window.location.href = redirectUrl;
           } catch {
-            window.open(url, "_blank");
+            window.open(redirectUrl, "_blank");
+          }
+        }
+
+        // If push flow or no redirect URL provided, begin polling status
+        if ((!redirectUrl && data?.ok) || mode === "push") {
+          if (refid) {
+            setPollingRefId(refid);
           }
         }
         // Light polling to auto-refresh while waiting for callback
@@ -257,6 +267,71 @@ export default function UserWallet() {
       });
     },
   });
+
+  // Poll push payments until completion or timeout
+  useEffect(() => {
+    if (!pollingRefId) return;
+    // Avoid multiple timers
+    if (pollingTimerRef.current) {
+      clearInterval(pollingTimerRef.current as any);
+      pollingTimerRef.current = null;
+    }
+    let attempts = 0;
+    const maxAttempts = 24; // ~2 minutes at 5s interval
+    const interval = setInterval(async () => {
+      attempts += 1;
+      try {
+        const { data } = await apiClient.post(API_ENDPOINTS.OPAY_CHECKSTATUS, {
+          refid: pollingRefId,
+        });
+        const status = data?.status;
+        if (status && status !== "pending") {
+          clearInterval(interval);
+          pollingTimerRef.current = null;
+          setPollingRefId(null);
+          if (status === "completed") {
+            toast({
+              title: "✨ Top-up successful",
+              description: "Your wallet has been credited!",
+            });
+          } else if (status === "failed") {
+            toast({
+              title: "❌ Payment failed",
+              description: "The payment was not approved. Please try again.",
+              variant: "destructive",
+            });
+          }
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+        } else if (attempts >= maxAttempts) {
+          clearInterval(interval);
+          pollingTimerRef.current = null;
+          setPollingRefId(null);
+          toast({
+            title: "⏳ Still pending",
+            description:
+              "We couldn't confirm the payment yet. If approved on phone, it may update shortly.",
+          });
+        }
+      } catch (e: any) {
+        clearInterval(interval);
+        pollingTimerRef.current = null;
+        setPollingRefId(null);
+        toast({
+          title: "⚠️ Status check failed",
+          description: handleApiError(e),
+          variant: "destructive",
+        });
+      }
+    }, 5000);
+    pollingTimerRef.current = interval as any;
+    return () => {
+      if (pollingTimerRef.current) {
+        clearInterval(pollingTimerRef.current as any);
+        pollingTimerRef.current = null;
+      }
+    };
+  }, [pollingRefId]);
 
   const handleTopUp = () => {
     const amt = Number(amount);

@@ -214,6 +214,7 @@ export const API_ENDPOINTS = {
   // OPAY (Kpay)
   OPAY_INITIATE: "/api/payments/opay/initiate",
   OPAY_CALLBACK: "/api/payments/opay/callback",
+  OPAY_CHECKSTATUS: "/api/payments/opay/checkstatus",
 
   // AI
   AI_ANALYZE_FASHION: "/api/ai/analyze-fashion",

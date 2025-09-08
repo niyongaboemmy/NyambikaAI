@@ -32,16 +32,18 @@ import {
 } from "../../components/custom-ui/tabs";
 import { Progress } from "../../components/custom-ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { apiClient } from "@/config/api";
 
 export default function Register() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { open } = useLoginPrompt();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    role: "customer" as "customer" | "producer" | "agent",
+    role: "" as "customer" | "producer" | "agent" | "",
     name: "",
     email: "",
     phone: "",
@@ -92,14 +94,17 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const oauthToken = searchParams.get("oauthToken");
     // Basic validations
     const newErrors: Record<string, string> = {};
+    // Role must be explicitly chosen in OAuth and normal modes
+    if (!formData.role) newErrors.role = "Please choose an account type";
     if (!formData.name.trim()) newErrors.name = "Full name is required";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email))
       newErrors.email = "Enter a valid email address";
     if (formData.password.length < 8)
-      newErrors.password = "Password must be at least 8 characters";
-    if (formData.password !== formData.confirmPassword)
+      if (!oauthToken) newErrors.password = "Password must be at least 8 characters";
+    if (!oauthToken && formData.password !== formData.confirmPassword)
       newErrors.confirmPassword = "Passwords do not match";
     if (!termsAccepted)
       newErrors.terms = "You must accept the Terms to continue";
@@ -138,14 +143,31 @@ export default function Register() {
     setIsLoading(true);
     try {
       const fullPhone = `${dialCode}${formData.phone.replace(/\D/g, "")}`;
-      await register(
-        formData.email,
-        formData.password,
-        formData.name,
-        formData.role,
-        fullPhone
-      );
-      router.push("/");
+      if (oauthToken) {
+        // Finalize OAuth registration
+        const resp = await apiClient.post("/api/auth/register-oauth", {
+          oauthToken,
+          role: formData.role,
+          phone: fullPhone,
+        });
+        const { token } = resp.data || {};
+        if (token && typeof window !== "undefined") {
+          localStorage.setItem("auth_token", token);
+        }
+        router.push("/");
+        setTimeout(() => {
+          toast({ title: "Welcome!", description: "Account created successfully." });
+        }, 0);
+      } else {
+        await register(
+          formData.email,
+          formData.password,
+          formData.name,
+          formData.role as "customer" | "producer" | "agent",
+          fullPhone
+        );
+        router.push("/");
+      }
     } catch (error) {
       toast({
         title: "Registration failed",
@@ -288,15 +310,25 @@ export default function Register() {
     }
   }, [step]);
 
-  // Load saved role preference on mount
+  // Load saved role preference on mount; initialize OAuth mode if present
   useEffect(() => {
     try {
       const saved = localStorage.getItem("nyambika.role");
       if (saved === "customer" || saved === "producer" || saved === "agent") {
-        setFormData((prev) => ({ ...prev, role: saved }));
+        setFormData((prev) => ({ ...prev, role: saved as any }));
       }
     } catch {}
-  }, []);
+    try {
+      const oauth = searchParams.get("oauth");
+      const email = searchParams.get("email") || "";
+      const name = searchParams.get("name") || "";
+      const hasToken = !!searchParams.get("oauthToken");
+      if (oauth && hasToken) {
+        // Prefill and lock to Step 1 initially (role selection), then Step 2 to confirm details
+        setFormData((prev) => ({ ...prev, email, name }));
+      }
+    } catch {}
+  }, [searchParams]);
 
   return (
     <div className="relative overflow-hidden pt-10">
@@ -517,7 +549,7 @@ export default function Register() {
                           Account Type
                         </Label>
                         <Tabs
-                          value={formData.role}
+                          value={formData.role || undefined}
                           onValueChange={(v) =>
                             handleRoleChange(
                               v as "customer" | "producer" | "agent"
@@ -635,10 +667,7 @@ export default function Register() {
                             >
                               <span className="relative z-10 flex items-center justify-center gap-2">
                                 <span>🚀</span>
-                                Continue as{" "}
-                                {formData.role === "customer"
-                                  ? "Customer"
-                                  : "Producer"}
+                                Continue
                               </span>
                               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
                             </Button>
@@ -692,6 +721,7 @@ export default function Register() {
                                 placeholder="Enter your email address"
                                 required
                                 label="Email Address"
+                                disabled={!!searchParams.get("oauthToken")}
                               />
                             </motion.div>
 
@@ -735,77 +765,158 @@ export default function Register() {
                             </motion.div>
                             <div></div>
 
-                            <motion.div
-                              className="space-y-3"
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.8, duration: 0.4 }}
-                            >
-                              <div className="relative">
-                                <FormInput
-                                  id="password"
-                                  name="password"
-                                  type={showPassword ? "text" : "password"}
-                                  value={formData.password}
-                                  onChange={handleInputChange}
-                                  placeholder="Create a strong password"
-                                  required
-                                  label="Password"
-                                  className="pr-11"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-1 top-9 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
-                                  onClick={() => setShowPassword(!showPassword)}
-                                >
-                                  {showPassword ? (
-                                    <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                                  ) : (
-                                    <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                                  )}
-                                </Button>
-                              </div>
-                            </motion.div>
+                            {searchParams.get("oauthToken") ? (
+                              <motion.div
+                                className="space-y-3"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.8, duration: 0.4 }}
+                              >
+                                <div className="relative">
+                                  <FormInput
+                                    id="password"
+                                    name="password"
+                                    type="hidden"
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    placeholder="Create a strong password"
+                                    required
+                                    label="Password"
+                                    className="pr-11"
+                                  />
+                                </div>
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                className="space-y-3"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.8, duration: 0.4 }}
+                              >
+                                <div className="relative">
+                                  <FormInput
+                                    id="password"
+                                    name="password"
+                                    type={showPassword ? "text" : "password"}
+                                    value={formData.password}
+                                    onChange={handleInputChange}
+                                    placeholder="Create a strong password"
+                                    required
+                                    label="Password"
+                                    className="pr-11"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-1 top-9 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                  >
+                                    {showPassword ? (
+                                      <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                                    ) : (
+                                      <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            )}
 
-                            <motion.div
-                              className="space-y-3"
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: 0.9, duration: 0.4 }}
-                            >
-                              <div className="relative">
-                                <FormInput
-                                  id="confirmPassword"
-                                  name="confirmPassword"
-                                  type={
-                                    showConfirmPassword ? "text" : "password"
-                                  }
-                                  value={formData.confirmPassword}
-                                  onChange={handleInputChange}
-                                  placeholder="Confirm your password"
-                                  required
-                                  label="Confirm Password"
-                                  className="pr-11"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="absolute right-1 top-9 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
-                                  onClick={() =>
-                                    setShowConfirmPassword(!showConfirmPassword)
-                                  }
-                                >
-                                  {showConfirmPassword ? (
-                                    <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                                  ) : (
-                                    <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
-                                  )}
-                                </Button>
+                            {searchParams.get("oauthToken") ? (
+                              <motion.div
+                                className="space-y-3"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.9, duration: 0.4 }}
+                              >
+                                <div className="relative">
+                                  <FormInput
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type="hidden"
+                                    value={formData.confirmPassword}
+                                    onChange={handleInputChange}
+                                    placeholder="Confirm your password"
+                                    required
+                                    label="Confirm Password"
+                                    className="pr-11"
+                                  />
+                                </div>
+                              </motion.div>
+                            ) : (
+                              <motion.div
+                                className="space-y-3"
+                                initial={{ opacity: 0, x: -20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.9, duration: 0.4 }}
+                              >
+                                <div className="relative">
+                                  <FormInput
+                                    id="confirmPassword"
+                                    name="confirmPassword"
+                                    type={showConfirmPassword ? "text" : "password"}
+                                    value={formData.confirmPassword}
+                                    onChange={handleInputChange}
+                                    placeholder="Confirm your password"
+                                    required
+                                    label="Confirm Password"
+                                    className="pr-11"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="absolute right-1 top-9 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
+                                    onClick={() =>
+                                      setShowConfirmPassword(!showConfirmPassword)
+                                    }
+                                  >
+                                    {showConfirmPassword ? (
+                                      <EyeOff className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                                    ) : (
+                                      <Eye className="h-3.5 w-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300" />
+                                    )}
+                                  </Button>
+                                </div>
+                              </motion.div>
+                            )}
+                            <div className="grid grid-cols-5 gap-2 text-[10px] text-muted-foreground mt-2">
+                              <div className={`px-2 py-1 rounded-md border ${
+                                pwdReq.minLength
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-muted/30"
+                              }`}>
+                                8+ chars
                               </div>
-                            </motion.div>
+                              <div className={`px-2 py-1 rounded-md border ${
+                                pwdReq.upper
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-muted/30"
+                              }`}>
+                                Uppercase
+                              </div>
+                              <div className={`px-2 py-1 rounded-md border ${
+                                pwdReq.lower
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-muted/30"
+                              }`}>
+                                Lowercase
+                              </div>
+                              <div className={`px-2 py-1 rounded-md border ${
+                                pwdReq.digit
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-muted/30"
+                              }`}>
+                                Number
+                              </div>
+                              <div className={`px-2 py-1 rounded-md border ${
+                                pwdReq.special
+                                  ? "bg-green-50 text-green-700 border-green-200"
+                                  : "bg-muted/30"
+                              }`}>
+                                Special
+                              </div>
+                            </div>
                           </motion.div>
                           {formData.password &&
                             formData.confirmPassword &&
@@ -865,9 +976,11 @@ export default function Register() {
                                   isLoading ||
                                   !formData.name ||
                                   !formData.email ||
-                                  !formData.password ||
-                                  formData.password !==
-                                    formData.confirmPassword ||
+                                  (searchParams.get("oauthToken")
+                                    ? !formData.role
+                                    : !formData.password ||
+                                      formData.password !==
+                                        formData.confirmPassword) ||
                                   !termsAccepted
                                 }
                                 className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
