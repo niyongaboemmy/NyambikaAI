@@ -1,10 +1,20 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, decimal, timestamp, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  varchar,
+  integer,
+  decimal,
+  timestamp,
+  boolean,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
@@ -23,8 +33,13 @@ export const users = pgTable("users", {
 
 // Companies table for producer business details
 export const companies = pgTable("companies", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  producerId: varchar("producer_id").references(() => users.id).notNull().unique(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  producerId: varchar("producer_id")
+    .references(() => users.id)
+    .notNull()
+    .unique(),
   tin: text("tin"),
   name: text("name").notNull(),
   email: text("email").notNull(),
@@ -36,7 +51,9 @@ export const companies = pgTable("companies", {
 });
 
 export const categories = pgTable("categories", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   nameRw: text("name_rw").notNull(),
   description: text("description"),
@@ -45,7 +62,9 @@ export const categories = pgTable("categories", {
 });
 
 export const products = pgTable("products", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   nameRw: text("name_rw").notNull(),
   description: text("description").notNull(),
@@ -65,7 +84,9 @@ export const products = pgTable("products", {
 });
 
 export const cartItems = pgTable("cart_items", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   productId: varchar("product_id").references(() => products.id),
   quantity: integer("quantity").default(1),
@@ -75,7 +96,9 @@ export const cartItems = pgTable("cart_items", {
 });
 
 export const orders = pgTable("orders", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   customerId: varchar("customer_id").references(() => users.id),
   producerId: varchar("producer_id").references(() => users.id),
   total: decimal("total", { precision: 10, scale: 2 }).notNull(),
@@ -93,7 +116,9 @@ export const orders = pgTable("orders", {
 });
 
 export const orderItems = pgTable("order_items", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   orderId: varchar("order_id").references(() => orders.id),
   productId: varchar("product_id").references(() => products.id),
   quantity: integer("quantity").default(1),
@@ -103,14 +128,18 @@ export const orderItems = pgTable("order_items", {
 });
 
 export const favorites = pgTable("favorites", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   productId: varchar("product_id").references(() => products.id),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const tryOnSessions = pgTable("try_on_sessions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   customerImageUrl: text("customer_image_url").notNull(),
   productId: varchar("product_id").references(() => products.id),
@@ -121,7 +150,9 @@ export const tryOnSessions = pgTable("try_on_sessions", {
 });
 
 export const reviews = pgTable("reviews", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id),
   productId: varchar("product_id").references(() => products.id),
   orderId: varchar("order_id").references(() => orders.id),
@@ -134,7 +165,9 @@ export const reviews = pgTable("reviews", {
 
 // Subscription plans table
 export const subscriptionPlans = pgTable("subscription_plans", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: text("name").notNull(),
   nameRw: text("name_rw").notNull(),
   description: text("description").notNull(),
@@ -154,9 +187,15 @@ export const subscriptionPlans = pgTable("subscription_plans", {
 
 // User subscriptions table
 export const subscriptions = pgTable("subscriptions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).notNull(),
-  planId: varchar("plan_id").references(() => subscriptionPlans.id).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
+  planId: varchar("plan_id")
+    .references(() => subscriptionPlans.id)
+    .notNull(),
   agentId: varchar("agent_id").references(() => users.id), // agent who paid for this subscription
   status: text("status").notNull().default("active"), // active, cancelled, expired, pending
   billingCycle: text("billing_cycle").notNull(), // monthly, annual
@@ -171,8 +210,12 @@ export const subscriptions = pgTable("subscriptions", {
 
 // Subscription payments table
 export const subscriptionPayments = pgTable("subscription_payments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  subscriptionId: varchar("subscription_id").references(() => subscriptions.id).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  subscriptionId: varchar("subscription_id")
+    .references(() => subscriptions.id)
+    .notNull(),
   agentId: varchar("agent_id").references(() => users.id), // agent who made the payment
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   agentCommission: decimal("agent_commission", { precision: 10, scale: 2 }), // 20% commission
@@ -185,8 +228,12 @@ export const subscriptionPayments = pgTable("subscription_payments", {
 
 // Notifications table
 export const notifications = pgTable("notifications", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
   title: text("title").notNull(),
   message: text("message").notNull(),
   isRead: boolean("is_read").default(false),
@@ -197,9 +244,16 @@ export const notifications = pgTable("notifications", {
 
 // User wallets table
 export const userWallets = pgTable("user_wallets", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).notNull().unique(),
-  balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("0"),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull()
+    .unique(),
+  balance: decimal("balance", { precision: 12, scale: 2 })
+    .notNull()
+    .default("0"),
   status: text("status").notNull().default("active"), // active, frozen
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -207,9 +261,15 @@ export const userWallets = pgTable("user_wallets", {
 
 // Wallet payments table (top-ups and debits)
 export const walletPayments = pgTable("wallet_payments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  walletId: varchar("wallet_id").references(() => userWallets.id).notNull(),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  walletId: varchar("wallet_id")
+    .references(() => userWallets.id)
+    .notNull(),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
   type: text("type").notNull().default("topup"), // topup | debit
   amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
   currency: text("currency").notNull().default("RWF"),
@@ -223,7 +283,10 @@ export const walletPayments = pgTable("wallet_payments", {
 });
 
 export const paymentSettings = pgTable("payment_settings", {
-  id: integer("id").primaryKey().notNull().default(sql`nextval('payment_settings_id_seq'::regclass)`),
+  id: integer("id")
+    .primaryKey()
+    .notNull()
+    .default(sql`nextval('payment_settings_id_seq'::regclass)`),
   name: text("name").notNull().unique(),
   description: text("description"),
   amountInRwf: integer("amount_in_rwf").notNull(),
@@ -233,7 +296,7 @@ export const paymentSettings = pgTable("payment_settings", {
 
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
+  // id: true,
   createdAt: true,
 });
 
@@ -281,7 +344,9 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
 });
 
-export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({
+export const insertSubscriptionPlanSchema = createInsertSchema(
+  subscriptionPlans
+).omit({
   id: true,
   createdAt: true,
 });
@@ -291,7 +356,9 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
   createdAt: true,
 });
 
-export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPayments).omit({
+export const insertSubscriptionPaymentSchema = createInsertSchema(
+  subscriptionPayments
+).omit({
   id: true,
   createdAt: true,
 });
@@ -307,12 +374,16 @@ export const insertUserWalletSchema = createInsertSchema(userWallets).omit({
   updatedAt: true,
 });
 
-export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({
+export const insertWalletPaymentSchema = createInsertSchema(
+  walletPayments
+).omit({
   id: true,
   createdAt: true,
 });
 
-export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({
+export const insertPaymentSettingSchema = createInsertSchema(
+  paymentSettings
+).omit({
   id: true,
   createdAt: true,
 });
@@ -349,13 +420,17 @@ export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;
-export type InsertSubscriptionPlan = z.infer<typeof insertSubscriptionPlanSchema>;
+export type InsertSubscriptionPlan = z.infer<
+  typeof insertSubscriptionPlanSchema
+>;
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 
 export type SubscriptionPayment = typeof subscriptionPayments.$inferSelect;
-export type InsertSubscriptionPayment = z.infer<typeof insertSubscriptionPaymentSchema>;
+export type InsertSubscriptionPayment = z.infer<
+  typeof insertSubscriptionPaymentSchema
+>;
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;

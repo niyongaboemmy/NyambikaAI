@@ -7,7 +7,7 @@ import Stripe from "stripe";
 import { storage } from "./storage";
 import { analyzeFashionImage, generateSizeRecommendation } from "./openai";
 import { generateVirtualTryOn } from "./tryon";
-import crypto from "crypto";
+import crypto, { randomUUID } from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
 
@@ -1979,6 +1979,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const randomPassword = crypto.randomBytes(16).toString("hex");
       const hashed = await bcrypt.hash(randomPassword, 10);
       const created = await storage.createUser({
+        id: randomUUID(),
         username: email,
         email,
         password: hashed,
