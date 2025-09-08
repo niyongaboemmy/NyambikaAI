@@ -18,6 +18,8 @@ import {
   Hash,
   Image,
   Link as LinkIcon,
+  Loader2,
+  Sparkles,
 } from "lucide-react";
 
 export default function CompanyModal() {
@@ -28,6 +30,7 @@ export default function CompanyModal() {
     setModalOpen,
     createCompany,
     updateCompany,
+    isLoading,
   } = useCompany();
   const { user, logout } = useAuth();
   const [form, setForm] = useState({
@@ -105,27 +108,53 @@ export default function CompanyModal() {
       }}
     >
       <DialogContent
-        className="max-w-lg rounded-2xl"
+        className="max-w-lg rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50"
         onInteractOutside={(e) => {
-          // Disallow dismiss while company is missing
-          if (isMissing) e.preventDefault();
+          // Disallow dismiss while company is missing or loading
+          if (isMissing || isLoading) e.preventDefault();
         }}
         onEscapeKeyDown={(e) => {
-          // Disallow dismiss while company is missing
-          if (isMissing) e.preventDefault();
+          // Disallow dismiss while company is missing or loading
+          if (isMissing || isLoading) e.preventDefault();
         }}
       >
-        <DialogHeader>
-          <DialogTitle>
+        <DialogHeader className="relative">
+          {/* AI-themed header decoration */}
+          <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-white" />
+          </div>
+          
+          <DialogTitle className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <Building2 className="w-5 h-5 text-blue-600" />
             {isEdit ? "Edit Company Details" : "Set Up Your Company"}
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-600 dark:text-gray-300">
             {isEdit
               ? "Update your business information used across the platform."
-              : "Please provide your business details to start selling."}
+              : "Please provide your business details to start selling on NyambikaAI."}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-4">
+        {/* Loading overlay */}
+        {isLoading && (
+          <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative">
+                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+                <div className="absolute inset-0 w-8 h-8 border-2 border-blue-200 dark:border-blue-800 rounded-full animate-pulse" />
+              </div>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                {isEdit ? "Updating company..." : "Creating company..."}
+              </p>
+              <div className="flex gap-1">
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        <form onSubmit={onSubmit} className="space-y-4 relative">
           <div className="grid grid-cols-1 gap-4">
             <FormInput
               id="name"
@@ -137,6 +166,7 @@ export default function CompanyModal() {
               required
               icon={Building2}
               placeholder="e.g., Nyambika Ltd"
+              disabled={isLoading}
             />
             <FormInput
               id="email"
@@ -150,6 +180,7 @@ export default function CompanyModal() {
               icon={Mail}
               placeholder="company@example.com"
               autoComplete="email"
+              disabled={isLoading}
             />
             <FormInput
               id="phone"
@@ -162,6 +193,7 @@ export default function CompanyModal() {
               icon={Phone}
               placeholder="e.g., +2507..."
               autoComplete="tel"
+              disabled={isLoading}
             />
             <FormInput
               id="location"
@@ -173,6 +205,7 @@ export default function CompanyModal() {
               required
               icon={MapPin}
               placeholder="City, Country"
+              disabled={isLoading}
             />
             <FormInput
               id="tin"
@@ -181,6 +214,7 @@ export default function CompanyModal() {
               onChange={(e) => setForm({ ...form, tin: e.currentTarget.value })}
               icon={Hash}
               placeholder="Tax Identification Number"
+              disabled={isLoading}
             />
             <FormInput
               id="logoUrl"
@@ -192,6 +226,7 @@ export default function CompanyModal() {
               }
               icon={Image}
               placeholder="https://..."
+              disabled={isLoading}
             />
             <FormInput
               id="websiteUrl"
@@ -203,9 +238,10 @@ export default function CompanyModal() {
               }
               icon={LinkIcon}
               placeholder="https://..."
+              disabled={isLoading}
             />
           </div>
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-2 pt-2">
             {/* Logout button on the left to allow user to exit flow */}
             <Button
               type="button"
@@ -213,6 +249,8 @@ export default function CompanyModal() {
               onClick={() => {
                 logout();
               }}
+              disabled={isLoading}
+              className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
             >
               Logout
             </Button>
@@ -224,12 +262,27 @@ export default function CompanyModal() {
                 type="button"
                 variant="secondary"
                 onClick={() => setModalOpen(false)}
-                disabled={isMissing}
+                disabled={isMissing || isLoading}
+                className="min-w-[80px]"
               >
                 Close
               </Button>
-              <Button type="submit" disabled={!isFormValid}>
-                {isEdit ? "Save Changes" : "Save Company"}
+              <Button 
+                type="submit" 
+                disabled={!isFormValid || isLoading}
+                className="min-w-[140px] bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all duration-200 transform hover:scale-105"
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    {isEdit ? "Saving..." : "Creating..."}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    {isEdit ? "Save Changes" : "Create Company"}
+                  </div>
+                )}
               </Button>
             </div>
           </div>
