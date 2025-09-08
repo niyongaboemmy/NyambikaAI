@@ -7,7 +7,7 @@ import {
   products,
   subscriptionPayments,
   companies,
-} from "./shared/schema";
+} from "./shared/schema.dialect";
 import { eq, and, desc, count, sum, sql } from "drizzle-orm";
 
 // Admin Stats Endpoint
@@ -113,7 +113,7 @@ export async function getAdminAgents(_req: Request, res: Response) {
 
     // Get managed producers count for each agent
     const agentsWithStats = await Promise.all(
-      agents.map(async (agent) => {
+      agents.map(async (agent: any) => {
         const managedProducers = await db
           .select({ count: count() })
           .from(subscriptions)
@@ -190,7 +190,7 @@ export async function getPendingApprovals(_req: Request, res: Response) {
       .orderBy(desc(users.createdAt));
 
     const approvals = [
-      ...pendingProducts.map((product) => ({
+      ...pendingProducts.map((product: any) => ({
         id: product.id,
         type: "product",
         title: product.name,
@@ -199,7 +199,7 @@ export async function getPendingApprovals(_req: Request, res: Response) {
         priority: "medium",
         image: product.imageUrl,
       })),
-      ...unverifiedProducers.map((producer) => ({
+      ...unverifiedProducers.map((producer: any) => ({
         id: producer.id,
         type: "producer",
         title: "Producer Application",

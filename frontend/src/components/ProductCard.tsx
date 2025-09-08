@@ -62,7 +62,7 @@ export default function ProductCard({
   return (
     <div
       className={cn(
-        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1",
+        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-md bg-white dark:bg-gray-900 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1",
         selected && "ring-2 ring-blue-400 shadow-blue-200/50",
         containerClassName
       )}
@@ -92,7 +92,7 @@ export default function ProductCard({
           src={product.imageUrl}
           alt={product.name}
           loading="lazy"
-          className="min-h-full min-w-full aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
+          className="min-h-full min-w-full rounded-t-md aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).src =
               "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500";

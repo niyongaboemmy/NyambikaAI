@@ -1,6 +1,6 @@
 import { Response } from "express";
 import { db } from "./db";
-import { orders, orderItems, cartItems, products, users } from "./shared/schema";
+import { orders, orderItems, cartItems, products, users } from "./shared/schema.dialect";
 import { eq, desc, and, inArray, sql } from "drizzle-orm";
 
 // GET /api/orders - Get user's orders
@@ -34,7 +34,7 @@ export const getUserOrders = async (req: any, res: Response) => {
 
     // Get order items for each order, defensively
     const ordersWithItems = await Promise.all(
-      userOrders.map(async (order) => {
+      userOrders.map(async (order: any) => {
         try {
           const items = await db
             .select({
@@ -101,7 +101,7 @@ export const getProducerOrders = async (req: any, res: Response) => {
       .where(eq(products.producerId, userId));
 
     const orderIds = Array.from(
-      new Set(orderIdRows.map((r) => r.orderId))
+      new Set(orderIdRows.map((r: any) => r.orderId))
     ).filter(Boolean) as string[];
     if (orderIds.length === 0) {
       return res.status(200).json([]);
@@ -136,7 +136,7 @@ export const getProducerOrders = async (req: any, res: Response) => {
     const baseOrders = await baseQuery;
 
     const ordersWithItems = await Promise.all(
-      baseOrders.map(async (order) => {
+      baseOrders.map(async (order: any) => {
         try {
           const items = await db
             .select({
@@ -162,7 +162,7 @@ export const getProducerOrders = async (req: any, res: Response) => {
               )
             );
 
-          const producerTotal = items.reduce((sum, it) => {
+          const producerTotal = items.reduce((sum: number, it: any) => {
             const priceNum =
               typeof it.price === "string"
                 ? parseFloat(it.price)
@@ -363,7 +363,7 @@ export const createOrder = async (req: any, res: Response) => {
     }
 
     // Start transaction
-    const result = await db.transaction(async (tx) => {
+    const result = await db.transaction(async (tx: any) => {
       // Create the order
       const [newOrder] = await tx
         .insert(orders)
@@ -685,7 +685,7 @@ export const getOrdersByProducerId = async (req: any, res: Response) => {
       .where(eq(products.producerId, producerId));
 
     const orderIds = Array.from(
-      new Set(orderIdRows.map((r) => r.orderId))
+      new Set(orderIdRows.map((r: any) => r.orderId))
     ).filter(Boolean) as string[];
 
     if (orderIds.length === 0) {
@@ -720,7 +720,7 @@ export const getOrdersByProducerId = async (req: any, res: Response) => {
 
     // Get customer info and items for each order
     const ordersWithDetails = await Promise.all(
-      baseOrders.map(async (order) => {
+      baseOrders.map(async (order: any) => {
         try {
           // Get customer info
           const customer = await db
@@ -760,7 +760,7 @@ export const getOrdersByProducerId = async (req: any, res: Response) => {
             );
 
           // Calculate producer-specific total
-          const producerTotal = items.reduce((sum, item) => {
+          const producerTotal = items.reduce((sum: number, item: any) => {
             const priceNum = typeof item.price === "string" 
               ? parseFloat(item.price) 
               : (item.price as unknown as number);

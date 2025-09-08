@@ -3,11 +3,11 @@ import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 
 export const useInfiniteProducts = (
   categoryId?: string,
-  companyId?: string,
+  producerId?: string,
   search?: string
 ) => {
   return useInfiniteQuery({
-    queryKey: ["products", categoryId, companyId, search],
+    queryKey: ["infinite-products", categoryId, producerId, search],
     queryFn: async ({ pageParam = 0 }) => {
       try {
         const params: Record<string, string> = {
@@ -18,14 +18,16 @@ export const useInfiniteProducts = (
         if (categoryId && categoryId !== "all") {
           params.categoryId = categoryId;
         }
-        if (companyId) {
-          params.companyId = companyId;
+        if (producerId) {
+          params.producerId = producerId;
         }
         if (search) {
           params.search = search;
         }
 
-        const response = await apiClient.get(API_ENDPOINTS.PRODUCTS, { params });
+        const response = await apiClient.get(API_ENDPOINTS.PRODUCTS, {
+          params,
+        });
         return response.data;
       } catch (error) {
         throw new Error(handleApiError(error));
@@ -38,3 +40,4 @@ export const useInfiniteProducts = (
     initialPageParam: 0,
   });
 };
+

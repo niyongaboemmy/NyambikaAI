@@ -18,7 +18,7 @@ import {
   userWallets,
   walletPayments,
   paymentSettings,
-} from "./shared/schema";
+} from "./shared/schema.dialect";
 import { and, eq, desc, sql, inArray } from "drizzle-orm";
 import {
   createSubscription,
@@ -45,7 +45,7 @@ import {
   insertCartItemSchema,
   insertFavoriteSchema,
   insertTryOnSessionSchema,
-} from "./shared/schema";
+} from "./shared/schema.dialect";
 import {
   getUserOrders,
   getOrderById,
@@ -81,6 +81,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
       (e as any)?.message || e
     );
   }
+
+  // Health and availability endpoints for cPanel/Monitors
+  // Root path returns a stable Content-Type without charset to pass cPanel diff check
+  app.get("/", (_req, res) => {
+    res.status(200);
+    res.setHeader("Content-Type", "text/html"); // no charset
+    res.end("OK");
+  });
+
+  // Dedicated health endpoint with a simple, stable response
+  app.get("/health", (_req, res) => {
+    res.status(200);
+    res.setHeader("Content-Type", "text/plain");
+    res.end("ok");
+  });
 
   // Static Esicia/Kpay configuration (for debugging without env)
   const ESICIA_STATIC = {
@@ -127,18 +142,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       return res.status(401).json({ message: "Invalid token" });
     }
-  };
-
-  // Utility: normalize msisdn to international format without '+'
-  const normalizeMsisdn = (raw: string) => {
-    let msisdn = (raw || "").trim();
-    if (!msisdn) return msisdn;
-    if (msisdn.startsWith("+")) msisdn = msisdn.slice(1);
-    // If local Rwandan format 0xxxxxxxxx, convert to 250xxxxxxxxx
-    if (/^0\d{9}$/.test(msisdn)) {
-      msisdn = `250${msisdn.slice(1)}`;
-    }
-    return msisdn;
   };
 
   // Utility: ensure a wallet exists for given user and return it
@@ -1078,7 +1081,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .where(eq(users.role, "producer"))
           .orderBy(users.fullName);
         // strip passwords if present
-        const sanitized = list.map(({ password, ...u }) => u);
+        const sanitized = list.map((u: any) => {
+          const { password, ...rest } = u as any;
+          return rest;
+        });
         res.json(sanitized);
       } catch (error) {
         console.error("Error in /api/admin/producers:", error);
@@ -1099,7 +1105,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .from(users)
           .where(eq(users.role, "agent"))
           .orderBy(users.fullName);
-        const sanitized = list.map(({ password, ...u }) => u);
+        const sanitized = list.map((u: any) => {
+          const { password, ...rest } = u as any;
+          return rest;
+        });
         res.json(sanitized);
       } catch (error) {
         console.error("Error in /api/admin/agents:", error);
@@ -1120,7 +1129,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .from(users)
           .where(eq(users.role, "customer"))
           .orderBy(users.fullName);
-        const sanitized = list.map(({ password, ...u }) => u);
+        const sanitized = list.map((u: any) => {
+          const { password, ...rest } = u as any;
+          return rest;
+        });
         res.json(sanitized);
       } catch (error) {
         console.error("Error in /api/admin/customers:", error);
@@ -1141,7 +1153,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .from(users)
           .where(eq(users.role, "admin"))
           .orderBy(users.fullName);
-        const sanitized = list.map(({ password, ...u }) => u);
+        const sanitized = list.map((u: any) => {
+          const { password, ...rest } = u as any;
+          return rest;
+        });
         res.json(sanitized);
       } catch (error) {
         console.error("Error in /api/admin/admins:", error);
@@ -1245,7 +1260,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // Enrich with producer basic info
         const producerIds = Array.from(
-          new Set(pending.map((p) => p.producerId).filter(Boolean))
+          new Set(pending.map((p: any) => p.producerId).filter(Boolean))
         ) as string[];
         let producersMap: Record<string, any> = {};
         if (producerIds.length > 0) {
@@ -1260,13 +1275,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .where(
               and(eq(users.role, "producer"), inArray(users.id, producerIds))
             );
-          producersMap = producersList.reduce((acc, u) => {
-            acc[u.id] = u;
-            return acc;
-          }, {} as Record<string, any>);
+          producersMap = producersList.reduce(
+            (acc: Record<string, any>, u: any) => {
+              acc[u.id] = u;
+              return acc;
+            },
+            {} as Record<string, any>
+          );
         }
 
-        const result = pending.map((p) => ({
+        const result = pending.map((p: any) => ({
           id: p.id,
           title: p.title,
           image: p.image,
@@ -1836,7 +1854,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { oauthToken, role, phone } = req.body || {};
       if (!oauthToken || !role) {
-        return res.status(400).json({ message: "oauthToken and role are required" });
+        return res
+          .status(400)
+          .json({ message: "oauthToken and role are required" });
       }
 
       const allowedRoles = ["customer", "producer", "agent"];
@@ -1849,7 +1869,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         payload = jwt.verify(String(oauthToken), jwtSecret);
       } catch (e) {
-        return res.status(401).json({ message: "Invalid or expired OAuth session" });
+        return res
+          .status(401)
+          .json({ message: "Invalid or expired OAuth session" });
       }
 
       if (!payload || payload.kind !== "oauth_pending" || !payload.email) {
@@ -1894,7 +1916,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { expiresIn: "7d" }
       );
 
-      const { password: _pw2, fullName: createdFullName, ...userWithoutPassword } = created;
+      const {
+        password: _pw2,
+        fullName: createdFullName,
+        ...userWithoutPassword
+      } = created;
       const mappedUser = {
         ...userWithoutPassword,
         name: createdFullName || created.email.split("@")[0],

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
+import { randomUUID } from 'crypto';
 import { db } from './db';
-import { subscriptionPlans, InsertSubscriptionPlan } from './shared/schema';
+import { subscriptionPlans, InsertSubscriptionPlan } from './shared/schema.dialect';
 import { eq } from 'drizzle-orm';
 
 // Get all active subscription plans
@@ -187,7 +188,8 @@ export const seedSubscriptionPlans = async () => {
       }
     ];
 
-    await db.insert(subscriptionPlans).values(defaultPlans);
+    const plansWithIds = defaultPlans.map((p) => ({ id: randomUUID(), ...p }));
+    await db.insert(subscriptionPlans).values(plansWithIds);
     console.log('Default subscription plans seeded successfully');
   } catch (error) {
     console.error('Error seeding subscription plans:', error);

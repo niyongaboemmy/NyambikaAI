@@ -8,7 +8,7 @@ import {
   subscriptionPayments,
   products,
   User,
-} from "./shared/schema";
+} from "./shared/schema.dialect";
 import { eq, and, desc, count, sum, sql } from "drizzle-orm";
 
 // Get Agent Dashboard Stats
@@ -159,7 +159,7 @@ export async function getAvailableProducers(req: Request, res: Response) {
 
     // Get product counts for each producer
     const producersWithCounts = await Promise.all(
-      producers.map(async (producer) => {
+      producers.map(async (producer: any) => {
         const productCount = await db
           .select({ count: count() })
           .from(products)
@@ -250,7 +250,7 @@ export async function getAgentProducers(req: Request, res: Response) {
 
     // Get product counts and commission data for each producer
     const producersWithDetails = await Promise.all(
-      producers.map(async (producer) => {
+      producers.map(async (producer: any) => {
         const productCount = await db
           .select({ count: count() })
           .from(products)

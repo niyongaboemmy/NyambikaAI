@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { db } from "./db";
-import { subscriptions, products, orderItems } from "./shared/schema";
+import { subscriptions, products, orderItems } from "./shared/schema.dialect";
 import { eq, and } from "drizzle-orm";
 
 interface AuthenticatedRequest extends Request {

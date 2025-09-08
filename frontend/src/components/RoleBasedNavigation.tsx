@@ -113,6 +113,7 @@ export default function RoleBasedNavigation() {
       links: publicLinks,
       menu: [
         { href: "/products", label: "Products", icon: ShoppingCart },
+        { href: "/product-categories", label: "Product Categories", icon: Grid3X3 },
         { href: "/product-registration", label: "Add Product", icon: Plus },
         { href: "/admin-orders", label: "Orders", icon: Package },
         { href: "/admin-users", label: "Users Management", icon: Users },

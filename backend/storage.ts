@@ -30,7 +30,7 @@ import {
   type InsertTryOnSession,
   type Review,
   type InsertReview,
-} from "./shared/schema";
+} from "./shared/schema.dialect";
 import { db } from "./db";
 import { eq, like, and, desc, asc, inArray, gt, sql } from "drizzle-orm";
 
@@ -243,7 +243,7 @@ export class DatabaseStorage implements IStorage {
         )
       );
 
-    const allowedProducerIds = producersWithActiveSubs.map((r) => r.id);
+    const allowedProducerIds = producersWithActiveSubs.map((r: any) => r.id);
 
     // If none, short-circuit with empty results
     if (allowedProducerIds.length === 0) {
@@ -396,7 +396,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(products.producerId, producerId));
 
     // Get the full order details for those orders
-    const orderIdsList = (await orderIdsQuery).map((o) => o.id);
+    const orderIdsList = (await orderIdsQuery).map((o: any) => o.id);
     
     if (orderIdsList.length === 0) {
       return [];
@@ -442,8 +442,8 @@ export class DatabaseStorage implements IStorage {
       );
 
     // Group order items by order ID
-    const itemsByOrderId = orderItemsWithProducts.reduce<Record<string, any[]>>(
-      (acc, item) => {
+    const itemsByOrderId = orderItemsWithProducts.reduce(
+      (acc: Record<string, any[]>, item: any) => {
         const orderId = item.orderId || ""; // Ensure we have a string key
         if (!acc[orderId]) {
           acc[orderId] = [];
@@ -459,11 +459,11 @@ export class DatabaseStorage implements IStorage {
         });
         return acc;
       },
-      {}
+      {} as Record<string, any[]>
     );
 
     // Combine orders with their items
-    return result.map((order) => ({
+    return result.map((order: any) => ({
       ...order,
       items: itemsByOrderId[order.id] || [],
     }));

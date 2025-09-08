@@ -282,20 +282,6 @@ export default function HomeProducts() {
     },
   });
 
-  const handleBoost = async (productId: string) => {
-    if (!isProducer && !isAdmin) return;
-    const confirmed = window.confirm(
-      "Boost this product to the top? This will deduct the boost fee from your wallet."
-    );
-    if (!confirmed) return;
-    try {
-      await boostMutation.mutateAsync(productId);
-      window.alert("Product boosted successfully.");
-    } catch (e: any) {
-      window.alert(e?.message || "Failed to boost product.");
-    }
-  };
-
   // Companies for stories
   const { data: companies = [] } = useCompanies();
 
