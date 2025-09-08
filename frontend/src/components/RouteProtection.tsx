@@ -138,6 +138,7 @@ export function RouteProtection({ children }: RouteProtectionProps) {
 
       case "protected":
         if (!isAuthenticated) {
+          router.replace("/");
           open();
           return;
         }
@@ -145,6 +146,7 @@ export function RouteProtection({ children }: RouteProtectionProps) {
 
       case "admin":
         if (!isAuthenticated) {
+          router.replace("/");
           open();
           return;
         } else if (user?.role !== "admin") {
@@ -155,6 +157,7 @@ export function RouteProtection({ children }: RouteProtectionProps) {
 
       case "producer":
         if (!isAuthenticated) {
+          router.replace("/");
           open();
           return;
         } else if (user?.role !== "producer") {
@@ -165,6 +168,7 @@ export function RouteProtection({ children }: RouteProtectionProps) {
 
       case "agent":
         if (!isAuthenticated) {
+          router.replace("/");
           open();
           return;
         } else if (user?.role !== "agent") {
@@ -175,6 +179,7 @@ export function RouteProtection({ children }: RouteProtectionProps) {
 
       case "producerOrAdmin":
         if (!isAuthenticated) {
+          router.replace("/");
           open();
           return;
         } else if (user?.role !== "producer" && user?.role !== "admin") {
