@@ -11,7 +11,7 @@ import crypto from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
 
-type UserRole = 'customer' | 'producer' | 'admin' | 'agent';
+type UserRole = "customer" | "producer" | "admin" | "agent";
 import {
   subscriptions,
   users,
@@ -1797,24 +1797,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Try to get existing user by email
       let user = await storage.getUserByEmail(email);
-      
+
       if (!user) {
         // Create a new user with default customer role
         try {
           const newUser: InsertUser = {
             email,
             fullName: name,
-            username: email.split('@')[0],
-            password: '', // No password for OAuth users
-            role: 'customer',
-            isVerified: true // Customers are always verified by default
+            username: email.split("@")[0],
+            password: "", // No password for OAuth users
+            role: "customer",
+            isVerified: true, // Customers are always verified by default
           };
-          
+
           // Create the user in the database
           user = await storage.createUser(newUser);
-          console.log('Created new user via OAuth:', user.id);
+          console.log("Created new user via OAuth:", user.id);
         } catch (error) {
-          console.error('Error creating user via OAuth:', error);
+          console.error("Error creating user via OAuth:", error);
           // If user creation fails, fall back to the registration flow
           const pendingToken = jwt.sign(
             {
@@ -1827,46 +1827,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
             { expiresIn: "15m" }
           );
 
-          const frontendBase = process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
+          const frontendBase =
+            process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
           const registerUrl = `${frontendBase}/register?oauth=google&email=${encodeURIComponent(
             email
           )}&name=${encodeURIComponent(name)}&oauthToken=${encodeURIComponent(
             pendingToken
           )}`;
-          
+
           const html = `<!doctype html>
 <html><head><meta charset="utf-8"><script>
   window.location.replace(${JSON.stringify(registerUrl)});
   </script></head><body></body></html>`;
-          
+
           res.setHeader("Content-Type", "text/html");
           return res.send(html);
         }
       }
 
       // Get user's display name (fallback to email username if not set)
-      const displayName = user.fullName || user.email.split('@')[0];
-      
+      const displayName = user.fullName || user.email.split("@")[0];
+
       // Generate JWT with user data
       const token = jwt.sign(
-        { 
-          userId: user.id, 
-          role: user.role || 'customer',
+        {
+          userId: user.id,
+          role: user.role || "customer",
           email: user.email,
-          name: displayName
-        }, 
+          name: displayName,
+        },
         jwtSecret,
         { expiresIn: "7d" }
       );
 
       // Set HTTP-only cookie for session management
-      res.cookie('auth_token', token, {
+      res.cookie("auth_token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/',
-        domain: process.env.NODE_ENV === 'production' ? '.nyambikaai.com' : undefined
+        path: "/",
+        domain:
+          process.env.NODE_ENV === "production" ? ".nyambikaai.com" : undefined,
       });
 
       // Prepare user data to be passed to the frontend (only include necessary fields)
@@ -1874,20 +1876,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         id: user.id,
         email: user.email,
         fullName: displayName,
-        role: user.role || 'customer',
-        isVerified: user.isVerified || false
+        role: user.role || "customer",
+        isVerified: user.isVerified || false,
       };
 
       // Redirect to frontend with token in hash for client-side auth
-      const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const frontendBase = process.env.FRONTEND_URL || "http://localhost:3000";
       const redirectUrl = new URL(`${frontendBase}/auth/oauth-complete`);
-      
+
       // Add token to URL hash
       redirectUrl.hash = `#token=${encodeURIComponent(token)}`;
-      
+
       // Add user data as URL parameters
-      redirectUrl.searchParams.set('user', encodeURIComponent(JSON.stringify(frontendUserData)));
-      
+      redirectUrl.searchParams.set(
+        "user",
+        encodeURIComponent(JSON.stringify(frontendUserData))
+      );
+
       // Return HTML that will handle the redirect
       const html = `<!doctype html>
 <html>
@@ -1913,7 +1918,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     </script>
   </body>
 </html>`;
-  
+
       res.setHeader("Content-Type", "text/html");
       res.send(html);
     } catch (error) {
@@ -2008,15 +2013,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // For OAuth flow, redirect with token in URL hash
-      const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/oauth-complete#token=${encodeURIComponent(token)}`;
-      
+      const redirectUrl = `${
+        process.env.FRONTEND_URL || "http://localhost:3000"
+      }/auth/oauth-complete#token=${encodeURIComponent(token)}`;
+
       // Set a cookie for server-side auth if needed
-      res.cookie('auth_token', token, {
+      res.cookie("auth_token", token, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: '/',
+        path: "/",
       });
 
       // Redirect to frontend with token in hash
