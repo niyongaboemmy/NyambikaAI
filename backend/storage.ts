@@ -33,6 +33,7 @@ import {
 } from "./shared/schema.dialect";
 import { db } from "./db";
 import { eq, like, and, desc, asc, inArray, gt, sql } from "drizzle-orm";
+import crypto from 'crypto';
 
 export interface IStorage {
   // User operations
@@ -153,9 +154,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const [result] = await db.insert(users).values(user);
-    const [newUser] = await db.select().from(users).where(eq(users.id, result.insertId));
-    return newUser;
+    // For MySQL with UUID, we need to generate the ID first
+    const userId = crypto.randomUUID();
+    const newUser = { ...user, id: userId };
+    
+    // Insert the user with the generated UUID
+    await db.insert(users).values(newUser);
+    
+    // Fetch the newly created user to get all fields
+    const [createdUser] = await db.select().from(users).where(eq(users.id, userId));
+    if (!createdUser) throw new Error('Failed to create user');
+    
+    return createdUser;
   }
 
   async updateUser(
