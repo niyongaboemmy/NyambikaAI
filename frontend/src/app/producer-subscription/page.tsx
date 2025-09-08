@@ -108,7 +108,23 @@ export default function ProducerSubscriptionPage() {
   const fetchSubscriptionPlans = async () => {
     try {
       const response = await apiClient.get("/api/subscription-plans");
-      setPlans(response.data);
+      const raw = response.data as any;
+      const normalized: SubscriptionPlan[] = Array.isArray(raw)
+        ? raw.map((p: any) => ({
+            ...p,
+            features: Array.isArray(p.features)
+              ? p.features
+              : typeof p.features === "string" && p.features.length
+              ? [p.features]
+              : [],
+            featuresRw: Array.isArray(p.featuresRw)
+              ? p.featuresRw
+              : typeof p.featuresRw === "string" && p.featuresRw.length
+              ? [p.featuresRw]
+              : [],
+          }))
+        : [];
+      setPlans(normalized);
     } catch (error) {
       console.error("Error fetching subscription plans:", error);
       toast({
@@ -481,7 +497,7 @@ export default function ProducerSubscriptionPage() {
 
                       <CardContent>
                         <ul className="space-y-3">
-                          {plan.features.map((feature, featureIndex) => (
+                          {(Array.isArray(plan.features) ? plan.features : []).map((feature, featureIndex) => (
                             <li
                               key={featureIndex}
                               className="flex items-center"
