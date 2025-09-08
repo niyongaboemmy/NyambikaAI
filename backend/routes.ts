@@ -1825,24 +1825,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.send(html);
       }
 
-      // Issue JWT
-      const token = jwt.sign({ userId: user.id, role: user.role }, jwtSecret, {
-        expiresIn: "7d",
+      // Issue JWT with user role
+      const token = jwt.sign(
+        { 
+          userId: user.id, 
+          role: user.role || 'customer' // Ensure role is always set
+        }, 
+        jwtSecret,
+        { expiresIn: "7d" }
+      );
+
+      // Set HTTP-only cookie for session management
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
       });
 
-      // Determine frontend base URL - if FRONTEND_URL is set, use it; otherwise use current request origin
-      const frontendBase =
-        process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
-
-      // Redirect to frontend with token as query param to a dedicated receiver route
-      // The receiver returns plain HTML that sets localStorage and redirects, avoiding hydration/CSP pitfalls
-      const redirectUrl = `${frontendBase}/auth/receive-token?token=${encodeURIComponent(
-        token
-      )}`;
+      // Redirect to frontend with token in hash for client-side auth
+      const frontendBase = process.env.FRONTEND_URL || 'http://localhost:3000';
+      const redirectUrl = `${frontendBase}/auth/oauth-complete#token=${encodeURIComponent(token)}`;
+      
+      // Return HTML that will handle the redirect
       const html = `<!doctype html>
 <html><head><meta charset="utf-8"><script>
   window.location.replace(${JSON.stringify(redirectUrl)});
   </script></head><body></body></html>`;
+  
       res.setHeader("Content-Type", "text/html");
       res.send(html);
     } catch (error) {
@@ -1936,14 +1947,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         path: "/",
       });
 
-      // Also set the token in the Authorization header for immediate use
-      res.setHeader('Authorization', `Bearer ${token}`);
-
-      return res.status(201).json({ 
-        user: mappedUser, 
-        token,
-        message: "Registration successful. You are now logged in."
+      // For OAuth flow, redirect with token in URL hash
+      const redirectUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/auth/oauth-complete#token=${encodeURIComponent(token)}`;
+      
+      // Set a cookie for server-side auth if needed
+      res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        path: '/',
       });
+
+      // Redirect to frontend with token in hash
+      return res.redirect(redirectUrl);
     } catch (error) {
       console.error("register-oauth error:", error);
       return res.status(500).json({ message: "Internal server error" });

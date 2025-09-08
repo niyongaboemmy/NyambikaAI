@@ -5,48 +5,75 @@ export default function OAuthCompletePage() {
   const [status, setStatus] = useState<string>("Finishing sign-in...");
 
   useEffect(() => {
-    try {
-      if (typeof window === "undefined") return;
+    const handleOAuthCallback = async () => {
+      try {
+        if (typeof window === "undefined") return;
 
-      // Read token from location.hash
-      const { hash, search } = window.location;
-      const tokenMatch = hash.match(/token=([^&]+)/);
-      const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
+        // Read token from location.hash
+        const { hash, search } = window.location;
+        const tokenMatch = hash.match(/token=([^&]+)/);
+        const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
 
-      if (!token) {
-        setStatus("Missing token from OAuth callback.");
-        // Fallback: go home after a short delay
-        setTimeout(() => window.location.replace("/"), 1200);
-        return;
-      }
+        if (!token) {
+          setStatus("Missing token from OAuth callback.");
+          // Fallback: go home after a short delay
+          setTimeout(() => window.location.replace("/"), 1200);
+          return;
+        }
 
-      // Persist token
-      localStorage.setItem("auth_token", token);
+        // Persist token - ensure it's properly formatted
+        const formattedToken =
+          token.startsWith('"') && token.endsWith('"')
+            ? token.slice(1, -1)
+            : token;
 
-      // Optional redirect param from query string (?redirect=/profile)
-      const redirectParam = new URLSearchParams(search).get("redirect");
-      const redirect = redirectParam || "/";
+        localStorage.setItem("auth_token", formattedToken);
 
-      setStatus("Signed in! Redirecting...");
+        // Optional redirect param from query string (?redirect=/profile)
+        const redirectParam = new URLSearchParams(search).get("redirect");
+        const redirect = redirectParam || "/";
 
-      // Primary: force full reload so AuthContext initializes with token
-      window.location.replace(redirect);
-
-      // Safety net: if replace didn't happen, try again shortly
-      setTimeout(() => {
+        // Fetch user data to ensure the token is valid
         try {
-          if (window.location.pathname.includes("/auth/oauth-complete")) {
-            window.location.assign(redirect);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}/api/auth/me`,
+            {
+              headers: {
+                Authorization: `Bearer ${formattedToken}`,
+                "Content-Type": "application/json",
+              },
+              credentials: "include", // Important for cookies
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch user data");
           }
-        } catch {}
-      }, 800);
-    } catch (e) {
-      console.error("OAuth completion failed:", e);
-      setStatus("Sign-in completed, redirecting...");
-      if (typeof window !== "undefined") {
-        window.location.replace("/");
+
+          const userData = await response.json();
+
+          // Store user data in localStorage for immediate access
+          localStorage.setItem("user", JSON.stringify(userData));
+
+          setStatus("Signed in! Redirecting...");
+
+          // Force a full page reload to ensure all context is properly initialized
+          window.location.href = redirect;
+        } catch (error) {
+          console.error("Error initializing session:", error);
+          // Fallback to simple redirect if user data fetch fails
+          window.location.href = redirect;
+        }
+      } catch (e) {
+        console.error("OAuth completion failed:", e);
+        setStatus("Sign-in completed, redirecting...");
+        if (typeof window !== "undefined") {
+          window.location.replace("/");
+        }
       }
-    }
+    };
+
+    handleOAuthCallback();
   }, []);
 
   const manualContinue = () => {
@@ -71,7 +98,9 @@ export default function OAuthCompletePage() {
           }}
         />
         <div className="animate-spin inline-block h-6 w-6 border-2 border-current border-t-transparent rounded-full text-blue-500 mr-2 align-[-2px]" />
-        <div className="mb-2 text-sm text-gray-700 dark:text-gray-300">{status}</div>
+        <div className="mb-2 text-sm text-gray-700 dark:text-gray-300">
+          {status}
+        </div>
         <button
           onClick={manualContinue}
           className="mt-2 px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
