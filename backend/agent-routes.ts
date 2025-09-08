@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { randomUUID } from "crypto";
 import { db } from "./db";
 import {
   users,
@@ -388,9 +389,11 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
       subscriptionId = existingSubscription[0].id;
     } else {
       // Create new subscription
-      const newSubscription = await db
+      const id = randomUUID();
+      await db
         .insert(subscriptions)
         .values({
+          id,
           userId: producerId,
           planId,
           agentId,
@@ -400,14 +403,13 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
           endDate,
           amount, // string
           paymentMethod: paymentMethod ?? null,
-        })
-        .returning({ id: subscriptions.id });
-
-      subscriptionId = newSubscription[0].id;
+        });
+      subscriptionId = id;
     }
 
     // Create payment record
     await db.insert(subscriptionPayments).values({
+      id: randomUUID(),
       subscriptionId,
       agentId,
       amount, // string
@@ -435,7 +437,14 @@ export async function assignAgentToProducer(req: Request, res: Response) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    const { producerId, planId: rawPlanId, subscriptionPlanId, billingCycle, paymentMethod, paymentReference } = req.body;
+    const {
+      producerId,
+      planId: rawPlanId,
+      subscriptionPlanId,
+      billingCycle,
+      paymentMethod,
+      paymentReference,
+    } = req.body;
     const planId = rawPlanId || subscriptionPlanId;
     if (!producerId) {
       return res.status(400).json({ message: "Producer ID is required" });
@@ -464,8 +473,16 @@ export async function assignAgentToProducer(req: Request, res: Response) {
         return res.status(404).json({ message: "Subscription plan not found" });
       }
       selectedPlan = planRows[0];
-      if (!billingCycle || (billingCycle !== "monthly" && billingCycle !== "annual")) {
-        return res.status(400).json({ message: "billingCycle must be 'monthly' or 'annual' when planId is provided" });
+      if (
+        !billingCycle ||
+        (billingCycle !== "monthly" && billingCycle !== "annual")
+      ) {
+        return res
+          .status(400)
+          .json({
+            message:
+              "billingCycle must be 'monthly' or 'annual' when planId is provided",
+          });
       }
     }
 
@@ -479,10 +496,14 @@ export async function assignAgentToProducer(req: Request, res: Response) {
     // If subscription exists, update agent (and optionally plan)
     if (existingSubscription.length > 0) {
       if (selectedPlan) {
-        const amount = billingCycle === "monthly" ? selectedPlan.monthlyPrice : selectedPlan.annualPrice;
+        const amount =
+          billingCycle === "monthly"
+            ? selectedPlan.monthlyPrice
+            : selectedPlan.annualPrice;
         const startDate = new Date();
         const endDate = new Date();
-        if (billingCycle === "monthly") endDate.setMonth(endDate.getMonth() + 1);
+        if (billingCycle === "monthly")
+          endDate.setMonth(endDate.getMonth() + 1);
         else endDate.setFullYear(endDate.getFullYear() + 1);
 
         await db
@@ -495,7 +516,8 @@ export async function assignAgentToProducer(req: Request, res: Response) {
             startDate,
             endDate,
             amount,
-            paymentMethod: paymentMethod ?? existingSubscription[0].paymentMethod ?? null,
+            paymentMethod:
+              paymentMethod ?? existingSubscription[0].paymentMethod ?? null,
           })
           .where(eq(subscriptions.id, existingSubscription[0].id));
       } else {
@@ -512,37 +534,41 @@ export async function assignAgentToProducer(req: Request, res: Response) {
     if (!selectedPlan) {
       // If no plan provided, require one to create subscription; otherwise previous behavior blocks assignment
       return res.status(400).json({
-        message: "No subscription found. Provide planId and billingCycle to create and assign in one step, or use the payment endpoint.",
+        message:
+          "No subscription found. Provide planId and billingCycle to create and assign in one step, or use the payment endpoint.",
       });
     }
 
-    const amount = billingCycle === "monthly" ? selectedPlan.monthlyPrice : selectedPlan.annualPrice;
+    const amount =
+      billingCycle === "monthly"
+        ? selectedPlan.monthlyPrice
+        : selectedPlan.annualPrice;
     const startDate = new Date();
     const endDate = new Date();
     if (billingCycle === "monthly") endDate.setMonth(endDate.getMonth() + 1);
     else endDate.setFullYear(endDate.getFullYear() + 1);
 
-    const newSub = await db
-      .insert(subscriptions)
-      .values({
-        userId: producerId,
-        planId,
-        agentId,
-        status: "active",
-        billingCycle,
-        startDate,
-        endDate,
-        amount,
-        paymentMethod: paymentMethod ?? null,
-        paymentReference: paymentReference ?? null,
-      })
-      .returning({ id: subscriptions.id });
+    const subId = randomUUID();
+    await db.insert(subscriptions).values({
+      id: subId,
+      userId: producerId,
+      planId,
+      agentId,
+      status: "active",
+      billingCycle,
+      startDate,
+      endDate,
+      amount,
+      paymentMethod: paymentMethod ?? null,
+      paymentReference: paymentReference ?? null,
+    });
 
     // Optionally, record a payment if paymentMethod was included
     if (paymentMethod) {
       const agentCommission = (Number(amount) * 0.2).toFixed(2);
       await db.insert(subscriptionPayments).values({
-        subscriptionId: newSub[0].id,
+        id: randomUUID(),
+        subscriptionId: subId,
         agentId,
         amount,
         agentCommission,
@@ -552,7 +578,9 @@ export async function assignAgentToProducer(req: Request, res: Response) {
       });
     }
 
-    return res.json({ message: "Subscription created and agent assigned successfully" });
+    return res.json({
+      message: "Subscription created and agent assigned successfully",
+    });
   } catch (error) {
     console.error("Error assigning agent to producer:", error);
     res.status(500).json({ message: "Internal server error" });

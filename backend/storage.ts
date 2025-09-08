@@ -195,11 +195,10 @@ export class DatabaseStorage implements IStorage {
 
   async createCategory(category: InsertCategory): Promise<Category> {
     const id = crypto.randomUUID();
-    const [newCategory] = await db
-      .insert(categories)
-      .values({ id, ...category })
-      .returning();
-    return newCategory;
+    await db.insert(categories).values({ id, ...category });
+    const [created] = await db.select().from(categories).where(eq(categories.id, id));
+    if (!created) throw new Error('Failed to create category');
+    return created;
   }
 
   async updateCategory(
@@ -298,11 +297,10 @@ export class DatabaseStorage implements IStorage {
 
   async createProduct(product: InsertProduct): Promise<Product> {
     const id = crypto.randomUUID();
-    const [newProduct] = await db
-      .insert(products)
-      .values({ id, ...product })
-      .returning();
-    return newProduct;
+    await db.insert(products).values({ id, ...product });
+    const [created] = await db.select().from(products).where(eq(products.id, id));
+    if (!created) throw new Error('Failed to create product');
+    return created;
   }
 
   async updateProduct(
@@ -369,11 +367,10 @@ export class DatabaseStorage implements IStorage {
     } else {
       // Insert new item with explicit UUID
       const id = crypto.randomUUID();
-      const [newItem] = await db
-        .insert(cartItems)
-        .values({ id, ...cartItem })
-        .returning();
-      return newItem;
+      await db.insert(cartItems).values({ id, ...cartItem });
+      const [created] = await db.select().from(cartItems).where(eq(cartItems.id, id));
+      if (!created) throw new Error('Failed to add to cart');
+      return created;
     }
   }
 
@@ -520,10 +517,7 @@ export class DatabaseStorage implements IStorage {
     items: InsertOrderItem[]
   ): Promise<Order> {
     const id = crypto.randomUUID();
-    const [newOrder] = await db
-      .insert(orders)
-      .values({ id, ...order })
-      .returning();
+    await db.insert(orders).values({ id, ...order });
 
     const orderItemsWithOrderId = items.map((item) => ({
       id: crypto.randomUUID(),
@@ -532,8 +526,9 @@ export class DatabaseStorage implements IStorage {
     }));
 
     await db.insert(orderItems).values(orderItemsWithOrderId);
-
-    return newOrder;
+    const [created] = await db.select().from(orders).where(eq(orders.id, id));
+    if (!created) throw new Error('Failed to create order');
+    return created;
   }
 
   async updateOrderStatus(
@@ -570,11 +565,10 @@ export class DatabaseStorage implements IStorage {
 
   async addToFavorites(favorite: InsertFavorite): Promise<Favorite> {
     const id = crypto.randomUUID();
-    const [newFavorite] = await db
-      .insert(favorites)
-      .values({ id, ...favorite })
-      .returning();
-    return newFavorite;
+    await db.insert(favorites).values({ id, ...favorite });
+    const [created] = await db.select().from(favorites).where(eq(favorites.id, id));
+    if (!created) throw new Error('Failed to add favorite');
+    return created;
   }
 
   async removeFromFavorites(userId: string, productId: string): Promise<void> {
@@ -620,11 +614,10 @@ export class DatabaseStorage implements IStorage {
 
   async createTryOnSession(session: InsertTryOnSession): Promise<TryOnSession> {
     const id = crypto.randomUUID();
-    const [newSession] = await db
-      .insert(tryOnSessions)
-      .values({ id, ...session })
-      .returning();
-    return newSession;
+    await db.insert(tryOnSessions).values({ id, ...session });
+    const [created] = await db.select().from(tryOnSessions).where(eq(tryOnSessions.id, id));
+    if (!created) throw new Error('Failed to create try-on session');
+    return created;
   }
 
   async updateTryOnSession(
@@ -653,11 +646,10 @@ export class DatabaseStorage implements IStorage {
 
   async createReview(review: InsertReview): Promise<Review> {
     const id = crypto.randomUUID();
-    const [newReview] = await db
-      .insert(reviews)
-      .values({ id, ...review })
-      .returning();
-    return newReview;
+    await db.insert(reviews).values({ id, ...review });
+    const [created] = await db.select().from(reviews).where(eq(reviews.id, id));
+    if (!created) throw new Error('Failed to create review');
+    return created;
   }
 
   // Producers
@@ -700,11 +692,10 @@ export class DatabaseStorage implements IStorage {
 
   async createCompany(company: InsertCompany): Promise<Company> {
     const id = crypto.randomUUID();
-    const [newCompany] = await db
-      .insert(companies)
-      .values({ id, ...company })
-      .returning();
-    return newCompany;
+    await db.insert(companies).values({ id, ...company });
+    const [created] = await db.select().from(companies).where(eq(companies.id, id));
+    if (!created) throw new Error('Failed to create company');
+    return created;
   }
 
   async updateCompany(
