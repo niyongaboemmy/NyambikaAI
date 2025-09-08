@@ -11,28 +11,30 @@ export default function OAuthCompletePage() {
       try {
         if (typeof window === "undefined") return;
 
-        // Read token from URL hash
-        const { hash, search } = window.location;
-        const tokenMatch = hash.match(/token=([^&]+)/);
-        const token = tokenMatch ? decodeURIComponent(tokenMatch[1]) : null;
+        // Read token from URL search parameters
+        const { search } = window.location;
+        const urlParams = new URLSearchParams(search);
+        const token = urlParams.get('token');
 
         if (!token) {
           console.error("No token found in URL hash");
           setStatus("Authentication failed. Redirecting to login...");
-          setTimeout(() => router.push("/login"), 2000);
+          setTimeout(() => router.push("/"), 2000);
           return;
         }
 
-        // Clean up the URL by removing the token from the hash
-        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+        // Clean up the URL by removing the token and user data from the URL
+        const cleanUrl = new URL(window.location.href);
+        cleanUrl.searchParams.delete('token');
+        cleanUrl.searchParams.delete('user');
+        window.history.replaceState(null, '', cleanUrl.toString());
 
         // Store the token in localStorage
         localStorage.setItem("auth_token", token);
 
-        // Try to get user data from URL parameters (passed from backend)
-        const urlParams = new URLSearchParams(search);
-        const userDataParam = urlParams.get('user');
-        
+        // Get user data from URL parameters (passed from backend)
+        const userDataParam = urlParams.get("user");
+
         if (userDataParam) {
           try {
             const userData = JSON.parse(decodeURIComponent(userDataParam));
@@ -50,11 +52,10 @@ export default function OAuthCompletePage() {
         // Force a full page reload to ensure all context is properly initialized
         console.log("Authentication successful, redirecting to:", redirect);
         window.location.href = redirect;
-        
       } catch (e) {
         console.error("OAuth completion failed:", e);
         setStatus("Authentication failed. Redirecting to login...");
-        setTimeout(() => router.push("/login"), 2000);
+        setTimeout(() => router.push("/"), 2000);
       }
     };
 
