@@ -93,15 +93,24 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         try {
           const response = await apiClient.get<UserInterface>("/api/auth/me");
-          const userData: UserInterface = response.data;
-          
+          const userData: any = response.data;
+          // Normalize isVerified to strict boolean (supports 1/0, "1"/"0", true/false)
+          const normalizeVerified = (v: any) => {
+            if (typeof v === "boolean") return v;
+            if (typeof v === "number") return v === 1;
+            if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+            return false;
+          };
+          const normalizedFromApi = { ...userData, isVerified: normalizeVerified(userData?.isVerified) } as UserInterface;
+
           // Also check for user data in localStorage (set by OAuth complete page)
           const storedUser = localStorage.getItem("user");
           if (storedUser) {
-            const parsedUser = JSON.parse(storedUser);
-            setUser(parsedUser);
+            const parsedUser: any = JSON.parse(storedUser);
+            const normalizedStored = { ...parsedUser, isVerified: normalizeVerified(parsedUser?.isVerified) } as UserInterface;
+            setUser(normalizedStored);
           } else {
-            setUser(userData);
+            setUser(normalizedFromApi);
           }
         } catch (error) {
           console.error("Failed to fetch user data:", error);
@@ -127,13 +136,26 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.setItem("auth_token", token);
       }
       if (providedUser) {
-        setUser(providedUser);
+        const normalizeVerified = (v: any) => {
+          if (typeof v === "boolean") return v;
+          if (typeof v === "number") return v === 1;
+          if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+          return false;
+        };
+        setUser({ ...(providedUser as any), isVerified: normalizeVerified((providedUser as any)?.isVerified) });
         return;
       }
       // Fetch current user from backend if not provided
       try {
         const response = await apiClient.get<UserInterface>("/api/auth/me");
-        setUser(response.data);
+        const userData: any = response.data;
+        const normalizeVerified = (v: any) => {
+          if (typeof v === "boolean") return v;
+          if (typeof v === "number") return v === 1;
+          if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+          return false;
+        };
+        setUser({ ...userData, isVerified: normalizeVerified(userData?.isVerified) });
       } catch (e) {
         console.error("Failed to fetch user in setSession:", e);
       }
@@ -150,10 +172,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password,
       });
 
-      const { user: userData, token } = response.data;
+      const { user: userData, token } = response.data as any;
       // Allow login even if pending verification; RouteProtection shows a blocking modal
       localStorage.setItem("auth_token", token);
-      setUser(userData);
+      const normalizeVerified = (v: any) => {
+        if (typeof v === "boolean") return v;
+        if (typeof v === "number") return v === 1;
+        if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+        return false;
+      };
+      setUser({ ...(userData as any), isVerified: normalizeVerified((userData as any)?.isVerified) });
 
       // React-safe toast notification
       setTimeout(() => {
@@ -197,10 +225,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         role,
       });
 
-      const { user: userData, token } = response.data;
+      const { user: userData, token } = response.data as any;
 
       localStorage.setItem("auth_token", token);
-      setUser(userData);
+      const normalizeVerified = (v: any) => {
+        if (typeof v === "boolean") return v;
+        if (typeof v === "number") return v === 1;
+        if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+        return false;
+      };
+      setUser({ ...(userData as any), isVerified: normalizeVerified((userData as any)?.isVerified) });
 
       // React-safe toast notification
       setTimeout(() => {

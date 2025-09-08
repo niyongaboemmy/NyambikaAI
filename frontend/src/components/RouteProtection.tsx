@@ -71,8 +71,8 @@ export function RouteProtection({ children }: RouteProtectionProps) {
   const pendingRole: "producer" | "agent" | null = (() => {
     if (!user) return null;
     const isVerified = Boolean(user.isVerified);
-    // For producers, require company to exist and verification to be false
-    if (user.role === "producer" && !!company && !isVerified) {
+    // Show pending verification modal for any non-verified producer
+    if (user.role === "producer" && !isVerified) {
       return "producer";
     }
     if (user.role === "agent" && !isVerified) {
