@@ -44,6 +44,7 @@ interface AuthContextType {
   hasRole: (role: string) => boolean;
   requestPasswordReset: (email: string) => Promise<void>;
   loginWithProvider: (provider: "google" | "facebook") => void;
+  setSession: (token: string, user?: UserInterface) => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -118,6 +119,28 @@ export function AuthProvider({ children }: AuthProviderProps) {
     didCheckRef.current = true;
     checkAuth();
   }, []);
+
+  // Immediately set token and user; fetch user if not provided
+  const setSession = async (token: string, providedUser?: UserInterface) => {
+    try {
+      if (token) {
+        localStorage.setItem("auth_token", token);
+      }
+      if (providedUser) {
+        setUser(providedUser);
+        return;
+      }
+      // Fetch current user from backend if not provided
+      try {
+        const response = await apiClient.get<UserInterface>("/api/auth/me");
+        setUser(response.data);
+      } catch (e) {
+        console.error("Failed to fetch user in setSession:", e);
+      }
+    } catch (e) {
+      console.error("Failed to set session:", e);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     try {
@@ -262,6 +285,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasRole,
     requestPasswordReset,
     loginWithProvider,
+    setSession,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

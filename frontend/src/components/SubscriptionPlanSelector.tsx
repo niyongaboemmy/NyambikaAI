@@ -54,7 +54,24 @@ export default function SubscriptionPlanSelector({
     try {
       setPlansLoading(true);
       const response = await apiClient.get("/api/subscription-plans");
-      setPlans(response.data || []);
+      const raw = response.data as any;
+      const normalized: SubscriptionPlan[] = Array.isArray(raw)
+        ? raw.map((p: any) => ({
+            id: String(p.id ?? ""),
+            name: String(p.name ?? "Plan"),
+            description: String(p.description ?? ""),
+            monthlyPrice: Number(p.monthlyPrice ?? p.monthly_price ?? 0),
+            annualPrice: Number(p.annualPrice ?? p.annual_price ?? 0),
+            features: Array.isArray(p.features)
+              ? p.features.map((f: any) => String(f))
+              : typeof p.features === "string" && p.features.length
+              ? [String(p.features)]
+              : [],
+            isPopular: Boolean(p.isPopular ?? p.popular),
+            isPremium: Boolean(p.isPremium ?? p.premium),
+          }))
+        : [];
+      setPlans(normalized);
     } catch (error: any) {
       console.error("Error fetching plans:", error);
       toast({
@@ -289,7 +306,7 @@ export default function SubscriptionPlanSelector({
 
                     {/* Features */}
                     <div className="space-y-3 mb-6">
-                      {plan.features.map((feature, idx) => (
+                      {(Array.isArray(plan.features) ? plan.features : []).map((feature, idx) => (
                         <motion.div
                           key={idx}
                           className="flex items-center gap-3"

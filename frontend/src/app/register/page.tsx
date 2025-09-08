@@ -52,7 +52,7 @@ export default function Register() {
   });
   const [countryCode, setCountryCode] = useState("+250");
   const [isLoading, setIsLoading] = useState(false);
-  const { register, loginWithProvider } = useAuth();
+  const { register, loginWithProvider, setSession } = useAuth();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
@@ -150,9 +150,10 @@ export default function Register() {
           role: formData.role,
           phone: fullPhone,
         });
-        const { token } = resp.data || {};
-        if (token && typeof window !== "undefined") {
-          localStorage.setItem("auth_token", token);
+        const { token, user } = resp.data || {};
+        if (token) {
+          // Immediately set session for auto-login
+          await setSession(token, user);
         }
         router.push("/");
         setTimeout(() => {

@@ -53,7 +53,22 @@ export default function SubscriptionPage() {
       const response = await fetch('/api/subscription-plans');
       if (response.ok) {
         const data = await response.json();
-        setPlans(data);
+        const normalized = Array.isArray(data)
+          ? data.map((p: any) => ({
+              ...p,
+              features: Array.isArray(p.features)
+                ? p.features
+                : typeof p.features === 'string' && p.features.length
+                ? [p.features]
+                : [],
+              featuresRw: Array.isArray(p.featuresRw)
+                ? p.featuresRw
+                : typeof p.featuresRw === 'string' && p.featuresRw.length
+                ? [p.featuresRw]
+                : [],
+            }))
+          : [];
+        setPlans(normalized);
       }
     } catch (error) {
       console.error('Error fetching plans:', error);
@@ -285,7 +300,7 @@ export default function SubscriptionPage() {
 
                   {/* Features */}
                   <ul className="space-y-4 mb-8">
-                    {plan.features.map((feature, featureIndex) => (
+                    {(Array.isArray(plan.features) ? plan.features : []).map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-start">
                         <Check className="h-5 w-5 text-green-400 mr-3 mt-0.5 flex-shrink-0" />
                         <span className="text-gray-300">{feature}</span>

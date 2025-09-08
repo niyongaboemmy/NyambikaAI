@@ -1939,7 +1939,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const email = String(payload.email).toLowerCase();
-      const name = String(payload.name || "");
 
       // If already exists (e.g., race condition), log them in instead
       let existing = await storage.getUserByEmail(email);
@@ -1995,22 +1994,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         path: "/",
       });
 
-      // For OAuth flow, redirect with token in URL hash
-      const redirectUrl = `${
-        process.env.FRONTEND_URL || "http://localhost:3000"
-      }/auth/oauth-complete#token=${encodeURIComponent(token)}`;
-
-      // Set a cookie for server-side auth if needed
-      res.cookie("auth_token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-        path: "/",
-      });
-
-      // Redirect to frontend with token in hash
-      return res.redirect(redirectUrl);
+      // Return JSON so frontend XHR can auto-login without a redirect
+      return res.json({ token, user: mappedUser });
     } catch (error) {
       console.error("register-oauth error:", error);
       return res.status(500).json({ message: "Internal server error" });
