@@ -17,7 +17,6 @@ import {
   users,
   products,
   orders,
-  InsertUser,
   userWallets,
   walletPayments,
   paymentSettings,
@@ -1799,50 +1798,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let user = await storage.getUserByEmail(email);
 
       if (!user) {
-        // Create a new user with default customer role
-        try {
-          const newUser: InsertUser = {
+        // Do NOT auto-create a default customer. Force role selection on frontend.
+        const pendingToken = jwt.sign(
+          {
+            kind: "oauth_pending",
+            provider: "google",
             email,
-            fullName: name,
-            username: email.split("@")[0],
-            password: "", // No password for OAuth users
-            role: "customer",
-            isVerified: true, // Customers are always verified by default
-          };
+            name,
+          },
+          jwtSecret,
+          { expiresIn: "15m" }
+        );
 
-          // Create the user in the database
-          user = await storage.createUser(newUser);
-          console.log("Created new user via OAuth:", user.id);
-        } catch (error) {
-          console.error("Error creating user via OAuth:", error);
-          // If user creation fails, fall back to the registration flow
-          const pendingToken = jwt.sign(
-            {
-              kind: "oauth_pending",
-              provider: "google",
-              email,
-              name,
-            },
-            jwtSecret,
-            { expiresIn: "15m" }
-          );
+        const frontendBase =
+          process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
+        const registerUrl = `${frontendBase}/register?oauth=google&email=${encodeURIComponent(
+          email
+        )}&name=${encodeURIComponent(name)}&oauthToken=${encodeURIComponent(
+          pendingToken
+        )}`;
 
-          const frontendBase =
-            process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
-          const registerUrl = `${frontendBase}/register?oauth=google&email=${encodeURIComponent(
-            email
-          )}&name=${encodeURIComponent(name)}&oauthToken=${encodeURIComponent(
-            pendingToken
-          )}`;
-
-          const html = `<!doctype html>
+        const html = `<!doctype html>
 <html><head><meta charset="utf-8"><script>
   window.location.replace(${JSON.stringify(registerUrl)});
   </script></head><body></body></html>`;
 
-          res.setHeader("Content-Type", "text/html");
-          return res.send(html);
-        }
+        res.setHeader("Content-Type", "text/html");
+        return res.send(html);
       }
 
       // Get user's display name (fallback to email username if not set)
