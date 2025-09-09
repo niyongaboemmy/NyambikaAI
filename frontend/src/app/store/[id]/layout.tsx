@@ -60,13 +60,16 @@ export async function generateMetadata({
       ? company.logoUrl
       : new URL(company.logoUrl, SITE_URL).toString()
     : defaultLogo;
+  // Social platforms (FB/LinkedIn/Twitter) do NOT render data URLs.
+  // Use a real hosted image for OG/Twitter when the logo is a data URI.
+  const imageForOg = image.startsWith("data:") ? defaultLogo : image;
 
   // Build base metadata (title/description/OG/Twitter)
   const base = buildMetadata({
     title,
     description,
     path: `/store/${params.id}`,
-    images: [image],
+    images: [imageForOg],
   });
 
   // Add per-store icons (favicon/apple/shortcut) using company logo
