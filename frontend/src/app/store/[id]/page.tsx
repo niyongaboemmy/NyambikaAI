@@ -118,15 +118,18 @@ export default function StorePage() {
     document.title = company.name || document.title;
 
     // Update or create favicon link
-    if (company.logoUrl) {
+    const setFavicons = (logoUrl: string) => {
       const origin = window.location.origin;
       const toAbsolute = (u: string) =>
-        /^(https?:)?\/\//i.test(u) ? u : `${origin}${u.startsWith("/") ? "" : "/"}${u}`;
-      const href = toAbsolute(company.logoUrl as string);
+        /^(https?:)?\/\//i.test(u)
+          ? u
+          : `${origin}${u.startsWith("/") ? "" : "/"}${u}`;
+      const href = toAbsolute(logoUrl as string);
 
       const mimeFromUrl = (url: string): string | undefined => {
         const l = url.toLowerCase();
-        if (l.endsWith(".svg") || l.includes("image/svg")) return "image/svg+xml";
+        if (l.endsWith(".svg") || l.includes("image/svg"))
+          return "image/svg+xml";
         if (l.endsWith(".png")) return "image/png";
         if (l.endsWith(".jpg") || l.endsWith(".jpeg")) return "image/jpeg";
         if (l.endsWith(".ico")) return "image/x-icon";
@@ -134,7 +137,9 @@ export default function StorePage() {
       };
 
       const ensureLink = (rel: string, attrs: Record<string, string>) => {
-        let link = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
+        let link = document.querySelector<HTMLLinkElement>(
+          `link[rel="${rel}"]`
+        );
         if (!link) {
           link = document.createElement("link");
           link.rel = rel as any;
@@ -152,8 +157,48 @@ export default function StorePage() {
       if ((type || "").includes("svg")) {
         ensureLink("mask-icon", { href, color: "#5bbad5" });
       }
+    };
+
+    if (company.logoUrl) {
+      setFavicons(company.logoUrl as string);
+    } else {
+      // Use system logo fallback when company has no logo
+      setFavicons("/nyambika_dark_icon.png");
     }
   }, [company]);
+
+  // Build JSON-LD for SEO rich results (Organization/LocalBusiness)
+  const storeJsonLd = useMemo(() => {
+    if (!company) return null;
+    const origin =
+      (typeof process !== "undefined" && process.env.NEXT_PUBLIC_SITE_URL) ||
+      (typeof window !== "undefined" ? window.location.origin : "");
+    const toAbsolute = (u?: string | null) => {
+      if (!u) return undefined;
+      return /^(https?:)?\/\//i.test(u)
+        ? u
+        : `${origin}${u.startsWith("/") ? "" : "/"}${u}`;
+    };
+    const url = `${origin}/store/${id}`;
+    const logo =
+      toAbsolute(company.logoUrl) || toAbsolute("/nyambika_dark_icon.png");
+    const sameAs = company.websiteUrl ? [company.websiteUrl] : undefined;
+    const telephone = company.phone || undefined;
+    const address = company.location
+      ? { "@type": "PostalAddress", streetAddress: company.location }
+      : undefined;
+    return {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: company.name,
+      url,
+      logo,
+      image: logo,
+      sameAs,
+      telephone,
+      address,
+    } as const;
+  }, [company, id]);
 
   // Fetch the producer to check verification status (status is on producer, not company)
   const { data: producer } = useQuery<Product>({
@@ -601,6 +646,13 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen bg-transparent -mt-12">
+      {storeJsonLd && (
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
+        />
+      )}
       {/* Enhanced Hero Section */}
       <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 pt-8">
         <div className="absolute inset-0 bg-black/20" />
@@ -675,7 +727,8 @@ export default function StorePage() {
                   description: company.location || "",
                   icon: company.logoUrl || undefined,
                   url:
-                    (typeof window !== "undefined" && `${window.location.origin}/store/${id}`) ||
+                    (typeof window !== "undefined" &&
+                      `${window.location.origin}/store/${id}`) ||
                     `/store/${id}`,
                 }}
                 triggerClassName="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
