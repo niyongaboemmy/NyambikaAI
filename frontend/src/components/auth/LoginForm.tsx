@@ -60,13 +60,13 @@ export default function LoginForm({
 
   return (
     <div className="">
-      <main className="p-0.5 max-h-screen overflow-y-auto">
+      <main className="p-0 max-h-screen overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
+          // transition={{ duration: 0.7 }}
         >
-          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/85 dark:from-black/95 dark:via-blue-950/90 dark:to-black/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-blue-500/20 dark:shadow-blue-400/10 overflow-hidden">
+          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/85 dark:from-black/95 dark:via-blue-950/90 dark:to-black/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-blue-500/20 dark:shadow-blue-400/10 overflow-hidden rounded-2xl">
             {/* Animated AI-inspired background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {/* Primary animated gradient orb */}

@@ -47,13 +47,13 @@ export default function PasswordRecoveryForm({
 
   return (
     <div className="">
-      <main className="p-1 max-h-screen overflow-y-auto">
+      <main className="p-0 max-h-screen overflow-y-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
+          // transition={{ duration: 0.7 }}
         >
-          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-indigo-50/90 to-purple-50/85 dark:from-black/95 dark:via-indigo-950/90 dark:to-purple-950/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-indigo-500/20 dark:shadow-indigo-400/10 overflow-hidden">
+          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-indigo-50/90 to-purple-50/85 dark:from-black/95 dark:via-indigo-950/90 dark:to-purple-950/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-indigo-500/20 dark:shadow-indigo-400/10 overflow-hidden rounded-2xl">
             {/* Animated AI-inspired background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {/* Primary animated gradient orb */}
@@ -187,6 +187,7 @@ export default function PasswordRecoveryForm({
                         required
                         className="h-10 pl-10 pr-4 bg-gradient-to-br from-white/90 via-indigo-50/60 to-purple-50/40 dark:from-gray-900/90 dark:via-indigo-950/60 dark:to-purple-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-indigo-400/70 dark:focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/15 transition-all duration-300 shadow-md shadow-indigo-500/5 group-hover:shadow-indigo-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
                         placeholder="Enter your email address"
+                        autoFocus
                       />
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500 pointer-events-none">
                         <Mail className="h-4 w-4" />
