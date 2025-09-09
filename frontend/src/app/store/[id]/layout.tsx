@@ -43,12 +43,24 @@ export async function generateMetadata({
         : new URL(company.logoUrl, SITE_URL).toString())
     : defaultLogo;
 
-  return buildMetadata({
+  // Build base metadata (title/description/OG/Twitter)
+  const base = buildMetadata({
     title,
     description,
     path: `/store/${params.id}`,
     images: [image],
   });
+
+  // Add per-store icons (favicon/apple/shortcut) using company logo
+  // Next.js will place these in <link rel="icon" ...>, etc.
+  return {
+    ...base,
+    icons: {
+      icon: image,
+      shortcut: image,
+      apple: image,
+    },
+  };
 }
 
 export default function StoreLayout({
