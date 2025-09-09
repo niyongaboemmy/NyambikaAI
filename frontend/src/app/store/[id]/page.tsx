@@ -655,6 +655,9 @@ export default function StorePage() {
                   title: company.name,
                   description: company.location || "",
                   icon: company.logoUrl || undefined,
+                  url:
+                    (typeof window !== "undefined" && `${window.location.origin}/store/${id}`) ||
+                    `/store/${id}`,
                 }}
                 triggerClassName="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
                 triggerLabel="Share Store"
