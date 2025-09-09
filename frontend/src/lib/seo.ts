@@ -19,7 +19,7 @@ export function buildMetadata(options: BuildMetadataOptions = {}): Metadata {
   const description = options.description || DEFAULT_DESCRIPTION;
   const url = options.path ? new URL(options.path, SITE_URL).toString() : SITE_URL;
 
-  const images = (options.images || ["/next.svg"]).map((img) =>
+  const images = (options.images || ["/nyambika_dark_icon.png"]).map((img) =>
     img.startsWith("http") ? img : new URL(img, SITE_URL).toString()
   );
 

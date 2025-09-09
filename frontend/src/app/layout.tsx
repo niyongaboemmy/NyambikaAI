@@ -74,12 +74,19 @@ export const metadata: Metadata = {
       "Experience the future of fashion with AI-powered virtual try-ons and personalized recommendations.",
     type: "website",
     locale: "en_US",
+    images: [
+      {
+        url: "/nyambika_dark_icon.png",
+        type: "image/png",
+      } as any,
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "NyambikaAI - AI-Powered Fashion Platform",
     description:
       "Experience the future of fashion with AI-powered virtual try-ons and personalized recommendations.",
+    images: ["/nyambika_dark_icon.png"],
   },
 };
 
