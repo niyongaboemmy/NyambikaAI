@@ -70,7 +70,8 @@ export async function generateMetadata({
     u.startsWith("http") || u.startsWith("data:")
       ? u
       : new URL(u, SITE_URL).toString();
-  const ogUrlRaw = toAbsolute(image);
+  // Use dynamic OG image endpoint for robust previews (LinkedIn, etc.)
+  const ogUrlRaw = new URL(`/api/og/store/${safeId}`, SITE_URL).toString();
   const ogUrl = ogUrlRaw.startsWith("http://")
     ? ogUrlRaw.replace(/^http:\/\//i, "https://")
     : ogUrlRaw;
