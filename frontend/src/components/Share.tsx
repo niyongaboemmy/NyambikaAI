@@ -35,47 +35,64 @@ export type ShareProps = {
 };
 
 const buildUrl = (m: ShareMetadata) => {
-  const url =
-    m.url || (typeof window !== "undefined" ? window.location.href : "");
-  const text = encodeURIComponent(
-    m.title + (m.description ? ` — ${m.description}` : "")
-  );
+  // Resolve base URL for absolute paths (client-safe since this is a client component)
+  const SITE_URL =
+    (typeof process !== "undefined" && process.env.NEXT_PUBLIC_SITE_URL) ||
+    (typeof window !== "undefined" ? window.location.origin : "");
+
+  const absolute = (input?: string): string | undefined => {
+    if (!input) return undefined;
+    // If already absolute (http/https/data), return as is
+    if (/^(https?:)?\/\//i.test(input) || input.startsWith("data:")) return input;
+    try {
+      return new URL(input, SITE_URL).toString();
+    } catch {
+      return input;
+    }
+  };
+
+  const defaultLogo = absolute("/nyambika_light_icon.png") || undefined;
+  const shareImage = absolute(m.icon) || defaultLogo;
+
+  const url = m.url || (typeof window !== "undefined" ? window.location.href : "");
+  // Some platforms only read OG tags from the target URL. Our server-side metadata
+  // (store/[id]/layout.tsx) ensures correct OG for LinkedIn/Facebook.
+
+  const composedText = m.title + (m.description ? ` — ${m.description}` : "");
+  const text = encodeURIComponent(composedText);
   const hashtagStr = m.hashtags?.length
     ? m.hashtags.map((h) => (h.startsWith("#") ? h.slice(1) : h)).join(",")
     : undefined;
+  const via = m.via ? m.via.replace(/^@/, "") : undefined;
+
   return {
     url,
     text,
     hashtagStr,
-    twitter: `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(
-      url
-    )}${m.via ? `&via=${encodeURIComponent(m.via)}` : ""}${
-      hashtagStr ? `&hashtags=${encodeURIComponent(hashtagStr)}` : ""
-    }`,
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-      url
-    )}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
-      url
-    )}`,
-    whatsapp: `https://api.whatsapp.com/send?text=${text}%20${encodeURIComponent(
-      url
-    )}`,
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(
-      url
-    )}&text=${text}`,
-    email: `mailto:?subject=${encodeURIComponent(
-      m.title
-    )}&body=${text}%0A%0A${encodeURIComponent(url)}`,
-    reddit: `https://www.reddit.com/submit?url=${encodeURIComponent(
-      url
-    )}&title=${text}`,
-    pinterest: m.icon
-      ? `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(
-          url
-        )}&media=${encodeURIComponent(m.icon)}&description=${text}`
+    image: shareImage,
+    // Twitter/X
+    twitter: `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}${
+      via ? `&via=${encodeURIComponent(via)}` : ""
+    }${hashtagStr ? `&hashtags=${encodeURIComponent(hashtagStr)}` : ""}`,
+    // Facebook — URL only; preview comes from OG tags on the page
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    // LinkedIn — URL only; preview from OG tags
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    // WhatsApp
+    whatsapp: `https://api.whatsapp.com/send?text=${text}%20${encodeURIComponent(url)}`,
+    // Telegram
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${text}`,
+    // Email
+    email: `mailto:?subject=${encodeURIComponent(m.title)}&body=${text}%0A%0A${encodeURIComponent(url)}`,
+    // Reddit — can pass title and url
+    reddit: `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${text}`,
+    // Pinterest requires a media (image) param to render a rich pin
+    pinterest: shareImage
+      ? `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&media=${encodeURIComponent(
+          shareImage
+        )}&description=${text}`
       : undefined,
-  };
+  } as const;
 };
 
 export default function Share({

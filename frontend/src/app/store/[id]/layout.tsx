@@ -36,17 +36,18 @@ export async function generateMetadata({
   const description = company?.location || undefined;
 
   // Ensure image is absolute
+  const defaultLogo = new URL("/nyambika_light_icon.png", SITE_URL).toString();
   const image = company?.logoUrl
     ? (company.logoUrl.startsWith("http")
         ? company.logoUrl
         : new URL(company.logoUrl, SITE_URL).toString())
-    : undefined;
+    : defaultLogo;
 
   return buildMetadata({
     title,
     description,
     path: `/store/${params.id}`,
-    images: image ? [image] : undefined,
+    images: [image],
   });
 }
 
