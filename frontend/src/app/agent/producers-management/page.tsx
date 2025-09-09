@@ -380,7 +380,7 @@ export default function ProducersManagement() {
   };
 
   // Legacy assign producer (for producers with active subscriptions)
-  const assignProducer = async (producerId: string) => {
+  const assignProducer = async (producerId: string): Promise<boolean> => {
     try {
       await apiClient.post(API_ENDPOINTS.AGENT_ASSIGN_PRODUCER, { producerId });
       toast({
@@ -394,23 +394,24 @@ export default function ProducersManagement() {
         fetchProducers();
       }
       fetchStats();
+      return true;
     } catch (error: any) {
       console.error("Error assigning producer:", error);
+      toast({
+        title: "Error",
+        description: formatBackendErrors(error),
+        variant: "destructive",
+      });
 
       // If error is about subscription, open assignment modal
       if (error?.response?.data?.message?.includes("active subscription")) {
         const producer = availableProducers.find((p) => p.id === producerId);
         if (producer) {
           openAssignmentModal(producer);
-          return;
+          return false;
         }
       }
-
-      toast({
-        title: "Error",
-        description: formatBackendErrors(error),
-        variant: "destructive",
-      });
+      return false;
     }
   };
 
