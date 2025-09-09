@@ -119,20 +119,39 @@ export default function StorePage() {
 
     // Update or create favicon link
     if (company.logoUrl) {
-      const setIcon = (rel: string) => {
-        let link: HTMLLinkElement | null = document.querySelector(
-          `link[rel="${rel}"]`
-        );
+      const origin = window.location.origin;
+      const toAbsolute = (u: string) =>
+        /^(https?:)?\/\//i.test(u) ? u : `${origin}${u.startsWith("/") ? "" : "/"}${u}`;
+      const href = toAbsolute(company.logoUrl as string);
+
+      const mimeFromUrl = (url: string): string | undefined => {
+        const l = url.toLowerCase();
+        if (l.endsWith(".svg") || l.includes("image/svg")) return "image/svg+xml";
+        if (l.endsWith(".png")) return "image/png";
+        if (l.endsWith(".jpg") || l.endsWith(".jpeg")) return "image/jpeg";
+        if (l.endsWith(".ico")) return "image/x-icon";
+        return undefined;
+      };
+
+      const ensureLink = (rel: string, attrs: Record<string, string>) => {
+        let link = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
         if (!link) {
           link = document.createElement("link");
           link.rel = rel as any;
           document.head.appendChild(link);
         }
-        link.href = company.logoUrl as any;
+        Object.entries(attrs).forEach(([k, v]) => link!.setAttribute(k, v));
       };
-      setIcon("icon");
-      setIcon("shortcut icon");
-      setIcon("apple-touch-icon");
+
+      const type = mimeFromUrl(href);
+      // Common favicons
+      ensureLink("icon", { href, ...(type ? { type } : {}), sizes: "32x32" });
+      ensureLink("shortcut icon", { href, ...(type ? { type } : {}) });
+      ensureLink("apple-touch-icon", { href, sizes: "180x180" });
+      // Better Safari pin support for SVG logos
+      if ((type || "").includes("svg")) {
+        ensureLink("mask-icon", { href, color: "#5bbad5" });
+      }
     }
   }, [company]);
 

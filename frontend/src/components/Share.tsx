@@ -235,9 +235,9 @@ export default function Share({
                 {/* Header */}
                 <div className="flex items-center justify-between px-4 pt-3 md:pt-4">
                   <div className="flex items-center gap-2">
-                    {metadata.icon ? (
+                    {u.image ? (
                       <img
-                        src={metadata.icon}
+                        src={u.image}
                         alt="icon"
                         className="w-7 h-7 rounded-full object-cover ring-2 ring-white/40"
                       />

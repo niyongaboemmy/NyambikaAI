@@ -26,6 +26,15 @@ async function getCompany(id: string) {
   }
 }
 
+function mimeFromUrl(url: string): string | undefined {
+  const u = url.toLowerCase();
+  if (u.endsWith(".svg") || u.includes("image/svg")) return "image/svg+xml";
+  if (u.endsWith(".png")) return "image/png";
+  if (u.endsWith(".jpg") || u.endsWith(".jpeg")) return "image/jpeg";
+  if (u.endsWith(".ico")) return "image/x-icon";
+  return undefined;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -56,9 +65,12 @@ export async function generateMetadata({
   return {
     ...base,
     icons: {
-      icon: image,
-      shortcut: image,
-      apple: image,
+      icon: [
+        { url: image, type: mimeFromUrl(image), sizes: "32x32" },
+        { url: image, type: mimeFromUrl(image), sizes: "16x16" },
+      ],
+      shortcut: [{ url: image, type: mimeFromUrl(image) }],
+      apple: [{ url: image, type: mimeFromUrl(image), sizes: "180x180" }],
     },
   };
 }
