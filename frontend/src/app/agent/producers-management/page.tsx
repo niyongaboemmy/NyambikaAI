@@ -145,6 +145,55 @@ export default function ProducersManagement() {
     }
   };
 
+  // Extract and format backend error messages comprehensively
+  const formatBackendErrors = (err: any): string => {
+    const data = err?.response?.data ?? err?.data ?? null;
+    const messages: string[] = [];
+
+    const pushMsg = (m: any) => {
+      if (!m) return;
+      if (typeof m === "string") {
+        messages.push(m.trim());
+      } else if (typeof m === "object") {
+        // If it's an object of field -> [errors]
+        for (const [k, v] of Object.entries(m)) {
+          if (Array.isArray(v)) {
+            v.forEach((item) => pushMsg(`${k}: ${String(item)}`));
+          } else if (typeof v === "string") {
+            pushMsg(`${k}: ${v}`);
+          } else if (v && typeof v === "object") {
+            // nested details
+            pushMsg(`${k}: ${JSON.stringify(v)}`);
+          }
+        }
+      }
+    };
+
+    // Common shapes
+    if (data?.message) pushMsg(data.message);
+    if (data?.error) pushMsg(data.error);
+    if (data?.detail) pushMsg(data.detail);
+    if (data?.details) pushMsg(data.details);
+    if (data?.errors) {
+      if (Array.isArray(data.errors)) {
+        data.errors.forEach((e: any) => pushMsg(e?.message || e?.msg || e));
+      } else {
+        pushMsg(data.errors);
+      }
+    }
+    if (data?.validationErrors) pushMsg(data.validationErrors);
+
+    // If nothing collected, try raw string or status text
+    if (messages.length === 0) {
+      if (typeof data === "string") return data;
+      const fallback = err?.message || "An error occurred";
+      return fallback;
+    }
+
+    // De-duplicate and join
+    return Array.from(new Set(messages.filter(Boolean))).join("\n");
+  };
+
   // Fetch active subscription plans for modal
   const fetchPlans = async () => {
     try {
@@ -196,10 +245,7 @@ export default function ProducersManagement() {
       console.error("Payment error:", err);
       toast({
         title: "Payment Failed",
-        description:
-          err?.response?.data?.message ||
-          err?.message ||
-          "Could not process payment",
+        description: formatBackendErrors(err),
         variant: "destructive",
       });
     } finally {
@@ -316,8 +362,7 @@ export default function ProducersManagement() {
       console.error("Error assigning producer:", error);
       toast({
         title: "Assignment Failed",
-        description:
-          error?.response?.data?.message || "Failed to assign producer",
+        description: formatBackendErrors(error),
         variant: "destructive",
       });
     } finally {
@@ -363,8 +408,7 @@ export default function ProducersManagement() {
 
       toast({
         title: "Error",
-        description:
-          error?.response?.data?.message || "Failed to assign producer",
+        description: formatBackendErrors(error),
         variant: "destructive",
       });
     }
