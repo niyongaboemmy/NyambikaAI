@@ -31,6 +31,7 @@ import { Product } from "@/shared/schema";
 import { useParams, useRouter } from "next/navigation";
 import { useCompany } from "@/contexts/CompanyContext";
 import BoostProductDialog from "@/components/BoostProductDialog";
+import Share from "@/components/Share";
 
 interface ExtendedProduct extends Product {
   images?: string[];
@@ -631,15 +632,16 @@ export default function ProductDetail() {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleShare}
-                      className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200/50 dark:border-blue-700/50 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-800/40 dark:hover:to-cyan-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
-                      title="Share product"
-                    >
-                      <Share2 className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
-                    </Button>
+                    <Share
+                      metadata={{
+                        title: product.name,
+                        description: product.description,
+                        icon: product.imageUrl || undefined,
+                      }}
+                      size="sm"
+                      triggerLabel="Share"
+                      triggerClassName="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200/50 dark:border-blue-700/50 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-800/40 dark:hover:to-cyan-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 [&>span]:hidden"
+                    />
                   </motion.div>
                 </div>
               </div>

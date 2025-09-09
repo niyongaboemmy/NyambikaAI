@@ -120,7 +120,9 @@ export default function StorePage() {
     // Update or create favicon link
     if (company.logoUrl) {
       const setIcon = (rel: string) => {
-        let link: HTMLLinkElement | null = document.querySelector(`link[rel="${rel}"]`);
+        let link: HTMLLinkElement | null = document.querySelector(
+          `link[rel="${rel}"]`
+        );
         if (!link) {
           link = document.createElement("link");
           link.rel = rel as any;
@@ -425,7 +427,7 @@ export default function StorePage() {
         <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 pt-8">
           <div className="absolute inset-0 bg-black/20" />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-transparent to-purple-500/30 animate-pulse" />
-          <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative z-10">
+          <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative ">
             <div className="text-center text-white space-y-4 sm:space-y-5">
               <div className="pt-4 md:pt-2 flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
                 <div className="relative">
@@ -493,7 +495,7 @@ export default function StorePage() {
         </div>
 
         {/* Filters + Search sticky bar skeleton */}
-        <div className="bg-gradient-to-r from-white via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900/30 dark:to-gray-900/30 border-b border-gray-200 dark:border-gray-700 shadow-sm pt-4 md:sticky md:top-[4.5rem] md:z-10">
+        <div className="bg-gradient-to-r from-white via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900/30 dark:to-gray-900/30 border-b border-gray-200 dark:border-gray-700 shadow-sm pt-4 md:sticky md:top-[4.5rem] md:">
           <div className="container mx-auto px-3 md:px-0 py-2 pt-0 flex flex-col md:flex-row md:items-center gap-2">
             <div className="flex flex-col gap-4 w-full">
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -599,7 +601,7 @@ export default function StorePage() {
             style={{ animationDelay: "3s" }}
           />
         </div>
-        <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative z-10">
+        <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative ">
           <div className="text-center text-white space-y-4 sm:space-y-0">
             <div className="flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
               <div className="relative group pt-3 md:pt-2">
@@ -881,7 +883,7 @@ export default function StorePage() {
       </div>
 
       {/* Smart Search and Filter Section with Gradient Background */}
-      <div className="bg-gradient-to-r from-white via-white to-white/80 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 border-b border-gray-200 dark:border-none dark:border-gray-700 dark:shadow-sm pt-4 md:sticky md:top-[4.5rem] md:z-10">
+      <div className="bg-gradient-to-r from-white via-white to-white/80 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 border-b border-gray-200 dark:border-none dark:border-gray-700 dark:shadow-sm pt-4 md:sticky md:top-[4.5rem] md:">
         <div className="container mx-auto px-3 md:px-0 py-2 pt-0 flex flex-col md:flex-row md:items-center gap-2">
           <div className="flex flex-col gap-4">
             {/* Comparison Bar */}
@@ -986,7 +988,7 @@ export default function StorePage() {
           <div className="flex-1 w-full">
             <div className="relative group w-full">
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity" />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 z-10" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 " />
               <Input
                 placeholder="Search products with AI..."
                 aria-label="Search products"
