@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
+import { API_BASE_URL } from "@/config/api";
 
 // Build absolute URL helper
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -7,7 +8,8 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 async function getCompany(id: string) {
   // Use absolute URL so this works in Edge/server runtime for metadata
   try {
-    const url = new URL(`/api/companies/${id}`, SITE_URL).toString();
+    // Important: use backend API base, not the frontend site URL
+    const url = new URL(`/api/companies/${id}`, API_BASE_URL).toString();
     const res = await fetch(url, { next: { revalidate: 60 } });
     if (!res.ok) return null;
     const data = await res.json();
@@ -35,9 +37,9 @@ export async function generateMetadata({
 
   // Ensure image is absolute
   const image = company?.logoUrl
-    ? company.logoUrl.startsWith("http")
-      ? company.logoUrl
-      : new URL(company.logoUrl, SITE_URL).toString()
+    ? (company.logoUrl.startsWith("http")
+        ? company.logoUrl
+        : new URL(company.logoUrl, SITE_URL).toString())
     : undefined;
 
   return buildMetadata({
