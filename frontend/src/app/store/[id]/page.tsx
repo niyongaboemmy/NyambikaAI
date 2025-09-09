@@ -121,7 +121,7 @@ export default function StorePage() {
     const setFavicons = (logoUrl: string) => {
       const origin = window.location.origin;
       const toAbsolute = (u: string) =>
-        /^(https?:)?\/\//i.test(u)
+        /^(https?:)?\/\//i.test(u) || u.startsWith("data:")
           ? u
           : `${origin}${u.startsWith("/") ? "" : "/"}${u}`;
       const href = toAbsolute(logoUrl as string);
@@ -175,7 +175,7 @@ export default function StorePage() {
       (typeof window !== "undefined" ? window.location.origin : "");
     const toAbsolute = (u?: string | null) => {
       if (!u) return undefined;
-      return /^(https?:)?\/\//i.test(u)
+      return /^(https?:)?\/\//i.test(u) || u.startsWith("data:")
         ? u
         : `${origin}${u.startsWith("/") ? "" : "/"}${u}`;
     };

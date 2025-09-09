@@ -28,6 +28,11 @@ async function getCompany(id: string) {
 
 function mimeFromUrl(url: string): string | undefined {
   const u = url.toLowerCase();
+  if (u.startsWith("data:")) {
+    // pattern: data:image/png;base64,.... or data:image/svg+xml;utf8,...
+    const match = /^data:([^;,]+)[;,]/i.exec(url);
+    return match ? match[1] : undefined;
+  }
   if (u.endsWith(".svg") || u.includes("image/svg")) return "image/svg+xml";
   if (u.endsWith(".png")) return "image/png";
   if (u.endsWith(".jpg") || u.endsWith(".jpeg")) return "image/jpeg";
@@ -49,19 +54,20 @@ export async function generateMetadata({
       : undefined);
 
   // Ensure image is absolute
-  const defaultLogo = new URL("/nyambika_light_icon.png", SITE_URL).toString();
+  const defaultLogo = new URL("/nyambika_dark_icon.png", SITE_URL).toString();
   const image = company?.logoUrl
     ? company.logoUrl.startsWith("http")
       ? company.logoUrl
       : new URL(company.logoUrl, SITE_URL).toString()
     : defaultLogo;
+  const imageForOg = image.startsWith("data:") ? defaultLogo : image;
 
   // Build base metadata (title/description/OG/Twitter)
   const base = buildMetadata({
     title,
     description,
     path: `/store/${params.id}`,
-    images: [image],
+    images: [imageForOg],
   });
 
   // Add per-store icons (favicon/apple/shortcut) using company logo
