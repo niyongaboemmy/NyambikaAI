@@ -46,6 +46,7 @@ export async function generateMetadata({
   params: { id: string };
 }): Promise<Metadata> {
   const company = await getCompany(params.id);
+  const safeId = encodeURIComponent((params.id || "").trim());
   const title = company?.name || "Store";
   const description =
     (company?.location && company.location.trim()) ||
@@ -55,14 +56,14 @@ export async function generateMetadata({
 
   // Ensure image is absolute
   const defaultLogo = new URL("/nyambika_dark_icon.png", SITE_URL).toString();
-  const image = company?.logoUrl
+  const imageTemp = company?.logoUrl
     ? company.logoUrl.startsWith("http") || company.logoUrl.startsWith("data:")
       ? company.logoUrl
       : new URL(company.logoUrl, SITE_URL).toString()
     : defaultLogo;
+  const image = imageTemp.trim();
   // Social platforms (FB/LinkedIn/Twitter) do NOT render data URLs.
   // Use a real hosted image for OG/Twitter when the logo is a data URI.
-  const imageForOg = image.startsWith("data:") ? defaultLogo : image;
 
   // Normalize an absolute HTTPS URL for social crawlers
   const toAbsolute = (u: string) =>
@@ -78,7 +79,7 @@ export async function generateMetadata({
   const base = buildMetadata({
     title,
     description,
-    path: `/store/${params.id}`,
+    path: `/store/${safeId}`,
     images: [ogUrl],
   });
 
@@ -88,7 +89,7 @@ export async function generateMetadata({
     ...base,
     openGraph: {
       ...(base.openGraph || {}),
-      url: new URL(`/store/${params.id}`, SITE_URL).toString(),
+      url: new URL(`/store/${safeId}`, SITE_URL).toString(),
       images: [
         {
           url: ogUrl,
