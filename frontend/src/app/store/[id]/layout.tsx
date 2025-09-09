@@ -64,18 +64,47 @@ export async function generateMetadata({
   // Use a real hosted image for OG/Twitter when the logo is a data URI.
   const imageForOg = image.startsWith("data:") ? defaultLogo : image;
 
+  // Normalize an absolute HTTPS URL for social crawlers
+  const toAbsolute = (u: string) =>
+    u.startsWith("http") || u.startsWith("data:")
+      ? u
+      : new URL(u, SITE_URL).toString();
+  const ogUrlRaw = toAbsolute(image);
+  const ogUrl = ogUrlRaw.startsWith("http://")
+    ? ogUrlRaw.replace(/^http:\/\//i, "https://")
+    : ogUrlRaw;
+
   // Build base metadata (title/description/OG/Twitter)
   const base = buildMetadata({
     title,
     description,
     path: `/store/${params.id}`,
-    images: [imageForOg],
+    images: [ogUrl],
   });
 
   // Add per-store icons (favicon/apple/shortcut) using company logo
   // Next.js will place these in <link rel="icon" ...>, etc.
   return {
     ...base,
+    openGraph: {
+      ...(base.openGraph || {}),
+      url: new URL(`/store/${params.id}`, SITE_URL).toString(),
+      images: [
+        {
+          url: ogUrl,
+          type: mimeFromUrl(ogUrl),
+          alt: company?.name || "Store logo",
+          // Hints for crawlers; if unknown actual size, typical OG size works fine
+          width: 1200 as any,
+          height: 630 as any,
+          secureUrl: ogUrl as any,
+        } as any,
+      ],
+    },
+    twitter: {
+      ...(base.twitter || {}),
+      images: [ogUrl],
+    },
     icons: {
       icon: [
         { url: image, type: mimeFromUrl(image), sizes: "32x32" },
