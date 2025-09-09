@@ -39,6 +39,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useParams, useRouter } from "next/navigation";
 import { Category, Company, Product } from "@/shared/schema";
+import Share from "@/components/Share";
 
 type Producer = {
   id: string;
@@ -109,6 +110,29 @@ export default function StorePage() {
     },
     enabled: !!id,
   });
+
+  // Set dynamic page title and favicon based on company metadata
+  useEffect(() => {
+    if (!company) return;
+    // Set document title
+    document.title = company.name || document.title;
+
+    // Update or create favicon link
+    if (company.logoUrl) {
+      const setIcon = (rel: string) => {
+        let link: HTMLLinkElement | null = document.querySelector(`link[rel="${rel}"]`);
+        if (!link) {
+          link = document.createElement("link");
+          link.rel = rel as any;
+          document.head.appendChild(link);
+        }
+        link.href = company.logoUrl as any;
+      };
+      setIcon("icon");
+      setIcon("shortcut icon");
+      setIcon("apple-touch-icon");
+    }
+  }, [company]);
 
   // Fetch the producer to check verification status (status is on producer, not company)
   const { data: producer } = useQuery<Product>({
@@ -624,15 +648,15 @@ export default function StorePage() {
             </div>
 
             <div className="flex flex-row justify-center space-x-4 pt-4">
-              <Button
-                variant="secondary"
-                className="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
-                // onClick={handleShare}
-              >
-                <Share2 className="w-4 h-4" />
-                <span className="hidden sm:inline text-sm">Share Store</span>
-                <span className="sm:hidden text-sm">Share</span>
-              </Button>
+              <Share
+                metadata={{
+                  title: company.name,
+                  description: company.location || "",
+                  icon: company.logoUrl || undefined,
+                }}
+                triggerClassName="bg-gradient-to-r bg-transparent text-white from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 dark:text-white border-white/30 dark:bg-transparent backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-xl text-sm sm:text-base"
+                triggerLabel="Share Store"
+              />
               {company.websiteUrl && (
                 <Button
                   variant="secondary"
