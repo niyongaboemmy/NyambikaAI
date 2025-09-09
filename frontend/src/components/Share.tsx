@@ -13,7 +13,7 @@ import {
   Copy,
   Send,
   Bookmark,
-  Hash,
+  Instagram,
   X,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -84,8 +84,8 @@ const buildUrl = (m: ShareMetadata) => {
     telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${text}`,
     // Email
     email: `mailto:?subject=${encodeURIComponent(m.title)}&body=${text}%0A%0A${encodeURIComponent(url)}`,
-    // Reddit — can pass title and url
-    reddit: `https://www.reddit.com/submit?url=${encodeURIComponent(url)}&title=${text}`,
+    // Instagram note: no official web share intent; we open Instagram homepage with query as fallback
+    instagram: `https://www.instagram.com/?url=${encodeURIComponent(url)}`,
     // Pinterest requires a media (image) param to render a rich pin
     pinterest: shareImage
       ? `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&media=${encodeURIComponent(
@@ -110,7 +110,7 @@ export default function Share({
     | "whatsapp"
     | "telegram"
     | "email"
-    | "reddit"
+    | "instagram"
     | "pinterest"
     | null
   >(null);
@@ -313,11 +313,11 @@ export default function Share({
                       color="from-rose-500 to-rose-300"
                     />
                     <PlatformCard
-                      selected={selected === "reddit"}
-                      label="Reddit"
-                      onClick={() => setSelected("reddit")}
-                      icon={<Hash className="w-4 h-4" />}
-                      color="from-orange-500 to-amber-400"
+                      selected={selected === "instagram"}
+                      label="Instagram"
+                      onClick={() => setSelected("instagram")}
+                      icon={<Instagram className="w-4 h-4" />}
+                      color="from-pink-500 to-purple-500"
                     />
                     {u.pinterest && (
                       <PlatformCard
@@ -348,8 +348,8 @@ export default function Share({
                             ? u.telegram
                             : selected === "email"
                             ? u.email
-                            : selected === "reddit"
-                            ? u.reddit
+                            : selected === "instagram"
+                            ? u.instagram
                             : selected === "pinterest"
                             ? u.pinterest
                             : undefined;
