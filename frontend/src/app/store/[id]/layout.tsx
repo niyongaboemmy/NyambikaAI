@@ -56,18 +56,17 @@ export async function generateMetadata({
   // Ensure image is absolute
   const defaultLogo = new URL("/nyambika_dark_icon.png", SITE_URL).toString();
   const image = company?.logoUrl
-    ? company.logoUrl.startsWith("http")
+    ? company.logoUrl.startsWith("http") || company.logoUrl.startsWith("data:")
       ? company.logoUrl
       : new URL(company.logoUrl, SITE_URL).toString()
     : defaultLogo;
-  const imageForOg = image.startsWith("data:") ? defaultLogo : image;
 
   // Build base metadata (title/description/OG/Twitter)
   const base = buildMetadata({
     title,
     description,
     path: `/store/${params.id}`,
-    images: [imageForOg],
+    images: [image],
   });
 
   // Add per-store icons (favicon/apple/shortcut) using company logo
