@@ -3,7 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import { API_BASE_URL } from "@/config/api";
 
 // Build absolute URL helper
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nyambika.com";
 
 async function getCompany(id: string) {
   // Use absolute URL so this works in Edge/server runtime for metadata
@@ -42,14 +42,18 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const company = await getCompany(params.id);
   const title = company?.name || "Store";
-  const description = company?.location || undefined;
+  const description =
+    (company?.location && company.location.trim()) ||
+    (company?.name
+      ? `Explore products from ${company.name} on NyambikaAI`
+      : undefined);
 
   // Ensure image is absolute
   const defaultLogo = new URL("/nyambika_light_icon.png", SITE_URL).toString();
   const image = company?.logoUrl
-    ? (company.logoUrl.startsWith("http")
-        ? company.logoUrl
-        : new URL(company.logoUrl, SITE_URL).toString())
+    ? company.logoUrl.startsWith("http")
+      ? company.logoUrl
+      : new URL(company.logoUrl, SITE_URL).toString()
     : defaultLogo;
 
   // Build base metadata (title/description/OG/Twitter)

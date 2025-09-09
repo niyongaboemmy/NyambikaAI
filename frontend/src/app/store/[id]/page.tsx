@@ -724,7 +724,9 @@ export default function StorePage() {
               <Share
                 metadata={{
                   title: company.name,
-                  description: company.location || "",
+                  description:
+                    (company.location && company.location.trim()) ||
+                    `Explore products from ${company.name} on NyambikaAI`,
                   icon: company.logoUrl || undefined,
                   url:
                     (typeof window !== "undefined" &&
