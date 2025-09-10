@@ -74,6 +74,8 @@ import {
 } from "./admin-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  const isMySQL =
+    String(process.env.DB_DIALECT || "postgres").toLowerCase() === "mysql";
   // Ensure minimal runtime migrations (safe, idempotent)
   try {
     await ensureSchemaMigrations();
@@ -155,11 +157,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       .where(eq(userWallets.userId, userId))
       .limit(1);
     if (!wallet) {
-      const [created] = await db
-        .insert(userWallets)
-        .values({ id: randomUUID(), userId, balance: "0", status: "active" })
-        .returning();
-      wallet = created as any;
+      const vals = {
+        id: randomUUID(),
+        userId,
+        balance: "0",
+        status: "active",
+      } as any;
+      if (isMySQL) {
+        await db.insert(userWallets).values(vals).execute();
+        wallet = vals;
+      } else {
+        const [created] = await db.insert(userWallets).values(vals).returning();
+        wallet = created as any;
+      }
     }
     return wallet as any;
   };
@@ -190,16 +200,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .limit(1);
 
       if (!wallet) {
-        const [created] = await db
-          .insert(userWallets)
-          .values({
-            id: randomUUID(),
-            userId: req.userId,
-            balance: "0",
-            status: "active",
-          })
-          .returning();
-        wallet = created as any;
+        const vals = {
+          id: randomUUID(),
+          userId: req.userId,
+          balance: "0",
+          status: "active",
+        } as any;
+        if (isMySQL) {
+          await db.insert(userWallets).values(vals).execute();
+          wallet = vals as any;
+        } else {
+          const [created] = await db
+            .insert(userWallets)
+            .values(vals)
+            .returning();
+          wallet = created as any;
+        }
       }
 
       res.json({
@@ -390,16 +406,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .where(eq(userWallets.userId, req.userId))
               .limit(1);
             if (!wallet) {
-              const [created] = await db
-                .insert(userWallets)
-                .values({
-                  id: randomUUID(),
-                  userId: req.userId,
-                  balance: "0",
-                  status: "active",
-                })
-                .returning();
-              wallet = created as any;
+              const vals = {
+                id: randomUUID(),
+                userId: req.userId,
+                balance: "0",
+                status: "active",
+              } as any;
+              if (isMySQL) {
+                await db.insert(userWallets).values(vals).execute();
+                wallet = vals as any;
+              } else {
+                const [created] = await db
+                  .insert(userWallets)
+                  .values(vals)
+                  .returning();
+                wallet = created as any;
+              }
             }
 
             const currentBalance = Number(wallet.balance) || 0;
@@ -412,30 +434,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
 
             // Record wallet payment (debit)
-            const [payment] = await db
-              .insert(walletPayments)
-              .values({
+            let payment: any;
+            {
+              const vals = {
                 id: randomUUID(),
                 walletId: wallet.id,
                 userId: req.userId,
-                type: "debit",
+                type: "debit" as const,
                 amount: String(amount.toFixed(2)),
-                method: "mobile_money",
-                provider: "mtn",
+                method: "mobile_money" as const,
+                provider: "mtn" as const,
                 phone: (req.body && (req.body as any).phone) || null,
-                status: "completed",
+                status: "completed" as const,
                 description: `Product boost fee for product ${productId}`,
                 externalReference: `BOOST-${Date.now()}`,
-              })
-              .returning();
+              } as any;
+              if (isMySQL) {
+                await db.insert(walletPayments).values(vals).execute();
+                payment = vals;
+              } else {
+                const [created] = await db
+                  .insert(walletPayments)
+                  .values(vals)
+                  .returning();
+                payment = created as any;
+              }
+            }
 
             // Update wallet balance
             const newBalance = String((currentBalance - amount).toFixed(2));
-            const [updatedWallet] = await db
-              .update(userWallets)
-              .set({ balance: newBalance, updatedAt: new Date() as any })
-              .where(eq(userWallets.id, wallet.id))
-              .returning();
+            let updatedWallet: any;
+            if (isMySQL) {
+              await db
+                .update(userWallets)
+                .set({ balance: newBalance, updatedAt: new Date() as any })
+                .where(eq(userWallets.id, wallet.id))
+                .execute();
+              const [w2] = await db
+                .select()
+                .from(userWallets)
+                .where(eq(userWallets.id, wallet.id))
+                .limit(1);
+              updatedWallet = w2 as any;
+            } else {
+              const [w2] = await db
+                .update(userWallets)
+                .set({ balance: newBalance, updatedAt: new Date() as any })
+                .where(eq(userWallets.id, wallet.id))
+                .returning();
+              updatedWallet = w2 as any;
+            }
 
             // Set product to top by assigning smallest display_order - 1 (NULLs treated as large)
             const [{ min_order } = { min_order: null }] = (await db
@@ -446,11 +494,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 ? min_order - 1
                 : 0;
 
-            const [updatedProduct] = await db
-              .update(products)
-              .set({ displayOrder: nextOrder as any })
-              .where(eq(products.id, productId))
-              .returning();
+            let updatedProduct: any;
+            if (isMySQL) {
+              await db
+                .update(products)
+                .set({ displayOrder: nextOrder as any })
+                .where(eq(products.id, productId))
+                .execute();
+              const [p2] = await db
+                .select()
+                .from(products)
+                .where(eq(products.id, productId))
+                .limit(1);
+              updatedProduct = p2 as any;
+            } else {
+              const [p2] = await db
+                .update(products)
+                .set({ displayOrder: nextOrder as any })
+                .where(eq(products.id, productId))
+                .returning();
+              updatedProduct = p2 as any;
+            }
 
             res.json({
               product: updatedProduct,
@@ -486,35 +550,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(userWallets.userId, req.userId))
         .limit(1);
       if (!wallet) {
-        const [created] = await db
-          .insert(userWallets)
-          .values({
-            id: randomUUID(),
-            userId: req.userId,
-            balance: "0",
-            status: "active",
-          })
-          .returning();
-        wallet = created as any;
+        const vals = {
+          id: randomUUID(),
+          userId: req.userId,
+          balance: "0",
+          status: "active",
+        } as any;
+        if (isMySQL) {
+          await db.insert(userWallets).values(vals).execute();
+          wallet = vals as any;
+        } else {
+          const [created] = await db
+            .insert(userWallets)
+            .values(vals)
+            .returning();
+          wallet = created as any;
+        }
       }
 
       // Create a pending wallet payment record
-      const [payment] = await db
-        .insert(walletPayments)
-        .values({
+      let payment: any;
+      {
+        const vals = {
           id: randomUUID(),
           walletId: wallet.id,
           userId: req.userId,
-          type: "topup",
+          type: "topup" as const,
           amount: String(parsedAmount.toFixed(2)),
-          method: "mobile_money",
+          method: "mobile_money" as const,
           provider,
           phone: phone || null,
-          status: "pending",
+          status: "pending" as const,
           description: "Demo Mobile Money top-up",
           externalReference: `DEMO-${Date.now()}`,
-        })
-        .returning();
+        } as any;
+        if (isMySQL) {
+          await db.insert(walletPayments).values(vals).execute();
+          payment = vals;
+        } else {
+          const [created] = await db
+            .insert(walletPayments)
+            .values(vals)
+            .returning();
+          payment = created as any;
+        }
+      }
 
       // In demo mode, immediately mark as completed and update balance
       await db
@@ -523,11 +603,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(walletPayments.id, payment.id));
 
       const newBalance = String((Number(wallet.balance) || 0) + parsedAmount);
-      const [updatedWallet] = await db
-        .update(userWallets)
-        .set({ balance: newBalance })
-        .where(eq(userWallets.id, wallet.id))
-        .returning();
+      let updatedWallet: any;
+      if (isMySQL) {
+        await db
+          .update(userWallets)
+          .set({ balance: newBalance })
+          .where(eq(userWallets.id, wallet.id))
+          .execute();
+        const [w2] = await db
+          .select()
+          .from(userWallets)
+          .where(eq(userWallets.id, wallet.id))
+          .limit(1);
+        updatedWallet = w2 as any;
+      } else {
+        const [w2] = await db
+          .update(userWallets)
+          .set({ balance: newBalance })
+          .where(eq(userWallets.id, wallet.id))
+          .returning();
+        updatedWallet = w2 as any;
+      }
 
       res.status(201).json({
         payment: { ...payment, status: "completed" },
@@ -653,22 +749,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .toString(36)
           .slice(2, 8)}`;
 
-        const [payment] = await db
-          .insert(walletPayments)
-          .values({
+        let payment: any;
+        {
+          const vals = {
             id: randomUUID(),
             walletId: wallet.id,
             userId: req.userId,
-            type: "topup",
+            type: "topup" as const,
             amount: String(parsedAmount.toFixed(2)),
-            method: "mobile_money",
-            provider: "opay",
+            method: "mobile_money" as const,
+            provider: "opay" as const,
             phone,
-            status: "pending",
+            status: "pending" as const,
             description: "OPAY wallet top-up",
             externalReference,
-          })
-          .returning();
+          } as any;
+          if (isMySQL) {
+            await db.insert(walletPayments).values(vals).execute();
+            payment = vals;
+          } else {
+            const [created] = await db
+              .insert(walletPayments)
+              .values(vals)
+              .returning();
+            payment = created as any;
+          }
+        }
 
         const isMock =
           String(process.env.OPAY_MOCK || "").toLowerCase() === "true";
@@ -709,11 +815,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const newBalance = String(
             (Number(wallet.balance) || 0) + parsedAmount
           );
-          const [updatedWallet] = await db
-            .update(userWallets)
-            .set({ balance: newBalance, updatedAt: new Date() as any })
-            .where(eq(userWallets.id, wallet.id))
-            .returning();
+          let updatedWallet: any;
+          if (isMySQL) {
+            await db
+              .update(userWallets)
+              .set({ balance: newBalance, updatedAt: new Date() as any })
+              .where(eq(userWallets.id, wallet.id))
+              .execute();
+            const [w2] = await db
+              .select()
+              .from(userWallets)
+              .where(eq(userWallets.id, wallet.id))
+              .limit(1);
+            updatedWallet = w2 as any;
+          } else {
+            const [w2] = await db
+              .update(userWallets)
+              .set({ balance: newBalance, updatedAt: new Date() as any })
+              .where(eq(userWallets.id, wallet.id))
+              .returning();
+            updatedWallet = w2 as any;
+          }
 
           return res.status(201).json({
             payment: { ...payment, status: "completed" },

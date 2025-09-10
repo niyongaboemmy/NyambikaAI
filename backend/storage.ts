@@ -33,7 +33,7 @@ import {
 } from "./shared/schema.dialect";
 import { db } from "./db";
 import { eq, like, and, desc, asc, inArray, gt, sql } from "drizzle-orm";
-import crypto from 'crypto';
+import crypto from "crypto";
 
 export interface IStorage {
   // User operations
@@ -129,6 +129,8 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
+  private readonly isMySQL =
+    String(process.env.DB_DIALECT || "mysql").toLowerCase() === "mysql";
   // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -157,14 +159,17 @@ export class DatabaseStorage implements IStorage {
     // For MySQL with UUID, we need to generate the ID first
     const userId = crypto.randomUUID();
     const newUser = { ...user, id: userId };
-    
+
     // Insert the user with the generated UUID
     await db.insert(users).values(newUser);
-    
+
     // Fetch the newly created user to get all fields
-    const [createdUser] = await db.select().from(users).where(eq(users.id, userId));
-    if (!createdUser) throw new Error('Failed to create user');
-    
+    const [createdUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.id, userId));
+    if (!createdUser) throw new Error("Failed to create user");
+
     return createdUser;
   }
 
@@ -172,12 +177,18 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertUser>
   ): Promise<User | undefined> {
-    const [user] = await db
-      .update(users)
-      .set(updates)
-      .where(eq(users.id, id))
-      .returning();
-    return user || undefined;
+    if (this.isMySQL) {
+      await db.update(users).set(updates).where(eq(users.id, id)).execute();
+      const [row] = await db.select().from(users).where(eq(users.id, id));
+      return row || undefined;
+    } else {
+      const [user] = await db
+        .update(users)
+        .set(updates)
+        .where(eq(users.id, id))
+        .returning();
+      return user || undefined;
+    }
   }
 
   // Category operations
@@ -196,8 +207,11 @@ export class DatabaseStorage implements IStorage {
   async createCategory(category: InsertCategory): Promise<Category> {
     const id = crypto.randomUUID();
     await db.insert(categories).values({ id, ...category });
-    const [created] = await db.select().from(categories).where(eq(categories.id, id));
-    if (!created) throw new Error('Failed to create category');
+    const [created] = await db
+      .select()
+      .from(categories)
+      .where(eq(categories.id, id));
+    if (!created) throw new Error("Failed to create category");
     return created;
   }
 
@@ -205,12 +219,25 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertCategory>
   ): Promise<Category | undefined> {
-    const [category] = await db
-      .update(categories)
-      .set(updates)
-      .where(eq(categories.id, id))
-      .returning();
-    return category || undefined;
+    if (this.isMySQL) {
+      await db
+        .update(categories)
+        .set(updates)
+        .where(eq(categories.id, id))
+        .execute();
+      const [row] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, id));
+      return row || undefined;
+    } else {
+      const [category] = await db
+        .update(categories)
+        .set(updates)
+        .where(eq(categories.id, id))
+        .returning();
+      return category || undefined;
+    }
   }
 
   async deleteCategory(id: string): Promise<void> {
@@ -298,8 +325,11 @@ export class DatabaseStorage implements IStorage {
   async createProduct(product: InsertProduct): Promise<Product> {
     const id = crypto.randomUUID();
     await db.insert(products).values({ id, ...product });
-    const [created] = await db.select().from(products).where(eq(products.id, id));
-    if (!created) throw new Error('Failed to create product');
+    const [created] = await db
+      .select()
+      .from(products)
+      .where(eq(products.id, id));
+    if (!created) throw new Error("Failed to create product");
     return created;
   }
 
@@ -307,12 +337,22 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertProduct>
   ): Promise<Product | undefined> {
-    const [product] = await db
-      .update(products)
-      .set(updates)
-      .where(eq(products.id, id))
-      .returning();
-    return product || undefined;
+    if (this.isMySQL) {
+      await db
+        .update(products)
+        .set(updates)
+        .where(eq(products.id, id))
+        .execute();
+      const [row] = await db.select().from(products).where(eq(products.id, id));
+      return row || undefined;
+    } else {
+      const [product] = await db
+        .update(products)
+        .set(updates)
+        .where(eq(products.id, id))
+        .returning();
+      return product || undefined;
+    }
   }
 
   async deleteProduct(id: string): Promise<void> {
@@ -358,18 +398,34 @@ export class DatabaseStorage implements IStorage {
 
     if (existingItem) {
       // Update quantity
-      const [updatedItem] = await db
-        .update(cartItems)
-        .set({ quantity: existingItem.quantity! + (cartItem.quantity || 1) })
-        .where(eq(cartItems.id, existingItem.id))
-        .returning();
-      return updatedItem;
+      if (this.isMySQL) {
+        await db
+          .update(cartItems)
+          .set({ quantity: existingItem.quantity! + (cartItem.quantity || 1) })
+          .where(eq(cartItems.id, existingItem.id))
+          .execute();
+        const [row] = await db
+          .select()
+          .from(cartItems)
+          .where(eq(cartItems.id, existingItem.id));
+        return row as any;
+      } else {
+        const [updatedItem] = await db
+          .update(cartItems)
+          .set({ quantity: existingItem.quantity! + (cartItem.quantity || 1) })
+          .where(eq(cartItems.id, existingItem.id))
+          .returning();
+        return updatedItem;
+      }
     } else {
       // Insert new item with explicit UUID
       const id = crypto.randomUUID();
       await db.insert(cartItems).values({ id, ...cartItem });
-      const [created] = await db.select().from(cartItems).where(eq(cartItems.id, id));
-      if (!created) throw new Error('Failed to add to cart');
+      const [created] = await db
+        .select()
+        .from(cartItems)
+        .where(eq(cartItems.id, id));
+      if (!created) throw new Error("Failed to add to cart");
       return created;
     }
   }
@@ -378,12 +434,25 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertCartItem>
   ): Promise<CartItem | undefined> {
-    const [item] = await db
-      .update(cartItems)
-      .set(updates)
-      .where(eq(cartItems.id, id))
-      .returning();
-    return item || undefined;
+    if (this.isMySQL) {
+      await db
+        .update(cartItems)
+        .set(updates)
+        .where(eq(cartItems.id, id))
+        .execute();
+      const [row] = await db
+        .select()
+        .from(cartItems)
+        .where(eq(cartItems.id, id));
+      return row || undefined;
+    } else {
+      const [item] = await db
+        .update(cartItems)
+        .set(updates)
+        .where(eq(cartItems.id, id))
+        .returning();
+      return item || undefined;
+    }
   }
 
   async removeFromCart(id: string): Promise<void> {
@@ -403,7 +472,10 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(orders.createdAt));
   }
 
-  async getProducerOrders(producerId: string, status?: string): Promise<Order[]> {
+  async getProducerOrders(
+    producerId: string,
+    status?: string
+  ): Promise<Order[]> {
     // First, get all order IDs that have products from this producer
     const orderIdsQuery = db
       .selectDistinct({ id: orders.id })
@@ -414,14 +486,14 @@ export class DatabaseStorage implements IStorage {
 
     // Get the full order details for those orders
     const orderIdsList = (await orderIdsQuery).map((o: any) => o.id);
-    
+
     if (orderIdsList.length === 0) {
       return [];
     }
 
     // Build the query with status filter if provided
     const conditions = [inArray(orders.id, orderIdsList)];
-    if (status && status !== 'all') {
+    if (status && status !== "all") {
       conditions.push(eq(orders.status, status));
     }
 
@@ -527,7 +599,7 @@ export class DatabaseStorage implements IStorage {
 
     await db.insert(orderItems).values(orderItemsWithOrderId);
     const [created] = await db.select().from(orders).where(eq(orders.id, id));
-    if (!created) throw new Error('Failed to create order');
+    if (!created) throw new Error("Failed to create order");
     return created;
   }
 
@@ -535,12 +607,22 @@ export class DatabaseStorage implements IStorage {
     id: string,
     status: string
   ): Promise<Order | undefined> {
-    const [order] = await db
-      .update(orders)
-      .set({ status })
-      .where(eq(orders.id, id))
-      .returning();
-    return order || undefined;
+    if (this.isMySQL) {
+      await db
+        .update(orders)
+        .set({ status })
+        .where(eq(orders.id, id))
+        .execute();
+      const [row] = await db.select().from(orders).where(eq(orders.id, id));
+      return row || undefined;
+    } else {
+      const [order] = await db
+        .update(orders)
+        .set({ status })
+        .where(eq(orders.id, id))
+        .returning();
+      return order || undefined;
+    }
   }
 
   // Favorites operations
@@ -566,8 +648,11 @@ export class DatabaseStorage implements IStorage {
   async addToFavorites(favorite: InsertFavorite): Promise<Favorite> {
     const id = crypto.randomUUID();
     await db.insert(favorites).values({ id, ...favorite });
-    const [created] = await db.select().from(favorites).where(eq(favorites.id, id));
-    if (!created) throw new Error('Failed to add favorite');
+    const [created] = await db
+      .select()
+      .from(favorites)
+      .where(eq(favorites.id, id));
+    if (!created) throw new Error("Failed to add favorite");
     return created;
   }
 
@@ -615,8 +700,11 @@ export class DatabaseStorage implements IStorage {
   async createTryOnSession(session: InsertTryOnSession): Promise<TryOnSession> {
     const id = crypto.randomUUID();
     await db.insert(tryOnSessions).values({ id, ...session });
-    const [created] = await db.select().from(tryOnSessions).where(eq(tryOnSessions.id, id));
-    if (!created) throw new Error('Failed to create try-on session');
+    const [created] = await db
+      .select()
+      .from(tryOnSessions)
+      .where(eq(tryOnSessions.id, id));
+    if (!created) throw new Error("Failed to create try-on session");
     return created;
   }
 
@@ -624,12 +712,25 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertTryOnSession>
   ): Promise<TryOnSession | undefined> {
-    const [session] = await db
-      .update(tryOnSessions)
-      .set(updates)
-      .where(eq(tryOnSessions.id, id))
-      .returning();
-    return session || undefined;
+    if (this.isMySQL) {
+      await db
+        .update(tryOnSessions)
+        .set(updates)
+        .where(eq(tryOnSessions.id, id))
+        .execute();
+      const [row] = await db
+        .select()
+        .from(tryOnSessions)
+        .where(eq(tryOnSessions.id, id));
+      return row || undefined;
+    } else {
+      const [session] = await db
+        .update(tryOnSessions)
+        .set(updates)
+        .where(eq(tryOnSessions.id, id))
+        .returning();
+      return session || undefined;
+    }
   }
 
   // Reviews operations
@@ -648,7 +749,7 @@ export class DatabaseStorage implements IStorage {
     const id = crypto.randomUUID();
     await db.insert(reviews).values({ id, ...review });
     const [created] = await db.select().from(reviews).where(eq(reviews.id, id));
-    if (!created) throw new Error('Failed to create review');
+    if (!created) throw new Error("Failed to create review");
     return created;
   }
 
@@ -693,8 +794,11 @@ export class DatabaseStorage implements IStorage {
   async createCompany(company: InsertCompany): Promise<Company> {
     const id = crypto.randomUUID();
     await db.insert(companies).values({ id, ...company });
-    const [created] = await db.select().from(companies).where(eq(companies.id, id));
-    if (!created) throw new Error('Failed to create company');
+    const [created] = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, id));
+    if (!created) throw new Error("Failed to create company");
     return created;
   }
 
@@ -702,12 +806,25 @@ export class DatabaseStorage implements IStorage {
     producerId: string,
     updates: Partial<InsertCompany>
   ): Promise<Company | undefined> {
-    const [updated] = await db
-      .update(companies)
-      .set(updates)
-      .where(eq(companies.producerId, producerId))
-      .returning();
-    return updated || undefined;
+    if (this.isMySQL) {
+      await db
+        .update(companies)
+        .set(updates)
+        .where(eq(companies.producerId, producerId))
+        .execute();
+      const [row] = await db
+        .select()
+        .from(companies)
+        .where(eq(companies.producerId, producerId));
+      return row || undefined;
+    } else {
+      const [updated] = await db
+        .update(companies)
+        .set(updates)
+        .where(eq(companies.producerId, producerId))
+        .returning();
+      return updated || undefined;
+    }
   }
 
   async getCompanyById(id: string): Promise<Company | undefined> {
