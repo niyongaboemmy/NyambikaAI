@@ -102,7 +102,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Static Esicia/Kpay configuration (for debugging without env)
   const ESICIA_STATIC = {
     BASE_URL: "https://pay.esicia.rw/",
-    BANK_ID: "040",
+    BANK_ID: "192", // Equity Bank
     RETAILER_ID: "01", // REPLACE with your real merchant retailer id
     REDIRECT_URL: "https://nyambika.com/profile",
     CALLBACK_BASE: "https://nyambika.vms.rw",
