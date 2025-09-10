@@ -30,45 +30,120 @@ async function seedCategories() {
       id: randomUUID(),
       name: "Women's Fashion",
       nameRw: "Imyenda y'Abagore",
-      description: 'Dresses, skirts, tops and more',
-      imageUrl:
-        'https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?auto=format&fit=crop&w=800&h=600',
+      description:
+        "Dresses, skirts, tops, trousers, and women's collections",
+      imageUrl: 'https://picsum.photos/seed/womens-fashion/800/600',
       createdAt: now,
     },
     {
       id: randomUUID(),
       name: "Men's Fashion",
       nameRw: "Imyenda y'Abagabo",
-      description: 'Shirts, trousers, suits and more',
-      imageUrl:
-        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&h=600',
+      description:
+        "Suits, shirts, jeans, t-shirts, jackets, and men's outfits",
+      imageUrl: 'https://picsum.photos/seed/mens-fashion/800/600',
       createdAt: now,
     },
     {
       id: randomUUID(),
-      name: 'Accessories',
-      nameRw: 'Ibikoresho',
-      description: 'Bags, jewelry, hats and more',
-      imageUrl:
-        'https://images.unsplash.com/photo-1523779105320-d1cd346ff52b?auto=format&fit=crop&w=800&h=600',
+      name: 'Kids & Babies',
+      nameRw: "Imyenda y'Abana",
+      description: 'Clothing for newborns, toddlers, boys, and girls',
+      imageUrl: 'https://picsum.photos/seed/kids-babies-fashion/800/600',
       createdAt: now,
     },
     {
       id: randomUUID(),
-      name: 'Kids',
-      nameRw: 'Abana',
-      description: 'Clothing for children',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519455953755-af066f52f1ea?auto=format&fit=crop&w=800&h=600',
+      name: 'Traditional Wear',
+      nameRw: 'Imyenda Nyarwanda',
+      description:
+        'Imishanana, ibitenge, kitenge dresses, and African collections',
+      imageUrl: 'https://picsum.photos/seed/traditional-wear/800/600',
       createdAt: now,
     },
     {
       id: randomUUID(),
-      name: 'Traditional',
-      nameRw: 'Gakondo',
-      description: 'Traditional Rwandan styles',
-      imageUrl:
-        'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600',
+      name: 'Shoes & Footwear',
+      nameRw: 'Inkweto',
+      description:
+        'Sneakers, heels, sandals, boots, and slippers for all genders',
+      imageUrl: 'https://picsum.photos/seed/shoes-footwear/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Bags & Purses',
+      nameRw: "Imikapu n'Ibikapu",
+      description: 'Handbags, backpacks, purses, and travel bags',
+      imageUrl: 'https://picsum.photos/seed/bags-purses/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Jewelry & Accessories',
+      nameRw: "Imirimbo n'Ibikoresho",
+      description:
+        'Earrings, necklaces, watches, bracelets, sunglasses, and belts',
+      imageUrl: 'https://picsum.photos/seed/jewelry-accessories/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Sportswear',
+      nameRw: 'Imyenda ya Siporo',
+      description:
+        'Tracksuits, gym wear, sneakers, football kits, and yoga outfits',
+      imageUrl: 'https://picsum.photos/seed/sportswear/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Luxury Collections',
+      nameRw: "Imyenda y'Icyubahiro",
+      description: 'Designer outfits, luxury brands, and premium fashion',
+      imageUrl: 'https://picsum.photos/seed/luxury-collections/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Work & Office Wear',
+      nameRw: "Imyenda y'Akarusho",
+      description: 'Corporate suits, formal shirts, blouses, and uniforms',
+      imageUrl: 'https://picsum.photos/seed/work-office-wear/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Winter & Jackets',
+      nameRw: "Imyenda yo Guhangana n'Ubukonje",
+      description: 'Jackets, sweaters, coats, hoodies, and cold-season wear',
+      imageUrl: 'https://picsum.photos/seed/winter-jackets/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Summer & Beachwear',
+      nameRw: 'Imyambaro yo Ku Nyanja',
+      description:
+        'Swimwear, shorts, crop tops, beach dresses, and summer outfits',
+      imageUrl: 'https://picsum.photos/seed/summer-beachwear/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Wedding & Party Wear',
+      nameRw: 'Imyenda yo Gukoreramo Ubukwe',
+      description:
+        'Bridal gowns, suits, bridesmaids dresses, and reception outfits',
+      imageUrl: 'https://picsum.photos/seed/wedding-party-wear/800/600',
+      createdAt: now,
+    },
+    {
+      id: randomUUID(),
+      name: 'Sleepwear & Lingerie',
+      nameRw: 'Imyenda yo Kurara',
+      description: 'Nightgowns, pajamas, robes, and intimate wear',
+      imageUrl: 'https://picsum.photos/seed/sleepwear-lingerie/800/600',
       createdAt: now,
     },
   ];

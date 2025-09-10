@@ -101,14 +101,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Static Esicia/Kpay configuration (for debugging without env)
   const ESICIA_STATIC = {
-    BASE_URL: "https://pay.esicia.com/",
-    BANK_ID: "130",
+    BASE_URL: "https://pay.esicia.rw/",
+    BANK_ID: "040",
     RETAILER_ID: "01", // REPLACE with your real merchant retailer id
     REDIRECT_URL: "https://nyambika.com/profile",
-    CALLBACK_BASE: "http://localhost:3003",
-    USERNAME: "nyambika",
-    PASSWORD: "3Pcg3l",
-    AUTH_KEY: "6v0d5a5rr3ccjv7m3dufu773ts",
+    CALLBACK_BASE: "https://nyambika.vms.rw",
+    USERNAME: "universal",
+    PASSWORD: "5Cew9n",
+    // AUTH_KEY: "6v0d5a5rr3ccjv7m3dufu773ts",
+    AUTH_KEY: "mbka0u7a41r1p14c37piu12683",
     TIMEOUT_MS: 20000,
   } as const;
 
@@ -191,7 +192,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!wallet) {
         const [created] = await db
           .insert(userWallets)
-          .values({ id: randomUUID(), userId: req.userId, balance: "0", status: "active" })
+          .values({
+            id: randomUUID(),
+            userId: req.userId,
+            balance: "0",
+            status: "active",
+          })
           .returning();
         wallet = created as any;
       }
@@ -386,7 +392,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
             if (!wallet) {
               const [created] = await db
                 .insert(userWallets)
-                .values({ id: randomUUID(), userId: req.userId, balance: "0", status: "active" })
+                .values({
+                  id: randomUUID(),
+                  userId: req.userId,
+                  balance: "0",
+                  status: "active",
+                })
                 .returning();
               wallet = created as any;
             }
@@ -477,7 +488,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!wallet) {
         const [created] = await db
           .insert(userWallets)
-          .values({ id: randomUUID(), userId: req.userId, balance: "0", status: "active" })
+          .values({
+            id: randomUUID(),
+            userId: req.userId,
+            balance: "0",
+            status: "active",
+          })
           .returning();
         wallet = created as any;
       }
