@@ -216,6 +216,8 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
           description: `RWF ${amount} has been added to your wallet!`,
         });
         setActivePayment({ refId: null, status: "idle", amount: 0 });
+        // Reset the mutation state to ensure the button returns to normal
+        topUpMutation.reset();
       } else {
         // Set active payment for tracking
         if (refid) {
@@ -648,7 +650,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             </h4>
             <div
               className={`grid ${
-                isMobile ? "grid-cols-2" : "grid-cols-4"
+                isMobile ? "grid-cols-4" : "grid-cols-4"
               } gap-2 sm:gap-3`}
             >
               {[5000, 10000, 25000, 50000].map((quickAmount) => (
