@@ -212,18 +212,8 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       const retcode = data?.gateway?.body?.retcode ?? data?.opay?.body?.retcode;
       if (status === "completed") {
         toast({
-          title: "🎉 Top-up Successful!",
-          description: (
-            <div className="space-y-2">
-              <p className="font-medium">RWF {Number(amount).toLocaleString()} has been added to your wallet!</p>
-              <div className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-300">
-                <CheckCircle className="h-4 w-4" />
-                <span>Your balance has been updated</span>
-              </div>
-            </div>
-          ),
-          className: "border-2 border-emerald-500/20 bg-emerald-50 dark:bg-emerald-950/50 backdrop-blur-sm",
-          duration: 10000, // Show for 10 seconds
+          title: "✨ Top-up successful",
+          description: `RWF ${amount} has been added to your wallet!`,
         });
         setActivePayment({ refId: null, status: "completed", amount: 0 });
       } else {
