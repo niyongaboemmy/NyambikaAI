@@ -183,12 +183,12 @@ export default function ProducerSubscriptionPage() {
             features: Array.isArray(p.features)
               ? p.features
               : typeof p.features === "string" && p.features.length
-              ? [p.features]
+              ? (JSON.parse(p.features) as string[])
               : [],
             featuresRw: Array.isArray(p.featuresRw)
               ? p.featuresRw
               : typeof p.featuresRw === "string" && p.featuresRw.length
-              ? [p.featuresRw]
+              ? (JSON.parse(p.featuresRw) as string[])
               : [],
           }))
         : [];
