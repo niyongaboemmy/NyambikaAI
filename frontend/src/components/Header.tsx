@@ -10,6 +10,7 @@ import {
   Settings,
   Package,
   BarChart3,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import {
@@ -51,6 +52,7 @@ export default function HeaderOld() {
     { href: "/", label: "Ahabanza", en: "Home" },
     { href: "/products", label: "Imyenda", en: "Products" },
     { href: "/try-on", label: "Gerageza", en: "Try-On" },
+    { href: "/wallet", label: "Konti", en: "Wallet", icon: Wallet },
     { href: "/profile", label: "Profil", en: "Profile" },
   ];
 
@@ -224,16 +226,20 @@ export default function HeaderOld() {
         {isMenuOpen && (
           <div className="md:hidden mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
             <div className="space-y-3">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block text-gray-700 dark:text-gray-300 hover:text-[rgb(var(--electric-blue-rgb))] transition-colors"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {language === "rw" ? link.label : link.en}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center gap-3 text-gray-700 dark:text-gray-300 hover:text-[rgb(var(--electric-blue-rgb))] transition-colors py-2 px-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {Icon && <Icon className="h-5 w-5" />}
+                    <span>{language === "rw" ? link.label : link.en}</span>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         )}
