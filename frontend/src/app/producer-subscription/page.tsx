@@ -24,6 +24,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import apiClient from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
 import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
+import PaymentDialog, {
+  type PaymentMethodKind,
+} from "@/components/PaymentDialog";
 
 interface SubscriptionPlan {
   id: string;
@@ -92,6 +95,8 @@ export default function ProducerSubscriptionPage() {
   const [loading, setLoading] = useState(true);
   const [showPlans, setShowPlans] = useState<boolean>(false);
   const [renewMode, setRenewMode] = useState<boolean>(false);
+  const [showPayment, setShowPayment] = useState<boolean>(false);
+  const [defaultMethod, setDefaultMethod] = useState<PaymentMethodKind>("momo");
   const plural = (n: number) => (n === 1 ? "" : "s");
   const fetchedPlansRef = useRef(false);
 
@@ -146,89 +151,65 @@ export default function ProducerSubscriptionPage() {
   }, [subStatus?.hasActiveSubscription]);
 
   const handleSubscribe = async () => {
-    if (!selectedPaymentMethod || (!selectedPlan && !renewMode)) {
+    if ((!selectedPlan && !renewMode)) {
       toast({
         title: "Missing Information",
-        description: "Please select a payment method",
+        description: "Please select a subscription plan",
         variant: "destructive",
       });
       return;
     }
+    // open the payment dialog; map previous selection to default tab
+    if (selectedPaymentMethod) {
+      setDefaultMethod(selectedPaymentMethod === "mobile_money" ? "momo" : "wallet");
+    }
+    setShowPayment(true);
+  };
 
+  const completeSubscription = async (pay: { method: PaymentMethodKind; reference: string | null }) => {
     setIsProcessing(true);
     try {
+      const paymentMethod = pay.method === "wallet" ? "wallet" : "mobile_money";
       if (renewMode && subStatus?.subscriptionId) {
-        // Renew the existing subscription (same plan, extend dates)
-        await apiClient.put(
-          `/api/subscriptions/${subStatus.subscriptionId}/renew`,
-          {
-            paymentMethod: selectedPaymentMethod,
-          }
-        );
-        toast({
-          title: "Subscription Renewed",
-          description: "Your subscription has been renewed successfully!",
+        await apiClient.put(`/api/subscriptions/${subStatus.subscriptionId}/renew`, {
+          paymentMethod,
+          paymentReference: pay.reference,
         });
-        // Refresh subscription status/plan to keep UI in sync
+        toast({ title: "Subscription Renewed", description: "Your subscription has been renewed successfully!" });
         await refetchSubscription();
       } else {
-        // If changing plan, cancel previous subscription first when needed
         if (subStatus?.subscriptionId) {
-          const isDifferentPlan =
-            currentPlan && currentPlan.id !== selectedPlan;
-          if (
-            isDifferentPlan ||
-            subStatus.status === "expired" ||
-            !subStatus.hasActiveSubscription
-          ) {
+          const isDifferentPlan = currentPlan && currentPlan.id !== selectedPlan;
+          if (isDifferentPlan || subStatus.status === "expired" || !subStatus.hasActiveSubscription) {
             try {
-              await apiClient.put(
-                `/api/subscriptions/${subStatus.subscriptionId}`,
-                { status: "cancelled" }
-              );
+              await apiClient.put(`/api/subscriptions/${subStatus.subscriptionId}`, { status: "cancelled" });
             } catch (e) {
-              console.warn(
-                "Could not cancel previous subscription before creating a new one",
-                e
-              );
+              console.warn("Could not cancel previous subscription before creating a new one", e);
             }
           }
         }
-
         const plan = plans.find((p) => p.id === selectedPlan);
-        const amount =
-          billingCycle === "monthly" ? plan?.monthlyPrice : plan?.annualPrice;
-
+        const amountStr = billingCycle === "monthly" ? plan?.monthlyPrice : plan?.annualPrice;
         await apiClient.post("/api/subscriptions", {
           planId: selectedPlan,
           billingCycle,
-          paymentMethod: selectedPaymentMethod,
-          amount,
+          paymentMethod,
+          paymentReference: pay.reference,
+          amount: amountStr,
         });
-
-        toast({
-          title: "Subscription Created",
-          description: "Your subscription has been created successfully!",
-        });
-        // Refresh subscription status/plan to keep UI in sync
+        toast({ title: "Subscription Created", description: "Your subscription has been created successfully!" });
         await refetchSubscription();
       }
-
-      // Force a full reload to ensure all producer features pick up new plan
       if (typeof window !== "undefined") {
         window.location.replace("/producer-orders");
       } else {
         router.push("/producer-orders");
       }
     } catch (error: any) {
-      console.error("Error creating subscription:", error);
+      console.error("Error completing subscription after payment:", error);
       toast({
         title: renewMode ? "Renewal Failed" : "Subscription Failed",
-        description:
-          error.response?.data?.message ||
-          (renewMode
-            ? "Failed to renew subscription"
-            : "Failed to create subscription"),
+        description: error.response?.data?.message || (renewMode ? "Failed to renew subscription" : "Failed to create subscription"),
         variant: "destructive",
       });
     } finally {
@@ -590,11 +571,7 @@ export default function ProducerSubscriptionPage() {
                   >
                     <Button
                       onClick={handleSubscribe}
-                      disabled={
-                        !selectedPaymentMethod ||
-                        isProcessing ||
-                        (!renewMode && !selectedPlan)
-                      }
+                      disabled={isProcessing || (!renewMode && !selectedPlan)}
                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-6 text-base md:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isProcessing ? (
@@ -615,6 +592,24 @@ export default function ProducerSubscriptionPage() {
             </div>
           </motion.div>
         )}
+
+        {/* Payment Dialog */}
+        <PaymentDialog
+          open={showPayment}
+          onOpenChange={setShowPayment}
+          amount={(() => {
+            const plan = plans.find((p) => p.id === selectedPlan);
+            const price = billingCycle === "monthly" ? plan?.monthlyPrice : plan?.annualPrice;
+            return Number(price || 0);
+          })()}
+          description={(() => {
+            const plan = plans.find((p) => p.id === selectedPlan);
+            return plan ? `Subscription ${plan.name} (${billingCycle})` : "Subscription";
+          })()}
+          defaultMethod={defaultMethod}
+          onSuccess={({ method, reference }) => completeSubscription({ method, reference })}
+          onError={(err) => console.error("Payment error", err)}
+        />
       </div>
     </div>
   );

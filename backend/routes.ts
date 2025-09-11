@@ -31,6 +31,7 @@ import {
   getProducerSubscriptionStatus,
   getProducerStats,
 } from "./producer-routes";
+import { ESICIA_CONFIG } from "./payments/config";
 
 // Initialize Stripe
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -94,6 +95,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.end("OK");
   });
 
+
   // Dedicated health endpoint with a simple, stable response
   app.get("/health", (_req, res) => {
     res.status(200);
@@ -101,18 +103,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.end("ok");
   });
 
-  // Static Esicia/Kpay configuration (for debugging without env)
-  const ESICIA_STATIC = {
-    BASE_URL: process.env.BASE_URL || "https://pay.esicia.rw/",
-    BANK_ID: process.env.BANK_ID || "192", // Equity Bank
-    RETAILER_ID: process.env.RETAILER_ID || "01", // REPLACE with your real merchant retailer id
-    REDIRECT_URL: process.env.REDIRECT_URL || "https://nyambika.com/profile",
-    CALLBACK_BASE: process.env.CALLBACK_BASE || "https://nyambika.vms.rw",
-    USERNAME: process.env.USERNAME || "universal",
-    PASSWORD: process.env.PASSWORD || "5Cew9n",
-    AUTH_KEY: process.env.AUTH_KEY || "95klh4tsvabduv1mahs09ueg75",
-    TIMEOUT_MS: process.env.TIMEOUT_MS ? Number(process.env.TIMEOUT_MS) : 20000,
-  } as const;
+  // Esicia/Kpay configuration imported from centralized module
+  const ESICIA_STATIC = ESICIA_CONFIG;
 
   // Auth middleware with JWT
 
@@ -147,6 +139,270 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "Invalid token" });
     }
   };
+
+  // ===== Generic OPAY (Esicia) payment for non-wallet uses =====
+  // This endpoint initiates a payment without touching the user wallet tables.
+  app.post(
+    "/api/payments/opay/pay",
+    requireAuth,
+    async (req: any, res) => {
+      try {
+        const {
+          amount,
+          phone,
+          email,
+          details = "generic_payment",
+          cname,
+          cnumber,
+          pmethod = "momo",
+          retailerid,
+          bankid,
+          currency = "RWF",
+        } = req.body || {};
+
+        const parsedAmount = Number(amount);
+        if (!parsedAmount || parsedAmount <= 0) {
+          return res.status(400).json({ message: "Invalid amount" });
+        }
+        if (!phone || typeof phone !== "string") {
+          return res.status(400).json({ message: "Phone is required" });
+        }
+
+        // Resolve user context for email/name
+        const userProfile = await storage
+          .getUserById(req.userId)
+          .catch(() => null as any);
+        const resolvedEmail = String(
+          email || userProfile?.email || "support@nyambika.com"
+        );
+        const resolvedCname = String(
+          cname || userProfile?.fullName || userProfile?.username || "Customer"
+        );
+        const resolvedCnumber = String(
+          cnumber || userProfile?.phone || userProfile?.id || req.userId
+        );
+
+        const isMock = String(process.env.OPAY_MOCK || "").toLowerCase() === "true";
+        const esiciaBase = ESICIA_STATIC.BASE_URL;
+        const esiciaRetailerId = retailerid || ESICIA_STATIC.RETAILER_ID;
+        const esiciaBankId = bankid || ESICIA_STATIC.BANK_ID;
+        const redirectUrl = ESICIA_STATIC.REDIRECT_URL;
+        const callbackBase = ESICIA_STATIC.CALLBACK_BASE;
+        const returl = new URL(
+          "/api/payments/opay/callback",
+          callbackBase
+        ).toString();
+        const hasAuth = Boolean(
+          process.env.ESICIA_USERNAME && process.env.ESICIA_PASSWORD
+        );
+        const debug =
+          String(process.env.PAY_DEBUG || "").toLowerCase() === "true";
+
+        const externalReference = `PAY-${Date.now()}-${Math.random()
+          .toString(36)
+          .slice(2, 8)}`;
+
+        if (isMock) {
+          if (debug) console.log("[Esicia] MOCK generic payment: auto-success");
+          return res.status(200).json({
+            ok: true,
+            mode: "mock",
+            refid: externalReference,
+            redirectUrl: null,
+            message: "Mock payment completed",
+          });
+        }
+
+        if (!hasAuth) {
+          return res
+            .status(500)
+            .json({ message: "Payment gateway credentials missing" });
+        }
+
+        // Normalize inputs
+        const msisdnDigits = String(phone).replace(/\D/g, "");
+        const msisdnLocal = msisdnDigits.startsWith("2507")
+          ? "0" + msisdnDigits.slice(3)
+          : msisdnDigits.startsWith("07")
+          ? msisdnDigits
+          : msisdnDigits.length === 9 && msisdnDigits.startsWith("7")
+          ? "0" + msisdnDigits
+          : String(phone);
+        const safeDetails = String(details || "generic_payment");
+        const safeAmount = Math.max(1, Math.round(parsedAmount));
+        const safeCnumber =
+          String(resolvedCnumber).replace(/\D/g, "") || "000000000";
+
+        const payload = {
+          action: "pay",
+          msisdn: msisdnLocal,
+          details: safeDetails,
+          refid: externalReference,
+          amount: safeAmount,
+          currency: String(currency || "RWF"),
+          email: resolvedEmail,
+          cname: resolvedCname,
+          cnumber: safeCnumber,
+          pmethod,
+          retailerid: esiciaRetailerId,
+          returl,
+          redirecturl: redirectUrl,
+          bankid: String(esiciaBankId),
+          authkey: ESICIA_STATIC.AUTH_KEY,
+        } as any;
+
+        const response = await fetch(esiciaBase, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json, text/plain, */*",
+            "User-Agent": "NyambikaAI/1.0",
+            Authorization:
+              "Basic " +
+              Buffer.from(
+                `${ESICIA_STATIC.USERNAME}:${ESICIA_STATIC.PASSWORD}`
+              ).toString("base64"),
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(ESICIA_STATIC.TIMEOUT_MS),
+        });
+
+        const json = (await response.json()) as any;
+        if (debug) console.log("[Esicia] Generic pay response", json);
+
+        const retcode = String(json?.retcode ?? "");
+        const url = typeof json?.url === "string" ? json.url.trim() : "";
+        if (retcode !== "0") {
+          return res.status(400).json({ ok: false, gateway: json });
+        }
+        return res.status(200).json({
+          ok: true,
+          refid: externalReference,
+          redirectUrl: url || null,
+          gateway: json,
+        });
+      } catch (error) {
+        console.error("Error in POST /api/payments/opay/pay:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Public status check by refid (no DB lookup)
+  app.post(
+    "/api/payments/opay/checkstatus-public",
+    requireAuth,
+    async (req: any, res) => {
+      try {
+        const { refid } = req.body || {};
+        if (!refid)
+          return res.status(400).json({ message: "refid is required" });
+        const endpoint = ESICIA_STATIC.BASE_URL;
+        const payload = {
+          action: "checkstatus",
+          refid,
+          authkey: ESICIA_STATIC.AUTH_KEY,
+        } as any;
+        const resp = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json, text/plain, */*",
+            "User-Agent": "NyambikaAI/1.0",
+            Authorization:
+              "Basic " +
+              Buffer.from(
+                `${ESICIA_STATIC.USERNAME}:${ESICIA_STATIC.PASSWORD}`
+              ).toString("base64"),
+          },
+          body: JSON.stringify(payload),
+          signal: AbortSignal.timeout(ESICIA_STATIC.TIMEOUT_MS),
+        });
+        const json = (await resp.json()) as any;
+        return res.json({ ok: true, gateway: json });
+      } catch (error) {
+        console.error(
+          "Error in POST /api/payments/opay/checkstatus-public:",
+          error
+        );
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Generic wallet debit charge (for non-topup payments)
+  app.post(
+    "/api/payments/wallet/charge",
+    requireAuth,
+    async (req: any, res) => {
+      try {
+        const { amount, description = "Wallet charge", metadata } =
+          req.body || {};
+        const parsedAmount = Number(amount);
+        if (!parsedAmount || parsedAmount <= 0) {
+          return res.status(400).json({ message: "Invalid amount" });
+        }
+        const wallet = await ensureUserWallet(req.userId);
+        const currentBalance = Number(wallet.balance) || 0;
+        if (currentBalance < parsedAmount) {
+          return res.status(402).json({
+            message: "Insufficient wallet balance",
+            required: parsedAmount,
+            balance: currentBalance,
+          });
+        }
+        // Record debit
+        let payment: any;
+        const vals = {
+          id: randomUUID(),
+          walletId: wallet.id,
+          userId: req.userId,
+          type: "debit" as const,
+          amount: String(parsedAmount.toFixed(2)),
+          method: "wallet" as const,
+          provider: null as any,
+          phone: null as any,
+          status: "completed" as const,
+          description,
+          externalReference: `WALLET-CHARGE-${Date.now()}`,
+          metadata: metadata ? JSON.stringify(metadata) : null,
+        } as any;
+        if (isMySQL) {
+          await db.insert(walletPayments).values(vals).execute();
+          payment = vals;
+        } else {
+          const [created] = await db
+            .insert(walletPayments)
+            .values(vals)
+            .returning();
+          payment = created as any;
+        }
+        // Update balance
+        const newBalance = String((currentBalance - parsedAmount).toFixed(2));
+        if (isMySQL) {
+          await db
+            .update(userWallets)
+            .set({ balance: newBalance, updatedAt: new Date() as any })
+            .where(eq(userWallets.id, wallet.id))
+            .execute();
+        } else {
+          await db
+            .update(userWallets)
+            .set({ balance: newBalance, updatedAt: new Date() as any })
+            .where(eq(userWallets.id, wallet.id))
+            .returning();
+        }
+        return res.json({
+          ok: true,
+          payment,
+          wallet: { ...wallet, balance: newBalance },
+        });
+      } catch (error) {
+        console.error("Error in POST /api/payments/wallet/charge:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
 
   // Utility: ensure a wallet exists for given user and return it
   const ensureUserWallet = async (userId: string) => {
