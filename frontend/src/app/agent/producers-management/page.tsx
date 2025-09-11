@@ -48,6 +48,7 @@ import PaymentDialog, {
 } from "@/components/PaymentDialog";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
 import { apiClient, API_ENDPOINTS } from "@/config/api";
 
 interface Producer {
@@ -107,23 +108,27 @@ export default function ProducersManagement() {
   const [availableProducers, setAvailableProducers] = useState<Producer[]>([]);
   const [availableLoading, setAvailableLoading] = useState(false);
   const [availableSearch, setAvailableSearch] = useState("");
-  // Subscription payment modal state
-  const [paymentOpen, setPaymentOpen] = useState(false);
+  // Payment dialog state
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
-  const [showPayment, setShowPayment] = useState(false);
-  const [defaultMethod, setDefaultMethod] = useState<PaymentMethodKind>("momo");
-  const [plans, setPlans] = useState<any[]>([]);
-  const [plansLoading, setPlansLoading] = useState(false);
   const [selectedProducer, setSelectedProducer] = useState<Producer | null>(
     null
   );
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [plans, setPlans] = useState<any[]>([]);
+  const [plansLoading, setPlansLoading] = useState(false);
+  interface SubscriptionPlan {
+    id: string;
+    name: string;
+    monthlyPrice: number;
+    annualPrice: number;
+  }
+
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlan | null>(
+    null
+  );
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
     "monthly"
   );
-  const [paymentMethod, setPaymentMethod] =
-    useState<string>("mtn_mobile_money");
-  const [paymentReference, setPaymentReference] = useState<string>("");
 
   // Assignment with subscription state
   const [assignmentOpen, setAssignmentOpen] = useState(false);
@@ -199,14 +204,17 @@ export default function ProducersManagement() {
     return Array.from(new Set(messages.filter(Boolean))).join("\n");
   };
 
-  // Fetch active subscription plans for modal
+  // Fetch subscription plans
   const fetchPlans = async () => {
     try {
       setPlansLoading(true);
       const res = await apiClient.get("/api/subscription-plans");
-      setPlans(res.data || []);
-      if (res.data && res.data.length > 0) {
-        setSelectedPlanId(res.data[0].id);
+      const plansData = res.data || [];
+      setPlans(plansData);
+
+      // Set the first plan as selected if none is selected
+      if (plansData.length > 0 && !selectedPlan) {
+        setSelectedPlan(plansData[0]);
       }
     } catch (err) {
       console.error("Error fetching plans:", err);
@@ -220,76 +228,98 @@ export default function ProducersManagement() {
     }
   };
 
-  const openPaymentModal = async (producer: Producer) => {
+  const openPaymentDialog = (producer: Producer) => {
     setSelectedProducer(producer);
-    setPaymentOpen(true);
-    await fetchPlans();
+    setShowPaymentDialog(true);
+    fetchPlans();
   };
 
-  const handleProcessPayment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Open the reusable payment dialog; use MoMo by default
-    setDefaultMethod("momo");
-    setShowPayment(true);
-  };
-
-  const completeAgentPayment = async (pay: {
+  interface PaymentSuccessParams {
     method: PaymentMethodKind;
     reference: string | null;
-    meta?: any;
-  }) => {
-    if (!selectedProducer || !selectedPlanId) return;
+    meta?: Record<string, unknown>;
+  }
+
+  const handlePaymentSuccess = async ({
+    method,
+    reference,
+    meta,
+  }: PaymentSuccessParams) => {
+    if (!selectedProducer || !selectedPlan) return;
+
+    setPaymentLoading(true);
+
     try {
-      setPaymentLoading(true);
-      const planObj = plans.find((p: any) => p.id === selectedPlanId);
-      const planName = planObj?.name || "Plan";
       const producerName =
         selectedProducer.companyName ||
         selectedProducer.businessName ||
-        selectedProducer.fullName ||
-        "Producer";
-      if (pay.method === "wallet") {
-        const resp = await apiClient.post(API_ENDPOINTS.AGENT_PROCESS_PAYMENT, {
+        selectedProducer.fullName;
+      const planName = selectedPlan.name;
+      const amount =
+        billingCycle === "monthly"
+          ? selectedPlan.monthlyPrice
+          : selectedPlan.annualPrice;
+
+      // Process payment via API
+      const response = await apiClient.post(
+        API_ENDPOINTS.AGENT_PROCESS_PAYMENT,
+        {
           producerId: selectedProducer.id,
-          planId: selectedPlanId,
+          planId: selectedPlan.id,
           billingCycle,
-          paymentMethod: "wallet",
-          paymentReference: pay.reference,
-        });
-        toast({
-          title: "Success",
-          description: `Activated Plan: ${planName} (${billingCycle}) for ${producerName}`,
-        });
-        if (resp?.data) {
-          const msg = resp.data.message || JSON.stringify(resp.data);
-          toast({ title: "API Response", description: msg });
+          paymentMethod: method,
+          paymentReference: reference,
         }
-      } else {
-        // MoMo path: subscription auto-activated via backend callback; approval reached here
-        const debug =
-          String(process.env.NEXT_PUBLIC_PAY_DEBUG || "").toLowerCase() ===
-          "true";
-        const statusdesc = pay?.meta?.statusdesc || pay?.meta?.statusDesc;
-        const desc =
-          `Activated Plan: ${planName} (${billingCycle}) for ${producerName}` +
-          (debug && statusdesc ? ` — ${statusdesc}` : "");
-        toast({ title: "Payment approved", description: desc });
-      }
-      setPaymentOpen(false);
-      setShowPayment(false);
-      setSelectedProducer(null);
-      setPaymentReference("");
-      await Promise.all([fetchProducers(), fetchStats()]);
-    } catch (err: any) {
-      console.error("Payment error:", err);
+      );
+
+      // Show success message with auto-close
       toast({
-        title: "Payment Failed",
-        description: formatBackendErrors(err),
+        title: "Payment Successful",
+        description: `Successfully processed payment of RWF ${amount.toLocaleString()} for ${producerName}'s subscription. Refreshing data...`,
+        duration: 3000, // Show for 3 seconds
+      });
+
+      // Refresh all data in parallel
+      await Promise.all([
+        fetchProducers(),
+        fetchStats(),
+        // Add any other data fetching functions that need to be refreshed
+      ]);
+
+      // Reset form state
+      setBillingCycle("monthly");
+      setSelectedPlan(null);
+      setSelectedProducer(null);
+      
+      // Close dialog after a short delay to show success message
+      setTimeout(() => {
+        setShowPaymentDialog(false);
+        
+        // Show completion message
+        toast({
+          title: "Update Complete",
+          description: "Dashboard data has been refreshed with the latest information.",
+        });
+      }, 1000);
+    } catch (err) {
+      console.error("Payment processing error:", err);
+      toast({
+        title: "Payment Processing Failed",
+        description: "Failed to process payment. Please try again.",
         variant: "destructive",
       });
     } finally {
       setPaymentLoading(false);
     }
+  };
+
+  const handlePaymentError = (error: Error) => {
+    console.error("Payment error:", error);
+    toast({
+      title: "Payment Failed",
+      description: error?.message || "Failed to process payment. Please try again.",
+      variant: "destructive",
+    });
   };
 
   // Fetch producers managed by agent
@@ -1107,7 +1137,7 @@ export default function ProducersManagement() {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => openPaymentModal(p)}
+                                  onClick={() => openPaymentDialog(p)}
                                 >
                                   <CreditCard className="h-4 w-4 mr-1" />
                                   {p.subscriptionStatus === "expired"
@@ -1367,161 +1397,27 @@ export default function ProducersManagement() {
           </DialogContent>
         </Dialog>
 
-        {/* Process Subscription Payment Modal */}
-        <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
-          <DialogContent className="max-w-lg bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50">
-            <DialogHeader>
-              <DialogTitle className="flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-blue-600" />
-                {selectedProducer?.subscriptionStatus === "expired"
-                  ? "Renew Subscription"
-                  : selectedProducer?.subscriptionStatus
-                  ? "Process Payment"
-                  : "Create Subscription"}
-              </DialogTitle>
-              <DialogDescription>
-                {selectedProducer?.companyName ||
-                  selectedProducer?.businessName}
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleProcessPayment} className="space-y-4">
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Plan</label>
-                <select
-                  className="w-full rounded-md border bg-background p-2"
-                  value={selectedPlanId}
-                  onChange={(e) => setSelectedPlanId(e.target.value)}
-                  disabled={plansLoading}
-                  required
-                >
-                  {plansLoading && <option>Loading plans...</option>}
-                  {!plansLoading && plans.length === 0 && (
-                    <option>No active plans</option>
-                  )}
-                  {!plansLoading &&
-                    plans.map((pl: any) => (
-                      <option key={pl.id} value={pl.id}>
-                        {pl.name} — Monthly: RWF{" "}
-                        {Number(pl.monthlyPrice).toLocaleString()} | Annual: RWF{" "}
-                        {Number(pl.annualPrice).toLocaleString()}
-                      </option>
-                    ))}
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Billing cycle</label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    className={`border rounded-md p-2 text-sm ${
-                      billingCycle === "monthly"
-                        ? "border-blue-500 text-blue-600"
-                        : ""
-                    }`}
-                    onClick={() => setBillingCycle("monthly")}
-                  >
-                    Monthly
-                  </button>
-                  <button
-                    type="button"
-                    className={`border rounded-md p-2 text-sm ${
-                      billingCycle === "annual"
-                        ? "border-blue-500 text-blue-600"
-                        : ""
-                    }`}
-                    onClick={() => setBillingCycle("annual")}
-                  >
-                    Annual
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Payment method</label>
-                <select
-                  className="w-full rounded-md border bg-background p-2"
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  required
-                >
-                  <option value="mtn_mobile_money">MTN Mobile Money</option>
-                  <option value="airtel_money">Airtel Money</option>
-                  <option value="bank_transfer">Bank Transfer</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="text-sm font-medium">Payment reference</label>
-                <input
-                  type="text"
-                  className="w-full rounded-md border bg-background p-2"
-                  placeholder="Txn ID or notes"
-                  value={paymentReference}
-                  onChange={(e) => setPaymentReference(e.target.value)}
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setPaymentOpen(false)}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={paymentLoading || plansLoading || !selectedPlanId}
-                  className="bg-blue-600 hover:bg-blue-700 text-white"
-                >
-                  {paymentLoading ? "Processing..." : "Confirm"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
-
-        {/* Payment Dialog for processing payment */}
-        <PaymentDialog
-          title={`${
-            selectedProducer?.companyName ||
-            selectedProducer?.businessName ||
-            selectedProducer?.fullName
-          } - Renew for Subscription Plan`}
-          open={showPayment}
-          onOpenChange={setShowPayment}
-          amount={(() => {
-            const plan = plans.find((p: any) => p.id === selectedPlanId);
-            if (!plan) return 0;
-            const price =
-              billingCycle === "monthly" ? plan.monthlyPrice : plan.annualPrice;
-            return Number(price || 0);
-          })()}
-          description={
-            selectedProducer
-              ? `Agent payment for ${
-                  selectedProducer.companyName ||
-                  selectedProducer.businessName ||
-                  selectedProducer.fullName
-                }`
-              : "Agent payment"
-          }
-          defaultMethod={defaultMethod}
-          subscription={
-            selectedPlanId && selectedProducer
-              ? {
-                  planId: selectedPlanId,
-                  billingCycle,
-                  targetProducerUserId: selectedProducer.id,
-                }
-              : undefined
-          }
-          onSuccess={({ method, reference, meta }) =>
-            completeAgentPayment({ method, reference, meta })
-          }
-          onError={(err) => console.error("Payment error", err)}
-        />
+        {/* Payment Dialog */}
+        {selectedProducer && selectedPlan && (
+          <PaymentDialog
+            open={showPaymentDialog}
+            onOpenChange={setShowPaymentDialog}
+            amount={billingCycle === "monthly" ? selectedPlan.monthlyPrice : selectedPlan.annualPrice}
+            title={`${selectedProducer.companyName || selectedProducer.businessName} - ${
+              selectedProducer.subscriptionStatus === "expired" ? "Renew" : "New"
+            } Subscription`}
+            description={`${selectedPlan.name} (${billingCycle === "monthly" ? "Monthly" : "Annual"})`}
+            phone={selectedProducer.phone}
+            defaultMethod="momo"
+            onSuccess={handlePaymentSuccess}
+            onError={handlePaymentError}
+            subscription={{
+              planId: selectedPlan.id,
+              billingCycle,
+              targetProducerUserId: selectedProducer.id,
+            }}
+          />
+        )}
       </div>
     </div>
   );
