@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import SubscriptionPlanSelector from "@/components/SubscriptionPlanSelector";
 import { useRouter } from "next/navigation";
+import PaymentDialog, { type PaymentMethodKind } from "@/components/PaymentDialog";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, API_ENDPOINTS } from "@/config/api";
@@ -107,6 +108,8 @@ export default function ProducersManagement() {
   // Subscription payment modal state
   const [paymentOpen, setPaymentOpen] = useState(false);
   const [paymentLoading, setPaymentLoading] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [defaultMethod, setDefaultMethod] = useState<PaymentMethodKind>("momo");
   const [plans, setPlans] = useState<any[]>([]);
   const [plansLoading, setPlansLoading] = useState(false);
   const [selectedProducer, setSelectedProducer] = useState<Producer | null>(
@@ -223,31 +226,32 @@ export default function ProducersManagement() {
 
   const handleProcessPayment = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Open the reusable payment dialog; use MoMo by default
+    setDefaultMethod("momo");
+    setShowPayment(true);
+  };
+
+  const completeAgentPayment = async (pay: { method: PaymentMethodKind; reference: string | null }) => {
     if (!selectedProducer || !selectedPlanId) return;
     try {
       setPaymentLoading(true);
+      const mappedMethod = pay.method === "wallet" ? "wallet" : "mobile_money";
       await apiClient.post(API_ENDPOINTS.AGENT_PROCESS_PAYMENT, {
         producerId: selectedProducer.id,
         planId: selectedPlanId,
         billingCycle,
-        paymentMethod,
-        paymentReference,
+        paymentMethod: mappedMethod,
+        paymentReference: pay.reference,
       });
-      toast({
-        title: "Success",
-        description: "Subscription payment processed",
-      });
+      toast({ title: "Success", description: "Subscription payment processed" });
       setPaymentOpen(false);
+      setShowPayment(false);
       setSelectedProducer(null);
       setPaymentReference("");
       await Promise.all([fetchProducers(), fetchStats()]);
     } catch (err: any) {
       console.error("Payment error:", err);
-      toast({
-        title: "Payment Failed",
-        description: formatBackendErrors(err),
-        variant: "destructive",
-      });
+      toast({ title: "Payment Failed", description: formatBackendErrors(err), variant: "destructive" });
     } finally {
       setPaymentLoading(false);
     }

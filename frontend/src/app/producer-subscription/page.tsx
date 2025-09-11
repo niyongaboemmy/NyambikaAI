@@ -350,6 +350,8 @@ export default function ProducerSubscriptionPage() {
                           onClick={() => {
                             setRenewMode(true);
                             setSelectedPlan(currentPlan.id);
+                            setDefaultMethod("momo");
+                            setShowPayment(true);
                           }}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-full"
                           size="sm"
@@ -454,7 +456,12 @@ export default function ProducerSubscriptionPage() {
                           ? "border-orange-200 dark:border-orange-800"
                           : ""
                       }`}
-                      onClick={() => setSelectedPlan(plan.id)}
+                      onClick={() => {
+                        setSelectedPlan(plan.id);
+                        setRenewMode(false);
+                        setDefaultMethod("momo");
+                        setShowPayment(true);
+                      }}
                     >
                       <CardHeader className="text-center pb-4">
                         <div className="mx-auto mb-4 p-3 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full w-fit">

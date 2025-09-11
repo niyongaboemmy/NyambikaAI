@@ -34,6 +34,8 @@ import {
   MapPin,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
+import PaymentDialog, { type PaymentMethodKind } from "@/components/PaymentDialog";
+import { apiClient, API_ENDPOINTS } from "@/config/api";
 
 interface Producer {
   id: string;
@@ -75,6 +77,8 @@ export default function SubscriptionRenewal() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [showPayment, setShowPayment] = useState(false);
+  const [defaultMethod, setDefaultMethod] = useState<PaymentMethodKind>("momo");
 
   useEffect(() => {
     // Mock data for demonstration
@@ -157,13 +161,29 @@ export default function SubscriptionRenewal() {
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsProcessing(true);
+    setDefaultMethod("momo");
+    setShowPayment(true);
+  };
 
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
+  const completeAgentRenewal = async (pay: { method: PaymentMethodKind; reference: string | null }) => {
+    if (!producer) return;
+    try {
+      setIsProcessing(true);
+      const paymentMethod = pay.method === "wallet" ? "wallet" : "mobile_money";
+      await apiClient.post(API_ENDPOINTS.AGENT_PROCESS_PAYMENT, {
+        producerId: producer.id,
+        // Using duration as plan length; backend can map to a plan
+        duration: paymentData.duration,
+        amount: paymentData.amount,
+        paymentMethod,
+        paymentReference: pay.reference,
+      });
       setPaymentSuccess(true);
-    }, 3000);
+    } catch (error) {
+      console.error("Agent renewal error", error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!user || user.role !== "agent") {
@@ -530,6 +550,16 @@ export default function SubscriptionRenewal() {
           </CardContent>
         </Card>
       </div>
+      {/* Payment Dialog */}
+      <PaymentDialog
+        open={showPayment}
+        onOpenChange={setShowPayment}
+        amount={paymentData.amount}
+        description={producer ? `Agent renewal for ${producer.name} (${paymentData.duration} mo)` : "Agent renewal"}
+        defaultMethod={defaultMethod}
+        onSuccess={({ method, reference }) => completeAgentRenewal({ method, reference })}
+        onError={(err) => console.error("Payment error", err)}
+      />
     </div>
   );
 }
