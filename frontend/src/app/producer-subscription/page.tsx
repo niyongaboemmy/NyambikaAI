@@ -715,36 +715,38 @@ export default function ProducerSubscriptionPage() {
                           Renew Plan
                         </Button>
                       )}
-                      <Button
-                        onClick={() => {
-                          setShowPlans(true);
-                          setRenewMode(false);
-                          // Auto-scroll to plans on mobile when "Change Plan" is clicked
-                          if (isMobile) {
-                            setTimeout(() => {
-                              const plansElement =
-                                document.getElementById("plans-section");
-                              if (plansElement) {
-                                plansElement.scrollIntoView({
-                                  behavior: "smooth",
-                                  block: "start",
-                                });
-                              }
-                            }, 100);
-                          } else {
-                            window.scrollTo({
-                              top: document.body.scrollHeight / 5,
-                              behavior: "smooth",
-                            });
-                          }
-                        }}
-                        variant="outline"
-                        size="sm"
-                        className="px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 flex items-center gap-2"
-                      >
-                        <ArrowRight className="w-4 h-4" />
-                        Change Plan
-                      </Button>
+                      {currentPlan && (
+                        <Button
+                          onClick={() => {
+                            setShowPlans(true);
+                            setRenewMode(false);
+                            // Auto-scroll to plans on mobile when "Change Plan" is clicked
+                            if (isMobile) {
+                              setTimeout(() => {
+                                const plansElement =
+                                  document.getElementById("plans-section");
+                                if (plansElement) {
+                                  plansElement.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                  });
+                                }
+                              }, 100);
+                            } else {
+                              window.scrollTo({
+                                top: document.body.scrollHeight / 5,
+                                behavior: "smooth",
+                              });
+                            }
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 flex items-center gap-2"
+                        >
+                          <ArrowRight className="w-4 h-4" />
+                          Change Plan
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -905,8 +907,8 @@ export default function ProducerSubscriptionPage() {
                           }}
                         >
                           {isPopular && (
-                            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-20">
-                              <Badge className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-3 py-1 text-sm shadow-lg animate-pulse">
+                            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+                              <Badge className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-3 py-1 text-sm shadow-lg">
                                 ⭐ Popular
                               </Badge>
                             </div>
