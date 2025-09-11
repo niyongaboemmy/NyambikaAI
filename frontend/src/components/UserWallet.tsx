@@ -297,12 +297,29 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
     // Avoid multiple timers
     if (pollingTimerRef.current) {
-      clearInterval(pollingTimerRef.current as any);
+      clearInterval(pollingTimerRef.current);
       pollingTimerRef.current = null;
     }
 
     let attempts = 0;
     const maxAttempts = 36; // 3 minutes at 5s interval
+    let interval: NodeJS.Timeout | null = null;
+
+    const cleanup = () => {
+      if (interval) clearInterval(interval);
+      if (pollingTimerRef.current) {
+        clearInterval(pollingTimerRef.current);
+        pollingTimerRef.current = null;
+      }
+      interval = null;
+    };
+
+    const resetStates = () => {
+      setActivePayment({ refId: null, status: "idle", amount: 0 });
+      setPollingRefId(null);
+      setAmount("");
+      topUpMutation.reset();
+    };
 
     const checkStatus = async () => {
       if (!pollingRefId) return;
@@ -316,55 +333,52 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
         const status = data?.status;
 
         if (status && status !== "pending") {
-          // Payment completed or failed
-          clearInterval(interval);
-          pollingTimerRef.current = null;
-          setPollingRefId(null);
-
+          cleanup();
+          
           if (status === "completed") {
-            setActivePayment((prev) => ({
-              ...prev,
-              refId: null,
-            }));
-
+            const successAmount = activePayment.amount;
+            resetStates();
+            
+            toast({
+              title: "✨ Top-up successful",
+              description: `RWF ${successAmount.toLocaleString()} has been added to your wallet!`,
+            });
+            
+            // Refresh wallet data
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+          } else if (status === "failed") {
+            resetStates();
+            
             toast({
               title: "❌ Payment failed",
-              description: "The payment was not approved. Please try again.",
+              description: "The payment could not be processed. Please try again.",
               variant: "destructive",
             });
+          } else {
+            resetStates();
           }
-
-          // Refresh wallet data
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
         } else if (attempts >= maxAttempts) {
-          // Timeout reached
-          clearInterval(interval);
-          pollingTimerRef.current = null;
-          setPollingRefId(null);
-          setActivePayment((prev) => ({
-            ...prev,
-            status: "timeout",
-          }));
+          cleanup();
+          resetStates();
 
           toast({
-            title: "⏳ Still processing",
-            description:
-              "We're still processing your payment. The status will update automatically.",
+            title: "⏱️ Payment timed out",
+            description: "The payment took too long to process. Please check your transaction history.",
+            variant: "destructive",
           });
         }
-      } catch (e: any) {
-        console.error("Status check error:", e);
-
-        // Don't stop on network errors, just log them
+      } catch (error) {
+        console.error("Error checking payment status:", error);
         if (attempts >= maxAttempts) {
-          clearInterval(interval);
-          pollingTimerRef.current = null;
-          setPollingRefId(null);
-          setActivePayment((prev) => ({
-            ...prev,
-            status: "error",
-          }));
+          cleanup();
+          resetStates();
+
+          toast({
+            title: "❌ Error",
+            description: "Failed to verify payment status. Please check your transaction history.",
+            variant: "destructive",
+          });
         }
       }
     };
@@ -372,17 +386,13 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
     // Initial check
     checkStatus();
 
-    // Then check every 5 seconds
-    const interval = setInterval(checkStatus, 5000);
-    pollingTimerRef.current = interval as any;
+    // Set up polling
+    interval = setInterval(checkStatus, 5000);
+    pollingTimerRef.current = interval;
 
-    return () => {
-      if (pollingTimerRef.current) {
-        clearInterval(pollingTimerRef.current as any);
-        pollingTimerRef.current = null;
-      }
-    };
-  }, [pollingRefId]);
+    // Cleanup
+    return cleanup;
+  }, [pollingRefId, activePayment.amount, qc, topUpMutation, toast]);
 
   const handleTopUp = () => {
     const amt = Number(amount);
