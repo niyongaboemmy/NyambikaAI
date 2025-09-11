@@ -129,6 +129,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
   const [amount, setAmount] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [pollingRefId, setPollingRefId] = useState<string | null>(null);
+  const [activePayment, setActivePayment] = useState<{refId: string | null, status: string, amount: number}>({refId: null, status: 'idle', amount: 0});
   const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Prefill phone number from authenticated user profile
@@ -208,10 +209,20 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       if (status === "completed") {
         toast({
           title: "✨ Top-up successful",
-          description: "Your wallet has been credited!",
+          description: `RWF ${amount} has been added to your wallet!`,
         });
+        setActivePayment({refId: null, status: 'completed', amount: 0});
       } else {
-        // Failure from gateway
+        // Set active payment for tracking
+        if (refid) {
+          setActivePayment({
+            refId: refid,
+            status: 'pending',
+            amount: Number(amount)
+          });
+        }
+        
+        // Show appropriate toast message
         if (successFlag === 0 || (reply && String(reply).toUpperCase() === "FAILED")) {
           toast({
             title: "⚠️ Payment not initiated",
@@ -221,42 +232,45 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                 : "The gateway could not start your payment. Please verify your phone number and try again.",
             variant: "destructive",
           });
+          setActivePayment({refId: null, status: 'failed', amount: 0});
         } else {
+          const description = mode === "push"
+            ? "We sent a payment request to your phone. Approve it to complete top-up."
+            : "Please complete the payment on the next screen.";
+            
           toast({
             title: "📲 Payment initiated",
-            description: mode === "push"
-              ? "We sent a payment request to your phone. Approve it to complete top-up."
-              : "Redirecting to payment page...",
+            description: description,
           });
-        }
-        if (redirectUrl && typeof window !== "undefined") {
-          // Prefer same-tab navigation for better mobile UX
-          try {
-            window.location.href = redirectUrl;
-          } catch {
+          
+          // Open payment URL in new tab if it exists
+          if (redirectUrl && typeof window !== "undefined") {
             window.open(redirectUrl, "_blank");
           }
         }
 
-        // If push flow or no redirect URL provided, begin polling status
-        if ((!redirectUrl && data?.ok) || mode === "push") {
-          if (refid) {
-            setPollingRefId(refid);
-          }
+        // Start polling for payment status
+        if (refid) {
+          setPollingRefId(refid);
+          
+          // Initial quick check after 3 seconds
+          setTimeout(() => {
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+          }, 3000);
+          
+          // Secondary check after 8 seconds
+          setTimeout(() => {
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+          }, 8000);
+          
+          // Final check after 15 seconds
+          setTimeout(() => {
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
+            qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+          }, 15000);
         }
-        // Light polling to auto-refresh while waiting for callback
-        setTimeout(() => {
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
-        }, 3000);
-        setTimeout(() => {
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
-        }, 8000);
-        setTimeout(() => {
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
-          qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
-        }, 15000);
       }
       setAmount("");
       setPhone("");
@@ -272,63 +286,103 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
     },
   });
 
-  // Poll push payments until completion or timeout
+  // Poll payment status until completion or timeout
   useEffect(() => {
     if (!pollingRefId) return;
+    
     // Avoid multiple timers
     if (pollingTimerRef.current) {
       clearInterval(pollingTimerRef.current as any);
       pollingTimerRef.current = null;
     }
+    
     let attempts = 0;
-    const maxAttempts = 24; // ~2 minutes at 5s interval
-    const interval = setInterval(async () => {
+    const maxAttempts = 36; // 3 minutes at 5s interval
+    
+    const checkStatus = async () => {
+      if (!pollingRefId) return;
       attempts += 1;
+      
       try {
         const { data } = await apiClient.post(API_ENDPOINTS.OPAY_CHECKSTATUS, {
           refid: pollingRefId,
         });
+        
         const status = data?.status;
+        
         if (status && status !== "pending") {
+          // Payment completed or failed
           clearInterval(interval);
           pollingTimerRef.current = null;
           setPollingRefId(null);
+          
           if (status === "completed") {
+            setActivePayment(prev => ({
+              ...prev,
+              status: 'completed',
+              refId: null
+            }));
+            
             toast({
               title: "✨ Top-up successful",
-              description: "Your wallet has been credited!",
+              description: `RWF ${activePayment.amount || ''} has been added to your wallet!`,
             });
           } else if (status === "failed") {
+            setActivePayment(prev => ({
+              ...prev,
+              status: 'failed',
+              refId: null
+            }));
+            
             toast({
               title: "❌ Payment failed",
               description: "The payment was not approved. Please try again.",
               variant: "destructive",
             });
           }
+          
+          // Refresh wallet data
           qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
           qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
+          
         } else if (attempts >= maxAttempts) {
+          // Timeout reached
           clearInterval(interval);
           pollingTimerRef.current = null;
           setPollingRefId(null);
+          setActivePayment(prev => ({
+            ...prev,
+            status: 'timeout'
+          }));
+          
           toast({
-            title: "⏳ Still pending",
-            description:
-              "We couldn't confirm the payment yet. If approved on phone, it may update shortly.",
+            title: "⏳ Still processing",
+            description: "We're still processing your payment. The status will update automatically.",
           });
         }
       } catch (e: any) {
-        clearInterval(interval);
-        pollingTimerRef.current = null;
-        setPollingRefId(null);
-        toast({
-          title: "⚠️ Status check failed",
-          description: handleApiError(e),
-          variant: "destructive",
-        });
+        console.error("Status check error:", e);
+        
+        // Don't stop on network errors, just log them
+        if (attempts >= maxAttempts) {
+          clearInterval(interval);
+          pollingTimerRef.current = null;
+          setPollingRefId(null);
+          setActivePayment(prev => ({
+            ...prev,
+            status: 'error'
+          }));
+        }
       }
-    }, 5000);
+    };
+    
+    // Initial check
+    checkStatus();
+    
+    // Then check every 5 seconds
+    const interval = setInterval(checkStatus, 5000);
     pollingTimerRef.current = interval as any;
+    
     return () => {
       if (pollingTimerRef.current) {
         clearInterval(pollingTimerRef.current as any);
@@ -355,6 +409,15 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       });
       return;
     }
+    
+    // Reset any existing payment state
+    setActivePayment({
+      refId: null,
+      status: 'processing',
+      amount: amt
+    });
+    
+    // Initiate payment
     topUpMutation.mutate({ amount: amt, phone: phone.trim() });
   };
 
@@ -363,13 +426,59 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       case "completed":
         return <CheckCircle className="h-3 w-3 text-emerald-500" />;
       case "pending":
+      case "processing":
         return <Clock className="h-3 w-3 text-amber-500 animate-spin" />;
       case "failed":
+      case "error":
         return <AlertCircle className="h-3 w-3 text-red-500" />;
+      case "timeout":
+        return <Clock className="h-3 w-3 text-amber-300" />;
       default:
         return <Clock className="h-3 w-3 text-gray-400" />;
     }
   };
+  
+  // Get payment status message
+  const getPaymentStatusMessage = () => {
+    if (!activePayment.refId) return null;
+    
+    const messages = {
+      processing: {
+        title: "Processing Payment",
+        description: "We're setting up your payment. Please wait...",
+        icon: <Clock className="h-5 w-5 text-amber-500 animate-spin" />
+      },
+      pending: {
+        title: "Awaiting Confirmation",
+        description: "Please complete the payment on your phone. This may take a moment...",
+        icon: <Clock className="h-5 w-5 text-amber-500 animate-pulse" />
+      },
+      completed: {
+        title: "Payment Successful!",
+        description: `RWF ${activePayment.amount} has been added to your wallet.`,
+        icon: <CheckCircle className="h-5 w-5 text-emerald-500" />
+      },
+      failed: {
+        title: "Payment Failed",
+        description: "We couldn't process your payment. Please try again.",
+        icon: <AlertCircle className="h-5 w-5 text-red-500" />
+      },
+      timeout: {
+        title: "Taking Longer Than Expected",
+        description: "Your payment is still being processed. We'll update the status automatically.",
+        icon: <Clock className="h-5 w-5 text-amber-300" />
+      },
+      error: {
+        title: "Connection Issue",
+        description: "Having trouble checking payment status. Please check back in a moment.",
+        icon: <AlertCircle className="h-5 w-5 text-red-400" />
+      }
+    };
+    
+    return messages[activePayment.status as keyof typeof messages] || null;
+  };
+  
+  const paymentStatus = getPaymentStatusMessage();
 
   return (
     <div className={`relative overflow-hidden ${
@@ -532,10 +641,63 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             </div>
           </div>
 
+          {/* Payment Status Banner */}
+          {paymentStatus && (
+            <div className={`mb-4 sm:mb-6 mx-2 sm:mx-0 p-4 rounded-xl ${
+              activePayment.status === 'completed' 
+                ? 'bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50' 
+                : activePayment.status === 'failed' || activePayment.status === 'error'
+                ? 'bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50'
+                : 'bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50'
+            }`}>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 mt-0.5">
+                  {paymentStatus.icon}
+                </div>
+                <div>
+                  <h4 className="font-medium text-sm sm:text-base">
+                    {paymentStatus.title}
+                  </h4>
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">
+                    {paymentStatus.description}
+                  </p>
+                  
+                  {(activePayment.status === 'pending' || activePayment.status === 'processing') && (
+                    <div className="mt-2 flex items-center gap-2">
+                      <div className="h-1.5 bg-white dark:bg-gray-800 rounded-full flex-1 overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse w-1/2"></div>
+                      </div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        Processing...
+                      </span>
+                    </div>
+                  )}
+                  
+                  {activePayment.status === 'failed' && (
+                    <div className="mt-3">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => {
+                          setActivePayment({refId: null, status: 'idle', amount: 0});
+                          setAmount('');
+                          setPhone('');
+                        }}
+                        className="text-xs h-8"
+                      >
+                        Try Again
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
           {/* Top-up Form */}
           <div className={`space-y-3 sm:space-y-4 mb-4 sm:mb-6 ${
             isMobile ? "mx-2" : ""
-          }`}>
+          } ${activePayment.status === 'processing' || activePayment.status === 'pending' ? 'opacity-50 pointer-events-none' : ''}`}>    
             <div className="grid grid-cols-1 gap-3">
               <FormInput
                 placeholder="Amount (RWF)"
@@ -559,12 +721,17 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             </div>
             <Button
               onClick={handleTopUp}
-              disabled={topUpMutation.isPending || !amount || !phone}
+              disabled={topUpMutation.isPending || !amount || !phone || activePayment.status === 'processing' || activePayment.status === 'pending'}
               className={`w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
                 isMobile ? "py-4 text-base" : "py-2.5 sm:py-3 text-sm sm:text-base"
-              }`}
+              } ${activePayment.status === 'processing' || activePayment.status === 'pending' ? 'animate-pulse' : ''}`}
             >
-              {topUpMutation.isPending ? (
+              {activePayment.status === 'processing' || activePayment.status === 'pending' ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
+                  <span>Processing Payment...</span>
+                </div>
+              ) : topUpMutation.isPending ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></div>
                   <span>Initiating payment...</span>
