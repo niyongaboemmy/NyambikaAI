@@ -43,7 +43,9 @@ import {
 } from "lucide-react";
 import SubscriptionPlanSelector from "@/components/SubscriptionPlanSelector";
 import { useRouter } from "next/navigation";
-import PaymentDialog, { type PaymentMethodKind } from "@/components/PaymentDialog";
+import PaymentDialog, {
+  type PaymentMethodKind,
+} from "@/components/PaymentDialog";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, API_ENDPOINTS } from "@/config/api";
@@ -231,19 +233,48 @@ export default function ProducersManagement() {
     setShowPayment(true);
   };
 
-  const completeAgentPayment = async (pay: { method: PaymentMethodKind; reference: string | null }) => {
+  const completeAgentPayment = async (pay: {
+    method: PaymentMethodKind;
+    reference: string | null;
+    meta?: any;
+  }) => {
     if (!selectedProducer || !selectedPlanId) return;
     try {
       setPaymentLoading(true);
-      const mappedMethod = pay.method === "wallet" ? "wallet" : "mobile_money";
-      await apiClient.post(API_ENDPOINTS.AGENT_PROCESS_PAYMENT, {
-        producerId: selectedProducer.id,
-        planId: selectedPlanId,
-        billingCycle,
-        paymentMethod: mappedMethod,
-        paymentReference: pay.reference,
-      });
-      toast({ title: "Success", description: "Subscription payment processed" });
+      const planObj = plans.find((p: any) => p.id === selectedPlanId);
+      const planName = planObj?.name || "Plan";
+      const producerName =
+        selectedProducer.companyName ||
+        selectedProducer.businessName ||
+        selectedProducer.fullName ||
+        "Producer";
+      if (pay.method === "wallet") {
+        const resp = await apiClient.post(API_ENDPOINTS.AGENT_PROCESS_PAYMENT, {
+          producerId: selectedProducer.id,
+          planId: selectedPlanId,
+          billingCycle,
+          paymentMethod: "wallet",
+          paymentReference: pay.reference,
+        });
+        toast({
+          title: "Success",
+          description: `Activated Plan: ${planName} (${billingCycle}) for ${producerName}`,
+        });
+        if (resp?.data) {
+          const msg = resp.data.message || JSON.stringify(resp.data);
+          toast({ title: "API Response", description: msg });
+        }
+      } else {
+        // MoMo path: subscription auto-activated via backend callback; approval reached here
+        const debug =
+          String(process.env.NEXT_PUBLIC_PAY_DEBUG || "").toLowerCase() ===
+          "true";
+        const statusdesc = pay?.meta?.statusdesc || pay?.meta?.statusDesc;
+        const desc =
+          `Activated Plan: ${planName} (${billingCycle}) for ${producerName}` +
+          (debug && statusdesc ? ` — ${statusdesc}` : "");
+        toast({ title: "Payment approved", description: desc });
+      }
       setPaymentOpen(false);
       setShowPayment(false);
       setSelectedProducer(null);
@@ -251,7 +282,11 @@ export default function ProducersManagement() {
       await Promise.all([fetchProducers(), fetchStats()]);
     } catch (err: any) {
       console.error("Payment error:", err);
-      toast({ title: "Payment Failed", description: formatBackendErrors(err), variant: "destructive" });
+      toast({
+        title: "Payment Failed",
+        description: formatBackendErrors(err),
+        variant: "destructive",
+      });
     } finally {
       setPaymentLoading(false);
     }
@@ -1446,6 +1481,47 @@ export default function ProducersManagement() {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* Payment Dialog for processing payment */}
+        <PaymentDialog
+          title={`${
+            selectedProducer?.companyName ||
+            selectedProducer?.businessName ||
+            selectedProducer?.fullName
+          } - Renew for Subscription Plan`}
+          open={showPayment}
+          onOpenChange={setShowPayment}
+          amount={(() => {
+            const plan = plans.find((p: any) => p.id === selectedPlanId);
+            if (!plan) return 0;
+            const price =
+              billingCycle === "monthly" ? plan.monthlyPrice : plan.annualPrice;
+            return Number(price || 0);
+          })()}
+          description={
+            selectedProducer
+              ? `Agent payment for ${
+                  selectedProducer.companyName ||
+                  selectedProducer.businessName ||
+                  selectedProducer.fullName
+                }`
+              : "Agent payment"
+          }
+          defaultMethod={defaultMethod}
+          subscription={
+            selectedPlanId && selectedProducer
+              ? {
+                  planId: selectedPlanId,
+                  billingCycle,
+                  targetProducerUserId: selectedProducer.id,
+                }
+              : undefined
+          }
+          onSuccess={({ method, reference, meta }) =>
+            completeAgentPayment({ method, reference, meta })
+          }
+          onError={(err) => console.error("Payment error", err)}
+        />
       </div>
     </div>
   );

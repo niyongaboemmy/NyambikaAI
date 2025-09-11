@@ -34,8 +34,11 @@ import {
   MapPin,
 } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
-import PaymentDialog, { type PaymentMethodKind } from "@/components/PaymentDialog";
+import PaymentDialog, {
+  type PaymentMethodKind,
+} from "@/components/PaymentDialog";
 import { apiClient, API_ENDPOINTS } from "@/config/api";
+import { useToast } from "@/hooks/use-toast";
 
 interface Producer {
   id: string;
@@ -54,7 +57,6 @@ interface Producer {
 
 interface PaymentData {
   amount: number;
-  duration: number;
   paymentMethod: "momo" | "airtel" | "bank";
   phoneNumber: string;
   notes: string;
@@ -65,11 +67,11 @@ export default function SubscriptionRenewal() {
   const router = useRouter();
   const params = useParams();
   const producerId = params.producerId as string;
+  const { toast } = useToast();
 
   const [producer, setProducer] = useState<Producer | null>(null);
   const [paymentData, setPaymentData] = useState<PaymentData>({
-    amount: 50000,
-    duration: 1,
+    amount: 0,
     paymentMethod: "momo",
     phoneNumber: "",
     notes: "",
@@ -79,6 +81,12 @@ export default function SubscriptionRenewal() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
   const [defaultMethod, setDefaultMethod] = useState<PaymentMethodKind>("momo");
+  const [plans, setPlans] = useState<any[]>([]);
+  const [plansLoading, setPlansLoading] = useState<boolean>(false);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
+    "monthly"
+  );
 
   useEffect(() => {
     // Mock data for demonstration
@@ -141,22 +149,34 @@ export default function SubscriptionRenewal() {
     }, 1000);
   }, [producerId]);
 
-  const subscriptionPlans = [
-    { duration: 1, price: 50000, label: "1 Month" },
-    { duration: 3, price: 135000, label: "3 Months", discount: "10%" },
-    { duration: 6, price: 240000, label: "6 Months", discount: "20%" },
-    { duration: 12, price: 420000, label: "12 Months", discount: "30%" },
-  ];
+  // Fetch active subscription plans
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        setPlansLoading(true);
+        const res = await apiClient.get("/api/subscription-plans");
+        const list = res.data || [];
+        setPlans(list);
+        if (list.length > 0) setSelectedPlanId(list[0].id);
+      } catch (e) {
+        console.error("Error fetching plans", e);
+      } finally {
+        setPlansLoading(false);
+      }
+    };
+    fetchPlans();
+  }, []);
 
-  const handlePlanChange = (duration: number) => {
-    const plan = subscriptionPlans.find((p) => p.duration === duration);
-    if (plan) {
-      setPaymentData((prev) => ({
-        ...prev,
-        duration,
-        amount: plan.price,
-      }));
-    }
+  // Recompute amount on selection changes
+  useEffect(() => {
+    const plan = plans.find((p) => p.id === selectedPlanId);
+    const price =
+      billingCycle === "monthly" ? plan?.monthlyPrice : plan?.annualPrice;
+    setPaymentData((prev) => ({ ...prev, amount: Number(price || 0) }));
+  }, [selectedPlanId, billingCycle, plans]);
+
+  const handlePlanSelect = (planId: string) => {
+    setSelectedPlanId(planId);
   };
 
   const handlePaymentSubmit = async (e: React.FormEvent) => {
@@ -165,20 +185,58 @@ export default function SubscriptionRenewal() {
     setShowPayment(true);
   };
 
-  const completeAgentRenewal = async (pay: { method: PaymentMethodKind; reference: string | null }) => {
+  const completeAgentRenewal = async (pay: {
+    method: PaymentMethodKind;
+    reference: string | null;
+    meta?: any;
+  }) => {
     if (!producer) return;
     try {
       setIsProcessing(true);
-      const paymentMethod = pay.method === "wallet" ? "wallet" : "mobile_money";
-      await apiClient.post(API_ENDPOINTS.AGENT_PROCESS_PAYMENT, {
-        producerId: producer.id,
-        // Using duration as plan length; backend can map to a plan
-        duration: paymentData.duration,
-        amount: paymentData.amount,
-        paymentMethod,
-        paymentReference: pay.reference,
-      });
-      setPaymentSuccess(true);
+      const planObj = plans.find((p) => p.id === selectedPlanId);
+      const planName = planObj?.name || "Plan";
+      const producerName = producer?.name || producer?.company || "Producer";
+      if (pay.method === "wallet") {
+        const resp = await apiClient.post(API_ENDPOINTS.AGENT_PROCESS_PAYMENT, {
+          producerId: producer.id,
+          planId: selectedPlanId,
+          billingCycle,
+          amount: paymentData.amount,
+          paymentMethod: "wallet",
+          paymentReference: pay.reference,
+        });
+        toast({
+          title: "Success",
+          description: `Activated Plan: ${planName} (${billingCycle}) for ${producerName}`,
+        });
+        if (resp?.data) {
+          const msg = resp.data.message || JSON.stringify(resp.data);
+          toast({ title: "API Response", description: msg });
+        }
+        setPaymentSuccess(true);
+      } else {
+        // MoMo path: subscription will auto-activate via backend callback
+        const debug =
+          String(process.env.NEXT_PUBLIC_PAY_DEBUG || "").toLowerCase() ===
+          "true";
+        const statusdesc = pay?.meta?.statusdesc || pay?.meta?.statusDesc;
+        const desc =
+          `Activated Plan: ${planName} (${billingCycle}) for ${producerName}` +
+          (debug && statusdesc ? ` — ${statusdesc}` : "");
+        toast({ title: "Payment approved", description: desc });
+        if (debug && pay?.meta) {
+          try {
+            const pretty =
+              typeof pay.meta === "string"
+                ? pay.meta
+                : JSON.stringify(pay.meta);
+            toast({ title: "API Response", description: pretty });
+          } catch {
+            // ignore
+          }
+        }
+        setPaymentSuccess(true);
+      }
     } catch (error) {
       console.error("Agent renewal error", error);
     } finally {
@@ -255,8 +313,7 @@ export default function SubscriptionRenewal() {
                 Payment Successful!
               </h3>
               <p className="text-gray-500 dark:text-gray-400 mb-4">
-                {producer.name}'s subscription has been renewed for{" "}
-                {paymentData.duration} month(s). You've earned{" "}
+                {producer.name}'s subscription has been renewed. You've earned{" "}
                 {(paymentData.amount * 0.2).toLocaleString()} RWF commission.
               </p>
               <div className="space-y-2">
@@ -399,37 +456,75 @@ export default function SubscriptionRenewal() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handlePaymentSubmit} className="space-y-6">
-              {/* Subscription Plan */}
+              {/* Subscription Plan & Billing */}
               <div className="space-y-3">
                 <Label>Subscription Plan</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {subscriptionPlans.map((plan) => (
-                    <div
-                      key={plan.duration}
-                      className={`p-3 border rounded-lg cursor-pointer transition-colors ${
-                        paymentData.duration === plan.duration
-                          ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                          : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
-                      }`}
-                      onClick={() => handlePlanChange(plan.duration)}
-                    >
-                      <div className="text-sm font-medium">{plan.label}</div>
-                      <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                        {plan.price.toLocaleString()} RWF
-                      </div>
-                      {plan.discount && (
-                        <div className="text-xs text-green-600 dark:text-green-400">
-                          Save {plan.discount}
-                        </div>
-                      )}
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Choose a plan and billing cycle. The selected plan will be
+                  activated for the producer after payment approval.
+                </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <Button
+                    type="button"
+                    variant={billingCycle === "monthly" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setBillingCycle("monthly")}
+                  >
+                    Monthly
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={billingCycle === "annual" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setBillingCycle("annual")}
+                  >
+                    Annual
+                  </Button>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {plansLoading && (
+                    <div className="text-sm text-gray-500">
+                      Loading plans...
                     </div>
-                  ))}
+                  )}
+                  {!plansLoading &&
+                    plans.map((pl) => {
+                      const price =
+                        billingCycle === "monthly"
+                          ? pl.monthlyPrice
+                          : pl.annualPrice;
+                      const selected = selectedPlanId === pl.id;
+                      return (
+                        <div
+                          key={pl.id}
+                          className={`p-3 border rounded-lg cursor-pointer transition-colors ${
+                            selected
+                              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                              : "border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600"
+                          }`}
+                          onClick={() => handlePlanSelect(pl.id)}
+                        >
+                          <div className="text-sm font-medium">{pl.name}</div>
+                          <div className="text-xs text-gray-500 mb-1">
+                            {pl.description}
+                          </div>
+                          <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                            {Number(price).toLocaleString()} RWF
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
 
               {/* Payment Method */}
               <div className="space-y-3">
                 <Label>Payment Method</Label>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  MoMo opens a secure approval flow. Wallet will debit your
+                  balance; if balance is too low, you can top up directly in the
+                  dialog.
+                </p>
                 <Select
                   value={paymentData.paymentMethod}
                   onValueChange={(value: "momo" | "airtel" | "bank") =>
@@ -515,10 +610,8 @@ export default function SubscriptionRenewal() {
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>Duration:</span>
-                  <span className="font-medium">
-                    {paymentData.duration} month(s)
-                  </span>
+                  <span>Billing Cycle:</span>
+                  <span className="font-medium">{billingCycle}</span>
                 </div>
                 <div className="pt-2 border-t border-gray-200 dark:border-gray-700">
                   <div className="flex justify-between font-semibold">
@@ -552,12 +645,26 @@ export default function SubscriptionRenewal() {
       </div>
       {/* Payment Dialog */}
       <PaymentDialog
+        title={`${producer?.name} - Renew for Subscription Plan`}
         open={showPayment}
         onOpenChange={setShowPayment}
         amount={paymentData.amount}
-        description={producer ? `Agent renewal for ${producer.name} (${paymentData.duration} mo)` : "Agent renewal"}
+        description={
+          producer ? `Agent renewal for ${producer.name}` : "Agent renewal"
+        }
         defaultMethod={defaultMethod}
-        onSuccess={({ method, reference }) => completeAgentRenewal({ method, reference })}
+        subscription={
+          selectedPlanId
+            ? {
+                planId: selectedPlanId,
+                billingCycle,
+                targetProducerUserId: producer?.id,
+              }
+            : undefined
+        }
+        onSuccess={({ method, reference }) =>
+          completeAgentRenewal({ method, reference })
+        }
         onError={(err) => console.error("Payment error", err)}
       />
     </div>
