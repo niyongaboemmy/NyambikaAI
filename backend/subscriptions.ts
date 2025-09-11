@@ -57,15 +57,22 @@ export const createSubscription = async (req: Request, res: Response) => {
       endDate.setFullYear(endDate.getFullYear() + 1);
     }
 
-    const newSubscription = await db
+    const subscriptionId = randomUUID();
+    await db
       .insert(subscriptions)
       .values({
-        id: randomUUID(),
+        id: subscriptionId,
         ...subscriptionData,
         startDate,
         endDate,
-      })
-      .returning();
+      });
+
+    // Fetch the created subscription
+    const newSubscription = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.id, subscriptionId))
+      .limit(1);
 
     res.status(201).json(newSubscription[0]);
   } catch (error) {
@@ -80,11 +87,17 @@ export const updateSubscriptionStatus = async (req: Request, res: Response) => {
     const { id } = req.params;
     const { status } = req.body;
     
-    const updatedSubscription = await db
+    await db
       .update(subscriptions)
       .set({ status })
+      .where(eq(subscriptions.id, id));
+
+    // Fetch the updated subscription
+    const updatedSubscription = await db
+      .select()
+      .from(subscriptions)
       .where(eq(subscriptions.id, id))
-      .returning();
+      .limit(1);
 
     if (updatedSubscription.length === 0) {
       return res.status(404).json({ error: 'Subscription not found' });
@@ -132,10 +145,11 @@ export const renewSubscription = async (req: Request, res: Response) => {
     const agentCommission = agentId ? (parseFloat(amount) * 0.2).toString() : null;
 
     // Create payment record
-    const payment = await db
+    const paymentId = randomUUID();
+    await db
       .insert(subscriptionPayments)
       .values({
-        id: randomUUID(),
+        id: paymentId,
         subscriptionId: id,
         agentId,
         amount,
@@ -143,8 +157,14 @@ export const renewSubscription = async (req: Request, res: Response) => {
         paymentMethod,
         paymentReference,
         status: 'pending',
-      })
-      .returning();
+      });
+
+    // Fetch the created payment
+    const payment = await db
+      .select()
+      .from(subscriptionPayments)
+      .where(eq(subscriptionPayments.id, paymentId))
+      .limit(1);
 
     // Calculate new end date
     const newEndDate = new Date(subscription.endDate);
@@ -155,7 +175,7 @@ export const renewSubscription = async (req: Request, res: Response) => {
     }
 
     // Update subscription
-    const updatedSubscription = await db
+    await db
       .update(subscriptions)
       .set({
         endDate: newEndDate,
@@ -163,8 +183,14 @@ export const renewSubscription = async (req: Request, res: Response) => {
         paymentMethod,
         paymentReference,
       })
+      .where(eq(subscriptions.id, id));
+
+    // Fetch the updated subscription
+    const updatedSubscription = await db
+      .select()
+      .from(subscriptions)
       .where(eq(subscriptions.id, id))
-      .returning();
+      .limit(1);
 
     res.json({
       subscription: updatedSubscription[0],

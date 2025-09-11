@@ -1311,18 +1311,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!ref)
         return res.status(400).json({ message: "Missing reference/refid" });
 
-      const [payment] = await db
-        .select()
-        .from(walletPayments)
-        .where(eq(walletPayments.externalReference, ref))
-        .limit(1);
-
-      if (!payment)
-        return res.status(404).json({ message: "Payment not found" });
-      if ((payment.status || "").toLowerCase() !== "pending") {
-        return res.json({ ok: true, alreadyProcessed: true });
-      }
-
       // Prefer statusid mapping; fallback to textual reply/status
       let finalStatus: "completed" | "failed" | "pending" = "pending";
       const sid = String(statusid || "");
@@ -1337,29 +1325,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
           finalStatus = "failed";
       }
 
-      await db
-        .update(walletPayments)
-        .set({ status: finalStatus })
-        .where(eq(walletPayments.id, payment.id));
+      // Try update wallet payment if it exists (generic payments may not create wallet records)
+      const [payment] = await db
+        .select()
+        .from(walletPayments)
+        .where(eq(walletPayments.externalReference, ref))
+        .limit(1);
+      if (payment && (payment.status || "").toLowerCase() === "pending") {
+        await db
+          .update(walletPayments)
+          .set({ status: finalStatus })
+          .where(eq(walletPayments.id, payment.id));
 
-      if (finalStatus === "completed") {
-        const [wallet] = await db
-          .select()
-          .from(userWallets)
-          .where(eq(userWallets.id, payment.walletId))
-          .limit(1);
+        if (finalStatus === "completed") {
+          const [wallet] = await db
+            .select()
+            .from(userWallets)
+            .where(eq(userWallets.id, payment.walletId))
+            .limit(1);
 
-        if (wallet) {
-          const newBalance = String(
-            (Number(wallet.balance) || 0) + Number(payment.amount)
-          );
-          await db
-            .update(userWallets)
-            .set({ balance: newBalance, updatedAt: new Date() as any })
-            .where(eq(userWallets.id, wallet.id));
+          if (wallet) {
+            const newBalance = String(
+              (Number(wallet.balance) || 0) + Number(payment.amount)
+            );
+            await db
+              .update(userWallets)
+              .set({ balance: newBalance, updatedAt: new Date() as any })
+              .where(eq(userWallets.id, wallet.id));
+          }
         }
+      }
 
-        // Also check for a pending subscription linked to this reference and activate it
+      // Always attempt to activate a pending subscription linked to this reference when completed
+      if (finalStatus === "completed") {
         try {
           const [pendingSub] = await db
             .select()
@@ -1368,14 +1366,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .limit(1);
           if (pendingSub && (pendingSub.status || "").toLowerCase() === "pending") {
             const now = new Date();
-            // Compute endDate from billingCycle
             const cycle = String(pendingSub.billingCycle || "monthly");
             const end = new Date(now);
-            if (cycle === "annual") {
-              end.setFullYear(end.getFullYear() + 1);
-            } else {
-              end.setMonth(end.getMonth() + 1);
-            }
+            if (cycle === "annual") end.setFullYear(end.getFullYear() + 1);
+            else end.setMonth(end.getMonth() + 1);
             if (isMySQL) {
               await db
                 .update(subscriptions)
