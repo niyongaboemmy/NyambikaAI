@@ -3,7 +3,14 @@
 import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { apiClient, API_ENDPOINTS } from "@/config/api";
-import { CheckCircle, Clock, AlertCircle, ArrowUpRight, ArrowDownLeft, Filter } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  AlertCircle,
+  ArrowUpRight,
+  ArrowDownLeft,
+  Filter,
+} from "lucide-react";
 
 interface WalletPayment {
   id: string;
@@ -20,21 +27,28 @@ interface WalletPayment {
 }
 
 const StatusPill = ({ status }: { status: WalletPayment["status"] }) => {
-  const base = "px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1";
+  const base =
+    "px-2 py-0.5 rounded-full text-xs font-medium inline-flex items-center gap-1";
   if (status === "completed")
     return (
-      <span className={`${base} bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300`}>
+      <span
+        className={`${base} bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300`}
+      >
         <CheckCircle className="h-3 w-3" /> Completed
       </span>
     );
   if (status === "pending")
     return (
-      <span className={`${base} bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300`}>
+      <span
+        className={`${base} bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300`}
+      >
         <Clock className="h-3 w-3 animate-spin" /> Pending
       </span>
     );
   return (
-    <span className={`${base} bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300`}>
+    <span
+      className={`${base} bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300`}
+    >
       <AlertCircle className="h-3 w-3" /> Failed
     </span>
   );
@@ -49,8 +63,12 @@ export default function TransactionsPage() {
     },
   });
 
-  const [statusFilter, setStatusFilter] = useState<"all" | WalletPayment["status"]>("all");
-  const [typeFilter, setTypeFilter] = useState<"all" | WalletPayment["type"]>("all");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | WalletPayment["status"]
+  >("all");
+  const [typeFilter, setTypeFilter] = useState<"all" | WalletPayment["type"]>(
+    "all"
+  );
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
   const [selected, setSelected] = useState<WalletPayment | null>(null);
@@ -59,7 +77,8 @@ export default function TransactionsPage() {
 
   const filtered = useMemo(() => {
     let list = payments;
-    if (statusFilter !== "all") list = list.filter((p) => p.status === statusFilter);
+    if (statusFilter !== "all")
+      list = list.filter((p) => p.status === statusFilter);
     if (typeFilter !== "all") list = list.filter((p) => p.type === typeFilter);
     if (dateFrom) {
       const from = new Date(dateFrom).getTime();
@@ -83,11 +102,13 @@ export default function TransactionsPage() {
     );
 
   return (
-    <div className="container mx-auto px-3 md:px-0 py-6">
+    <div className="container mx-auto px-3 md:px-0 py-6 pt-10">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-xl sm:text-2xl font-bold">Wallet Transactions</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400">View all your wallet top-ups and payments</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            View all your wallet top-ups and payments
+          </p>
         </div>
         <button
           onClick={() => {
@@ -118,12 +139,19 @@ export default function TransactionsPage() {
               (p.description || "").replace(/\n/g, " "),
               new Date(p.createdAt).toISOString(),
             ]);
-            const csv = [headers.join(","), ...rows.map((r) => r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(","))].join("\n");
+            const csv = [
+              headers.join(","),
+              ...rows.map((r) =>
+                r.map((v) => `"${String(v).replace(/"/g, '""')}"`).join(",")
+              ),
+            ].join("\n");
             const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = `wallet-transactions-${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = `wallet-transactions-${new Date()
+              .toISOString()
+              .slice(0, 10)}.csv`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -199,7 +227,9 @@ export default function TransactionsPage() {
           <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
             <AlertCircle className="h-8 w-8 text-gray-400" />
           </div>
-          <p className="text-sm text-gray-500 dark:text-gray-400">No transactions to display</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            No transactions to display
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -227,13 +257,18 @@ export default function TransactionsPage() {
                       <StatusPill status={p.status} />
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {new Date(p.createdAt).toLocaleString()} • {p.provider?.toUpperCase() || p.method}
+                      {new Date(p.createdAt).toLocaleString()} •{" "}
+                      {p.provider?.toUpperCase() || p.method}
                     </p>
                     {p.externalReference && (
-                      <p className="text-[11px] text-gray-400">Ref: {p.externalReference}</p>
+                      <p className="text-[11px] text-gray-400">
+                        Ref: {p.externalReference}
+                      </p>
                     )}
                     {p.description && (
-                      <p className="text-[11px] text-gray-500 dark:text-gray-400">{p.description}</p>
+                      <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                        {p.description}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -245,7 +280,8 @@ export default function TransactionsPage() {
                         : "text-emerald-600 dark:text-emerald-400"
                     }`}
                   >
-                    {p.type === "debit" ? "-" : "+"} RWF {Number(p.amount).toLocaleString()}
+                    {p.type === "debit" ? "-" : "+"} RWF{" "}
+                    {Number(p.amount).toLocaleString()}
                   </p>
                   <button
                     className="mt-2 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
@@ -289,21 +325,54 @@ export default function TransactionsPage() {
           <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 shadow-xl">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold">Transaction Details</h2>
-              <button className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200" onClick={() => setSelected(null)}>Close</button>
+              <button
+                className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                onClick={() => setSelected(null)}
+              >
+                Close
+              </button>
             </div>
             <div className="space-y-1 text-sm">
-              <p><span className="text-gray-500">ID:</span> {selected.id}</p>
-              <p><span className="text-gray-500">Type:</span> {selected.type}</p>
-              <p><span className="text-gray-500">Status:</span> {selected.status}</p>
-              <p><span className="text-gray-500">Amount:</span> RWF {Number(selected.amount).toLocaleString()}</p>
-              <p><span className="text-gray-500">Currency:</span> {selected.currency}</p>
-              <p><span className="text-gray-500">Method:</span> {selected.method}</p>
-              <p><span className="text-gray-500">Provider:</span> {selected.provider || "-"}</p>
-              <p><span className="text-gray-500">Phone:</span> {selected.phone || "-"}</p>
-              <p><span className="text-gray-500">Reference:</span> {selected.externalReference || "-"}</p>
-              <p><span className="text-gray-500">Created:</span> {new Date(selected.createdAt).toLocaleString()}</p>
+              <p>
+                <span className="text-gray-500">ID:</span> {selected.id}
+              </p>
+              <p>
+                <span className="text-gray-500">Type:</span> {selected.type}
+              </p>
+              <p>
+                <span className="text-gray-500">Status:</span> {selected.status}
+              </p>
+              <p>
+                <span className="text-gray-500">Amount:</span> RWF{" "}
+                {Number(selected.amount).toLocaleString()}
+              </p>
+              <p>
+                <span className="text-gray-500">Currency:</span>{" "}
+                {selected.currency}
+              </p>
+              <p>
+                <span className="text-gray-500">Method:</span> {selected.method}
+              </p>
+              <p>
+                <span className="text-gray-500">Provider:</span>{" "}
+                {selected.provider || "-"}
+              </p>
+              <p>
+                <span className="text-gray-500">Phone:</span>{" "}
+                {selected.phone || "-"}
+              </p>
+              <p>
+                <span className="text-gray-500">Reference:</span>{" "}
+                {selected.externalReference || "-"}
+              </p>
+              <p>
+                <span className="text-gray-500">Created:</span>{" "}
+                {new Date(selected.createdAt).toLocaleString()}
+              </p>
               {selected.description && (
-                <p className="text-gray-600 dark:text-gray-300 mt-2">{selected.description}</p>
+                <p className="text-gray-600 dark:text-gray-300 mt-2">
+                  {selected.description}
+                </p>
               )}
             </div>
           </div>
