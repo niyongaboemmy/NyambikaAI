@@ -119,7 +119,11 @@ const AnimatedCoins = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export default function UserWallet() {
+interface UserWalletProps {
+  isMobile?: boolean;
+}
+
+export default function UserWallet({ isMobile = false }: UserWalletProps) {
   const { toast } = useToast();
   const qc = useQueryClient();
   const [amount, setAmount] = useState<string>("");
@@ -368,42 +372,61 @@ export default function UserWallet() {
   };
 
   return (
-    <div className="relative overflow-hidden">
+    <div className={`relative overflow-hidden ${
+      isMobile ? "min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/10" : ""
+    }`}>
       {/* Floating background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-2 right-4 w-16 h-16 opacity-10">
+        <div className={`absolute ${isMobile ? "top-20 right-4" : "top-2 right-4"} w-16 h-16 opacity-10`}>
           <AnimatedCoins className="w-full h-full text-blue-500" />
         </div>
         <div className="absolute bottom-4 left-2 w-12 h-12 opacity-5">
           <Sparkles className="w-full h-full text-purple-500 animate-pulse" />
         </div>
+        {/* Mobile-specific floating elements */}
+        {isMobile && (
+          <>
+            <div className="absolute top-32 left-4 w-8 h-8 opacity-20">
+              <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse" />
+            </div>
+            <div className="absolute top-1/2 right-8 w-6 h-6 opacity-15">
+              <div className="w-full h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-bounce" />
+            </div>
+          </>
+        )}
       </div>
 
-      <Card className="relative bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/10 border border-blue-200/50 dark:border-blue-800/30 shadow-lg hover:shadow-xl transition-all duration-500 backdrop-blur-sm">
-        <CardContent className="p-3 sm:p-4 md:p-6">
-          {/* Header with animated icon */}
-          <div className="flex items-center justify-between mb-4 sm:mb-6">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="relative p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
-                <AnimatedWalletIcon className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 animate-ping opacity-20"></div>
+      <Card className={`relative bg-gradient-to-br from-white via-blue-50/30 to-purple-50/20 dark:from-gray-900 dark:via-blue-950/20 dark:to-purple-950/10 ${
+        isMobile 
+          ? "border-0 shadow-none rounded-none bg-transparent" 
+          : "border border-blue-200/50 dark:border-blue-800/30 shadow-lg hover:shadow-xl"
+      } transition-all duration-500 backdrop-blur-sm`}>
+        <CardContent className={isMobile ? "p-4 pb-8" : "p-3 sm:p-4 md:p-6"}>
+          {/* Header with animated icon - Hidden on mobile since it's in the header bar */}
+          {!isMobile && (
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="relative p-2 sm:p-3 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg">
+                  <AnimatedWalletIcon className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                  <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 animate-ping opacity-20"></div>
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                    My Wallet
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
+                    Digital currency hub
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  My Wallet
-                </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
-                  Digital currency hub
-                </p>
+              <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                  {wallet?.status || "Active"}
+                </span>
               </div>
             </div>
-            <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
-              <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-              <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                {wallet?.status || "Active"}
-              </span>
-            </div>
-          </div>
+          )}
 
           {/* Pending Payment Banner */}
           {hasPending && (
@@ -418,8 +441,26 @@ export default function UserWallet() {
           )}
 
           {/* Balance Display with Floating Animation */}
-          <div className="relative mb-4 sm:mb-6 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 dark:from-blue-500/20 dark:via-purple-500/20 dark:to-pink-500/20 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+          <div className={`relative mb-4 sm:mb-6 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 dark:from-blue-500/20 dark:via-purple-500/20 dark:to-pink-500/20 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm ${
+            isMobile ? "mx-2 mt-2" : ""
+          }`}>
+            {/* Mobile status indicator */}
+            {isMobile && (
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                  <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                    {wallet?.status || "Active"}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <Clock className="h-3 w-3" />
+                  <span>Real-time sync</span>
+                </div>
+              </div>
+            )}
+            
+            <div className={`flex ${isMobile ? "flex-col" : "flex-col sm:flex-row"} items-start sm:items-center justify-between gap-3 sm:gap-0`}>
               <div className="space-y-1 sm:space-y-2 flex-1">
                 <p className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-300 flex items-center gap-2">
                   <Coins className="h-3 w-3 sm:h-4 sm:w-4 animate-bounce" />
@@ -429,13 +470,13 @@ export default function UserWallet() {
                   {walletLoading ? (
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 animate-spin"></div>
-                      <span className="text-xl sm:text-2xl md:text-4xl font-bold text-gray-400">
+                      <span className={`${isMobile ? "text-2xl" : "text-xl sm:text-2xl md:text-4xl"} font-bold text-gray-400`}>
                         Loading...
                       </span>
                     </div>
                   ) : (
                     <>
-                      <span className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse">
+                      <span className={`${isMobile ? "text-3xl" : "text-xl sm:text-2xl md:text-3xl lg:text-4xl"} font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse`}>
                         RWF {Number(wallet?.balance || 0).toLocaleString()}
                       </span>
                       <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500 animate-bounce" />
@@ -443,9 +484,9 @@ export default function UserWallet() {
                   )}
                 </div>
               </div>
-              <div className="relative self-end sm:self-auto">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center animate-pulse">
-                  <Wallet className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+              <div className={`relative ${isMobile ? "self-center mt-2" : "self-end sm:self-auto"}`}>
+                <div className={`${isMobile ? "w-16 h-16" : "w-12 h-12 sm:w-16 sm:h-16"} rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center animate-pulse`}>
+                  <Wallet className={`${isMobile ? "h-8 w-8" : "h-6 w-6 sm:h-8 sm:w-8"} text-white`} />
                 </div>
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 animate-ping opacity-20"></div>
               </div>
@@ -453,31 +494,48 @@ export default function UserWallet() {
           </div>
 
           {/* Quick Top-up Actions */}
-          <div className="mb-4 sm:mb-6 space-y-3 sm:space-y-4">
+          <div className={`mb-4 sm:mb-6 space-y-3 sm:space-y-4 ${
+            isMobile ? "mx-2" : ""
+          }`}>
             <h4 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
               <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-purple-500 animate-pulse" />
               Quick Actions
             </h4>
-            <div className="grid grid-cols-4 gap-2 sm:gap-3">
+            <div className={`grid ${isMobile ? "grid-cols-2" : "grid-cols-4"} gap-2 sm:gap-3`}>
               {[5000, 10000, 25000, 50000].map((quickAmount) => (
                 <Button
                   key={quickAmount}
                   variant="outline"
                   size="sm"
                   onClick={() => setAmount(quickAmount.toString())}
-                  className="relative overflow-hidden group border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all duration-300 hover:scale-105 p-2 sm:p-3 h-auto"
+                  className={`relative overflow-hidden group border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all duration-300 hover:scale-105 ${
+                    isMobile ? "p-4 h-auto flex flex-col gap-1" : "p-2 sm:p-3 h-auto"
+                  }`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <span className="relative text-xs sm:text-sm font-medium">
-                    {quickAmount / 1000}K
-                  </span>
+                  {isMobile ? (
+                    <>
+                      <span className="relative text-lg font-bold">
+                        {quickAmount / 1000}K
+                      </span>
+                      <span className="relative text-xs text-gray-500 dark:text-gray-400">
+                        RWF {quickAmount.toLocaleString()}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="relative text-xs sm:text-sm font-medium">
+                      {quickAmount / 1000}K
+                    </span>
+                  )}
                 </Button>
               ))}
             </div>
           </div>
 
           {/* Top-up Form */}
-          <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+          <div className={`space-y-3 sm:space-y-4 mb-4 sm:mb-6 ${
+            isMobile ? "mx-2" : ""
+          }`}>
             <div className="grid grid-cols-1 gap-3">
               <FormInput
                 placeholder="Amount (RWF)"
@@ -485,20 +543,26 @@ export default function UserWallet() {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 icon={Coins}
-                className="text-sm transition-all duration-300"
+                className={`transition-all duration-300 ${
+                  isMobile ? "text-base py-3 px-4" : "text-sm"
+                }`}
               />
               <FormInput
                 placeholder="Mobile Number (required)"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 icon={Sparkles}
-                className="text-sm transition-all duration-300"
+                className={`transition-all duration-300 ${
+                  isMobile ? "text-base py-3 px-4" : "text-sm"
+                }`}
               />
             </div>
             <Button
               onClick={handleTopUp}
               disabled={topUpMutation.isPending || !amount || !phone}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium py-2.5 sm:py-3 rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+              className={`w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+                isMobile ? "py-4 text-base" : "py-2.5 sm:py-3 text-sm sm:text-base"
+              }`}
             >
               {topUpMutation.isPending ? (
                 <div className="flex items-center gap-2">
@@ -516,18 +580,24 @@ export default function UserWallet() {
           </div>
 
           {/* Recent Transactions */}
-          <div className="space-y-3">
+          <div className={`space-y-3 ${
+            isMobile ? "mx-2 pb-4" : ""
+          }`}>
             <div className="flex items-center gap-2">
               <div className="p-2 rounded-xl bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30">
                 <Clock className="h-4 w-4 text-indigo-600 dark:text-indigo-400 animate-pulse" />
               </div>
               <div className="flex items-center gap-3 w-full justify-between">
-                <h4 className="font-semibold text-gray-900 dark:text-gray-100">
+                <h4 className={`font-semibold text-gray-900 dark:text-gray-100 ${
+                  isMobile ? "text-base" : ""
+                }`}>
                   Recent Activity
                 </h4>
                 <a
                   href="/wallet/transactions"
-                  className="text-xs sm:text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                  className={`text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline ${
+                    isMobile ? "text-sm" : "text-xs sm:text-sm"
+                  }`}
                 >
                   View all
                 </a>
@@ -552,14 +622,20 @@ export default function UserWallet() {
               </div>
             ) : (
               <div className="space-y-2">
-                {payments.slice(0, 5).map((payment, index) => (
+                {payments.slice(0, isMobile ? 3 : 5).map((payment, index) => (
                   <div
                     key={payment.id}
-                    className="group p-3 rounded-xl bg-white/60 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-md"
+                    className={`group rounded-xl bg-white/60 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-md ${
+                      isMobile ? "p-4" : "p-3"
+                    }`}
                     style={{ animationDelay: `${index * 100}ms` }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
+                    <div className={`flex items-center justify-between ${
+                      isMobile ? "flex-col gap-3" : ""
+                    }`}>
+                      <div className={`flex items-center gap-3 ${
+                        isMobile ? "w-full" : ""
+                      }`}>
                         <div
                           className={`p-2 rounded-lg ${
                             payment.type === "topup"
@@ -573,37 +649,74 @@ export default function UserWallet() {
                             <ArrowDownLeft className="h-4 w-4 text-red-600 dark:text-red-400" />
                           )}
                         </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
+                        <div className="flex-1">
+                          <p className={`font-medium text-gray-900 dark:text-white flex items-center gap-2 ${
+                            isMobile ? "text-base" : "text-sm"
+                          }`}>
                             {payment.type === "topup" ? "Top-up" : "Payment"}
                             {getStatusIcon(payment.status)}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className={`text-gray-500 dark:text-gray-400 ${
+                            isMobile ? "text-sm" : "text-xs"
+                          }`}>
                             {new Date(payment.createdAt).toLocaleDateString()} •{" "}
                             {payment.provider?.toUpperCase() || payment.method}
                           </p>
                         </div>
+                        {isMobile && (
+                          <div className="text-right">
+                            <p
+                              className={`text-base font-bold ${
+                                payment.type === "debit"
+                                  ? "text-red-600 dark:text-red-400"
+                                  : "text-emerald-600 dark:text-emerald-400"
+                              }`}
+                            >
+                              {payment.type === "debit" ? "-" : "+"} RWF{" "}
+                              {Number(payment.amount).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
                       </div>
-                      <div className="text-right">
-                        <p
-                          className={`text-sm font-bold ${
-                            payment.type === "debit"
-                              ? "text-red-600 dark:text-red-400"
-                              : "text-emerald-600 dark:text-emerald-400"
-                          }`}
-                        >
-                          {payment.type === "debit" ? "-" : "+"} RWF{" "}
-                          {Number(payment.amount).toLocaleString()}
-                        </p>
-                      </div>
+                      {!isMobile && (
+                        <div className="text-right">
+                          <p
+                            className={`text-sm font-bold ${
+                              payment.type === "debit"
+                                ? "text-red-600 dark:text-red-400"
+                                : "text-emerald-600 dark:text-emerald-400"
+                            }`}
+                          >
+                            {payment.type === "debit" ? "-" : "+"} RWF{" "}
+                            {Number(payment.amount).toLocaleString()}
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
+                
+                {/* Mobile View All Button */}
+                {isMobile && payments.length > 3 && (
+                  <div className="pt-2">
+                    <a
+                      href="/wallet/transactions"
+                      className="block w-full text-center py-3 px-4 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-xl text-blue-600 dark:text-blue-400 font-medium hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-900/30 dark:hover:to-purple-900/30 transition-all duration-300"
+                    >
+                      View All Transactions ({payments.length})
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </div>
         </CardContent>
       </Card>
+      
+      {/* Mobile bottom padding for safe area */}
+      {isMobile && (
+        <div className="h-8" />
+      )}
     </div>
   );
 }
