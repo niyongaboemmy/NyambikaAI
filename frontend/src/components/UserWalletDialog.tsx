@@ -12,6 +12,31 @@ import { useUserWalletDialog } from "@/contexts/UserWalletDialogContext";
 import { X, ChevronDown } from "lucide-react";
 import UserWallet from "@/components/UserWallet";
 
+// Custom CSS for mobile full-screen override
+const mobileFullScreenStyle = `
+  .mobile-wallet-fullscreen {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    border-radius: 0 !important;
+    border: none !important;
+  }
+  
+  .mobile-wallet-fullscreen > div {
+    max-height: none !important;
+    height: 100% !important;
+  }
+`;
+
 export default function UserWalletDialog() {
   const { isOpen, close } = useUserWalletDialog();
   const [isMobile, setIsMobile] = useState(false);
@@ -27,16 +52,22 @@ export default function UserWalletDialog() {
   }, []);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => (!open ? close() : null)}>
-      <DialogContent
-        className={`${
-          isMobile
-            ? "fixed inset-0 w-screen h-screen max-w-none max-h-none m-0 p-0 border-0 bg-white dark:bg-gray-900 rounded-none"
-            : "max-w-4xl p-0 gap-0 border-0 bg-transparent shadow-none rounded-3xl overflow-hidden"
-        } transition-all duration-300`}
-        hideClose
-        title="Wallet"
-      >
+    <>
+      {/* Inject custom CSS for mobile full-screen */}
+      {isMobile && (
+        <style dangerouslySetInnerHTML={{ __html: mobileFullScreenStyle }} />
+      )}
+      
+      <Dialog open={isOpen} onOpenChange={(open) => (!open ? close() : null)}>
+        <DialogContent
+          className={`${
+            isMobile
+              ? "mobile-wallet-fullscreen bg-white dark:bg-gray-900 z-[100] overflow-hidden"
+              : "max-w-4xl p-0 gap-0 border-0 bg-transparent shadow-none rounded-3xl overflow-hidden"
+          } transition-all duration-300`}
+          hideClose
+          title="Wallet"
+        >
         <VisuallyHidden.Root>
           <DialogTitle>User Wallet</DialogTitle>
         </VisuallyHidden.Root>
@@ -85,12 +116,13 @@ export default function UserWalletDialog() {
         {/* Wallet content container */}
         <div className={`${
           isMobile
-            ? "flex-1 overflow-y-auto overscroll-contain"
+            ? "flex-1 overflow-y-auto overscroll-contain h-full w-full"
             : ""
-        }`}>
+        }`} style={isMobile ? { height: '100%', width: '100%' } : undefined}>
           <UserWallet isMobile={isMobile} />
         </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
