@@ -215,7 +215,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
           title: "✨ Top-up successful",
           description: `RWF ${amount} has been added to your wallet!`,
         });
-        setActivePayment({ refId: null, status: "completed", amount: 0 });
+        setActivePayment({ refId: null, status: "idle", amount: 0 });
       } else {
         // Set active payment for tracking
         if (refid) {
