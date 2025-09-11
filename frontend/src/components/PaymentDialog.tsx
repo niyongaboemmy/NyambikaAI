@@ -23,15 +23,23 @@ export interface PaymentDialogProps {
   defaultMethod?: PaymentMethodKind;
   onSuccess: (args: { method: PaymentMethodKind; reference: string | null; meta?: any }) => void;
   onError?: (error: any) => void;
+  // Optional: subscription metadata for backend auto-activation via callback
+  subscription?: {
+    planId: string;
+    billingCycle: "monthly" | "annual";
+    targetProducerUserId?: string;
+  };
 }
 
 export default function PaymentDialog(props: PaymentDialogProps) {
   const { toast } = useToast();
-  const { open, onOpenChange, amount, description, phone, defaultMethod = "momo", onSuccess, onError } = props;
+  const { open, onOpenChange, amount, description, phone, defaultMethod = "momo", onSuccess, onError, subscription } = props;
   const [active, setActive] = useState<PaymentMethodKind>(defaultMethod);
   const [submitting, setSubmitting] = useState(false);
   const [momoPhone, setMomoPhone] = useState<string>(phone || "");
   const [wallet, setWallet] = useState<{ balance: number } | null>(null);
+  const [awaiting, setAwaiting] = useState<{ refid: string | null } | null>(null);
+  const [polling, setPolling] = useState(false);
 
   useEffect(() => {
     setActive(defaultMethod);
@@ -73,6 +81,49 @@ export default function PaymentDialog(props: PaymentDialogProps) {
     }
   };
 
+  const mapGatewayError = (err: any): string => {
+    const msg = err?.response?.data?.message || err?.message || "Payment failed";
+    const ret = err?.response?.data?.gateway?.retcode ?? err?.response?.data?.retcode;
+    const code = String(ret || "");
+    switch (code) {
+      case "600":
+        return "Payment provider is temporarily unavailable. Please try again or contact support.";
+      case "607":
+        return "Mobile Money transaction failed. Please verify your number and balance.";
+      case "603":
+        return "Missing required details. Please try again.";
+      default:
+        return msg;
+    }
+  };
+
+  const startPollingStatus = async (refid: string) => {
+    setPolling(true);
+    const deadline = Date.now() + 90_000; // 90s
+    try {
+      while (Date.now() < deadline) {
+        try {
+          const resp = await apiClient.post("/api/payments/opay/checkstatus-public", { refid });
+          const gw = resp.data?.gateway || resp.data;
+          const sid = String(gw?.statusid || gw?.statusId || "");
+          if (sid === "01") {
+            toast({ title: "Payment approved", description: "Your payment was completed." });
+            break;
+          }
+          if (sid === "02") {
+            toast({ title: "Payment failed", description: "The transaction failed." , variant: "destructive"});
+            break;
+          }
+        } catch (_) {
+          // ignore transient
+        }
+        await new Promise((r) => setTimeout(r, 4000));
+      }
+    } finally {
+      setPolling(false);
+    }
+  };
+
   const payWithMomo = async () => {
     if (!momoPhone || momoPhone.replace(/\D/g, "").length < 9) {
       toast({ title: "Invalid phone", description: "Enter a valid phone number", variant: "destructive" });
@@ -85,6 +136,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
         phone: momoPhone,
         details: description || "payment",
         pmethod: "momo",
+        ...(subscription ? { subscriptionPlanId: subscription.planId, billingCycle: subscription.billingCycle, targetProducerUserId: subscription.targetProducerUserId } : {}),
       });
       const data = resp.data || {};
       const redirectUrl = data.redirectUrl as string | null;
@@ -94,11 +146,13 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       if (redirectUrl) {
         window.open(redirectUrl, "_blank", "noopener,noreferrer");
       }
+      // Show awaiting indicator while waiting for approval
+      setAwaiting({ refid: refid || null });
       onSuccess({ method: "momo", reference: refid, meta: data });
       toast({ title: "Payment initiated", description: redirectUrl ? "Complete payment in the opened page" : "Check your phone to approve the payment" });
-      handleClose();
+      if (refid) startPollingStatus(refid);
     } catch (error: any) {
-      const msg = error?.response?.data?.message || "Mobile money payment failed";
+      const msg = mapGatewayError(error);
       toast({ title: "Payment failed", description: msg, variant: "destructive" });
       onError?.(error);
     } finally {
@@ -118,6 +172,12 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 <div className="text-sm text-gray-600 dark:text-gray-300">Amount: <span className="font-semibold">{amount.toLocaleString()} RWF</span></div>
               </CardHeader>
               <CardContent>
+                {awaiting?.refid && (
+                  <div className="mb-3 rounded-md border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-900/30 p-3 text-blue-800 dark:text-blue-100 flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                    Waiting for payment approval...
+                  </div>
+                )}
                 <Tabs value={active} onValueChange={(v: any) => setActive(v)}>
                   <TabsList className="grid grid-cols-2 w-full mb-4">
                     <TabsTrigger value="momo" className="flex items-center gap-2 justify-center">
@@ -149,7 +209,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 </Tabs>
 
                 <div className="mt-4 text-center">
-                  <button onClick={handleClose} className="text-sm text-gray-500 hover:underline">Cancel</button>
+                  <button onClick={handleClose} className="text-sm text-gray-500 hover:underline" disabled={!!awaiting?.refid && polling}>Close</button>
                 </div>
               </CardContent>
             </Card>

@@ -158,6 +158,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           retailerid,
           bankid,
           currency = "RWF",
+          // Optional subscription metadata for auto-activation via callback
+          subscriptionPlanId,
+          billingCycle, // "monthly" | "annual"
+          // Agent flow: allow paying for a specific producer
+          targetProducerUserId,
         } = req.body || {};
 
         const parsedAmount = Number(amount);
@@ -201,6 +206,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const externalReference = `PAY-${Date.now()}-${Math.random()
           .toString(36)
           .slice(2, 8)}`;
+
+        // If this is a subscription payment, create a pending subscription now and link it to the reference
+        // It will be activated by the OPAY callback when payment is completed.
+        if (subscriptionPlanId && typeof subscriptionPlanId === "string") {
+          try {
+            const forUserId = targetProducerUserId || req.userId;
+            // Minimal pending row; endDate will be corrected on activation
+            const now = new Date();
+            const tempEnd = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +1 day placeholder
+            const vals: any = {
+              id: randomUUID(),
+              userId: forUserId,
+              planId: subscriptionPlanId,
+              agentId: targetProducerUserId ? req.userId : null,
+              status: "pending",
+              billingCycle: String(billingCycle || "monthly"),
+              startDate: now as any,
+              endDate: tempEnd as any,
+              amount: String(Math.max(1, Math.round(parsedAmount))),
+              paymentMethod: "mobile_money",
+              paymentReference: externalReference,
+              autoRenew: false,
+            };
+            if (isMySQL) {
+              await db.insert(subscriptions).values(vals).execute();
+            } else {
+              await db.insert(subscriptions).values(vals).returning();
+            }
+          } catch (e) {
+            console.warn("Failed to create pending subscription intent:", (e as any)?.message || e);
+          }
+        }
 
         if (isMock) {
           if (debug) console.log("[Esicia] MOCK generic payment: auto-success");
@@ -1320,6 +1357,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .update(userWallets)
             .set({ balance: newBalance, updatedAt: new Date() as any })
             .where(eq(userWallets.id, wallet.id));
+        }
+
+        // Also check for a pending subscription linked to this reference and activate it
+        try {
+          const [pendingSub] = await db
+            .select()
+            .from(subscriptions)
+            .where(eq(subscriptions.paymentReference, ref))
+            .limit(1);
+          if (pendingSub && (pendingSub.status || "").toLowerCase() === "pending") {
+            const now = new Date();
+            // Compute endDate from billingCycle
+            const cycle = String(pendingSub.billingCycle || "monthly");
+            const end = new Date(now);
+            if (cycle === "annual") {
+              end.setFullYear(end.getFullYear() + 1);
+            } else {
+              end.setMonth(end.getMonth() + 1);
+            }
+            if (isMySQL) {
+              await db
+                .update(subscriptions)
+                .set({
+                  status: "active",
+                  startDate: now as any,
+                  endDate: end as any,
+                  paymentMethod: "mobile_money",
+                })
+                .where(eq(subscriptions.id, pendingSub.id))
+                .execute();
+            } else {
+              await db
+                .update(subscriptions)
+                .set({
+                  status: "active",
+                  startDate: now as any,
+                  endDate: end as any,
+                  paymentMethod: "mobile_money",
+                })
+                .where(eq(subscriptions.id, pendingSub.id))
+                .returning();
+            }
+          }
+        } catch (e) {
+          console.error("Failed to activate pending subscription on callback:", e);
         }
       }
 

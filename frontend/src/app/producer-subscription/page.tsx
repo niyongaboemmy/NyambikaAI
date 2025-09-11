@@ -3,15 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import {
-  Check,
-  Crown,
-  Star,
-  Zap,
-  Shield,
-  CreditCard,
-  Smartphone,
-} from "lucide-react";
+import { Check, Crown, Star, Zap, Shield } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import {
   Card,
@@ -46,33 +38,7 @@ interface SubscriptionPlan {
   isActive: boolean;
 }
 
-interface PaymentMethod {
-  id: string;
-  name: string;
-  icon: React.ComponentType<any>;
-  description: string;
-}
-
-const paymentMethods: PaymentMethod[] = [
-  {
-    id: "mobile_money",
-    name: "MTN Mobile Money",
-    icon: Smartphone,
-    description: "Pay with MTN Mobile Money",
-  },
-  {
-    id: "airtel_money",
-    name: "Airtel Money",
-    icon: Smartphone,
-    description: "Pay with Airtel Money",
-  },
-  {
-    id: "bank_transfer",
-    name: "Bank Transfer",
-    icon: CreditCard,
-    description: "Pay via bank transfer",
-  },
-];
+// Payment methods UI removed; dialog handles method selection
 
 export default function ProducerSubscriptionPage() {
   const { user } = useAuth();
@@ -88,9 +54,7 @@ export default function ProducerSubscriptionPage() {
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
     "monthly"
   );
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
-    string | null
-  >(null);
+  // Removed external payment method selector; PaymentDialog handles it
   const [isProcessing, setIsProcessing] = useState(false);
   const [loading, setLoading] = useState(true);
   const [showPlans, setShowPlans] = useState<boolean>(false);
@@ -160,50 +124,58 @@ export default function ProducerSubscriptionPage() {
       return;
     }
     // open the payment dialog; map previous selection to default tab
-    if (selectedPaymentMethod) {
-      setDefaultMethod(selectedPaymentMethod === "mobile_money" ? "momo" : "wallet");
-    }
     setShowPayment(true);
   };
 
   const completeSubscription = async (pay: { method: PaymentMethodKind; reference: string | null }) => {
     setIsProcessing(true);
     try {
-      const paymentMethod = pay.method === "wallet" ? "wallet" : "mobile_money";
-      if (renewMode && subStatus?.subscriptionId) {
-        await apiClient.put(`/api/subscriptions/${subStatus.subscriptionId}/renew`, {
-          paymentMethod,
-          paymentReference: pay.reference,
-        });
-        toast({ title: "Subscription Renewed", description: "Your subscription has been renewed successfully!" });
-        await refetchSubscription();
-      } else {
-        if (subStatus?.subscriptionId) {
-          const isDifferentPlan = currentPlan && currentPlan.id !== selectedPlan;
-          if (isDifferentPlan || subStatus.status === "expired" || !subStatus.hasActiveSubscription) {
-            try {
-              await apiClient.put(`/api/subscriptions/${subStatus.subscriptionId}`, { status: "cancelled" });
-            } catch (e) {
-              console.warn("Could not cancel previous subscription before creating a new one", e);
+      const plan = plans.find((p) => p.id === selectedPlan);
+      const amountStr = billingCycle === "monthly" ? plan?.monthlyPrice : plan?.annualPrice;
+      if (pay.method === "wallet") {
+        // Wallet flow: activate immediately via existing APIs
+        if (renewMode && subStatus?.subscriptionId) {
+          await apiClient.put(`/api/subscriptions/${subStatus.subscriptionId}/renew`, {
+            paymentMethod: "wallet",
+            paymentReference: pay.reference,
+          });
+          toast({ title: "Subscription Renewed", description: "Your subscription has been renewed successfully!" });
+        } else {
+          if (subStatus?.subscriptionId) {
+            const isDifferentPlan = currentPlan && currentPlan.id !== selectedPlan;
+            if (isDifferentPlan || subStatus.status === "expired" || !subStatus.hasActiveSubscription) {
+              try {
+                await apiClient.put(`/api/subscriptions/${subStatus.subscriptionId}`, { status: "cancelled" });
+              } catch (e) {
+                console.warn("Could not cancel previous subscription before creating a new one", e);
+              }
             }
           }
+          await apiClient.post("/api/subscriptions", {
+            planId: selectedPlan,
+            billingCycle,
+            paymentMethod: "wallet",
+            paymentReference: pay.reference,
+            amount: amountStr,
+          });
+          toast({ title: "Subscription Created", description: "Your subscription has been created successfully!" });
         }
-        const plan = plans.find((p) => p.id === selectedPlan);
-        const amountStr = billingCycle === "monthly" ? plan?.monthlyPrice : plan?.annualPrice;
-        await apiClient.post("/api/subscriptions", {
-          planId: selectedPlan,
-          billingCycle,
-          paymentMethod,
-          paymentReference: pay.reference,
-          amount: amountStr,
-        });
-        toast({ title: "Subscription Created", description: "Your subscription has been created successfully!" });
         await refetchSubscription();
-      }
-      if (typeof window !== "undefined") {
-        window.location.replace("/producer-orders");
+        if (typeof window !== "undefined") {
+          window.location.replace("/producer-orders");
+        } else {
+          router.push("/producer-orders");
+        }
       } else {
-        router.push("/producer-orders");
+        // MoMo flow: backend auto-activates via callback; just redirect after short delay
+        toast({ title: "Payment in progress", description: "Your subscription will activate automatically after approval." });
+        setTimeout(() => {
+          if (typeof window !== "undefined") {
+            window.location.replace("/producer-orders");
+          } else {
+            router.push("/producer-orders");
+          }
+        }, 4000);
       }
     } catch (error: any) {
       console.error("Error completing subscription after payment:", error);
@@ -525,80 +497,7 @@ export default function ProducerSubscriptionPage() {
           </>
         )}
 
-        {/* Payment Methods */}
-        {selectedPlan && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto"
-          >
-            <h3 className="text-2xl font-bold text-center mb-3">
-              Select Payment Method
-            </h3>
-            <div className="grid gap-4 mb-8">
-              {paymentMethods.map((method) => (
-                <Card
-                  key={method.id}
-                  className={`cursor-pointer transition-all duration-300 ${
-                    selectedPaymentMethod === method.id
-                      ? "ring-2 ring-blue-500 shadow-lg"
-                      : "hover:shadow-md"
-                  }`}
-                  onClick={() => setSelectedPaymentMethod(method.id)}
-                >
-                  <CardContent className="flex items-center p-4">
-                    <method.icon className="h-8 w-8 text-blue-600 dark:text-blue-400 mr-4" />
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{method.name}</h4>
-                      <p className="text-sm text-gray-500 dark:text-gray-400">
-                        {method.description}
-                      </p>
-                    </div>
-                    {selectedPaymentMethod === method.id && (
-                      <Check className="h-5 w-5 text-green-500" />
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            {/* Spacer to avoid content hidden behind the fixed action bar */}
-            <div className="h-24" />
-
-            {/* Floating Subscribe/Renew Action Bar */}
-            <div className="fixed inset-x-0 bottom-0 z-50">
-              <div className="mx-auto w-full max-w-2xl px-4">
-                <div className="rounded-t-2xl border-t border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/80 backdrop-blur supports-[backdrop-filter]:bg-white/60 shadow-lg">
-                  <div
-                    className="p-3"
-                    style={{
-                      paddingBottom:
-                        "max(env(safe-area-inset-bottom), 0.75rem)",
-                    }}
-                  >
-                    <Button
-                      onClick={handleSubscribe}
-                      disabled={isProcessing || (!renewMode && !selectedPlan)}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-6 text-base md:text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isProcessing ? (
-                        <div className="flex items-center justify-center">
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Processing...
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-center">
-                          <Shield className="h-5 w-5 mr-2" />
-                          {renewMode ? "Renew Now" : "Subscribe Now"}
-                        </div>
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {/* Payment method selection and floating button removed. The dialog opens directly on plan pick or renew. */}
 
         {/* Payment Dialog */}
         <PaymentDialog
@@ -614,6 +513,7 @@ export default function ProducerSubscriptionPage() {
             return plan ? `Subscription ${plan.name} (${billingCycle})` : "Subscription";
           })()}
           defaultMethod={defaultMethod}
+          subscription={selectedPlan ? { planId: selectedPlan, billingCycle } : undefined}
           onSuccess={({ method, reference }) => completeSubscription({ method, reference })}
           onError={(err) => console.error("Payment error", err)}
         />
