@@ -672,7 +672,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                         {quickAmount / 1000}K
                       </span>
                       <span className="relative text-xs text-gray-500 dark:text-gray-400">
-                        RWF {quickAmount.toLocaleString()}
+                        {quickAmount.toLocaleString()}
                       </span>
                     </>
                   ) : (
