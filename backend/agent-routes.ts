@@ -10,7 +10,16 @@ import {
   products,
   User,
 } from "./shared/schema.dialect";
-import { eq, and, desc, count, sum, sql } from "drizzle-orm";
+import {
+  eq,
+  and,
+  desc,
+  count,
+  sum,
+  sql,
+  isNotNull,
+  countDistinct,
+} from "drizzle-orm";
 
 // Get Agent Dashboard Stats
 export async function getAgentStats(req: Request, res: Response) {
@@ -20,15 +29,15 @@ export async function getAgentStats(req: Request, res: Response) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    // Get total producers managed by this agent
+    // Get total producers managed by this agent (distinct count)
     const totalProducers = await db
-      .select({ count: count() })
+      .select({ count: countDistinct(subscriptions.userId) })
       .from(subscriptions)
       .where(eq(subscriptions.agentId, agentId));
 
     // Get active subscriptions
     const activeSubscriptions = await db
-      .select({ count: count() })
+      .select({ count: countDistinct(subscriptions.id) })
       .from(subscriptions)
       .where(
         and(
@@ -39,7 +48,7 @@ export async function getAgentStats(req: Request, res: Response) {
 
     // Get expired subscriptions
     const expiredSubscriptions = await db
-      .select({ count: count() })
+      .select({ count: countDistinct(subscriptions.id) })
       .from(subscriptions)
       .where(
         and(
@@ -208,6 +217,26 @@ export async function getAgentProducers(req: Request, res: Response) {
       return res.status(401).json({ message: "Unauthorized" });
     }
 
+    // First, get the latest subscription for each producer
+    interface LatestSubscription {
+      userId: string;
+      latestSubscription: Date;
+    }
+
+    const latestSubscriptions = (await db
+      .select({
+        userId: subscriptions.userId,
+        latestSubscription: sql<Date>`MAX(${subscriptions.createdAt})`.as(
+          "latest_subscription"
+        ),
+      })
+      .from(subscriptions)
+      .where(
+        and(eq(subscriptions.agentId, agentId), isNotNull(subscriptions.userId))
+      )
+      .groupBy(subscriptions.userId)) as unknown as LatestSubscription[];
+
+    // Then get the full producer details using the latest subscription
     const producers = await db
       .select({
         id: users.id,
@@ -239,14 +268,24 @@ export async function getAgentProducers(req: Request, res: Response) {
       })
       .from(users)
       .innerJoin(companies, eq(users.id, companies.producerId))
-      .leftJoin(subscriptions, eq(users.id, subscriptions.userId))
+      .innerJoin(
+        subscriptions,
+        and(
+          eq(users.id, subscriptions.userId),
+          eq(subscriptions.agentId, agentId),
+          sql`(${users.id}, ${subscriptions.createdAt}) IN (${sql.join(
+            latestSubscriptions.map(
+              (ls) => sql`(${ls.userId}, ${ls.latestSubscription})`
+            ),
+            sql`, `
+          )})`
+        )
+      )
       .leftJoin(
         subscriptionPlans,
         eq(subscriptions.planId, subscriptionPlans.id)
       )
-      .where(
-        and(eq(users.role, "producer"), eq(subscriptions.agentId, agentId))
-      )
+      .where(eq(users.role, "producer"))
       .orderBy(desc(subscriptions.createdAt));
 
     // Get product counts and commission data for each producer
@@ -390,20 +429,18 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
     } else {
       // Create new subscription
       const id = randomUUID();
-      await db
-        .insert(subscriptions)
-        .values({
-          id,
-          userId: producerId,
-          planId,
-          agentId,
-          status: "active",
-          billingCycle,
-          startDate,
-          endDate,
-          amount, // string
-          paymentMethod: paymentMethod ?? null,
-        });
+      await db.insert(subscriptions).values({
+        id,
+        userId: producerId,
+        planId,
+        agentId,
+        status: "active",
+        billingCycle,
+        startDate,
+        endDate,
+        amount, // string
+        paymentMethod: paymentMethod ?? null,
+      });
       subscriptionId = id;
     }
 
@@ -477,12 +514,10 @@ export async function assignAgentToProducer(req: Request, res: Response) {
         !billingCycle ||
         (billingCycle !== "monthly" && billingCycle !== "annual")
       ) {
-        return res
-          .status(400)
-          .json({
-            message:
-              "billingCycle must be 'monthly' or 'annual' when planId is provided",
-          });
+        return res.status(400).json({
+          message:
+            "billingCycle must be 'monthly' or 'annual' when planId is provided",
+        });
       }
     }
 
