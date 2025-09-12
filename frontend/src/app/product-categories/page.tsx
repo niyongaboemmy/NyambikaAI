@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Edit3, Trash2, ArrowLeft, Image } from "lucide-react";
+import {
+  Plus,
+  Edit3,
+  Trash2,
+  ArrowLeft,
+  Image as ImageIcon,
+  Search,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import {
   Card,
@@ -23,6 +31,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { useRouter } from "next/navigation";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
+import { PexelsImageModal } from "@/components/PexelsImageModal";
+import { cn } from "@/lib/utils";
 
 interface Category {
   id: string;
@@ -49,6 +59,7 @@ export default function AdminCategories() {
     description: "",
     imageUrl: "",
   });
+  const [isPexelsModalOpen, setIsPexelsModalOpen] = useState(false);
 
   // List categories
   const { data: categories = [], isLoading } = useQuery<Category[]>({
@@ -177,6 +188,10 @@ export default function AdminCategories() {
     setForm((p) => ({ ...p, [name]: value }));
   };
 
+  const handleImageSelect = (imageUrl: string) => {
+    setForm((prev) => ({ ...prev, imageUrl }));
+  };
+
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.nameRw) {
@@ -247,7 +262,7 @@ export default function AdminCategories() {
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <Image className="h-6 w-6 text-muted-foreground" />
+                          <ImageIcon className="h-6 w-6 text-muted-foreground" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -333,23 +348,52 @@ export default function AdminCategories() {
                   rows={3}
                   className="glassmorphism border-0 bg-gray-100 dark:bg-gray-800"
                 />
-                <FormInput
-                  id="imageUrl"
-                  name="imageUrl"
-                  label="Image URL"
-                  value={form.imageUrl}
-                  onChange={onChange}
-                  className="glassmorphism border-0 bg-gray-100 dark:bg-gray-800"
-                />
-                {form.imageUrl && (
-                  <div className="border rounded-lg p-3 glassmorphism">
-                    <img
-                      src={form.imageUrl}
-                      alt="preview"
-                      className="h-28 w-28 object-cover rounded"
+                <div className="space-y-2">
+                  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    Image
+                  </label>
+                  <div className="flex gap-2">
+                    <FormInput
+                      name="imageUrl"
+                      value={form.imageUrl}
+                      onChange={onChange}
+                      placeholder="Image URL or search Pexels"
+                      className="flex-1"
                     />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => setIsPexelsModalOpen(true)}
+                      title="Search Pexels for images"
+                    >
+                      <Search className="h-4 w-4" />
+                    </Button>
                   </div>
-                )}
+                  {form.imageUrl && (
+                    <div className="mt-2 relative rounded-md overflow-hidden border">
+                      <img
+                        src={form.imageUrl}
+                        alt="Preview"
+                        className="w-full h-32 object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.style.display = "none";
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setForm((prev) => ({ ...prev, imageUrl: "" }))
+                        }
+                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        title="Remove image"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
+                </div>
                 <div className="flex justify-end gap-2 pt-4">
                   <Button
                     type="button"
@@ -374,6 +418,14 @@ export default function AdminCategories() {
               </form>
             </DialogContent>
           </Dialog>
+
+          <PexelsImageModal
+            isOpen={isPexelsModalOpen}
+            onClose={() => setIsPexelsModalOpen(false)}
+            onSelect={handleImageSelect}
+            aspectRatio="portrait"
+            searchValue={form.name || ""}
+          />
         </div>
       </main>
     </div>
