@@ -3,25 +3,35 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/custom-ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/custom-ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/custom-ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/custom-ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/custom-ui/tabs";
 import { Input } from "@/components/custom-ui/input";
 import { Label } from "@/components/custom-ui/label";
 import apiClient from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  Wallet, 
-  Smartphone, 
-  AlertCircle, 
-  CheckCircle, 
-  Zap, 
-  CreditCard, 
+import {
+  Wallet,
+  Smartphone,
+  AlertCircle,
+  CheckCircle,
+  Zap,
+  CreditCard,
   ExternalLink,
   Copy,
   RefreshCw,
   Sparkles,
   Brain,
-  X
+  X,
 } from "lucide-react";
 import { useUserWalletDialog } from "@/contexts/UserWalletDialogContext";
 
@@ -36,7 +46,11 @@ export interface PaymentDialogProps {
   // Optional prefilled phone
   phone?: string;
   defaultMethod?: PaymentMethodKind;
-  onSuccess: (args: { method: PaymentMethodKind; reference: string | null; meta?: any }) => void;
+  onSuccess: (args: {
+    method: PaymentMethodKind;
+    reference: string | null;
+    meta?: any;
+  }) => void;
   onError?: (error: any) => void;
   // Optional: subscription metadata for backend auto-activation via callback
   subscription?: {
@@ -49,12 +63,26 @@ export interface PaymentDialogProps {
 export default function PaymentDialog(props: PaymentDialogProps) {
   const { toast } = useToast();
   const { open: openWalletDialog } = useUserWalletDialog();
-  const { open, onOpenChange, amount, title, description, phone, defaultMethod = "momo", onSuccess, onError, subscription } = props;
+  const {
+    open,
+    onOpenChange,
+    amount,
+    title,
+    description,
+    phone,
+    defaultMethod = "momo",
+    onSuccess,
+    onError,
+    subscription,
+  } = props;
   const [active, setActive] = useState<PaymentMethodKind>(defaultMethod);
   const [submitting, setSubmitting] = useState(false);
   const [momoPhone, setMomoPhone] = useState<string>(phone || "");
   const [wallet, setWallet] = useState<{ balance: number } | null>(null);
-  const [awaiting, setAwaiting] = useState<{ refid: string | null; kind: "momo" | "topup" } | null>(null);
+  const [awaiting, setAwaiting] = useState<{
+    refid: string | null;
+    kind: "momo" | "topup";
+  } | null>(null);
   const [polling, setPolling] = useState(false);
   const [errors, setErrors] = useState<{
     momo?: string;
@@ -62,7 +90,11 @@ export default function PaymentDialog(props: PaymentDialogProps) {
     general?: string;
     details?: any;
   }>({});
-  const [walletInsufficient, setWalletInsufficient] = useState<{ required: number; balance: number; shortfall: number } | null>(null);
+  const [walletInsufficient, setWalletInsufficient] = useState<{
+    required: number;
+    balance: number;
+    shortfall: number;
+  } | null>(null);
 
   useEffect(() => {
     setActive(defaultMethod);
@@ -80,8 +112,11 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       .catch(() => setWallet(null));
   }, [open]);
 
-  const disabled = useMemo(() => submitting || amount <= 0, [submitting, amount]);
-  
+  const disabled = useMemo(
+    () => submitting || amount <= 0,
+    [submitting, amount]
+  );
+
   // Check if wallet payment should be disabled due to insufficient balance
   const walletDisabled = useMemo(() => {
     if (!wallet) return true;
@@ -93,29 +128,52 @@ export default function PaymentDialog(props: PaymentDialogProps) {
   const payWithWallet = async () => {
     try {
       setSubmitting(true);
-      setErrors(prev => ({ ...prev, wallet: undefined }));
+      setErrors((prev) => ({ ...prev, wallet: undefined }));
       setWalletInsufficient(null);
       const resp = await apiClient.post("/api/payments/wallet/charge", {
         amount,
         description: description || "Wallet charge",
         metadata: { kind: "generic" },
       });
-      onSuccess({ method: "wallet", reference: resp.data?.payment?.externalReference || null, meta: resp.data });
-      toast({ title: "Payment successful", description: `Paid ${amount.toLocaleString()} RWF from wallet` });
+      onSuccess({
+        method: "wallet",
+        reference: resp.data?.payment?.externalReference || null,
+        meta: resp.data,
+      });
+      toast({
+        title: "Payment successful",
+        description: `Paid ${amount.toLocaleString()} RWF from wallet`,
+      });
       handleClose();
     } catch (error: any) {
       const status = error?.response?.status;
       const data = error?.response?.data || {};
       const msg = data?.message || error?.message || "Wallet payment failed";
-      if (status === 402 && data?.message && /insufficient/i.test(data.message)) {
+      if (
+        status === 402 &&
+        data?.message &&
+        /insufficient/i.test(data.message)
+      ) {
         const required = Number(data.required || amount) || amount;
         const balance = Number(data.balance || (wallet?.balance ?? 0)) || 0;
         const shortfall = Math.max(0, required - balance);
         setWalletInsufficient({ required, balance, shortfall });
-        toast({ title: "Insufficient balance", description: `You need ${shortfall.toLocaleString()} RWF more to complete this payment.`, variant: "destructive" });
+        toast({
+          title: "Insufficient balance",
+          description: `You need ${shortfall.toLocaleString()} RWF more to complete this payment.`,
+          variant: "destructive",
+        });
       } else {
-        setErrors(prev => ({ ...prev, wallet: msg, details: error?.response?.data }));
-        toast({ title: "Payment failed", description: msg, variant: "destructive" });
+        setErrors((prev) => ({
+          ...prev,
+          wallet: msg,
+          details: error?.response?.data,
+        }));
+        toast({
+          title: "Payment failed",
+          description: msg,
+          variant: "destructive",
+        });
       }
       onError?.(error);
     } finally {
@@ -129,10 +187,13 @@ export default function PaymentDialog(props: PaymentDialogProps) {
     const msg = data?.message || err?.message || "Payment failed";
     const ret = data?.gateway?.retcode ?? data?.retcode;
     const code = String(ret || "");
-    
+
     // Handle specific HTTP status codes
     if (status === 400) {
-      return data?.message || "Invalid payment request. Please check your details and try again.";
+      return (
+        data?.message ||
+        "Invalid payment request. Please check your details and try again."
+      );
     }
     if (status === 401) {
       return "Authentication required. Please sign in and try again.";
@@ -146,7 +207,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
     if (status === 500) {
       return "Payment service temporarily unavailable. Please try again later.";
     }
-    
+
     // Handle gateway-specific error codes
     switch (code) {
       case "600":
@@ -167,7 +228,12 @@ export default function PaymentDialog(props: PaymentDialogProps) {
   const refreshWallet = async () => {
     try {
       const w = await apiClient.get("/api/wallet");
-      const bal = Number(w?.data?.balance || w?.data?.wallet?.balance || w?.data?.wallet?.wallet?.balance || 0);
+      const bal = Number(
+        w?.data?.balance ||
+          w?.data?.wallet?.balance ||
+          w?.data?.wallet?.wallet?.balance ||
+          0
+      );
       setWallet({ balance: bal });
     } catch (_) {}
   };
@@ -181,11 +247,17 @@ export default function PaymentDialog(props: PaymentDialogProps) {
     try {
       while (Date.now() < deadline) {
         try {
-          const resp = await apiClient.post("/api/payments/opay/checkstatus-public", { refid });
+          const resp = await apiClient.post(
+            "/api/payments/opay/checkstatus-public",
+            { refid }
+          );
           const gw = resp.data?.gateway || resp.data;
           const sid = String(gw?.statusid || gw?.statusId || "");
           if (sid === "01") {
-            toast({ title: "Payment approved", description: "Your payment was completed." });
+            toast({
+              title: "Payment approved",
+              description: "Your payment was completed.",
+            });
             if (opts?.kind === "topup") {
               // Refresh wallet then run any callback
               await refreshWallet();
@@ -198,7 +270,11 @@ export default function PaymentDialog(props: PaymentDialogProps) {
             break;
           }
           if (sid === "02") {
-            toast({ title: "Payment failed", description: "The transaction failed." , variant: "destructive"});
+            toast({
+              title: "Payment failed",
+              description: "The transaction failed.",
+              variant: "destructive",
+            });
             break;
           }
         } catch (_) {
@@ -213,18 +289,28 @@ export default function PaymentDialog(props: PaymentDialogProps) {
 
   const payWithMomo = async () => {
     if (!momoPhone || momoPhone.replace(/\D/g, "").length < 9) {
-      toast({ title: "Invalid phone", description: "Enter a valid phone number", variant: "destructive" });
+      toast({
+        title: "Invalid phone",
+        description: "Enter a valid phone number",
+        variant: "destructive",
+      });
       return;
     }
     try {
       setSubmitting(true);
-      setErrors(prev => ({ ...prev, momo: undefined }));
+      setErrors((prev) => ({ ...prev, momo: undefined }));
       const resp = await apiClient.post("/api/payments/opay/pay", {
         amount,
         phone: momoPhone,
         details: description || "payment",
         pmethod: "momo",
-        ...(subscription ? { subscriptionPlanId: subscription.planId, billingCycle: subscription.billingCycle, targetProducerUserId: subscription.targetProducerUserId } : {}),
+        ...(subscription
+          ? {
+              subscriptionPlanId: subscription.planId,
+              billingCycle: subscription.billingCycle,
+              targetProducerUserId: subscription.targetProducerUserId,
+            }
+          : {}),
       });
       const data = resp.data || {};
       const redirectUrl = data.redirectUrl as string | null;
@@ -237,24 +323,36 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       // Show awaiting indicator while waiting for approval
       setAwaiting({ refid: refid || null, kind: "momo" });
       // Do not call onSuccess yet; will be triggered on approval via polling
-      toast({ title: "Payment initiated", description: redirectUrl ? "Complete payment in the opened page" : "Check your phone to approve the payment" });
-      toast({ title: "We’ll notify you", description: "This dialog will update once the payment is approved." });
+      toast({
+        title: "Payment initiated",
+        description: redirectUrl
+          ? "Complete payment in the opened page"
+          : "Check your phone to approve the payment",
+      });
+      toast({
+        title: "We’ll notify you",
+        description: "This dialog will update once the payment is approved.",
+      });
       if (refid) startPollingStatus(refid, { kind: "momo" });
     } catch (error: any) {
       console.error("PayWithMomo Error:", error);
       const msg = mapGatewayError(error);
-      toast({ title: "Payment failed", description: msg, variant: "destructive" });
+      toast({
+        title: "Payment failed",
+        description: msg,
+        variant: "destructive",
+      });
       onError?.(error);
-      setErrors(prev => ({ 
-        ...prev, 
-        momo: msg, 
+      setErrors((prev) => ({
+        ...prev,
+        momo: msg,
         details: {
           status: error?.response?.status,
           statusText: error?.response?.statusText,
           data: error?.response?.data,
           message: error?.message,
-          code: error?.code
-        }
+          code: error?.code,
+        },
       }));
     } finally {
       setSubmitting(false);
@@ -263,7 +361,11 @@ export default function PaymentDialog(props: PaymentDialogProps) {
 
   const initiateWalletTopup = async (topupAmount: number) => {
     if (!momoPhone || momoPhone.replace(/\D/g, "").length < 9) {
-      toast({ title: "Phone needed", description: "Enter a valid phone to top up via MoMo", variant: "destructive" });
+      toast({
+        title: "Phone needed",
+        description: "Enter a valid phone to top up via MoMo",
+        variant: "destructive",
+      });
       return;
     }
     try {
@@ -277,14 +379,23 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       const data = resp.data || {};
       const redirectUrl = data.redirectUrl as string | null;
       const refid = data.refid as string | null;
-      if (redirectUrl) window.open(redirectUrl, "_blank", "noopener,noreferrer");
+      if (redirectUrl)
+        window.open(redirectUrl, "_blank", "noopener,noreferrer");
       setAwaiting({ refid: refid || null, kind: "topup" });
-      toast({ title: "Top-up initiated", description: redirectUrl ? "Complete top-up in the opened page" : "Approve top-up on your phone" });
+      toast({
+        title: "Top-up initiated",
+        description: redirectUrl
+          ? "Complete top-up in the opened page"
+          : "Approve top-up on your phone",
+      });
       if (refid)
         await startPollingStatus(refid, {
           kind: "topup",
           onApproved: async () => {
-            toast({ title: "Top-up completed", description: "Retrying wallet payment now..." });
+            toast({
+              title: "Top-up completed",
+              description: "Retrying wallet payment now...",
+            });
             setWalletInsufficient(null);
             await payWithWallet();
           },
@@ -292,18 +403,22 @@ export default function PaymentDialog(props: PaymentDialogProps) {
     } catch (error: any) {
       console.error("WalletTopup Error:", error);
       const msg = mapGatewayError(error);
-      toast({ title: "Top-up failed", description: msg, variant: "destructive" });
+      toast({
+        title: "Top-up failed",
+        description: msg,
+        variant: "destructive",
+      });
       onError?.(error);
-      setErrors(prev => ({ 
-        ...prev, 
-        wallet: msg, 
+      setErrors((prev) => ({
+        ...prev,
+        wallet: msg,
         details: {
           status: error?.response?.status,
           statusText: error?.response?.statusText,
           data: error?.response?.data,
           message: error?.message,
-          code: error?.code
-        }
+          code: error?.code,
+        },
       }));
     } finally {
       setSubmitting(false);
@@ -321,14 +436,21 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       <motion.rect
-        x="2" y="4" width="20" height="16" rx="3"
+        x="2"
+        y="4"
+        width="20"
+        height="16"
+        rx="3"
         fill="url(#cardGradient)"
         initial={{ pathLength: 0 }}
         animate={{ pathLength: 1 }}
         transition={{ duration: 1, ease: "easeInOut" }}
       />
       <motion.rect
-        x="2" y="8" width="20" height="3"
+        x="2"
+        y="8"
+        width="20"
+        height="3"
         fill="rgba(255,255,255,0.3)"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -353,21 +475,31 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       transition={{ duration: 0.5, ease: "backOut" }}
     >
       <motion.rect
-        x="5" y="2" width="14" height="20" rx="2"
+        x="5"
+        y="2"
+        width="14"
+        height="20"
+        rx="2"
         fill="url(#phoneGradient)"
         initial={{ scale: 0.8 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.4, delay: 0.2 }}
       />
       <motion.circle
-        cx="12" cy="18" r="1.5"
+        cx="12"
+        cy="18"
+        r="1.5"
         fill="white"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.3, delay: 0.6 }}
       />
       <motion.rect
-        x="7" y="6" width="10" height="8" rx="1"
+        x="7"
+        y="6"
+        width="10"
+        height="8"
+        rx="1"
         fill="rgba(255,255,255,0.9)"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -410,14 +542,18 @@ export default function PaymentDialog(props: PaymentDialogProps) {
         transition={{ duration: 1.2, ease: "easeInOut" }}
       />
       <motion.circle
-        cx="17" cy="13" r="2"
+        cx="17"
+        cy="13"
+        r="2"
         fill="white"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.4, delay: 0.8 }}
       />
       <motion.circle
-        cx="17" cy="13" r="0.5"
+        cx="17"
+        cy="13"
+        r="0.5"
         fill="url(#walletGradient)"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
@@ -441,7 +577,9 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
     >
       <motion.circle
-        cx="12" cy="12" r="10"
+        cx="12"
+        cy="12"
+        r="10"
         stroke="url(#processingGradient)"
         strokeWidth="2"
         fill="none"
@@ -461,7 +599,13 @@ export default function PaymentDialog(props: PaymentDialogProps) {
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
       />
       <defs>
-        <linearGradient id="processingGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+        <linearGradient
+          id="processingGradient"
+          x1="0%"
+          y1="0%"
+          x2="100%"
+          y2="100%"
+        >
           <stop offset="0%" stopColor="#3B82F6" />
           <stop offset="50%" stopColor="#8B5CF6" />
           <stop offset="100%" stopColor="#EC4899" />
@@ -485,16 +629,16 @@ export default function PaymentDialog(props: PaymentDialogProps) {
             key={i}
             className="w-1.5 h-1.5 rounded-full"
             style={{
-              background: "linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899)"
+              background: "linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899)",
             }}
-            animate={{ 
+            animate={{
               scale: [1, 1.5, 1],
-              opacity: [0.5, 1, 0.5]
+              opacity: [0.5, 1, 0.5],
             }}
-            transition={{ 
-              duration: 1.5, 
-              repeat: Infinity, 
-              delay: i * 0.2 
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              delay: i * 0.2,
             }}
           />
         ))}
@@ -511,22 +655,29 @@ export default function PaymentDialog(props: PaymentDialogProps) {
           className="absolute w-2 h-2 rounded-full opacity-20"
           style={{
             background: `linear-gradient(45deg, ${
-              ['#3B82F6', '#8B5CF6', '#EC4899', '#10B981', '#F59E0B', '#EF4444'][i]
+              [
+                "#3B82F6",
+                "#8B5CF6",
+                "#EC4899",
+                "#10B981",
+                "#F59E0B",
+                "#EF4444",
+              ][i]
             }, transparent)`,
             left: `${10 + i * 15}%`,
-            top: `${20 + i * 10}%`
+            top: `${20 + i * 10}%`,
           }}
           animate={{
             x: [0, 100, 0],
             y: [0, -100, 0],
             scale: [1, 1.5, 1],
-            opacity: [0.2, 0.6, 0.2]
+            opacity: [0.2, 0.6, 0.2],
           }}
           transition={{
             duration: 4 + i,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: i * 0.5
+            delay: i * 0.5,
           }}
         />
       ))}
@@ -536,24 +687,24 @@ export default function PaymentDialog(props: PaymentDialogProps) {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div 
-          className="fixed inset-0 z-50 flex items-center justify-center p-4" 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
+        <motion.div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           {/* Enhanced backdrop with AI-inspired gradient */}
-          <motion.div 
-            className="absolute inset-0 bg-gradient-to-br from-black/60 via-purple-900/20 to-blue-900/20 backdrop-blur-sm" 
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-br from-black/60 via-purple-900/20 to-blue-900/20 backdrop-blur-sm"
             onClick={handleClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           />
-          
-          <motion.div 
-            initial={{ y: 50, opacity: 0, scale: 0.9 }} 
-            animate={{ y: 0, opacity: 1, scale: 1 }} 
+
+          <motion.div
+            initial={{ y: 50, opacity: 0, scale: 0.9 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: 50, opacity: 0, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="relative w-full max-w-lg"
@@ -562,18 +713,18 @@ export default function PaymentDialog(props: PaymentDialogProps) {
             <FloatingParticles />
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-cyan-500/30 blur-2xl animate-pulse" />
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-pink-500/20 via-emerald-500/10 to-blue-500/20 blur-xl" />
-            <motion.div 
+            <motion.div
               className="absolute inset-0 rounded-3xl bg-gradient-to-br from-yellow-400/10 via-transparent to-purple-600/10"
-              animate={{ 
+              animate={{
                 background: [
                   "linear-gradient(45deg, rgba(251, 191, 36, 0.1), transparent, rgba(147, 51, 234, 0.1))",
                   "linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent, rgba(236, 72, 153, 0.1))",
-                  "linear-gradient(225deg, rgba(16, 185, 129, 0.1), transparent, rgba(139, 92, 246, 0.1))"
-                ]
+                  "linear-gradient(225deg, rgba(16, 185, 129, 0.1), transparent, rgba(139, 92, 246, 0.1))",
+                ],
               }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             />
-            
+
             <Card className="relative overflow-hidden shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-gray-700/20">
               {/* Close button */}
               <button
@@ -586,15 +737,19 @@ export default function PaymentDialog(props: PaymentDialogProps) {
 
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
-                  <motion.div 
+                  <motion.div
                     className="p-3 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg"
-                    animate={{ 
+                    animate={{
                       rotate: [0, 360],
-                      scale: [1, 1.05, 1]
+                      scale: [1, 1.05, 1],
                     }}
-                    transition={{ 
+                    transition={{
                       rotate: { duration: 8, repeat: Infinity, ease: "linear" },
-                      scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                      scale: {
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      },
                     }}
                   >
                     <CreditCardSVG className="h-6 w-6 text-white" />
@@ -613,20 +768,22 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                     </div>
                   </div>
                 </div>
-                
+
                 {/* Amount display with AI styling */}
-                <motion.div 
+                <motion.div
                   className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50"
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2 }}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">Amount</span>
+                    <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+                      Amount
+                    </span>
                     <div className="flex items-center gap-2">
                       <Sparkles className="h-4 w-4 text-yellow-500" />
                       <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        {amount.toLocaleString()} RWF
+                        {Number(amount).toLocaleString()} RWF
                       </span>
                     </div>
                   </div>
@@ -637,11 +794,11 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                   )}
                 </motion.div>
               </CardHeader>
-              
+
               <CardContent className="space-y-6">
                 {/* Payment Status - Awaiting */}
                 {awaiting?.refid && (
-                  <motion.div 
+                  <motion.div
                     className="p-4 rounded-2xl border border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -654,7 +811,9 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-600 dark:text-gray-300">Reference ID:</span>
+                        <span className="text-gray-600 dark:text-gray-300">
+                          Reference ID:
+                        </span>
                         <code className="px-2 py-1 bg-gray-100 dark:bg-gray-800 rounded text-xs">
                           {awaiting.refid}
                         </code>
@@ -665,10 +824,19 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                           variant="outline"
                           onClick={async () => {
                             try {
-                              await navigator.clipboard.writeText(awaiting.refid || "");
-                              toast({ title: "Copied!", description: "Reference ID copied to clipboard" });
+                              await navigator.clipboard.writeText(
+                                awaiting.refid || ""
+                              );
+                              toast({
+                                title: "Copied!",
+                                description: "Reference ID copied to clipboard",
+                              });
                             } catch (e) {
-                              toast({ title: "Copy failed", description: "Could not copy reference", variant: "destructive" });
+                              toast({
+                                title: "Copy failed",
+                                description: "Could not copy reference",
+                                variant: "destructive",
+                              });
                             }
                           }}
                           className="flex-1"
@@ -682,7 +850,11 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                           asChild
                           className="flex-1"
                         >
-                          <a href="https://nyambika.com/support/payments" target="_blank" rel="noopener noreferrer">
+                          <a
+                            href="https://nyambika.com/support/payments"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
                             <ExternalLink className="h-3 w-3 mr-1" />
                             Help
                           </a>
@@ -693,50 +865,51 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 )}
 
                 {/* Error Display - Enhanced */}
-                {(errors.momo || errors.wallet || errors.general) && !awaiting?.refid && (
-                  <motion.div 
-                    className="p-4 rounded-2xl border border-red-200 dark:border-red-700 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1 space-y-2">
-                        <div className="font-medium text-red-800 dark:text-red-200">
-                          Payment Error
+                {(errors.momo || errors.wallet || errors.general) &&
+                  !awaiting?.refid && (
+                    <motion.div
+                      className="p-4 rounded-2xl border border-red-200 dark:border-red-700 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="h-5 w-5 text-red-500 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 space-y-2">
+                          <div className="font-medium text-red-800 dark:text-red-200">
+                            Payment Error
+                          </div>
+                          <div className="text-sm text-red-700 dark:text-red-300">
+                            {errors.momo || errors.wallet || errors.general}
+                          </div>
+                          {errors.details && (
+                            <details className="text-xs">
+                              <summary className="cursor-pointer text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200">
+                                Technical Details
+                              </summary>
+                              <pre className="mt-2 p-2 bg-red-100 dark:bg-red-900/50 rounded text-red-800 dark:text-red-200 overflow-auto">
+                                {JSON.stringify(errors.details, null, 2)}
+                              </pre>
+                            </details>
+                          )}
+                          {active === "momo" && errors.momo && (
+                            <Button
+                              onClick={payWithMomo}
+                              disabled={submitting}
+                              size="sm"
+                              className="w-full mt-3 bg-red-600 hover:bg-red-700"
+                            >
+                              <RefreshCw className="h-3 w-3 mr-1" />
+                              {submitting ? "Retrying..." : "Retry Payment"}
+                            </Button>
+                          )}
                         </div>
-                        <div className="text-sm text-red-700 dark:text-red-300">
-                          {errors.momo || errors.wallet || errors.general}
-                        </div>
-                        {errors.details && (
-                          <details className="text-xs">
-                            <summary className="cursor-pointer text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200">
-                              Technical Details
-                            </summary>
-                            <pre className="mt-2 p-2 bg-red-100 dark:bg-red-900/50 rounded text-red-800 dark:text-red-200 overflow-auto">
-                              {JSON.stringify(errors.details, null, 2)}
-                            </pre>
-                          </details>
-                        )}
-                        {active === "momo" && errors.momo && (
-                          <Button 
-                            onClick={payWithMomo} 
-                            disabled={submitting} 
-                            size="sm"
-                            className="w-full mt-3 bg-red-600 hover:bg-red-700"
-                          >
-                            <RefreshCw className="h-3 w-3 mr-1" />
-                            {submitting ? "Retrying..." : "Retry Payment"}
-                          </Button>
-                        )}
                       </div>
-                    </div>
-                  </motion.div>
-                )}
+                    </motion.div>
+                  )}
 
                 {/* Insufficient Balance Warning */}
                 {walletInsufficient && active === "wallet" && (
-                  <motion.div 
+                  <motion.div
                     className="p-4 rounded-2xl border border-yellow-200 dark:border-yellow-700 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -750,22 +923,29 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                         <div className="space-y-2 text-sm text-yellow-700 dark:text-yellow-300">
                           <div className="flex justify-between">
                             <span>Required:</span>
-                            <span className="font-medium">{walletInsufficient.required.toLocaleString()} RWF</span>
+                            <span className="font-medium">
+                              {walletInsufficient.required.toLocaleString()} RWF
+                            </span>
                           </div>
                           <div className="flex justify-between">
                             <span>Available:</span>
-                            <span className="font-medium">{walletInsufficient.balance.toLocaleString()} RWF</span>
+                            <span className="font-medium">
+                              {walletInsufficient.balance.toLocaleString()} RWF
+                            </span>
                           </div>
                           <div className="flex justify-between border-t border-yellow-200 dark:border-yellow-700 pt-2">
                             <span>Need to add:</span>
                             <span className="font-bold text-yellow-800 dark:text-yellow-200">
-                              {walletInsufficient.shortfall.toLocaleString()} RWF
+                              {walletInsufficient.shortfall.toLocaleString()}{" "}
+                              RWF
                             </span>
                           </div>
                         </div>
                         <div className="flex gap-2 mt-3">
                           <Button
-                            onClick={() => initiateWalletTopup(walletInsufficient.shortfall)}
+                            onClick={() =>
+                              initiateWalletTopup(walletInsufficient.shortfall)
+                            }
                             disabled={submitting}
                             size="sm"
                             className="flex-1 bg-yellow-600 hover:bg-yellow-700"
@@ -791,48 +971,51 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 {/* Payment Method Tabs - Enhanced */}
                 <Tabs value={active} onValueChange={(v: any) => setActive(v)}>
                   <TabsList className="grid grid-cols-2 w-full mb-6 p-1 bg-gradient-to-r from-gray-100/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 rounded-2xl border border-gray-200/50 dark:border-gray-700/50">
-                    <TabsTrigger 
-                      value="momo" 
+                    <TabsTrigger
+                      value="momo"
                       className="flex items-center gap-2 justify-center rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-105"
                     >
-                      <MobilePaySVG className="h-4 w-4" /> 
+                      <MobilePaySVG className="h-4 w-4" />
                       Mobile Money
                     </TabsTrigger>
-                    <TabsTrigger 
-                      value="wallet" 
+                    <TabsTrigger
+                      value="wallet"
                       className="flex items-center gap-2 justify-center rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-105"
                     >
-                      <WalletSVG className="h-4 w-4" /> 
+                      <WalletSVG className="h-4 w-4" />
                       Smart Wallet
                     </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="momo" className="space-y-4">
-                    <motion.div 
+                    <motion.div
                       className="space-y-4"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.1 }}
                     >
                       <div className="space-y-2">
-                        <Label htmlFor="momoPhone" className="text-sm font-medium">
+                        <Label
+                          htmlFor="momoPhone"
+                          className="text-sm font-medium"
+                        >
                           Mobile Money Number
                         </Label>
                         <div className="relative">
                           <Smartphone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                          <Input 
-                            id="momoPhone" 
-                            type="tel" 
-                            placeholder="07xx xxx xxx" 
-                            value={momoPhone} 
+                          <Input
+                            id="momoPhone"
+                            type="tel"
+                            placeholder="07xx xxx xxx"
+                            value={momoPhone}
                             onChange={(e) => setMomoPhone(e.target.value)}
                             className="pl-10 rounded-xl border-gray-200 dark:border-gray-700 focus:border-blue-500 dark:focus:border-blue-400"
                           />
                         </div>
                       </div>
-                      <Button 
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all" 
-                        disabled={disabled} 
+                      <Button
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all"
+                        disabled={disabled}
                         onClick={payWithMomo}
                       >
                         {submitting ? (
@@ -851,7 +1034,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                   </TabsContent>
 
                   <TabsContent value="wallet" className="space-y-4">
-                    <motion.div 
+                    <motion.div
                       className="space-y-4"
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -868,7 +1051,8 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                           </div>
                           <div className="text-right">
                             <div className="text-2xl font-bold text-green-800 dark:text-green-200">
-                              {wallet ? wallet.balance.toLocaleString() : "—"} RWF
+                              {wallet ? wallet.balance.toLocaleString() : "—"}{" "}
+                              RWF
                             </div>
                             {wallet && wallet.balance < amount && (
                               <div className="text-xs text-red-600 dark:text-red-400">
@@ -891,9 +1075,9 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                         Open Wallet
                       </Button>
 
-                      <Button 
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed" 
-                        disabled={walletDisabled} 
+                      <Button
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={walletDisabled}
                         onClick={payWithWallet}
                       >
                         {submitting ? (
@@ -901,7 +1085,9 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                             <PaymentLoader />
                             Processing...
                           </div>
-                        ) : walletDisabled && wallet && wallet.balance < amount ? (
+                        ) : walletDisabled &&
+                          wallet &&
+                          wallet.balance < amount ? (
                           <div className="flex items-center gap-2">
                             <AlertCircle className="h-4 w-4" />
                             Insufficient Balance
