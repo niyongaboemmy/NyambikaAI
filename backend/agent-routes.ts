@@ -19,6 +19,7 @@ import {
   sql,
   isNotNull,
   countDistinct,
+  ne
 } from "drizzle-orm";
 
 // Get Agent Dashboard Stats
@@ -33,7 +34,10 @@ export async function getAgentStats(req: Request, res: Response) {
     const totalProducers = await db
       .select({ count: countDistinct(subscriptions.userId) })
       .from(subscriptions)
-      .where(eq(subscriptions.agentId, agentId));
+      .where(
+        eq(subscriptions.agentId, agentId),
+        !eq(subscriptions.status, "pending")
+      );
 
     // Get active subscriptions
     const activeSubscriptions = await db
@@ -223,7 +227,8 @@ export async function getAgentProducers(req: Request, res: Response) {
       latestSubscription: Date;
     }
 
-    const latestSubscriptions = (await db
+    // Get the most recent subscription for each producer
+    const latestSubscriptionsQuery = db
       .select({
         userId: subscriptions.userId,
         latestSubscription: sql<Date>`MAX(${subscriptions.createdAt})`.as(
@@ -232,9 +237,16 @@ export async function getAgentProducers(req: Request, res: Response) {
       })
       .from(subscriptions)
       .where(
-        and(eq(subscriptions.agentId, agentId), isNotNull(subscriptions.userId))
+        and(
+          eq(subscriptions.agentId, agentId),
+          isNotNull(subscriptions.userId),
+          ne(subscriptions.status, "pending")
+        )
       )
-      .groupBy(subscriptions.userId)) as unknown as LatestSubscription[];
+      .groupBy(subscriptions.userId);
+
+    const latestSubscriptions =
+      (await latestSubscriptionsQuery) as LatestSubscription[];
 
     // Then get the full producer details using the latest subscription
     const producers = await db
