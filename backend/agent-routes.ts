@@ -19,7 +19,7 @@ import {
   sql,
   isNotNull,
   countDistinct,
-  ne
+  ne,
 } from "drizzle-orm";
 
 // Get Agent Dashboard Stats
@@ -36,7 +36,7 @@ export async function getAgentStats(req: Request, res: Response) {
       .from(subscriptions)
       .where(
         eq(subscriptions.agentId, agentId),
-        !eq(subscriptions.status, "pending")
+        ne(subscriptions.status, "pending")
       );
 
     // Get active subscriptions
