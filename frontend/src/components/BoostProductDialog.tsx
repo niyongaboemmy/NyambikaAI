@@ -168,8 +168,8 @@ export default function BoostProductDialog({
       <AlertDialogContent className="sm:max-w-[450px] overflow-hidden border-0 bg-gradient-to-br from-white via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-purple-950/30 backdrop-blur-xl shadow-2xl">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse" />
-          <div className="absolute -bottom-8 -left-8 w-20 h-20 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-xl animate-pulse delay-1000" />
+          <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse"></div>
+          <div className="absolute -bottom-8 -left-8 w-20 h-20 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-xl animate-pulse delay-1000"></div>
         </div>
 
         <AlertDialogHeader className="relative z-10 text-center space-y-3">
@@ -199,9 +199,9 @@ export default function BoostProductDialog({
           <AlertDialogDescription className="text-base leading-relaxed">
             {settingLoading ? (
               <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce" />
-                <div className="w-4 h-4 bg-purple-500 rounded-full animate-bounce delay-100" />
-                <div className="w-4 h-4 bg-pink-500 rounded-full animate-bounce delay-200" />
+                <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
+                <div className="w-4 h-4 bg-purple-500 rounded-full animate-bounce delay-100"></div>
+                <div className="w-4 h-4 bg-pink-500 rounded-full animate-bounce delay-200"></div>
                 <span className="ml-2">Loading boost settings...</span>
               </div>
             ) : !setting ? (
@@ -349,7 +349,7 @@ export default function BoostProductDialog({
                   }`}
                 />
                 {!confirmChecked && (
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping" />
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-400 rounded-full animate-ping"></div>
                 )}
               </div>
               <div className="text-sm font-semibold cursor-pointer flex-1">
@@ -404,7 +404,7 @@ export default function BoostProductDialog({
             >
               {boostMutation.isPending ? (
                 <div className="flex items-center space-x-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                   <span>Boosting...</span>
                 </div>
               ) : (

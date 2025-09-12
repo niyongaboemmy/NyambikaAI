@@ -65,10 +65,7 @@ const DialogContent = React.forwardRef<
             <DialogPrimitive.Title>{title || "Dialog"}</DialogPrimitive.Title>
           </VisuallyHidden.Root>
         )}
-        <div
-          className="overflow-y-auto"
-          style={{ maxHeight: "calc(100vh - 50px)" }}
-        >
+        <div className="overflow-y-auto" style={{ maxHeight: "100vh" }}>
           {children}
         </div>
         {!hideClose && (

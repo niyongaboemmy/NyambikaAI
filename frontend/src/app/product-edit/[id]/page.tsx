@@ -164,23 +164,10 @@ function ProductEdit() {
 
   return (
     <ProtectedRoute>
-      <main className="pt-12 pb-16">
+      <main className="pt-8 pb-16">
         <div className="max-w-4xl mx-auto">
-          {/* Back to details */}
-          <div className="mb-2">
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => router.push(`/product/${productId}`)}
-              className="bg-white dark:bg-gray-900 dark:hover:bg-gray-800 flex items-center gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back to details
-            </Button>
-          </div>
-
           <ProductForm
-            title="Edit Product Details"
+            title="Edit Details"
             submitLabel="Save Changes"
             initialValues={initialValues}
             categories={(categories as any[]).map((c: any) => ({

@@ -526,7 +526,7 @@ export default function ProductDetail() {
         />
       </div>
 
-      <main className="relative z-10 pt-6 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
+      <main className="relative z-10 pt-10 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
         <div className="">
           {/* Modern Header with Responsive Toolbar */}
           <div className="relative mb-4 sm:mb-6">

@@ -1,8 +1,10 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
+import path from "path";
+import fs from "fs";
 import { registerRoutes } from "./routes";
-// Vite integration removed to keep backend independent from frontend bundler
+import uploadRoutes from "./upload-routes";
 
 const app = express();
 
@@ -13,14 +15,12 @@ app.use(
       "http://localhost:3000",
       "http://localhost:3001",
       "http://localhost:3003",
-      "http://localhost:5000",
       "http://127.0.0.1:3000",
       "http://127.0.0.1:3001",
       "http://127.0.0.1:3003",
-      "http://127.0.0.1:5000",
       "https://nyambikaai.onrender.com",
       "https://nyambika-python.onrender.com",
-      "https://nyambika-ai.vercel.app", // add this
+      "https://nyambika-ai.vercel.app",
       "https://nyambika.com",
       "http://nyambika.com",
       "https://www.nyambika.com",
@@ -33,14 +33,50 @@ app.use(
       "Content-Type",
       "Accept",
       "Authorization",
+      "x-api-key"
     ],
     credentials: true,
   })
 );
 
-// Increase body size limits to support very large base64 image payloads from TryOnWidget
-app.use(express.json({ limit: "100mb" }));
-app.use(express.urlencoded({ extended: false, limit: "100mb" }));
+// Increase body size limits to support file uploads
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+
+// Register upload routes
+app.use("/api", uploadRoutes);
+
+// Serve uploaded files directly (public access)
+const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+console.log('Serving static files from:', uploadsDir);
+
+// Ensure uploads directory exists
+if (!fs.existsSync(uploadsDir)) {
+  console.log('Creating uploads directory at:', uploadsDir);
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files with proper headers
+app.use('/uploads', express.static(uploadsDir, {
+  setHeaders: (res, path) => {
+    const ext = path.split('.').pop()?.toLowerCase();
+    const mimeTypes: Record<string, string> = {
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'png': 'image/png',
+      'gif': 'image/gif',
+      'webp': 'image/webp',
+      'pdf': 'application/pdf'
+    };
+    
+    if (ext && mimeTypes[ext]) {
+      res.setHeader('Content-Type', mimeTypes[ext]);
+    }
+  }
+}));
+
+// Also keep the API endpoint for backward compatibility
+app.use("/api/uploads", express.static(uploadsDir));
 
 app.use((req, res, next) => {
   const start = Date.now();
