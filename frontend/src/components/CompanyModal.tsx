@@ -108,7 +108,7 @@ export default function CompanyModal() {
       }}
     >
       <DialogContent
-        className="max-w-lg rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50"
+        className="max-w-2xl rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 p-3"
         onInteractOutside={(e) => {
           // Disallow dismiss while company is missing or loading
           if (isMissing || isLoading) e.preventDefault();
@@ -118,17 +118,17 @@ export default function CompanyModal() {
           if (isMissing || isLoading) e.preventDefault();
         }}
       >
-        <DialogHeader className="relative">
+        <DialogHeader className="relative px-2 md:px-3 mb-3">
           {/* AI-themed header decoration */}
-          <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+          {/* <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
             <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          
+          </div> */}
+
           <DialogTitle className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             <Building2 className="w-5 h-5 text-blue-600" />
             {isEdit ? "Edit Company Details" : "Set Up Your Company"}
           </DialogTitle>
-          <DialogDescription className="text-gray-600 dark:text-gray-300">
+          <DialogDescription className="text-gray-600 dark:text-gray-300 italic text-xs">
             {isEdit
               ? "Update your business information used across the platform."
               : "Please provide your business details to start selling on NyambikaAI."}
@@ -136,7 +136,7 @@ export default function CompanyModal() {
         </DialogHeader>
         {/* Loading overlay */}
         {isLoading && (
-          <div className="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
+          <div className="px-3 absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-2xl flex items-center justify-center z-50">
             <div className="flex flex-col items-center gap-3">
               <div className="relative">
                 <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
@@ -146,15 +146,24 @@ export default function CompanyModal() {
                 {isEdit ? "Updating company..." : "Creating company..."}
               </p>
               <div className="flex gap-1">
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                <div
+                  className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <div
+                  className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <div
+                  className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
               </div>
             </div>
           </div>
         )}
 
-        <form onSubmit={onSubmit} className="space-y-4 relative">
+        <form onSubmit={onSubmit} className="space-y-4 relative px-2 md:px-3">
           <div className="grid grid-cols-1 gap-4">
             <FormInput
               id="name"
@@ -267,8 +276,8 @@ export default function CompanyModal() {
               >
                 Close
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={!isFormValid || isLoading}
                 className="min-w-[140px] bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all duration-200 transform hover:scale-105"
               >

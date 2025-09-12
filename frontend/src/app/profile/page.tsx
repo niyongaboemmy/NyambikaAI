@@ -42,6 +42,8 @@ import { useChangePassword } from "@/contexts/ChangePasswordContext";
 import { Skeleton } from "@/components/custom-ui/skeleton";
 import { useRouter } from "next/navigation";
 import UserWallet from "@/components/UserWallet";
+import { useCompany } from "@/contexts/CompanyContext";
+import { Building2 } from "lucide-react";
 
 // Animated AI Brain SVG Component
 const AnimatedAIBrain = ({ className }: { className?: string }) => (
@@ -135,6 +137,7 @@ const AnimatedNeuralNetwork = ({ className }: { className?: string }) => (
 function Profile() {
   const { user, isAuthenticated, logout } = useAuth();
   const { theme, actualTheme, setTheme } = useTheme();
+  const { company, setModalOpen } = useCompany();
   const { toast } = useToast();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -781,6 +784,16 @@ function Profile() {
                       </div>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
+                    {user?.role === "producer" && (
+                      <Button
+                        onClick={() => setModalOpen(true)}
+                        size="sm"
+                        className="w-full justify-start bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-600 hover:to-violet-700 text-white text-sm py-3 rounded-lg transition-all duration-200 mt-2"
+                      >
+                        <Building2 className="mr-3 h-4 w-4" />
+                        Update Company
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
