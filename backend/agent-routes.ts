@@ -37,7 +37,7 @@ export async function getAgentStats(req: Request, res: Response) {
 
     // Get active subscriptions
     const activeSubscriptions = await db
-      .select({ count: countDistinct(subscriptions.id) })
+      .select({ count: count() })
       .from(subscriptions)
       .where(
         and(
@@ -48,7 +48,7 @@ export async function getAgentStats(req: Request, res: Response) {
 
     // Get expired subscriptions
     const expiredSubscriptions = await db
-      .select({ count: countDistinct(subscriptions.id) })
+      .select({ count: count() })
       .from(subscriptions)
       .where(
         and(
