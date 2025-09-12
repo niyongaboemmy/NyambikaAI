@@ -192,16 +192,16 @@ export default function AdminCategories() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <main className="pt-24 pb-12 px-4 md:px-6">
+    <div className="min-h-screen">
+      <main className="pt-10 pb-12 px-2 md:px-0">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-6">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold gradient-text">
+              <h1 className="text-xl md:text-2xl font-bold gradient-text">
                 Categories
               </h1>
-              <p className="text-muted-foreground mt-1">
+              <p className="text-muted-foreground text-sm">
                 Manage product categories and translations
               </p>
             </div>
