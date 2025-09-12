@@ -134,6 +134,13 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
     status: string;
     amount: number;
   }>({ refId: null, status: "idle", amount: 0 });
+  
+  // State to track and display backend errors
+  const [backendError, setBackendError] = useState<{
+    title: string;
+    message: string;
+    details?: any;
+  } | null>(null);
   const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Prefill phone number from authenticated user profile
@@ -283,11 +290,25 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
     },
     onError: (err: any) => {
+      const errorMessage = err.message || 'An unknown error occurred';
+      const errorTitle = err.response?.data?.error || 'Operation Failed';
+      
+      // Set the error state for display in the UI
+      setBackendError({
+        title: errorTitle,
+        message: errorMessage,
+        details: err.response?.data?.details
+      });
+      
+      // Also show a toast notification
       toast({
-        title: "💫 Oops!",
-        description: err.message,
+        title: `⚠️ ${errorTitle}`,
+        description: errorMessage,
         variant: "destructive",
       });
+      
+      // Reset any active payment state
+      setActivePayment({ refId: null, status: 'idle', amount: 0 });
     },
   });
 
@@ -395,6 +416,9 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
   }, [pollingRefId, activePayment.amount, qc, topUpMutation, toast]);
 
   const handleTopUp = () => {
+    // Clear any previous errors
+    setBackendError(null);
+    
     const amt = Number(amount);
     if (!amt || amt <= 0) {
       toast({
@@ -553,12 +577,46 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             </div>
           )}
 
+          {/* Error Banner */}
+          {backendError && (
+            <div className="mb-4 sm:mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200/60 dark:border-red-700/40 flex flex-col gap-2">
+              <div className="flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                <div className="flex-1">
+                  <h4 className="font-medium text-red-800 dark:text-red-200">
+                    {backendError.title}
+                  </h4>
+                  <p className="text-sm text-red-700 dark:text-red-300 mt-1">
+                    {backendError.message}
+                  </p>
+                  {backendError.details && (
+                    <details className="mt-2 text-xs text-red-600 dark:text-red-400">
+                      <summary className="cursor-pointer font-medium">View details</summary>
+                      <pre className="mt-1 p-2 bg-red-50 dark:bg-red-900/30 rounded overflow-auto max-h-40">
+                        {JSON.stringify(backendError.details, null, 2)}
+                      </pre>
+                    </details>
+                  )}
+                </div>
+                <button
+                  onClick={() => setBackendError(null)}
+                  className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                  aria-label="Dismiss error"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+          
           {/* Pending Payment Banner */}
-          {hasPending && (
+          {!backendError && hasPending && (
             <div className="mb-4 sm:mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/40 flex items-start gap-3">
               <Clock className="h-4 w-4 text-amber-600 mt-0.5" />
               <div className="text-xs sm:text-sm text-amber-800 dark:text-amber-200">
-                We’re waiting for your payment confirmation. This can take up to
+                We're waiting for your payment confirmation. This can take up to
                 a few minutes depending on your provider. This page will
                 auto-refresh.
               </div>

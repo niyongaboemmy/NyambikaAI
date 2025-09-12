@@ -45,6 +45,7 @@ export type Product = {
   description: string;
   price: string | number;
   categoryId?: string | null;
+  categoryName?: string | null;
   producerId?: string | null;
   imageUrl: string;
   additionalImages?: string[] | null;
@@ -122,13 +123,13 @@ export type Review = {
 };
 
 // Insert types (for forms and API calls)
-export type InsertUser = Omit<User, 'id' | 'createdAt'>;
-export type InsertCompany = Omit<Company, 'id' | 'createdAt'>;
-export type InsertCategory = Omit<Category, 'id' | 'createdAt'>;
-export type InsertProduct = Omit<Product, 'id' | 'createdAt'>;
-export type InsertCartItem = Omit<CartItem, 'id' | 'createdAt'>;
-export type InsertOrder = Omit<Order, 'id' | 'createdAt'>;
-export type InsertOrderItem = Omit<OrderItem, 'id'>;
-export type InsertFavorite = Omit<Favorite, 'id' | 'createdAt'>;
-export type InsertTryOnSession = Omit<TryOnSession, 'id' | 'createdAt'>;
-export type InsertReview = Omit<Review, 'id' | 'createdAt'>;
+export type InsertUser = Omit<User, "id" | "createdAt">;
+export type InsertCompany = Omit<Company, "id" | "createdAt">;
+export type InsertCategory = Omit<Category, "id" | "createdAt">;
+export type InsertProduct = Omit<Product, "id" | "createdAt">;
+export type InsertCartItem = Omit<CartItem, "id" | "createdAt">;
+export type InsertOrder = Omit<Order, "id" | "createdAt">;
+export type InsertOrderItem = Omit<OrderItem, "id">;
+export type InsertFavorite = Omit<Favorite, "id" | "createdAt">;
+export type InsertTryOnSession = Omit<TryOnSession, "id" | "createdAt">;
+export type InsertReview = Omit<Review, "id" | "createdAt">;

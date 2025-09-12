@@ -319,27 +319,36 @@ export default function StorePage() {
   // Get unique categories for filter dropdown
   const categories = useMemo(() => {
     if (!productsList) return [];
-    return Array.from(
-      new Set(
-        productsList
-          .map((p) => p.categoryId)
-          .filter((cat): cat is string => Boolean(cat))
-      )
-    );
+
+    const map = new Map<string, string>();
+
+    productsList.forEach((p: Product) => {
+      if (p.categoryId) {
+        map.set(p.categoryId, p.categoryName || "");
+      }
+    });
+
+    return Array.from(map, ([categoryId, categoryName]) => ({
+      categoryId,
+      categoryName,
+    }));
   }, [productsList]);
 
   // react-select options
   const categoryOptions = useMemo(
     () => [
-      { value: "all", label: "All Categories" },
-      ...categories.map((c) => ({ value: c, label: c })),
+      // { value: "all", label: "All Categories" },
+      ...categories.map((c) => ({
+        value: c.categoryId,
+        label: c.categoryName,
+      })),
     ],
     [categories]
   );
 
   const priceOptions = useMemo(
     () => [
-      { value: "all", label: "All Prices" },
+      // { value: "all", label: "All Prices" },
       { value: "low", label: "Under 50K" },
       { value: "medium", label: "50K - 200K" },
       { value: "high", label: "Over 200K" },
@@ -349,7 +358,7 @@ export default function StorePage() {
 
   const sortOptions = useMemo(
     () => [
-      { value: "featured", label: "Featured" }, // honors server order (displayOrder -> newest)
+      // { value: "featured", label: "Featured" }, // honors server order (displayOrder -> newest)
       { value: "name", label: "Name A-Z" },
       { value: "price-low", label: "Price: Low to High" },
       { value: "price-high", label: "Price: High to Low" },
@@ -488,107 +497,161 @@ export default function StorePage() {
     return (
       <div className="min-h-screen bg-transparent -mt-12">
         {/* Hero skeleton (logo, name, location/phone, actions) */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 pt-8">
+        {/* Store Header Skeleton */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-900 dark:via-purple-900 dark:to-indigo-900 pt-8">
           <div className="absolute inset-0 bg-black/20" />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-transparent to-purple-500/30 animate-pulse" />
-          <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative ">
-            <div className="text-center text-white space-y-4 sm:space-y-5">
-              <div className="pt-4 md:pt-2 flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">
+          <div className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative">
+            <div className="max-w-4xl mx-auto text-center space-y-4">
+              {/* Logo and Title */}
+              <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
-                  <Skeleton className="w-28 h-28 sm:w-24 sm:h-24 rounded-full mx-auto" />
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-20 animate-ping" />
+                  <Skeleton className="w-24 h-24 rounded-full bg-white/20" />
+                  <div className="absolute inset-0 rounded-full border-4 border-white/10 animate-pulse" />
                 </div>
-                <div className="flex flex-col sm:flex-row items-center sm:space-x-2 space-y-2 sm:space-y-0">
-                  <Skeleton className="h-6 sm:h-8 w-40 sm:w-64" />
-                  <Skeleton className="h-5 w-20 rounded-full" />
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-64 mx-auto bg-white/30" />
+                  <Skeleton className="h-5 w-40 mx-auto bg-white/20" />
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-6">
-                <Skeleton className="h-4 w-40" />
-                <Skeleton className="h-4 w-32" />
+              
+              {/* Store Info */}
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/90">
+                <Skeleton className="h-4 w-48 bg-white/20" />
+                <Skeleton className="h-4 w-36 bg-white/20" />
               </div>
-              <div className="flex flex-row justify-center space-x-4 pt-2">
-                <Skeleton className="h-9 sm:h-10 w-28 sm:w-36 rounded-lg" />
-                <Skeleton className="h-9 sm:h-10 w-28 sm:w-36 rounded-lg" />
+              
+              {/* Action Buttons */}
+              <div className="flex flex-wrap justify-center gap-3 pt-2">
+                <Skeleton className="h-10 w-32 rounded-full bg-white/30" />
+                <Skeleton className="h-10 w-32 rounded-full bg-white/20" />
               </div>
             </div>
           </div>
         </div>
 
-        {/* Mini stats pills skeleton */}
-        <div className="px-4 sm:px-6 md:px-6 py-4">
-          <div className="flex justify-center">
-            <div className="flex items-center gap-3 sm:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-4 sm:px-6 py-3 shadow-lg overflow-x-auto">
-              {[...Array(4)].map((_, i) => (
-                <React.Fragment key={i}>
-                  {i > 0 && (
-                    <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
-                  )}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <Skeleton className="w-6 h-6 sm:w-8 sm:h-8 rounded-full" />
-                    <div className="text-center">
-                      <Skeleton className="h-4 w-10 sm:w-12" />
-                      <div className="hidden sm:block mt-1">
-                        <Skeleton className="h-3 w-12" />
-                      </div>
+        {/* Store Stats Skeleton */}
+        <div className="px-4 sm:px-6 lg:px-8 py-6">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map((stat) => (
+                <div 
+                  key={stat}
+                  className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700/50"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Skeleton className="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700" />
+                    <div className="space-y-1">
+                      <Skeleton className="h-4 w-24 bg-gray-300 dark:bg-gray-600" />
+                      <Skeleton className="h-5 w-12 bg-gray-200 dark:bg-gray-800" />
                     </div>
                   </div>
-                </React.Fragment>
+                </div>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Categories grid skeleton (matches Shop by Category) */}
-        <div className="py-4">
-          <div className="container mx-auto px-3 md:px-0">
-            <div className="px-3 md:px-2">
-              <div className="text-center mb-4">
-                <Skeleton className="h-5 w-40 mx-auto" />
+        {/* Categories Skeleton */}
+        <div className="py-8 bg-gray-50 dark:bg-gray-900/30">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-6">
+              <Skeleton className="h-6 w-48 mx-auto bg-gray-300 dark:bg-gray-700" />
+              <Skeleton className="h-3 w-64 mx-auto mt-2 bg-gray-200 dark:bg-gray-800" />
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className="group flex flex-col items-center p-3 rounded-xl bg-white dark:bg-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
+                >
+                  <Skeleton className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 group-hover:scale-105 transition-transform duration-200" />
+                  <Skeleton className="h-3 w-16 mt-2 bg-gray-200 dark:bg-gray-700" />
+                  <Skeleton className="h-2 w-12 mt-1 bg-gray-100 dark:bg-gray-600" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Filters & Search Skeleton */}
+        <div className="sticky top-16 z-10 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between py-4 gap-4">
+              {/* Search Bar */}
+              <div className="relative flex-1 max-w-2xl">
+                <Skeleton className="h-10 w-full rounded-lg bg-gray-100 dark:bg-gray-800" />
               </div>
-              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="flex flex-col items-center space-y-1">
-                    <Skeleton className="w-12 h-12 rounded-full" />
-                    <Skeleton className="w-16 h-3" />
+              
+              {/* Filter Controls */}
+              <div className="flex flex-wrap items-center gap-3">
+                <Skeleton className="h-9 w-28 rounded-lg bg-gray-100 dark:bg-gray-800" />
+                <Skeleton className="h-9 w-32 rounded-lg bg-gray-100 dark:bg-gray-800" />
+                <Skeleton className="h-9 w-24 rounded-lg bg-gray-100 dark:bg-gray-800" />
+                
+                {/* View Toggle */}
+                <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                  <Skeleton className="h-8 w-8 rounded-md" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Active Filters */}
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-3 text-sm">
+              <Skeleton className="h-4 w-48 bg-gray-100 dark:bg-gray-800" />
+              <Skeleton className="h-4 w-24 bg-gray-100 dark:bg-gray-800" />
+            </div>
+          </div>
+        </div>
+
+        {/* Products Grid Skeleton */}
+        <div className="py-6 bg-white dark:bg-gray-900">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div 
+                  key={i} 
+                  className="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 dark:border-gray-700/50"
+                >
+                  {/* Image Placeholder */}
+                  <div className="aspect-square bg-gray-100 dark:bg-gray-700 relative overflow-hidden">
+                    <Skeleton className="w-full h-full" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   </div>
+                  
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <Skeleton className="h-5 w-3/4 mb-2 bg-gray-200 dark:bg-gray-700" />
+                    <Skeleton className="h-4 w-1/2 bg-gray-100 dark:bg-gray-600" />
+                    
+                    <div className="mt-3 flex items-center justify-between">
+                      <Skeleton className="h-5 w-16 bg-gray-200 dark:bg-gray-700" />
+                      <div className="flex space-x-2">
+                        <Skeleton className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-700" />
+                        <Skeleton className="h-9 w-9 rounded-full bg-gray-100 dark:bg-gray-700" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Badge */}
+                  <div className="absolute top-3 right-3">
+                    <Skeleton className="h-5 w-16 rounded-full bg-white/90 dark:bg-gray-700/90" />
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Pagination Skeleton */}
+            <div className="mt-10 flex items-center justify-center">
+              <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm">
+                <Skeleton className="h-9 w-9 rounded-md" />
+                {[...Array(4)].map((_, i) => (
+                  <Skeleton key={i} className="h-9 w-9 rounded-md" />
                 ))}
+                <Skeleton className="h-9 w-9 rounded-md" />
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Filters + Search sticky bar skeleton */}
-        <div className="bg-gradient-to-r from-white via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-900/30 dark:to-gray-900/30 border-b border-gray-200 dark:border-gray-700 shadow-sm pt-4 md:sticky md:top-[4.5rem] md:">
-          <div className="container mx-auto px-3 md:px-0 py-2 pt-0 flex flex-col md:flex-row md:items-center gap-2">
-            <div className="flex flex-col gap-4 w-full">
-              <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
-                <div className="grid grid-cols-2 sm:flex gap-3 flex-1">
-                  <Skeleton className="h-10 w-full sm:w-40 rounded-lg" />
-                  <Skeleton className="h-10 w-full sm:w-36 rounded-lg" />
-                  <Skeleton className="h-10 w-full sm:w-36 rounded-lg" />
-                  <div className="flex border rounded-lg col-span-2 sm:col-span-1 justify-center sm:justify-start overflow-hidden">
-                    <Skeleton className="h-9 w-1/2 rounded-none" />
-                    <Skeleton className="h-9 w-1/2 rounded-none" />
-                  </div>
-                </div>
-              </div>
-              <div className="flex-1 w-full">
-                <div className="relative group w-full">
-                  <Skeleton className="h-10 w-full rounded-lg" />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="container mx-auto px-3 pb-2 mt-0 flex items-center justify-between text-xs">
-            <Skeleton className="h-3 w-56" />
-            <Skeleton className="h-3 w-24" />
-          </div>
-        </div>
-
-        {/* Products grid skeleton (matches ProductCard layout) */}
-        <div className="container mx-auto px-3 md:px-0 py-5">
-          <div className="grid grid-cols-12 gap-2">
             {[...Array(12)].map((_, i) => (
               <div
                 key={i}
@@ -654,21 +717,21 @@ export default function StorePage() {
         />
       )}
       {/* Enhanced Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 pt-8">
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-transparent to-purple-500/30 animate-pulse" />
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 dark:from-blue-950 via-purple-600 dark:via-purple-900 to-indigo-600 dark:to-indigo-900 pt-8">
+        <div className="absolute inset-0 bg-black/20 dark:bg-black" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 dark:from-blue-950 via-transparent to-blue-500/30 dark:to-violet-950/60 animate-pulse dark:animate-none" />
         <div
-          className="absolute inset-0 bg-gradient-to-l from-pink-500/20 via-transparent to-yellow-500/20 animate-pulse"
+          className="absolute inset-0 bg-gradient-to-l from-pink-500/20 dark:from-pink-950/40 via-transparent to-yellow-500/20 dark:to-blue-950/70 animate-pulse dark:animate-none"
           style={{ animationDelay: "2s" }}
         />
         <div className="absolute inset-0">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-20 animate-float" />
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-20 dark:opacity-5 animate-float" />
           <div
-            className="absolute top-20 right-20 w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 animate-float"
+            className="absolute top-20 right-20 w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 dark:opacity-5 animate-float"
             style={{ animationDelay: "1s" }}
           />
           <div
-            className="absolute bottom-10 left-1/3 w-20 h-20 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-full opacity-20 animate-float"
+            className="absolute bottom-10 left-1/3 w-20 h-20 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-full opacity-20 dark:opacity-5 animate-float"
             style={{ animationDelay: "3s" }}
           />
         </div>
@@ -893,21 +956,21 @@ export default function StorePage() {
                 {/* Category Buttons */}
                 {categories.map((category) => {
                   const categoryData = allCategories.find(
-                    (c) => c.id === category
+                    (c) => c.id === category.categoryId
                   );
                   return (
                     <button
-                      key={category}
-                      onClick={() => setSelectedCategory(category)}
+                      key={category.categoryId}
+                      onClick={() => setSelectedCategory(category.categoryId)}
                       className={`group flex flex-col items-center space-y-2 p-2 rounded-xl transition-all duration-300 hover:scale-105 ${
-                        selectedCategory === category
+                        selectedCategory === category.categoryId
                           ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
                           : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:shadow-lg"
                       }`}
                     >
                       <div
                         className={`w-12 h-12 rounded-full overflow-hidden transition-all duration-300 ${
-                          selectedCategory === category
+                          selectedCategory === category.categoryId
                             ? "ring-2 ring-white/30"
                             : "ring-1 ring-transparent group-hover:ring-blue-200 dark:group-hover:ring-blue-800"
                         }`}
@@ -915,20 +978,20 @@ export default function StorePage() {
                         {categoryData?.imageUrl ? (
                           <img
                             src={categoryData.imageUrl}
-                            alt={category}
+                            alt={category.categoryName}
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <div
                             className={`w-full h-full flex items-center justify-center ${
-                              selectedCategory === category
+                              selectedCategory === category.categoryId
                                 ? "bg-white/20 backdrop-blur-sm"
                                 : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600"
                             }`}
                           >
                             <Package
                               className={`w-6 h-6 ${
-                                selectedCategory === category
+                                selectedCategory === category.categoryId
                                   ? "text-white"
                                   : "text-gray-500 dark:text-gray-400"
                               }`}
@@ -938,7 +1001,7 @@ export default function StorePage() {
                       </div>
                       <span
                         className={`text-xs font-medium text-center leading-tight ${
-                          selectedCategory === category
+                          selectedCategory === category.categoryId
                             ? "text-white"
                             : "text-gray-700 dark:text-gray-300"
                         }`}
@@ -947,7 +1010,7 @@ export default function StorePage() {
                           ? categoryData?.name.substring(0, 12) + "..."
                           : categoryData?.name}
                       </span>
-                      {selectedCategory === category && (
+                      {selectedCategory === category.categoryId && (
                         <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
                       )}
                     </button>
@@ -960,7 +1023,7 @@ export default function StorePage() {
       </div>
 
       {/* Smart Search and Filter Section with Gradient Background */}
-      <div className="bg-gradient-to-r from-white via-white to-white/80 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 border-b border-gray-200 dark:border-none dark:border-gray-700 dark:shadow-sm pt-4 md:sticky md:top-[4.5rem] md:">
+      <div className="bg-gradient-to-r from-white via-white to-white/80 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 border-b border-gray-200 dark:border-none dark:border-gray-700 dark:shadow-sm pt-4 md:sticky md:top-[4.5rem] z-10">
         <div className="container mx-auto px-3 md:px-0 py-2 pt-0 flex flex-col md:flex-row md:items-center gap-2">
           <div className="flex flex-col gap-4">
             {/* Comparison Bar */}
@@ -1000,22 +1063,23 @@ export default function StorePage() {
             {/* Filters */}
             <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
               <div className="grid grid-cols-2 sm:flex gap-3 flex-1">
-                <div className="w-full sm:w-40">
+                <div className="w-full sm:w-40 md:w-60">
                   <ReactSelect
                     options={categoryOptions}
                     value={categoryOptions.find(
                       (o) => o.value === selectedCategory
                     )}
                     onChange={(opt) =>
-                      opt && setSelectedCategory((opt as any).value)
+                      opt && setSelectedCategory((opt as any).value.categoryId)
                     }
                     placeholder="Category"
                     styles={selectStyles}
                     isSearchable
+                    className="border dark:border-blue-500/0 rounded-md"
                   />
                 </div>
 
-                <div className="w-full sm:w-36">
+                <div className="w-full sm:w-36 md:w-56">
                   <ReactSelect
                     options={priceOptions}
                     value={priceOptions.find((o) => o.value === priceRange)}
@@ -1023,10 +1087,11 @@ export default function StorePage() {
                     placeholder="Price"
                     styles={selectStyles}
                     isSearchable={false}
+                    className="border dark:border-blue-500/0 rounded-md"
                   />
                 </div>
 
-                <div className="w-full sm:w-36">
+                <div className="w-full sm:w-36 md:w-56">
                   <ReactSelect
                     options={sortOptions}
                     value={sortOptions.find((o) => o.value === sortBy)}
@@ -1034,28 +1099,8 @@ export default function StorePage() {
                     placeholder="Sort by"
                     styles={selectStyles}
                     isSearchable={false}
+                    className="border dark:border-blue-50/00 rounded-md"
                   />
-                </div>
-
-                <div className="flex border rounded-lg col-span-2 sm:col-span-1 justify-center sm:justify-start">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("grid")}
-                    className="rounded-r-none flex-1 sm:flex-none h-full"
-                  >
-                    <Grid className="w-4 h-4" />
-                    <span className="ml-1 sm:hidden">Grid</span>
-                  </Button>
-                  <Button
-                    variant={viewMode === "list" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("list")}
-                    className="rounded-l-none flex-1 sm:flex-none h-full"
-                  >
-                    <List className="w-4 h-4" />
-                    <span className="ml-1 sm:hidden">List</span>
-                  </Button>
                 </div>
               </div>
             </div>
@@ -1067,7 +1112,7 @@ export default function StorePage() {
               <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity" />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 " />
               <Input
-                placeholder="Search products with AI..."
+                placeholder="Search products ..."
                 aria-label="Search products"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
