@@ -168,7 +168,9 @@ export async function getAvailableProducers(req: Request, res: Response) {
         subscriptionPlans,
         eq(subscriptions.planId, subscriptionPlans.id)
       )
-      .where(eq(users.role, "producer"))
+      .where(
+        and(eq(users.role, "producer"), eq(subscriptions.status, "active"))
+      )
       .orderBy(desc(users.createdAt));
 
     // Get product counts for each producer
