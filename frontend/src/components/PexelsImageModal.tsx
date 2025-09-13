@@ -716,7 +716,8 @@ export function PexelsImageModal({
                             No images found
                           </h3>
                           <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Try a different search term or explore trending images.
+                            Try a different search term or explore trending
+                            images.
                           </p>
                         </div>
                       </div>
@@ -725,8 +726,18 @@ export function PexelsImageModal({
                         {/* Size selector (hidden when fixedSize is provided) */}
                         {!fixedSize && (
                           <div className="flex items-center justify-end gap-2">
-                            <span className="text-xs text-slate-500 dark:text-slate-400 mr-2">Image size:</span>
-                            {(["original", "large2x", "large", "medium", "small"] as const).map((sz) => (
+                            <span className="text-xs text-slate-500 dark:text-slate-400 mr-2">
+                              Image size:
+                            </span>
+                            {(
+                              [
+                                "original",
+                                "large2x",
+                                "large",
+                                "medium",
+                                "small",
+                              ] as const
+                            ).map((sz) => (
                               <button
                                 key={sz}
                                 type="button"
@@ -748,7 +759,8 @@ export function PexelsImageModal({
                         <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-2 xs:gap-3">
                           {images.map((image, index) => {
                             const chosenUrl = getSrcBySize(image, selectedSize);
-                            const handleImageClick = () => setSelectedImage(chosenUrl);
+                            const handleImageClick = () =>
+                              setSelectedImage(chosenUrl);
                             return (
                               <div
                                 key={image.id}
@@ -776,14 +788,24 @@ export function PexelsImageModal({
                                 {selectedImage === chosenUrl && (
                                   <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center backdrop-blur-sm">
                                     <div className="bg-blue-500 p-2 rounded-full shadow-lg">
-                                      <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                      <svg
+                                        className="h-4 w-4 text-white"
+                                        fill="currentColor"
+                                        viewBox="0 0 20 20"
+                                      >
+                                        <path
+                                          fillRule="evenodd"
+                                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                          clipRule="evenodd"
+                                        />
                                       </svg>
                                     </div>
                                   </div>
                                 )}
                                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-2 py-1 rounded-md text-xs text-white font-medium">AI</div>
+                                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-2 py-1 rounded-md text-xs text-white font-medium">
+                                    AI
+                                  </div>
                                 </div>
                               </div>
                             );
