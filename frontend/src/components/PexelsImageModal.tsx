@@ -151,7 +151,7 @@ export function PexelsImageModal({
     try {
       // 1) Compress client-side to <= 700 KB before uploading
       const compressed = (await compressImageFile(file, {
-        maxSizeKB: 250,
+        maxSizeKB: 100,
         mimeType: "image/jpeg",
         maxWidth: 2000,
         maxHeight: 2000,
