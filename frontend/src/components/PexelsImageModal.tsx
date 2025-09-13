@@ -33,6 +33,7 @@ interface PexelsImageModalProps {
   onSelect: (imageUrl: string) => void;
   aspectRatio?: "square" | "portrait" | "landscape";
   searchValue: string;
+  fixedSize?: "original" | "large2x" | "large" | "medium" | "small";
 }
 
 export function PexelsImageModal({
@@ -41,6 +42,7 @@ export function PexelsImageModal({
   onSelect,
   aspectRatio = "square",
   searchValue,
+  fixedSize,
 }: PexelsImageModalProps) {
   const [images, setImages] = useState<PexelsPhoto[]>([]);
   const [query, setQuery] = useState(searchValue || "");
@@ -53,7 +55,7 @@ export function PexelsImageModal({
   const [activeTab, setActiveTab] = useState<"search" | "upload">("search");
   const [selectedSize, setSelectedSize] = useState<
     "original" | "large2x" | "large" | "medium" | "small"
-  >("medium");
+  >(fixedSize ?? "medium");
 
   const handleTabChange = (value: string) => {
     if (value === "search" || value === "upload") {
@@ -69,6 +71,11 @@ export function PexelsImageModal({
       loadImages(searchValue, 1, true);
     }
   }, [isOpen, searchValue]);
+
+  // Sync selected size if fixedSize changes
+  useEffect(() => {
+    if (fixedSize) setSelectedSize(fixedSize);
+  }, [fixedSize]);
 
   const loadImages = async (
     query: string = "",
@@ -715,25 +722,27 @@ export function PexelsImageModal({
                       </div>
                     ) : (
                       <div className="space-y-6">
-                        {/* Size selector */}
-                        <div className="flex items-center justify-end gap-2">
-                          <span className="text-xs text-slate-500 dark:text-slate-400 mr-2">Image size:</span>
-                          {(["original", "large2x", "large", "medium", "small"] as const).map((sz) => (
-                            <button
-                              key={sz}
-                              type="button"
-                              onClick={() => setSelectedSize(sz)}
-                              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors border ${
-                                selectedSize === sz
-                                  ? "bg-blue-600 text-white border-blue-600"
-                                  : "bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-                              }`}
-                              title={`Use ${sz} size URLs`}
-                            >
-                              {sz}
-                            </button>
-                          ))}
-                        </div>
+                        {/* Size selector (hidden when fixedSize is provided) */}
+                        {!fixedSize && (
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="text-xs text-slate-500 dark:text-slate-400 mr-2">Image size:</span>
+                            {(["original", "large2x", "large", "medium", "small"] as const).map((sz) => (
+                              <button
+                                key={sz}
+                                type="button"
+                                onClick={() => setSelectedSize(sz)}
+                                className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors border ${
+                                  selectedSize === sz
+                                    ? "bg-blue-600 text-white border-blue-600"
+                                    : "bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+                                }`}
+                                title={`Use ${sz} size URLs`}
+                              >
+                                {sz}
+                              </button>
+                            ))}
+                          </div>
+                        )}
 
                         {/* Modern Masonry Grid */}
                         <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-2 xs:gap-3">

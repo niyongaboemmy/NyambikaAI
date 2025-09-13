@@ -255,6 +255,7 @@ export function ImagesSubmitStep({
         isOpen={showPexelsModal}
         onClose={() => setShowPexelsModal(false)}
         onSelect={handlePexelsImageSelect}
+        fixedSize="large"
         searchValue={
           pexelsModalType === "main"
             ? formData.name || "fashion clothing"
