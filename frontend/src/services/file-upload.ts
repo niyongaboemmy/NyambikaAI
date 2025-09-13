@@ -1,9 +1,8 @@
 import axios, { AxiosProgressEvent } from "axios";
 import { v4 as uuidv4 } from "uuid";
-import { useAuth } from "@/contexts/AuthContext";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://nyambika.vms.rw";
 
 interface UploadResponse {
   success: boolean;
@@ -65,7 +64,7 @@ interface UploadOptions {
 
 // Helper function to get file extension
 const getFileExtension = (filename: string): string => {
-  return filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+  return filename.slice(((filename.lastIndexOf(".") - 1) >>> 0) + 2);
 };
 
 // Helper function to generate preview URL
@@ -78,22 +77,22 @@ export const uploadFile = async (
   options: UploadOptions = { renameFile: true, preview: true }
 ): Promise<UploadResponse> => {
   const formData = new FormData();
-  
+
   // Generate new filename with UUID if renameFile is true
   let fileName = file.name;
   if (options.renameFile) {
     const ext = getFileExtension(file.name);
     fileName = `${uuidv4()}.${ext}`;
   }
-  
+
   // Create preview URL if preview is enabled
   const previewUrl = options.preview ? createPreviewUrl(file) : undefined;
-  
+
   // Create a new File object with the new name if renamed
-  const fileToUpload = options.renameFile 
+  const fileToUpload = options.renameFile
     ? new File([file], fileName, { type: file.type })
     : file;
-    
+
   formData.append("image", fileToUpload);
 
   try {
@@ -109,15 +108,17 @@ export const uploadFile = async (
 
     // Ensure the response URL is a full URL
     const responseData = response.data;
-    if (responseData.url && !responseData.url.startsWith('http')) {
-      responseData.url = `${API_BASE_URL.replace('/api', '')}${responseData.url}`;
+    if (responseData.url && !responseData.url.startsWith("http")) {
+      responseData.url = `${API_BASE_URL.replace("/api", "")}${
+        responseData.url
+      }`;
     }
-    
+
     // Add preview URL to response
     if (previewUrl) {
       responseData.previewUrl = previewUrl;
     }
-    
+
     return {
       ...responseData,
       originalName: file.name,
@@ -138,12 +139,12 @@ export const uploadMultipleFiles = async (
   files: File[],
   options: UploadOptions = { renameFile: true, preview: true }
 ): Promise<UploadResponse[]> => {
-  const uploadPromises = files.map(file => 
+  const uploadPromises = files.map((file) =>
     uploadFile(file, options)
-      .then(response => response)
-      .catch(error => ({
+      .then((response) => response)
+      .catch((error) => ({
         success: false,
-        error: error.message || 'Upload failed',
+        error: error.message || "Upload failed",
         originalName: file.name,
         fileSize: file.size,
         fileType: file.type,
@@ -155,7 +156,7 @@ export const uploadMultipleFiles = async (
 
 // Utility function to revoke preview URLs when no longer needed
 export const revokePreviewUrl = (url: string): void => {
-  if (url && url.startsWith('blob:')) {
+  if (url && url.startsWith("blob:")) {
     URL.revokeObjectURL(url);
   }
 };
