@@ -22,7 +22,10 @@ import {
 } from "lucide-react";
 import { searchImages, getPopularImages, PexelsPhoto } from "@/services/pexels";
 import { uploadFile } from "@/services/file-upload";
-import { compressImageFile, downloadAndCompressImage } from "@/utils/imageCompression";
+import {
+  compressImageFile,
+  downloadAndCompressImage,
+} from "@/utils/imageCompression";
 
 interface PexelsImageModalProps {
   isOpen: boolean;
@@ -148,7 +151,7 @@ export function PexelsImageModal({
     try {
       // 1) Compress client-side to <= 700 KB before uploading
       const compressed = (await compressImageFile(file, {
-        maxSizeKB: 700,
+        maxSizeKB: 250,
         mimeType: "image/jpeg",
         maxWidth: 2000,
         maxHeight: 2000,
@@ -162,7 +165,10 @@ export function PexelsImageModal({
         preview: true,
         onUploadProgress: (evt) => {
           if (!evt.total) return;
-          const percent = Math.min(99, Math.round((evt.loaded / evt.total) * 100));
+          const percent = Math.min(
+            99,
+            Math.round((evt.loaded / evt.total) * 100)
+          );
           setUploadProgress(percent);
         },
       });
@@ -194,19 +200,38 @@ export function PexelsImageModal({
             {/* Animated Holographic Orbs */}
             <div
               className="absolute top-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-400/15 via-cyan-400/10 to-purple-400/15 rounded-full blur-3xl"
-              style={{ animationName: "pulse", animationDuration: "4s", animationIterationCount: "infinite" }}
+              style={{
+                animationName: "pulse",
+                animationDuration: "4s",
+                animationIterationCount: "infinite",
+              }}
             />
             <div
               className="absolute bottom-32 right-32 w-64 h-64 bg-gradient-to-r from-purple-400/15 via-pink-400/10 to-rose-400/15 rounded-full blur-2xl"
-              style={{ animationName: "pulse", animationDuration: "6s", animationDelay: "2s", animationIterationCount: "infinite" }}
+              style={{
+                animationName: "pulse",
+                animationDuration: "6s",
+                animationDelay: "2s",
+                animationIterationCount: "infinite",
+              }}
             />
             <div
               className="absolute top-1/2 left-1/3 w-40 h-40 bg-gradient-to-r from-cyan-400/15 via-teal-400/10 to-blue-400/15 rounded-full blur-xl"
-              style={{ animationName: "pulse", animationDuration: "8s", animationDelay: "4s", animationIterationCount: "infinite" }}
+              style={{
+                animationName: "pulse",
+                animationDuration: "8s",
+                animationDelay: "4s",
+                animationIterationCount: "infinite",
+              }}
             />
             <div
               className="absolute top-1/4 right-1/4 w-56 h-56 bg-gradient-to-r from-indigo-400/10 via-purple-400/15 to-pink-400/10 rounded-full blur-2xl"
-              style={{ animationName: "pulse", animationDuration: "7s", animationDelay: "1s", animationIterationCount: "infinite" }}
+              style={{
+                animationName: "pulse",
+                animationDuration: "7s",
+                animationDelay: "1s",
+                animationIterationCount: "infinite",
+              }}
             />
 
             {/* Enhanced Neural Network Grid */}
@@ -231,15 +256,30 @@ export function PexelsImageModal({
             {/* Floating Particles */}
             <div
               className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/60 rounded-full"
-              style={{ animationName: "bounce", animationDuration: "3s", animationDelay: "0s", animationIterationCount: "infinite" }}
+              style={{
+                animationName: "bounce",
+                animationDuration: "3s",
+                animationDelay: "0s",
+                animationIterationCount: "infinite",
+              }}
             />
             <div
               className="absolute top-3/4 left-3/4 w-1.5 h-1.5 bg-purple-400/60 rounded-full"
-              style={{ animationName: "bounce", animationDuration: "4s", animationDelay: "1s", animationIterationCount: "infinite" }}
+              style={{
+                animationName: "bounce",
+                animationDuration: "4s",
+                animationDelay: "1s",
+                animationIterationCount: "infinite",
+              }}
             />
             <div
               className="absolute top-1/2 right-1/4 w-1 h-1 bg-cyan-400/60 rounded-full"
-              style={{ animationName: "bounce", animationDuration: "5s", animationDelay: "2s", animationIterationCount: "infinite" }}
+              style={{
+                animationName: "bounce",
+                animationDuration: "5s",
+                animationDelay: "2s",
+                animationIterationCount: "infinite",
+              }}
             />
           </div>
 
@@ -554,14 +594,17 @@ export function PexelsImageModal({
                           setUploadProgress(0);
 
                           // 1) Download and compress the Pexels image to <= 700 KB
-                          const compressed = (await downloadAndCompressImage(selectedImage, {
-                            maxSizeKB: 700,
-                            mimeType: "image/jpeg",
-                            maxWidth: 2000,
-                            maxHeight: 2000,
-                            returnType: "file",
-                            outputFilename: "pexels-image-compressed.jpg",
-                          })) as File;
+                          const compressed = (await downloadAndCompressImage(
+                            selectedImage,
+                            {
+                              maxSizeKB: 700,
+                              mimeType: "image/jpeg",
+                              maxWidth: 2000,
+                              maxHeight: 2000,
+                              returnType: "file",
+                              outputFilename: "pexels-image-compressed.jpg",
+                            }
+                          )) as File;
 
                           // 2) Upload it to our server to save locally
                           const result = await uploadFile(compressed, {
@@ -569,7 +612,10 @@ export function PexelsImageModal({
                             preview: true,
                             onUploadProgress: (evt) => {
                               if (!evt.total) return;
-                              const percent = Math.min(99, Math.round((evt.loaded / evt.total) * 100));
+                              const percent = Math.min(
+                                99,
+                                Math.round((evt.loaded / evt.total) * 100)
+                              );
                               setUploadProgress(percent);
                             },
                           });

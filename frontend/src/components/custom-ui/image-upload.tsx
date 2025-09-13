@@ -59,7 +59,7 @@ export function ImageUpload({
       // Compress each file to <= 700 KB, output JPEG for good size/compatibility
       try {
         const compressed = (await compressImageFile(file, {
-          maxSizeKB: 700,
+          maxSizeKB: 250,
           mimeType: "image/jpeg",
           maxWidth: 2000,
           maxHeight: 2000,
