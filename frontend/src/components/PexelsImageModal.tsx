@@ -711,7 +711,7 @@ export function PexelsImageModal({
                               <div
                                 key={image.id}
                                 className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl ${
-                                  selectedImage === image.src.original
+                                  selectedImage === image.src.small
                                     ? "ring-2 ring-blue-500 border-blue-500 shadow-lg shadow-blue-500/25"
                                     : "border-white/30 dark:border-slate-700/30 hover:border-blue-400/50"
                                 }`}
