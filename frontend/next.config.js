@@ -14,7 +14,15 @@ const nextConfig = {
 
   // ✅ Configure image optimization
   images: {
-    domains: ["localhost", "127.0.0.1", "nyambika.com"],
+    domains: [
+      "localhost",
+      "127.0.0.1",
+      "nyambika.com",
+      "images.unsplash.com",
+      "images.pexels.com",
+      "res.cloudinary.com",
+      "marketplace.canva.com",
+    ],
     formats: ["image/webp", "image/avif"],
   },
 

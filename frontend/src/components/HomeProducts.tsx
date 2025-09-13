@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/custom-ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Product, Category } from "@/shared/schema";
@@ -121,6 +122,15 @@ export default function HomeProducts() {
 
   const products = (productsPages?.pages || []).flat();
 
+  // Map of products by id for quick lookups (stable reference)
+  const productsById = useMemo(() => {
+    const map: Record<string, any> = {};
+    for (const p of products as any[]) {
+      if (p?.id) map[p.id] = p;
+    }
+    return map;
+  }, [products]);
+
   // Build unique producer ids present in current products
   const producerIds = useMemo(() => {
     const ids = new Set<string>();
@@ -131,13 +141,17 @@ export default function HomeProducts() {
   }, [products]);
 
   // Fetch verification status for those producers (status lives on producer)
+  // Avoid network storms by limiting verification checks to a manageable number of producers
+  const APPLY_VERIFICATION_LIMIT = 30;
+  const shouldApplyVerification = producerIds.length > 0 && producerIds.length <= APPLY_VERIFICATION_LIMIT;
+
   const { data: verifiedMap = {}, isLoading: verifyingProducers } = useQuery<{
     [id: string]: boolean;
   }>({
-    queryKey: ["producers-verified-map", producerIds],
+    queryKey: ["producers-verified-map", producerIds.slice(0, APPLY_VERIFICATION_LIMIT)],
     queryFn: async () => {
       const entries: Array<[string, boolean]> = await Promise.all(
-        producerIds.map(async (id) => {
+        producerIds.slice(0, APPLY_VERIFICATION_LIMIT).map(async (id) => {
           try {
             const res = await apiClient.get(`/api/producers/${id}`);
             const isVerified = Boolean((res.data as any)?.isVerified);
@@ -150,7 +164,7 @@ export default function HomeProducts() {
       );
       return Object.fromEntries(entries);
     },
-    enabled: producerIds.length > 0,
+    enabled: shouldApplyVerification,
     staleTime: 60_000,
   });
 
@@ -170,7 +184,8 @@ export default function HomeProducts() {
 
   // Apply active-producer filter
   const activeProducerProducts = useMemo(() => {
-    if (!producerIds.length) return locallyFilteredProducts;
+    // If verification not applied (too many producers), skip filtering by verification
+    if (!shouldApplyVerification) return locallyFilteredProducts;
     return locallyFilteredProducts.filter((p: any) => {
       const pid = p?.producerId ? String(p.producerId) : undefined;
       if (!pid) return true; // keep if no producerId info
@@ -178,7 +193,7 @@ export default function HomeProducts() {
       // Only show when verified === true
       return v === true;
     });
-  }, [locallyFilteredProducts, producerIds.length, verifiedMap]);
+  }, [locallyFilteredProducts, verifiedMap, shouldApplyVerification]);
 
   // Sentinel for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -192,11 +207,11 @@ export default function HomeProducts() {
           fetchNextPage();
         }
       },
-      { root: null, rootMargin: "600px 0px", threshold: 0 }
+      { root: null, rootMargin: "300px 0px", threshold: 0 }
     );
     obs.observe(el);
     return () => obs.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, products.length]);
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // If search/category changes and no local results in current pages, auto fetch next page
   useEffect(() => {
@@ -250,18 +265,23 @@ export default function HomeProducts() {
     },
   });
 
-  const toggleFavorite = (productId: string) => {
-    if (favorites.includes(productId)) {
-      removeFromFavoritesMutation.mutate(productId);
-      setFavorites((prev) => prev.filter((id) => id !== productId));
-    } else {
-      addToFavoritesMutation.mutate(productId);
-      setFavorites((prev) => [...prev, productId]);
-    }
-  };
+  const toggleFavorite = useCallback(
+    (productId: string) => {
+      if (favorites.includes(productId)) {
+        removeFromFavoritesMutation.mutate(productId);
+        setFavorites((prev) => prev.filter((id) => id !== productId));
+      } else {
+        addToFavoritesMutation.mutate(productId);
+        setFavorites((prev) => [...prev, productId]);
+      }
+    },
+    [favorites, removeFromFavoritesMutation, addToFavoritesMutation]
+  );
 
-  const onViewDetails = (productId: string) =>
-    router.push(`/product/${productId}`);
+  const onViewDetails = useCallback(
+    (productId: string) => router.push(`/product/${productId}`),
+    [router]
+  );
 
   // Boost mutation for producers/admin
   const boostMutation = useMutation({
@@ -286,9 +306,21 @@ export default function HomeProducts() {
   const { data: companies = [] } = useCompanies();
 
   // Handle company selection
-  const handleCompanySelect = (company: any | null) => {
+  const handleCompanySelect = useCallback((company: any | null) => {
     setSelectedCompany(company);
-  };
+  }, []);
+
+  // Stable boost handler to avoid recreating per-card closures
+  const handleBoost = useCallback(
+    (productId: string) => {
+      const product: any = productsById[productId];
+      if (!product) return;
+      if ((isAdmin || isProducer) && product.producerId === user?.id) {
+        setBoostProductId({ id: product.id, producer_id: product.producerId || "" });
+      }
+    },
+    [isAdmin, isProducer, user?.id, productsById]
+  );
 
   // Show page-level skeleton as early as possible (before first page is present)
   const noFirstPageYet =
@@ -401,11 +433,16 @@ export default function HomeProducts() {
                       <div className="bg-white dark:bg-slate-900 rounded-full p-[2px]">
                         <div className="h-[72px] w-[72px] rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
                           {logo ? (
-                            <img
+                            <Image
                               src={logo}
                               alt={label}
-                              className="h-full w-full object-cover"
+                              width={72}
+                              height={72}
+                              sizes="72px"
+                              quality={60}
+                              placeholder="empty"
                               loading="lazy"
+                              className="h-full w-full object-cover"
                             />
                           ) : (
                             <span className="text-xl font-bold text-gray-600 dark:text-gray-300">
@@ -518,17 +555,7 @@ export default function HomeProducts() {
                 isFavorited={favorites.includes(product.id)}
                 onToggleFavorite={toggleFavorite}
                 onViewDetails={onViewDetails}
-                onBoost={() => {
-                  if (
-                    (isAdmin || isProducer) &&
-                    (product as any).producerId === user?.id
-                  ) {
-                    setBoostProductId({
-                      id: product.id,
-                      producer_id: product.producerId || "",
-                    });
-                  }
-                }}
+                onBoost={handleBoost}
                 hideDesc={true}
               />
             ))}

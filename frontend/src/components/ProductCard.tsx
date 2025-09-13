@@ -1,4 +1,5 @@
-import React from "react";
+import React, { memo } from "react";
+import Image from "next/image";
 import type { Product } from "@/shared/schema";
 import { Button } from "@/components/custom-ui/button";
 import { Heart, Pencil, Trash, Zap } from "lucide-react";
@@ -22,6 +23,8 @@ export type ProductCardProps = {
   selected?: boolean;
   hideDesc?: boolean;
   compact?: boolean;
+  imagePriority?: boolean;
+  imageFetchPriority?: "high" | "low" | "auto";
 };
 
 function formatPrice(price: string | number) {
@@ -35,7 +38,34 @@ function formatPrice(price: string | number) {
     .replace("RWF", "RWF");
 }
 
-export default function ProductCard({
+// Memoize to avoid re-rendering every card on list-level state changes
+export default memo(ProductCard, (prev, next) => {
+  // Compare primitive props and identifiers that affect rendering
+  if (prev.product.id !== next.product.id) return false;
+  if (prev.isFavorited !== next.isFavorited) return false;
+  if (prev.selected !== next.selected) return false;
+  if (prev.hideDesc !== next.hideDesc) return false;
+  if (prev.compact !== next.compact) return false;
+  if (prev.isAdmin !== next.isAdmin) return false;
+  if (prev.isProducer !== next.isProducer) return false;
+  if (prev.currentUserId !== next.currentUserId) return false;
+  if (prev.showBoostLabel !== next.showBoostLabel) return false;
+  if (prev.containerClassName !== next.containerClassName) return false;
+  // Assume callbacks are stable (useCallback in parent); if not, card will re-render.
+  return (
+    prev.onToggleFavorite === next.onToggleFavorite &&
+    prev.onViewDetails === next.onViewDetails &&
+    prev.onEdit === next.onEdit &&
+    prev.onDelete === next.onDelete &&
+    prev.onBoost === next.onBoost &&
+    prev.onCardClick === next.onCardClick &&
+    prev.hideActions === next.hideActions
+  );
+});
+
+ 
+
+function ProductCard({
   product,
   isAdmin,
   isProducer,
@@ -53,6 +83,8 @@ export default function ProductCard({
   selected,
   hideDesc,
   compact,
+  imagePriority,
+  imageFetchPriority,
 }: ProductCardProps) {
   const canManage = !!(
     isAdmin ||
@@ -62,7 +94,7 @@ export default function ProductCard({
   return (
     <div
       className={cn(
-        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-md bg-white dark:bg-gray-900 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1",
+        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-md bg-white dark:bg-gray-900 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 [content-visibility:auto] [contain-intrinsic-size:400px]",
         selected && "ring-2 ring-blue-400 shadow-blue-200/50",
         containerClassName
       )}
@@ -88,15 +120,18 @@ export default function ProductCard({
           compact ? "" : ""
         )}
       >
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          loading="lazy"
-          className="min-h-full min-w-full rounded-t-md aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
-          onError={(e) => {
-            (e.currentTarget as HTMLImageElement).src =
-              "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500";
-          }}
+        <Image
+          src={product.imageUrl || "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500"}
+          alt={product.name || "Product image"}
+          width={600}
+          height={600}
+          sizes="(min-width: 1024px) 16.66vw, (min-width: 768px) 25vw, 50vw"
+          quality={70}
+          loading={imagePriority ? undefined : "lazy"}
+          priority={!!imagePriority}
+          fetchPriority={imageFetchPriority ?? "low"}
+          placeholder="empty"
+          className="w-full h-full rounded-t-md aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             onViewDetails(product.id);

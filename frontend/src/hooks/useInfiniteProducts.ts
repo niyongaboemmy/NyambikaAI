@@ -11,7 +11,7 @@ export const useInfiniteProducts = (
     queryFn: async ({ pageParam = 0 }) => {
       try {
         const params: Record<string, string> = {
-          limit: "50",
+          limit: "24",
           offset: pageParam.toString(),
         };
 
@@ -34,8 +34,8 @@ export const useInfiniteProducts = (
       }
     },
     getNextPageParam: (lastPage, pages) => {
-      if (lastPage.length < 50) return undefined;
-      return pages.length * 50;
+      if (lastPage.length < 24) return undefined;
+      return pages.length * 24;
     },
     initialPageParam: 0,
   });
