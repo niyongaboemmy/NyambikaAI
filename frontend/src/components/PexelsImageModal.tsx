@@ -51,6 +51,9 @@ export function PexelsImageModal({
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [activeTab, setActiveTab] = useState<"search" | "upload">("search");
+  const [selectedSize, setSelectedSize] = useState<
+    "original" | "large2x" | "large" | "medium" | "small"
+  >("medium");
 
   const handleTabChange = (value: string) => {
     if (value === "search" || value === "upload") {
@@ -125,6 +128,17 @@ export function PexelsImageModal({
       default:
         return "object-cover w-full h-48";
     }
+  };
+
+  const getSrcBySize = (
+    photo: PexelsPhoto,
+    size: "original" | "large2x" | "large" | "medium" | "small"
+  ): string => {
+    // Pexels src object supports these keys; fallback to medium if missing
+    const map = photo.src as any;
+    return (
+      map?.[size] || map?.medium || map?.large || map?.small || map?.original
+    );
   };
 
   const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
@@ -695,23 +709,42 @@ export function PexelsImageModal({
                             No images found
                           </h3>
                           <p className="text-sm text-slate-500 dark:text-slate-400">
-                            Try a different search term or explore trending
-                            images.
+                            Try a different search term or explore trending images.
                           </p>
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-6">
-                        {/* Modern Masonry Grid - Increased Columns */}
+                        {/* Size selector */}
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="text-xs text-slate-500 dark:text-slate-400 mr-2">Image size:</span>
+                          {(["original", "large2x", "large", "medium", "small"] as const).map((sz) => (
+                            <button
+                              key={sz}
+                              type="button"
+                              onClick={() => setSelectedSize(sz)}
+                              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors border ${
+                                selectedSize === sz
+                                  ? "bg-blue-600 text-white border-blue-600"
+                                  : "bg-white/80 dark:bg-slate-800/80 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
+                              }`}
+                              title={`Use ${sz} size URLs`}
+                            >
+                              {sz}
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Modern Masonry Grid */}
                         <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-2 xs:gap-3">
                           {images.map((image, index) => {
-                            const handleImageClick = () =>
-                              setSelectedImage(image.src.small);
+                            const chosenUrl = getSrcBySize(image, selectedSize);
+                            const handleImageClick = () => setSelectedImage(chosenUrl);
                             return (
                               <div
                                 key={image.id}
                                 className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl ${
-                                  selectedImage === image.src.small
+                                  selectedImage === chosenUrl
                                     ? "ring-2 ring-blue-500 border-blue-500 shadow-lg shadow-blue-500/25"
                                     : "border-white/30 dark:border-slate-700/30 hover:border-blue-400/50"
                                 }`}
@@ -731,31 +764,17 @@ export function PexelsImageModal({
                                   loading="lazy"
                                   onError={handleImageError}
                                 />
-
-                                {/* Modern Selection Indicator */}
-                                {selectedImage === image.src.small && (
+                                {selectedImage === chosenUrl && (
                                   <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center backdrop-blur-sm">
                                     <div className="bg-blue-500 p-2 rounded-full shadow-lg">
-                                      <svg
-                                        className="h-4 w-4 text-white"
-                                        fill="currentColor"
-                                        viewBox="0 0 20 20"
-                                      >
-                                        <path
-                                          fillRule="evenodd"
-                                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                                          clipRule="evenodd"
-                                        />
+                                      <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                                       </svg>
                                     </div>
                                   </div>
                                 )}
-
-                                {/* Hover AI Badge */}
                                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-2 py-1 rounded-md text-xs text-white font-medium">
-                                    AI
-                                  </div>
+                                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-2 py-1 rounded-md text-xs text-white font-medium">AI</div>
                                 </div>
                               </div>
                             );
