@@ -706,7 +706,7 @@ export function PexelsImageModal({
                         <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-6 2xl:grid-cols-6 gap-2 xs:gap-3">
                           {images.map((image, index) => {
                             const handleImageClick = () =>
-                              setSelectedImage(image.src.original);
+                              setSelectedImage(image.src.small);
                             return (
                               <div
                                 key={image.id}
@@ -733,7 +733,7 @@ export function PexelsImageModal({
                                 />
 
                                 {/* Modern Selection Indicator */}
-                                {selectedImage === image.src.original && (
+                                {selectedImage === image.src.small && (
                                   <div className="absolute inset-0 bg-blue-500/20 flex items-center justify-center backdrop-blur-sm">
                                     <div className="bg-blue-500 p-2 rounded-full shadow-lg">
                                       <svg
