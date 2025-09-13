@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { Upload, X, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { cn } from "@/lib/utils";
+import { compressImageFile } from "@/utils/imageCompression";
 
 interface ImageUploadProps {
   onImagesChange: (files: File[]) => void;
@@ -27,49 +28,58 @@ export function ImageUpload({
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFiles = (files: FileList | null) => {
+  const handleFiles = async (files: FileList | null) => {
     if (!files || disabled) return;
 
     const validFiles: File[] = [];
+    const compressedFiles: File[] = [];
     const newPreviews: string[] = [];
 
-    Array.from(files).forEach((file) => {
+    for (const file of Array.from(files)) {
       // Check file type
       if (!acceptedTypes.includes(file.type)) {
         alert(`File type ${file.type} is not supported`);
-        return;
+        continue;
       }
 
       // Check file size
       if (file.size > maxSizeMB * 1024 * 1024) {
         alert(`File size must be less than ${maxSizeMB}MB`);
-        return;
+        continue;
       }
 
       // Check max images limit
       if (selectedFiles.length + validFiles.length >= maxImages) {
         alert(`Maximum ${maxImages} images allowed`);
-        return;
+        break;
       }
 
       validFiles.push(file);
 
-      // Create preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          newPreviews.push(e.target.result as string);
-          if (newPreviews.length === validFiles.length) {
-            setPreviews((prev) => [...prev, ...newPreviews]);
-          }
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+      // Compress each file to <= 700 KB, output JPEG for good size/compatibility
+      try {
+        const compressed = (await compressImageFile(file, {
+          maxSizeKB: 700,
+          mimeType: "image/jpeg",
+          maxWidth: 2000,
+          maxHeight: 2000,
+          returnType: "file",
+          outputFilename: `${file.name.replace(/\.[^.]+$/, "")}-compressed.jpg`,
+        })) as File;
+        compressedFiles.push(compressed);
 
-    if (validFiles.length > 0) {
-      const updatedFiles = [...selectedFiles, ...validFiles];
+        // Create preview from compressed file
+        const previewUrl = URL.createObjectURL(compressed);
+        newPreviews.push(previewUrl);
+      } catch (err) {
+        console.error("Failed to compress image:", err);
+      }
+    }
+
+    if (compressedFiles.length > 0) {
+      const updatedFiles = [...selectedFiles, ...compressedFiles];
       setSelectedFiles(updatedFiles);
+      setPreviews((prev) => [...prev, ...newPreviews]);
       onImagesChange(updatedFiles);
     }
   };
@@ -93,13 +103,13 @@ export function ImageUpload({
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(e.dataTransfer.files);
+      await handleFiles(e.dataTransfer.files);
     }
   };
 
@@ -132,7 +142,9 @@ export function ImageUpload({
           type="file"
           multiple
           accept={acceptedTypes.join(",")}
-          onChange={(e) => handleFiles(e.target.files)}
+          onChange={async (e) => {
+            await handleFiles(e.target.files);
+          }}
           className="hidden"
           disabled={disabled || selectedFiles.length >= maxImages}
         />

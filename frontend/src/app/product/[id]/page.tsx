@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -652,10 +653,15 @@ export default function ProductDetail() {
             {/* Product Images */}
             <div className="space-y-2 sm:space-y-4">
               <div className="aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border border-blue-200/30 dark:border-indigo-700/30 relative group shadow-2xl shadow-blue-500/10 dark:shadow-indigo-500/20">
-                <img
+                <Image
                   src={product.images?.[currentImageIndex] || product.imageUrl}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  fill
+                  sizes="(min-width: 1024px) 50vw, 100vw"
+                  quality={70}
+                  priority={false}
+                  placeholder="empty"
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {/* AI Badge */}
                 <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium flex items-center gap-1 shadow-lg shadow-purple-500/30 backdrop-blur-sm border border-white/20">
@@ -675,9 +681,15 @@ export default function ProductDetail() {
                           : "border-transparent hover:border-blue-300/60 hover:scale-105 hover:shadow-md hover:shadow-blue-500/10 dark:hover:shadow-indigo-500/20"
                       }`}
                     >
-                      <img
+                      <Image
                         src={image}
                         alt={`${product.name} ${index + 1}`}
+                        width={120}
+                        height={120}
+                        sizes="(min-width: 640px) 80px, 56px"
+                        quality={60}
+                        loading="lazy"
+                        placeholder="empty"
                         className="w-full h-full object-cover"
                       />
                     </button>

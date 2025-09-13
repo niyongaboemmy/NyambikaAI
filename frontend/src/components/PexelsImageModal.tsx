@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { searchImages, getPopularImages, PexelsPhoto } from "@/services/pexels";
 import { uploadFile } from "@/services/file-upload";
+import { compressImageFile, downloadAndCompressImage } from "@/utils/imageCompression";
 
 interface PexelsImageModalProps {
   isOpen: boolean;
@@ -144,20 +145,28 @@ export function PexelsImageModal({
     setUploading(true);
     setUploadProgress(0);
 
-    // Simulate progress
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 90) {
-          clearInterval(interval);
-          return prev;
-        }
-        return prev + 10;
-      });
-    }, 200);
-
     try {
-      // In a real app, you would get this from your auth context
-      const result = await uploadFile(file);
+      // 1) Compress client-side to <= 700 KB before uploading
+      const compressed = (await compressImageFile(file, {
+        maxSizeKB: 700,
+        mimeType: "image/jpeg",
+        maxWidth: 2000,
+        maxHeight: 2000,
+        returnType: "file",
+        outputFilename: `${file.name.replace(/\.[^.]+$/, "")}-compressed.jpg`,
+      })) as File;
+
+      // 2) Upload with progress reporting
+      const result = await uploadFile(compressed, {
+        renameFile: true,
+        preview: true,
+        onUploadProgress: (evt) => {
+          if (!evt.total) return;
+          const percent = Math.min(99, Math.round((evt.loaded / evt.total) * 100));
+          setUploadProgress(percent);
+        },
+      });
+
       setUploadProgress(100);
       onSelect(result?.url || "");
       onClose();
@@ -166,7 +175,6 @@ export function PexelsImageModal({
       // Reset progress on error
       setUploadProgress(0);
     } finally {
-      clearInterval(interval);
       setUploading(false);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
@@ -538,25 +546,67 @@ export function PexelsImageModal({
                       Cancel
                     </Button>
                     <Button
-                      onClick={() => {
-                        onSelect(selectedImage);
-                        setSelectedImage(null);
-                        onClose();
+                      disabled={uploading}
+                      onClick={async () => {
+                        if (!selectedImage) return;
+                        try {
+                          setUploading(true);
+                          setUploadProgress(0);
+
+                          // 1) Download and compress the Pexels image to <= 700 KB
+                          const compressed = (await downloadAndCompressImage(selectedImage, {
+                            maxSizeKB: 700,
+                            mimeType: "image/jpeg",
+                            maxWidth: 2000,
+                            maxHeight: 2000,
+                            returnType: "file",
+                            outputFilename: "pexels-image-compressed.jpg",
+                          })) as File;
+
+                          // 2) Upload it to our server to save locally
+                          const result = await uploadFile(compressed, {
+                            renameFile: true,
+                            preview: true,
+                            onUploadProgress: (evt) => {
+                              if (!evt.total) return;
+                              const percent = Math.min(99, Math.round((evt.loaded / evt.total) * 100));
+                              setUploadProgress(percent);
+                            },
+                          });
+
+                          setUploadProgress(100);
+                          onSelect(result?.url || "");
+                          setSelectedImage(null);
+                          onClose();
+                        } catch (err) {
+                          console.error("Failed to process Pexels image:", err);
+                        } finally {
+                          setUploading(false);
+                        }
                       }}
                       className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 xs:px-6 py-2 text-sm xs:text-base font-medium shadow-lg shadow-blue-500/25"
                     >
-                      <svg
-                        className="mr-1.5 xs:mr-2 h-3.5 w-3.5 xs:h-4 xs:w-4"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      Confirm Selection
+                      {uploading ? (
+                        <div className="flex items-center">
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing...
+                        </div>
+                      ) : (
+                        <>
+                          <svg
+                            className="mr-1.5 xs:mr-2 h-3.5 w-3.5 xs:h-4 xs:w-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                          Confirm Selection
+                        </>
+                      )}
                     </Button>
                   </div>
                 </div>

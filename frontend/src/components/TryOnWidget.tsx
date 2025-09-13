@@ -1,5 +1,6 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/custom-ui/button";
 import { AnimatePresence, motion } from "framer-motion";
@@ -873,27 +874,41 @@ export default function TryOnWidget({
                   }`}
                   title="Choose this image for try-on"
                 >
-                  <img
+                  <Image
                     src={img}
                     alt="Option"
-                    className="h-full w-full object-cover"
+                    width={96}
+                    height={96}
+                    sizes="(min-width: 1024px) 48px, (min-width: 768px) 40px, 48px"
+                    quality={60}
                     loading="lazy"
+                    placeholder="empty"
+                    className="h-full w-full object-cover"
                   />
                 </button>
               ))}
         </div>
         {selectedGarmentUrl ? (
           <div className="h-full">
-            <motion.img
+            <motion.div
               key={selectedGarmentUrl}
-              src={selectedGarmentUrl}
-              alt="Product"
-              className="w-full object-cover bg-slate-50 dark:bg-slate-800 rounded-lg"
               initial={{ opacity: 0, y: 6, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               whileHover={{ scale: 1.02, rotate: 0.2 }}
               transition={{ type: "spring", stiffness: 260, damping: 20 }}
-            />
+              className="relative w-full aspect-square bg-slate-50 dark:bg-slate-800 rounded-lg overflow-hidden"
+            >
+              <Image
+                src={selectedGarmentUrl}
+                alt="Product"
+                fill
+                sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+                quality={70}
+                priority={false}
+                placeholder="empty"
+                className="object-cover"
+              />
+            </motion.div>
           </div>
         ) : (
           <div className="w-full h-64 flex items-center justify-center text-slate-400 bg-slate-50 dark:bg-slate-800 rounded">

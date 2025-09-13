@@ -24,6 +24,10 @@ const nextConfig = {
       "marketplace.canva.com",
     ],
     formats: ["image/webp", "image/avif"],
+    // Generate only the sizes we actually use across the app
+    deviceSizes: [320, 420, 640, 768, 1024, 1280],
+    imageSizes: [32, 48, 64, 96, 120, 160, 240, 320],
+    minimumCacheTTL: 60 * 60 * 24, // 24 hours
   },
 
   // ✅ ESLint config
