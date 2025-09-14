@@ -1,5 +1,5 @@
-import React from "react";
-import { Package, Zap } from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { Package, Sparkles } from "lucide-react";
 import { FormInput } from "@/components/custom-ui/form-input";
 import FormReactSelect from "@/components/custom-ui/form-react-select";
 import {
@@ -9,6 +9,7 @@ import {
   CardTitle,
 } from "@/components/custom-ui/card";
 import { ProductFormData, CategoryOption } from "../ProductForm";
+import { apiClient, API_ENDPOINTS } from "@/config/api";
 
 interface BasicInfoStepProps {
   formData: ProductFormData;
@@ -28,6 +29,36 @@ export function BasicInfoStep({
   getFieldError,
 }: BasicInfoStepProps) {
   const options = categories || [];
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const categoryLabel = useMemo(() => {
+    const found = options.find((c) => c.id === formData.categoryId);
+    return found?.name || undefined;
+  }, [options, formData.categoryId]);
+
+  const handleSuggestTitles = async () => {
+    setAiError(null);
+    if (!formData.imageUrl) {
+      setAiError("Please add a main product image first (Step 1).");
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const { data } = await apiClient.post(API_ENDPOINTS.AI_SUGGEST_TITLES, {
+        imageUrl: formData.imageUrl,
+        categoryHint: categoryLabel,
+      });
+      if (data?.nameEn) onInputChange("name", String(data.nameEn));
+      if (data?.nameRw) onInputChange("nameRw", String(data.nameRw));
+    } catch (e: any) {
+      setAiError(
+        e?.response?.data?.message || e?.message || "Failed to fetch AI suggestions"
+      );
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -35,14 +66,31 @@ export function BasicInfoStep({
       {/* Basic Information Card */}
       <Card className="glassmorphism border-0 shadow-xl backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-2xl overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-500/5 to-purple-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
-          <CardTitle className="text-lg sm:text-xl flex items-center gap-3 text-gray-800 dark:text-gray-100">
-            <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-              <Package className="h-5 w-5" />
-            </div>
-            Product Details
-          </CardTitle>
+          <div className="flex items-center justify-between gap-2">
+            <CardTitle className="text-lg sm:text-xl flex items-center gap-3 text-gray-800 dark:text-gray-100">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+                <Package className="h-5 w-5" />
+              </div>
+              Product Details
+            </CardTitle>
+            <button
+              type="button"
+              onClick={handleSuggestTitles}
+              disabled={aiLoading}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 disabled:opacity-60 shadow-md"
+              aria-label="Suggest titles from image"
+            >
+              <Sparkles className="h-4 w-4" />
+              {aiLoading ? "Suggesting…" : "Suggest from image"}
+            </button>
+          </div>
         </CardHeader>
         <CardContent className="p-3 sm:p-4 space-y-3 sm:space-y-4">
+          {aiError && (
+            <div className="text-xs sm:text-sm text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200/60 dark:border-red-800/50 px-3 py-2 rounded-lg">
+              {aiError}
+            </div>
+          )}
           {/* Product Names */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
             <div className="space-y-2">

@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { analyzeFashionImage, generateSizeRecommendation } from "./openai";
+import { analyzeFashionImage, generateSizeRecommendation, suggestProductTitles } from "./openai";
 import { generateVirtualTryOn } from "./tryon";
 import crypto, { randomUUID } from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
@@ -139,6 +139,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "Invalid token" });
     }
   };
+
+  // ===== AI: Suggest product titles from image =====
+  app.post("/api/ai/suggest-titles", requireAuth, async (req: any, res) => {
+    try {
+      const { imageUrl, categoryHint } = req.body || {};
+      if (!imageUrl || typeof imageUrl !== "string") {
+        return res.status(400).json({ message: "imageUrl is required" });
+      }
+      const result = await suggestProductTitles(imageUrl, {
+        categoryHint:
+          typeof categoryHint === "string" && categoryHint.trim().length > 0
+            ? categoryHint
+            : undefined,
+      });
+      return res.json(result);
+    } catch (error) {
+      console.error("Error in POST /api/ai/suggest-titles:", error);
+      return res.status(500).json({ message: "Failed to suggest titles" });
+    }
+  });
 
   // ===== Generic OPAY (Esicia) payment for non-wallet uses =====
   // This endpoint initiates a payment without touching the user wallet tables.

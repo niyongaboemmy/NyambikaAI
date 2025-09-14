@@ -222,6 +222,7 @@ export const API_ENDPOINTS = {
   // AI
   AI_ANALYZE_FASHION: "/api/ai/analyze-fashion",
   AI_SIZE_RECOMMENDATION: "/api/ai/size-recommendation",
+  AI_SUGGEST_TITLES: "/api/ai/suggest-titles",
 
   // Subscriptions
   PRODUCER_SUBSCRIPTION_STATUS: "/api/producer/subscription-status",

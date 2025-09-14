@@ -274,3 +274,98 @@ export async function generateSizeRecommendation(
     throw new Error('Failed to generate size recommendation');
   }
 }
+
+// Suggest concise product titles in English and Kinyarwanda from an image URL
+// Returns a short, marketable name (3-6 words), plus a couple of alternatives when available
+export async function suggestProductTitles(
+  imageUrl: string,
+  opts?: { categoryHint?: string }
+): Promise<{
+  nameEn: string;
+  nameRw: string;
+  alternativesEn?: string[];
+  alternativesRw?: string[];
+  rationale?: string;
+}> {
+  if (!imageUrl || typeof imageUrl !== 'string') {
+    throw new Error('imageUrl is required');
+  }
+
+  // If demo mode or no key, return a safe, generic fallback
+  if (DEMO_TRYON_FALLBACK || !process.env.OPENAI_API_KEY) {
+    const base = opts?.categoryHint?.toLowerCase().includes('dress')
+      ? 'Elegant Traditional Dress'
+      : opts?.categoryHint?.toLowerCase().includes('shirt')
+      ? 'Classic Casual Shirt'
+      : 'Stylish Fashion Item';
+    const baseRw = opts?.categoryHint?.toLowerCase().includes('dress')
+      ? 'Ikanzu Nyarwanda Nziza'
+      : opts?.categoryHint?.toLowerCase().includes('shirt')
+      ? 'Ishati Yoroheje'
+      : 'Igikoresho cya Moda';
+    return {
+      nameEn: base,
+      nameRw: baseRw,
+      alternativesEn: [base + ' Pro', 'Modern ' + base.split(' ')[0]],
+      alternativesRw: [baseRw + ' Y’Ubukwe', 'Igishushanyo Gishya'],
+      rationale: 'Demo mode: generic suggestion without AI vision.',
+    };
+  }
+
+  const system = `You are an AI fashion merchandiser for an e-commerce app in Rwanda.
+Generate concise, marketable product titles from an image.
+Rules:
+- Output JSON only.
+- Keep titles short (3-6 words), no brand names, no emojis.
+- Provide English and Kinyarwanda versions.
+- If a category hint is given, align titles with it.
+- Avoid ALL CAPS; use Title Case for English.
+JSON format:
+{
+  "nameEn": string,
+  "nameRw": string,
+  "alternativesEn": string[],
+  "alternativesRw": string[],
+  "rationale": string
+}`;
+
+  const userText = `Suggest concise titles from this image.
+${opts?.categoryHint ? `Category hint: ${opts.categoryHint}` : ''}`.trim();
+
+  const resp = await openai.chat.completions.create({
+    model: 'gpt-4o',
+    response_format: { type: 'json_object' },
+    messages: [
+      { role: 'system', content: system },
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: userText },
+          { type: 'image_url', image_url: { url: imageUrl } },
+        ],
+      },
+    ],
+    max_tokens: 500,
+  });
+
+  try {
+    const json = JSON.parse(resp.choices[0].message.content || '{}');
+    // Minimal validation with sensible defaults
+    return {
+      nameEn: String(json.nameEn || 'Stylish Fashion Item'),
+      nameRw: String(json.nameRw || 'Igikoresho cya Moda'),
+      alternativesEn: Array.isArray(json.alternativesEn) ? json.alternativesEn : [],
+      alternativesRw: Array.isArray(json.alternativesRw) ? json.alternativesRw : [],
+      rationale: typeof json.rationale === 'string' ? json.rationale : undefined,
+    };
+  } catch (e) {
+    // If the model failed to return JSON, provide a graceful fallback
+    return {
+      nameEn: 'Stylish Fashion Item',
+      nameRw: 'Igikoresho cya Moda',
+      alternativesEn: [],
+      alternativesRw: [],
+      rationale: 'Fallback used due to JSON parse error',
+    };
+  }
+}
