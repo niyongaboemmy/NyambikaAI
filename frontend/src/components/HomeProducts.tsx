@@ -195,7 +195,7 @@ function HomeProductsSkeleton() {
             </div>
           </div>
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-start gap-6 pb-6 min-w-max">
+            <div className="flex items-start gap-6 pb-4 pt-2 min-w-max">
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
@@ -645,7 +645,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
             </div>
           </div>
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-start gap-6 pb-6 min-w-max">
+            <div className="flex items-start gap-6 pb-4 pt-2 min-w-max">
               {/* Company Cards */}
               {companies.map((company: any) => {
                 const isSelected = selectedCompany?.id === company.id;
