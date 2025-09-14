@@ -259,10 +259,7 @@ function OrdersPage() {
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Please log in to view your orders.
             </p>
-            <Button
-              onClick={() => open()}
-              className="gradient-bg text-white"
-            >
+            <Button onClick={() => open()} className="gradient-bg text-white">
               Log In
             </Button>
           </Card>
@@ -283,7 +280,7 @@ function OrdersPage() {
             <div className="flex items-center justify-between flex-wrap gap-3 sm:gap-0">
               <Button
                 variant="ghost"
-                onClick={() => router.push("/profile")}
+                onClick={() => router.push("/products-search")}
                 className="hover:bg-white/20 dark:hover:bg-slate-800/50 transition-all duration-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
               >
                 <ArrowLeft className="h-4 w-4" />

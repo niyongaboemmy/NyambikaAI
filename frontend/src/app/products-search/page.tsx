@@ -483,7 +483,7 @@ export default function ProductsSearchPage() {
                 <div
                   className={`flex-shrink-0 w-24 sm:w-28 aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 touch-manipulation relative group ${
                     selectedCategoryId === "all"
-                      ? "ring-4 ring-offset-2 ring-blue-500 shadow-2xl transform scale-110"
+                      ? "ring-4 ring-offset-2 ring-blue-500 shadow-2xl transform"
                       : "hover:shadow-lg hover:scale-102"
                   }`}
                   onClick={() => handleCategoryChange("all")}

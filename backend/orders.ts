@@ -1,5 +1,6 @@
 import { Response } from "express";
 import { db } from "./db";
+import crypto from "crypto";
 import { orders, orderItems, cartItems, products, users } from "./shared/schema.dialect";
 import { eq, desc, and, inArray, sql } from "drizzle-orm";
 
@@ -340,14 +341,14 @@ export const createOrder = async (req: any, res: Response) => {
       return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const { items, total, paymentMethod, shippingAddress, notes } = req.body;
+    const { items, total, paymentMethod: rawPaymentMethod, shippingAddress, notes } = req.body;
 
     // Validate required fields
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: "Order items are required" });
     }
 
-    if (!total || !paymentMethod || !shippingAddress) {
+    if (!total || !shippingAddress) {
       return res
         .status(400)
         .json({ error: "Missing required order information" });
@@ -362,24 +363,32 @@ export const createOrder = async (req: any, res: Response) => {
       }
     }
 
+    const isMySQL = String(process.env.DB_DIALECT || "postgres").toLowerCase() === "mysql";
+
     // Start transaction
     const result = await db.transaction(async (tx: any) => {
       // Create the order
-      const [newOrder] = await tx
-        .insert(orders)
-        .values({
-          customerId: userId,
-          total: parseFloat(total).toFixed(2),
-          paymentMethod,
-          paymentStatus:
-            paymentMethod === "cash_on_delivery" ? "pending" : "pending",
-          shippingAddress:
-            typeof shippingAddress === "string"
-              ? shippingAddress
-              : JSON.stringify(shippingAddress),
-          notes: notes || null,
-        })
-        .returning();
+      const orderId = crypto.randomUUID();
+      const orderValues: any = {
+        id: orderId,
+        customerId: userId,
+        total: parseFloat(total).toFixed(2),
+        status: "confirmed", // Auto-confirm direct orders
+        paymentMethod: rawPaymentMethod || "direct_order",
+        paymentStatus: "completed", // Auto-complete for direct orders
+        shippingAddress:
+          typeof shippingAddress === "string"
+            ? shippingAddress
+            : JSON.stringify(shippingAddress),
+        notes: notes || null,
+      };
+      if (isMySQL) {
+        await tx.insert(orders).values(orderValues).execute();
+      } else {
+        await tx.insert(orders).values(orderValues).returning();
+      }
+      // Select created order row for consistent return shape
+      const [newOrder] = await tx.select().from(orders).where(eq(orders.id, orderId));
 
       // Create order items
       const orderItemsData = items.map((item: any) => ({
@@ -391,7 +400,13 @@ export const createOrder = async (req: any, res: Response) => {
         color: item.color || null,
       }));
 
-      await tx.insert(orderItems).values(orderItemsData);
+      if (isMySQL) {
+        // Provide explicit UUIDs for MySQL
+        const withIds = orderItemsData.map((oi: any) => ({ id: crypto.randomUUID(), ...oi }));
+        await tx.insert(orderItems).values(withIds).execute();
+      } else {
+        await tx.insert(orderItems).values(orderItemsData).returning();
+      }
 
       // Clear user's cart after successful order
       await tx.delete(cartItems).where(eq(cartItems.userId, userId));
@@ -399,24 +414,7 @@ export const createOrder = async (req: any, res: Response) => {
       return newOrder;
     });
 
-    // Simulate payment processing for demo
-    if (paymentMethod !== "cash_on_delivery") {
-      // In a real app, you would integrate with payment providers here
-      // For demo purposes, we'll simulate a successful payment
-      setTimeout(async () => {
-        try {
-          await db
-            .update(orders)
-            .set({
-              paymentStatus: "completed",
-              status: "confirmed",
-            })
-            .where(eq(orders.id, result.id));
-        } catch (error) {
-          console.error("Error updating payment status:", error);
-        }
-      }, 2000);
-    }
+    // Orders are automatically confirmed without payment processing
 
     res.status(201).json(result);
   } catch (error) {
@@ -538,11 +536,11 @@ export const cancelOrder = async (req: any, res: Response) => {
         .json({ error: "You can only cancel your own orders" });
     }
 
-    // Only allow cancellation if order is still pending
-    if (existingOrder.status !== "pending") {
+    // Only allow cancellation if order is still pending or confirmed (since orders auto-confirm now)
+    if (!["pending", "confirmed"].includes(existingOrder.status)) {
       return res.status(400).json({
         error: "Order cannot be cancelled",
-        message: `Orders with status '${existingOrder.status}' cannot be cancelled. Only pending orders can be cancelled.`,
+        message: `Orders with status '${existingOrder.status}' cannot be cancelled.`,
       });
     }
 

@@ -20,6 +20,38 @@ export type Order = {
   items?: OrderItem[];
 };
 
+export type CreateOrderItem = {
+  productId: string;
+  quantity: number;
+  price: number | string;
+  size?: string | null;
+  color?: string | null;
+};
+
+export type CreateOrderInput = {
+  items: CreateOrderItem[];
+  shippingAddress: string | Record<string, any>;
+  notes?: string;
+  sizeEvidenceImages?: string[];
+  total: string | number;
+  subtotal?: string | number;
+  shipping?: string | number;
+  paymentMethod?: string;
+};
+
+// Fetch current user's orders
+export function useUserOrders() {
+  return useQuery<Order[]>({
+    queryKey: ["orders"],
+    queryFn: async () => {
+      const { data } = await apiClient.get(API_ENDPOINTS.ORDERS);
+      return data as Order[];
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 10_000,
+  });
+}
+
 // Fetch producer orders (current authenticated producer)
 export function useProducerOrders(limit?: number) {
   return useQuery<Order[]>({
@@ -84,6 +116,21 @@ export function useUpdateOrderValidationStatus() {
       qc.invalidateQueries({ queryKey: ["producer-stats"] });
       // Also refresh customer orders views
       qc.invalidateQueries({ queryKey: ["orders"] });
+    },
+  });
+}
+
+// Create order (auto-confirmed on backend)
+export function useCreateOrder() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: CreateOrderInput) => {
+      const { data } = await apiClient.post(API_ENDPOINTS.ORDERS, payload);
+      return data as Order;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["orders"] });
+      qc.invalidateQueries({ queryKey: ["producer-orders"] });
     },
   });
 }

@@ -793,8 +793,8 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
             </div>
           ) : activeProducerProducts.length > 0 ? (
             <>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                {activeProducerProducts.slice(0, 10).map((product: Product) => (
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
+                {activeProducerProducts.slice(0, 12).map((product: Product) => (
                   <div key={product.id} className="group">
                     <ProductCard
                       product={product}

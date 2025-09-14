@@ -186,8 +186,8 @@ function CartPage() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link href="/checkout" className="flex-1">
                   <Button className="w-full bg-gradient-to-r from-violet-500 to-blue-600 hover:from-blue-600 hover:to-violet-700 text-white py-3 sm:py-4 rounded-full font-semibold text-base sm:text-sm transition-all duration-300 transform hover:scale-105 shadow-lg">
-                    <CreditCard className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
-                    Checkout
+                    <ShoppingBag className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
+                    Submit Order
                   </Button>
                 </Link>
                 <Link href="/products" className="sm:flex-shrink-0">

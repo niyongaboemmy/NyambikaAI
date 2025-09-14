@@ -480,6 +480,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+  // ===== Orders Endpoints =====
+  // Create a new order (auto-confirmed, no payment step per current flow)
+  app.post("/api/orders", requireAuth, async (req, res) => {
+    try {
+      await createOrder(req as any, res as any);
+    } catch (error) {
+      console.error("Error in POST /api/orders:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get current user's orders
+  app.get("/api/orders", requireAuth, async (req, res) => {
+    try {
+      await getUserOrders(req as any, res as any);
+    } catch (error) {
+      console.error("Error in GET /api/orders:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Get order by id (role-sensitive; customers see own orders, producers see items they own, admins see all)
+  app.get("/api/orders/:id", requireAuth, async (req, res) => {
+    try {
+      await getOrderById(req as any, res as any);
+    } catch (error) {
+      console.error("Error in GET /api/orders/:id:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Update order (status, trackingNumber, notes) with role checks
+  app.put("/api/orders/:id", requireAuth, async (req, res) => {
+    try {
+      await updateOrder(req as any, res as any);
+    } catch (error) {
+      console.error("Error in PUT /api/orders/:id:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Cancel order (customer-only, pending/confirmed)
+  app.delete("/api/orders/:id", requireAuth, async (req, res) => {
+    try {
+      await cancelOrder(req as any, res as any);
+    } catch (error) {
+      console.error("Error in DELETE /api/orders/:id:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Producer: get orders that include items owned by the producer (current user)
+  app.get("/api/producer/orders", requireAuth, async (req, res) => {
+    try {
+      await getProducerOrders(req as any, res as any);
+    } catch (error) {
+      console.error("Error in GET /api/producer/orders:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  // Producer: get orders by explicit producerId (admin or the producer themselves)
+  app.get("/api/orders/producer/:producerId", requireAuth, async (req, res) => {
+    try {
+      await getOrdersByProducerId(req as any, res as any);
+    } catch (error) {
+      console.error("Error in GET /api/orders/producer/:producerId:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   // ===== Wallet Endpoints =====
   // Get current user's wallet (creates one if missing)
   app.get("/api/wallet", requireAuth, async (req: any, res) => {
@@ -3330,11 +3401,23 @@ try {
 
   app.post("/api/cart", requireAuth, async (req: any, res) => {
     try {
-      const validatedData = insertCartItemSchema.parse({
-        ...req.body,
-        userId: req.userId,
+      const addToCartSchema = z.object({
+        productId: z.string().min(1, "productId is required"),
+        quantity: z.coerce.number().int().positive().default(1),
+        size: z.string().optional().nullable(),
+        color: z.string().optional().nullable(),
       });
-      const cartItem = await storage.addToCart(validatedData);
+
+      const parsed = addToCartSchema.parse(req.body || {});
+      const payload = {
+        userId: req.userId as string,
+        productId: parsed.productId,
+        quantity: parsed.quantity,
+        size: parsed.size ?? "",
+        color: parsed.color ?? "",
+      } as const;
+
+      const cartItem = await storage.addToCart(payload as any);
       res.status(201).json(cartItem);
     } catch (error) {
       if (error instanceof z.ZodError) {

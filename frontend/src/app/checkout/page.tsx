@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
+import { API_ENDPOINTS, apiClient, handleApiError } from "@/config/api";
 import { Button } from "@/components/custom-ui/button";
 import {
   Card,
@@ -16,12 +16,11 @@ import {
 } from "@/components/custom-ui/card";
 import { FormInput } from "@/components/custom-ui/form-input";
 import { Textarea } from "@/components/custom-ui/textarea";
-import { RadioGroup, RadioGroupItem } from "@/components/custom-ui/radio-group";
 import { Separator } from "@/components/custom-ui/separator";
 import { ImageUpload } from "@/components/custom-ui/image-upload";
+import { useCreateOrder } from "@/hooks/use-orders";
 import {
   ArrowLeft,
-  CreditCard,
   Truck,
   MapPin,
   Phone,
@@ -42,44 +41,11 @@ interface ShippingAddress {
   country: string;
 }
 
-interface PaymentMethod {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ComponentType<any>;
-  demo: boolean;
-}
+type FieldErrors = Partial<Record<keyof ShippingAddress, string>> & {
+  billing?: Partial<Record<keyof ShippingAddress, string>>;
+};
 
-const paymentMethods: PaymentMethod[] = [
-  {
-    id: "momo",
-    name: "Mobile Money",
-    description: "Pay with MTN Mobile Money or Airtel Money",
-    icon: Phone,
-    demo: true,
-  },
-  {
-    id: "card",
-    name: "Credit/Debit Card",
-    description: "Visa, Mastercard, or local bank cards",
-    icon: CreditCard,
-    demo: true,
-  },
-  {
-    id: "bank_transfer",
-    name: "Bank Transfer",
-    description: "Direct bank transfer",
-    icon: CreditCard,
-    demo: true,
-  },
-  {
-    id: "cash_on_delivery",
-    name: "Cash on Delivery",
-    description: "Pay when your order arrives",
-    icon: Truck,
-    demo: false,
-  },
-];
+// Payment methods removed: orders auto-submit without payment step
 
 function CheckoutPage() {
   const router = useRouter();
@@ -87,8 +53,11 @@ function CheckoutPage() {
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedPayment, setSelectedPayment] = useState("momo");
+  const createOrder = useCreateOrder();
+  const isSubmitting = createOrder.isPending;
+  const [isNavigating, setIsNavigating] = useState(false);
+  const isBusy = isSubmitting || isNavigating;
+  // Removed payment selection - orders now auto-submit without payment
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     fullName: user?.name || "",
     email: user?.email || "",
@@ -112,6 +81,7 @@ function CheckoutPage() {
   const [useSameAddress, setUseSameAddress] = useState(true);
   const [notes, setNotes] = useState("");
   const [sizeEvidenceImages, setSizeEvidenceImages] = useState<File[]>([]);
+  const [errors, setErrors] = useState<FieldErrors>({});
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -147,31 +117,75 @@ function CheckoutPage() {
     }
   };
 
-  const validateAddress = (address: ShippingAddress): boolean => {
-    const required = ["fullName", "email", "phone", "address", "city"];
-    return required.every((field) => address[field as keyof ShippingAddress]);
+  const validateAddress = (
+    address: ShippingAddress,
+    which: "shipping" | "billing" = "shipping"
+  ): boolean => {
+    const newErrors: FieldErrors = { ...errors };
+    const bucket =
+      which === "billing"
+        ? (newErrors.billing = { ...(newErrors.billing || {}) })
+        : newErrors;
+
+    // Required checks
+    const required: (keyof ShippingAddress)[] = [
+      "fullName",
+      "email",
+      "phone",
+      "address",
+      "city",
+    ];
+    required.forEach((field) => {
+      const val = String(address[field] || "").trim();
+      if (!val) {
+        (bucket as any)[field] = "This field is required";
+      } else {
+        if (bucket) delete (bucket as any)[field];
+      }
+    });
+
+    // Email format
+    if (address.email) {
+      const ok = /.+@.+\..+/.test(address.email);
+      if (!ok) (bucket as any).email = "Please enter a valid email";
+    }
+
+    // Phone format (Rwanda: allow 07xxxxxxxx or +2507xxxxxxxx)
+    if (address.phone) {
+      const digits = String(address.phone).replace(/\D/g, "");
+      const ok = /^07\d{8}$/.test(digits) || /^2507\d{8}$/.test(digits);
+      if (!ok)
+        (bucket as any).phone = "Please enter a valid phone (07XXXXXXXX)";
+    }
+
+    setErrors(newErrors);
+    const hasErrors = Object.keys(newErrors).some((k) => {
+      if (k === "billing")
+        return Object.keys(newErrors.billing || {}).length > 0;
+      return Boolean((newErrors as any)[k]);
+    });
+    return !hasErrors;
   };
 
   const handleSubmitOrder = async () => {
-    if (!validateAddress(shippingAddress)) {
+    const shipOk = validateAddress(shippingAddress, "shipping");
+    const billOk = useSameAddress
+      ? true
+      : validateAddress(billingAddress, "billing");
+    if (!shipOk || !billOk) {
       toast({
-        title: "Missing Information",
-        description: "Please fill in all required shipping information.",
+        title: "Validation errors",
+        description: "Please fix the highlighted fields.",
         variant: "destructive",
       });
+      // Scroll to first error field
+      setTimeout(() => {
+        const firstErr = document.querySelector('[data-error="true"]');
+        if (firstErr && firstErr instanceof HTMLElement)
+          firstErr.scrollIntoView({ behavior: "smooth", block: "center" });
+      }, 0);
       return;
     }
-
-    if (!useSameAddress && !validateAddress(billingAddress)) {
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required billing information.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
 
     try {
       // Calculate subtotal from cart items
@@ -218,7 +232,7 @@ function CheckoutPage() {
           price: item.price, // Add price to each item
         })),
         shippingAddress: JSON.stringify(shippingAddress), // Stringify the address object
-        paymentMethod: selectedPayment,
+        paymentMethod: "direct_order", // Auto-submit without payment
         notes,
         sizeEvidenceImages: sizeEvidenceUrls, // Add uploaded image URLs
         total: orderTotal.toFixed(2), // Include shipping in total
@@ -227,10 +241,7 @@ function CheckoutPage() {
       };
 
       // Call backend directly via centralized apiClient (adds Authorization)
-      const { data: order } = await apiClient.post(
-        API_ENDPOINTS.ORDERS,
-        orderData
-      );
+      const order = await createOrder.mutateAsync(orderData);
 
       // Clear cart and wait for it to complete
       await new Promise<void>((resolve) => {
@@ -245,8 +256,11 @@ function CheckoutPage() {
         description: `Your order #${order.id.slice(0, 8)} has been placed.`,
       });
 
-      // Redirect to orders page
-      return router.push("/orders");
+      // Redirect to orders page and keep overlay visible during route change
+      setIsNavigating(true);
+      router.push("/orders");
+      // Fallback: if navigation is slow, keep overlay; it'll unmount on route change
+      return;
     } catch (error) {
       console.error("Order submission error:", error);
       toast({
@@ -254,8 +268,7 @@ function CheckoutPage() {
         description: handleApiError(error),
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
+      setIsNavigating(false);
     }
   };
 
@@ -277,7 +290,16 @@ function CheckoutPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen pt-6 sm:pt-8 pb-8 md:pb-10">
+      <div className="min-h-screen pt-6 sm:pt-8 pb-8 md:pb-10 relative">
+        {/* Global loading overlay during submission/redirect */}
+        {isBusy && (
+          <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center">
+            <div className="glassmorphism border rounded-2xl px-4 py-3 flex items-center gap-3">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <span className="text-sm">Submitting your order…</span>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <div className="md:sticky top-0 z-50 glassmorphism border border-transparent rounded-2xl mb-4 sm:mb-6">
           <div className="px-3 sm:px-4 py-3 sm:py-4 flex items-center justify-between">
@@ -300,6 +322,33 @@ function CheckoutPage() {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-1 sm:gap-2 lg:gap-4">
             {/* Main Checkout Form */}
             <div className="lg:col-span-3 space-y-4 sm:space-y-4 order-first md:order-last">
+              {/* Error summary */}
+              {(Object.keys(errors).length > 0 ||
+                Object.keys(errors.billing || {}).length > 0) &&
+                (() => {
+                  const topErrors: string[] = [];
+                  Object.entries(errors).forEach(([k, v]) => {
+                    if (k === "billing") return;
+                    if (typeof v === "string" && v) topErrors.push(v);
+                  });
+                  Object.entries(errors.billing || {}).forEach(([k, v]) => {
+                    if (v) topErrors.push(`Billing ${k}: ${v}`);
+                  });
+                  if (topErrors.length === 0) return null;
+                  return (
+                    <div className="rounded-xl border border-red-300/60 bg-red-50/60 dark:bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">
+                      <div className="font-semibold mb-1">
+                        Please fix the following:
+                      </div>
+                      <ul className="list-disc ml-5 space-y-1">
+                        {topErrors.map((msg, idx) => (
+                          <li key={idx}>{msg}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })()}
+
               {/* Shipping Information */}
               <Card className="w-full overflow-hidden">
                 <CardHeader>
@@ -315,6 +364,8 @@ function CheckoutPage() {
                       label="Full Name *"
                       icon={User}
                       value={shippingAddress.fullName}
+                      error={errors.fullName}
+                      data-error={Boolean(errors.fullName) || undefined}
                       onChange={(e) =>
                         handleAddressChange("fullName", e.target.value)
                       }
@@ -326,6 +377,8 @@ function CheckoutPage() {
                       type="email"
                       icon={Mail}
                       value={shippingAddress.email}
+                      error={errors.email}
+                      data-error={Boolean(errors.email) || undefined}
                       onChange={(e) =>
                         handleAddressChange("email", e.target.value)
                       }
@@ -339,6 +392,8 @@ function CheckoutPage() {
                       label="Phone Number *"
                       icon={Phone}
                       value={shippingAddress.phone}
+                      error={errors.phone}
+                      data-error={Boolean(errors.phone) || undefined}
                       onChange={(e) =>
                         handleAddressChange("phone", e.target.value)
                       }
@@ -361,6 +416,8 @@ function CheckoutPage() {
                     label="Street Address *"
                     icon={MapPin}
                     value={shippingAddress.address}
+                    error={errors.address}
+                    data-error={Boolean(errors.address) || undefined}
                     onChange={(e) =>
                       handleAddressChange("address", e.target.value)
                     }
@@ -372,6 +429,8 @@ function CheckoutPage() {
                       id="city"
                       label="City *"
                       value={shippingAddress.city}
+                      error={errors.city}
+                      data-error={Boolean(errors.city) || undefined}
                       onChange={(e) =>
                         handleAddressChange("city", e.target.value)
                       }
@@ -399,56 +458,7 @@ function CheckoutPage() {
                 </CardContent>
               </Card>
 
-              {/* Payment Method */}
-              <Card className="w-full overflow-hidden">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CreditCard className="h-5 w-5" />
-                    Payment Method
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-3 md:p-6 md:pt-0">
-                  <RadioGroup
-                    value={selectedPayment}
-                    onValueChange={setSelectedPayment}
-                    className="space-y-1 sm:space-y-1"
-                  >
-                    {paymentMethods.map((method) => {
-                      const Icon = method.icon;
-                      return (
-                        <div
-                          key={method.id}
-                          className={`flex items-start p-3 sm:p-4 border rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-200 cursor-pointer ${
-                            selectedPayment === method.id
-                              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                              : "border-gray-200 dark:border-gray-700"
-                          }`}
-                          style={{ gap: "12px" }}
-                          onClick={() => setSelectedPayment(method.id)}
-                        >
-                          <RadioGroupItem value={method.id} id={method.id} />
-                          <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
-                          <div className="flex-1 min-w-0 overflow-hidden">
-                            <div className="flex items-center gap-2 w-full">
-                              <span className="font-medium text-sm sm:text-base truncate">
-                                {method.name}
-                              </span>
-                              {method.demo && (
-                                <span className="flex-shrink-0 text-xs bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 px-2 py-1 rounded-full">
-                                  DEMO
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 break-words">
-                              {method.description}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </RadioGroup>
-                </CardContent>
-              </Card>
+              {/* Order will be submitted automatically without payment */}
 
               {/* Size Evidence Photos */}
               <Card className="w-full overflow-hidden">
@@ -554,19 +564,21 @@ function CheckoutPage() {
                   {/* Place Order Button */}
                   <Button
                     onClick={handleSubmitOrder}
-                    disabled={isSubmitting}
+                    disabled={isBusy}
                     className="w-full gradient-bg text-white py-3 sm:py-4 text-sm sm:text-base font-semibold"
                   >
-                    {isSubmitting ? (
+                    {isBusy ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Processing Order...
+                        Submitting Order...
                       </>
                     ) : (
                       <>
-                        <CreditCard className="h-4 w-4 mr-2" />
-                        <span className="hidden sm:inline">Place Order • </span>
-                        <span className="sm:hidden">Order • </span>
+                        <ShoppingBag className="h-4 w-4 mr-2" />
+                        <span className="hidden sm:inline">
+                          Submit Order •{" "}
+                        </span>
+                        <span className="sm:hidden">Submit • </span>
                         {formatPrice(total)}
                       </>
                     )}

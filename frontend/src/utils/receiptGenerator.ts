@@ -281,7 +281,7 @@ export const generateReceipt = (order: OrderDetails) => {
   pdf.setFontSize(8);
   pdf.setFont("helvetica", "normal");
   pdf.text(
-    "support@nyambika.com | +1 (555) 123-4567",
+    "support@nyambika.com | +250 782 634 364",
     pageWidth / 2,
     footerY + 22,
     { align: "center" }
