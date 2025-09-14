@@ -1,6 +1,6 @@
 import React, { memo } from "react";
 import Image from "next/image";
-import type { Product } from "@/shared/schema";
+import type { Product } from "@/shared/types/product";
 import { Button } from "@/components/custom-ui/button";
 import { Heart, Pencil, Trash, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,7 +28,15 @@ export type ProductCardProps = {
 };
 
 function formatPrice(price: string | number) {
-  const numPrice = typeof price === "string" ? parseFloat(price) : price;
+  // Handle null/undefined cases
+  if (price === null || price === undefined) return 'RWF 0';
+  
+  // Convert string to number if needed
+  const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
+  
+  // Handle NaN case
+  if (isNaN(numPrice)) return 'RWF 0';
+  
   return new Intl.NumberFormat("rw-RW", {
     style: "currency",
     currency: "RWF",

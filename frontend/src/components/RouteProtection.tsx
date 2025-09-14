@@ -21,6 +21,7 @@ const ROUTE_CONFIG = {
     "/register",
     "/try-on-widget/[productId]",
     "/try-on",
+    "/products-search",
   ],
 
   // Protected routes (authentication required)

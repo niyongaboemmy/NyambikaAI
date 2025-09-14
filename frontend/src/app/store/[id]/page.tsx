@@ -1180,19 +1180,21 @@ export default function StorePage() {
                     product={{
                       id: product.id,
                       name: product.name,
-                      nameRw: product.nameRw,
-                      description: product.description,
-                      price: product.price,
-                      imageUrl: product.imageUrl,
-                      categoryId: product.categoryId,
+                      nameRw: product.nameRw || '',
+                      description: product.description || '',
+                      price: product.price || 0,
+                      imageUrl: product.imageUrl || '',
+                      categoryId: product.categoryId || '',
+                      categoryName: product.categoryName || null,
                       sizes: product.sizes || null,
                       colors: product.colors || null,
-                      inStock: product.inStock,
-                      createdAt: null,
-                      producerId: (company as any)?.producerId || null,
+                      inStock: product.inStock || false,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                      producerId: (company as any)?.producerId || '',
                       additionalImages: null,
-                      stockQuantity: null,
-                      //   isApproved: null,
+                      stockQuantity: product.stockQuantity || 0,
+                      isApproved: product.isApproved || false
                     }}
                     isProducer={isProducer}
                     isAdmin={isAdmin}
@@ -1222,19 +1224,21 @@ export default function StorePage() {
                     product={{
                       id: product.id,
                       name: product.name,
-                      nameRw: product.nameRw,
-                      description: product.description,
-                      price: product.price,
-                      imageUrl: product.imageUrl,
-                      categoryId: product.categoryId,
+                      nameRw: product.nameRw || '',
+                      description: product.description || '',
+                      price: product.price || 0,
+                      imageUrl: product.imageUrl || '',
+                      categoryId: product.categoryId || '',
+                      categoryName: product.categoryName || null,
                       sizes: product.sizes || null,
                       colors: product.colors || null,
-                      inStock: product.inStock,
-                      createdAt: null,
-                      producerId: (company as any)?.producerId || null,
+                      inStock: product.inStock || false,
+                      createdAt: new Date(),
+                      updatedAt: new Date(),
+                      producerId: (company as any)?.producerId || '',
                       additionalImages: null,
-                      stockQuantity: null,
-                      //   isApproved: null,
+                      stockQuantity: product.stockQuantity || 0,
+                      isApproved: product.isApproved || false
                     }}
                     isProducer={isProducer}
                     isAdmin={isAdmin}

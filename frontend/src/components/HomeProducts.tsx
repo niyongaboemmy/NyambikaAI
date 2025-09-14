@@ -1,80 +1,307 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/custom-ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { Product, Category } from "@/shared/schema";
-import ProductCard from "@/components/ProductCard";
 import BoostProductDialog from "@/components/BoostProductDialog";
-import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
-import CompactSearchBar from "@/components/feed/CompactSearchBar";
-import CategoryPills from "@/components/feed/CategoryPills";
-import SelectedCompanyBar from "@/components/feed/SelectedCompanyBar";
+import ProductCard from "@/components/ProductCard";
+import type { Product } from "@/shared/types/product";
 import { useCompanies } from "@/hooks/useCompanies";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import type { Category } from "@/shared/schema";
+import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
+import { useAuth } from "@/contexts/AuthContext";
+import SelectedCompanyBar from "./feed/SelectedCompanyBar";
+
+interface HomeProductsProps {
+  searchParams?: {
+    query?: string;
+    category?: string;
+    company?: string;
+  };
+}
+
+// Modern category card component with images
+function CategoryCard({
+  category,
+  isSelected,
+  onClick,
+  productCount,
+}: {
+  category: Category & { id: string; name: string; nameRw: string };
+  isSelected: boolean;
+  onClick: () => void;
+  productCount?: number;
+}) {
+  const getCategoryImage = (category: any) => {
+    if (category.imageUrl) {
+      return category.imageUrl;
+    }
+    const imageMap: Record<string, string> = {
+      Clothing: "👗",
+      Accessories: "💍",
+      Shoes: "👠",
+      Bags: "👜",
+      Electronics: "📱",
+      Beauty: "💄",
+      All: "🛍️",
+      Fashion: "✨",
+      Sports: "⚽",
+      Home: "🏠",
+    };
+    return imageMap[category.name] || "🛍️";
+  };
+
+  const getGradientColors = (categoryName: string) => {
+    const gradientMap: Record<string, string> = {
+      Clothing: "from-blue-600/80 via-blue-500/80 to-blue-400/80",
+      Accessories: "from-blue-700/80 via-blue-600/80 to-indigo-500/80",
+      Shoes: "from-blue-500/80 via-cyan-500/80 to-violet-500/80",
+      Bags: "from-blue-800/80 via-blue-600/80 to-violet-500/80",
+      Electronics: "from-slate-600/80 via-blue-600/80 to-blue-500/80",
+      Beauty: "from-blue-500/80 via-indigo-500/80 to-purple-500/80",
+      All: "from-blue-600/80 via-blue-500/80 to-sky-400/80",
+      Fashion: "from-blue-700/80 via-indigo-600/80 to-blue-500/80",
+      Sports: "from-blue-500/80 via-cyan-500/80 to-violet-400/80",
+      Home: "from-blue-800/80 via-blue-600/80 to-blue-400/80",
+    };
+    return (
+      gradientMap[categoryName] || "from-blue-500/80 via-blue/80 to-violet/50"
+    );
+  };
+
+  const categoryImage = getCategoryImage(category);
+  const isImageUrl = categoryImage.startsWith("http");
+
+  return (
+    <button
+      onClick={onClick}
+      className={`group relative overflow-hidden rounded-3xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 ${
+        isSelected
+          ? "ring-4 ring-purple-500/50 shadow-2xl shadow-purple-500/30 scale-105"
+          : "hover:shadow-2xl hover:shadow-black/20"
+      } aspect-[4/5]`}
+    >
+      {/* Background Image or Gradient */}
+      <div className="absolute inset-0">
+        {isImageUrl ? (
+          <>
+            <img
+              src={categoryImage}
+              alt={category.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+            <div
+              className={`absolute inset-0 bg-gradient-to-t ${getGradientColors(
+                category.name
+              )} mix-blend-multiply group-hover:opacity-80 transition-opacity duration-300`}
+            />
+          </>
+        ) : (
+          <div
+            className={`w-full h-full bg-gradient-to-br ${getGradientColors(
+              category.name
+            )}`}
+          />
+        )}
+      </div>
+
+      {/* Floating particles animation */}
+      <div className="absolute inset-0 overflow-hidden">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute w-1 h-1 bg-white/40 rounded-full animate-float"
+            style={{
+              left: `${10 + i * 15}%`,
+              top: `${20 + (i % 3) * 25}%`,
+              animationDelay: `${i * 0.8}s`,
+              animationDuration: "4s",
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Emoji Icon for non-image categories */}
+      {!isImageUrl && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-6xl group-hover:scale-110 group-hover:animate-bounce transition-all duration-300 drop-shadow-lg">
+            {categoryImage}
+          </span>
+        </div>
+      )}
+
+      {/* Floating Content Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+          <h3 className="font-bold text-white text-xl mb-1 drop-shadow-lg">
+            {category.name}
+          </h3>
+          {productCount !== undefined && (
+            <p className="text-white/90 text-sm font-medium drop-shadow">
+              {productCount} items ✨
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Selection indicator */}
+      {isSelected && (
+        <div className="absolute top-4 right-4 z-20">
+          <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
+            <span className="text-2xl animate-bounce">💖</span>
+          </div>
+        </div>
+      )}
+
+      {/* Sparkle effect on hover */}
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div
+            key={i}
+            className="absolute text-white/80 animate-ping text-sm"
+            style={{
+              left: `${Math.random() * 80 + 10}%`,
+              top: `${Math.random() * 80 + 10}%`,
+              animationDelay: `${i * 0.3}s`,
+              animationDuration: "2s",
+            }}
+          >
+            ✨
+          </div>
+        ))}
+      </div>
+
+      {/* Hover overlay */}
+      <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+    </button>
+  );
+}
 
 // Page-level skeleton shown during initial load
 function HomeProductsSkeleton() {
   return (
-    <section id="home-products">
-      <div className="animate-in fade-in-0 duration-500">
-        {/* Header skeleton */}
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <div className="h-6 w-40 rounded bg-gray-200 dark:bg-gray-700 animate-pulse mb-2" />
-            <div className="h-4 w-56 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+    <section id="home-products" className="space-y-8 w-full min-h-screen">
+      <div className="">
+        {/* Brands Stories skeleton */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-6">
+            <div className="h-6 w-32 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+            <div className="flex gap-1">
+              <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+              <div className="w-2 h-2 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+            </div>
           </div>
-          <div className="h-9 w-9 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
+          <div className="overflow-x-auto scrollbar-hide">
+            <div className="flex items-start gap-6 pb-6 min-w-max">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="min-w-[180px] aspect-[4/5] rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse"
+                />
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Stories skeleton */}
-        <div className="mb-2 overflow-x-auto">
-          <div className="flex items-start gap-3 pb-2 min-w-max px-1 pt-2">
-            {Array.from({ length: 7 }).map((_, i) => (
+        {/* Shop by Category skeleton */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="h-6 w-40 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+                <div className="w-3 h-3 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 md:gap-6 px-2 md:px-0">
+            {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
-                className="flex flex-col items-center gap-2 min-w-[80px]"
-              >
-                <div className="h-[76px] w-[76px] rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse" />
-                <div className="h-3 w-14 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
-              </div>
+                className="aspect-[3/4] rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse"
+              />
             ))}
           </div>
         </div>
 
-        {/* Category pills skeleton */}
-        <div className="flex gap-2 mb-2 px-1 flex-wrap">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div
-              key={i}
-              className="h-8 w-20 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"
-            />
-          ))}
-        </div>
+        {/* Trending Products skeleton */}
+        <div className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <div className="h-6 w-48 rounded bg-gray-200 dark:bg-gray-700 animate-pulse" />
+              <div className="flex items-center gap-3">
+                <div className="h-6 w-16 rounded-full bg-gray-300 dark:bg-gray-600 animate-pulse" />
+                <div className="flex gap-2">
+                  <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+                  <div className="w-5 h-5 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+                </div>
+              </div>
+            </div>
+          </div>
 
-        {/* Products grid skeleton */}
-        <div className="grid grid-cols-12 gap-2 md:gap-3 px-1">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className="col-span-6 md:col-span-4 lg:col-span-2 aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg"
-            />
-          ))}
+          {/* Products grid skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            {Array.from({ length: 10 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl"
+              />
+            ))}
+          </div>
+
+          {/* Enhanced Products Search Banner skeleton */}
+          <div className="mt-8">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 p-6 md:p-8">
+              {/* Animated Background Elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full animate-pulse" />
+                <div className="absolute top-1/2 -left-6 w-16 h-16 bg-white/5 rounded-full animate-pulse" />
+                <div className="absolute bottom-4 right-1/3 w-8 h-8 bg-white/10 rounded-full animate-pulse" />
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10 text-center">
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+                  <div className="h-6 w-64 rounded bg-gray-300 dark:bg-gray-600 animate-pulse" />
+                  <div className="w-6 h-6 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+                </div>
+
+                <div className="space-y-2 mb-6">
+                  <div className="h-4 w-80 rounded bg-gray-300 dark:bg-gray-600 animate-pulse mx-auto" />
+                  <div className="h-4 w-60 rounded bg-gray-300 dark:bg-gray-600 animate-pulse mx-auto" />
+                </div>
+
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                  <div className="h-12 w-48 rounded-2xl bg-gray-300 dark:bg-gray-600 animate-pulse" />
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+                    <div className="h-3 w-40 rounded bg-gray-300 dark:bg-gray-600 animate-pulse" />
+                    <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-export default function HomeProducts() {
+export default function HomeProducts({ searchParams }: HomeProductsProps) {
   const router = useRouter();
+  const searchParamsStr = searchParams
+    ? new URLSearchParams(searchParams as Record<string, string>).toString()
+    : "";
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [searchExpanded, setSearchExpanded] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("all");
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -120,12 +347,24 @@ export default function HomeProducts() {
     undefined // search - handled locally
   );
 
-  const products = (productsPages?.pages || []).flat();
+  // Sort products by display_order then by createdAt
+  const products: Product[] = useMemo(() => {
+    const allProducts = (productsPages?.pages || []).flatMap(
+      (page) => page.products || []
+    );
+
+    return allProducts.sort((a, b) => {
+      if (a.displayOrder !== b.displayOrder) {
+        return (a.displayOrder || 999) - (b.displayOrder || 999);
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [productsPages]);
 
   // Map of products by id for quick lookups (stable reference)
   const productsById = useMemo(() => {
-    const map: Record<string, any> = {};
-    for (const p of products as any[]) {
+    const map: Record<string, Product> = {};
+    for (const p of products) {
       if (p?.id) map[p.id] = p;
     }
     return map;
@@ -134,7 +373,7 @@ export default function HomeProducts() {
   // Build unique producer ids present in current products
   const producerIds = useMemo(() => {
     const ids = new Set<string>();
-    for (const p of products as any[]) {
+    for (const p of products) {
       if (p?.producerId) ids.add(String(p.producerId));
     }
     return Array.from(ids);
@@ -143,56 +382,86 @@ export default function HomeProducts() {
   // Fetch verification status for those producers (status lives on producer)
   // Avoid network storms by limiting verification checks to a manageable number of producers
   const APPLY_VERIFICATION_LIMIT = 30;
-  const shouldApplyVerification = producerIds.length > 0 && producerIds.length <= APPLY_VERIFICATION_LIMIT;
+  const shouldApplyVerification =
+    producerIds.length > 0 && producerIds.length <= APPLY_VERIFICATION_LIMIT;
 
-  const { data: verifiedMap = {}, isLoading: verifyingProducers } = useQuery<{
-    [id: string]: boolean;
-  }>({
-    queryKey: ["producers-verified-map", producerIds.slice(0, APPLY_VERIFICATION_LIMIT)],
-    queryFn: async () => {
-      const entries: Array<[string, boolean]> = await Promise.all(
-        producerIds.slice(0, APPLY_VERIFICATION_LIMIT).map(async (id) => {
-          try {
-            const res = await apiClient.get(`/api/producers/${id}`);
-            const isVerified = Boolean((res.data as any)?.isVerified);
-            return [id, isVerified];
-          } catch (e) {
-            // On error, default to false to be safe
-            return [id, false];
-          }
-        })
-      );
-      return Object.fromEntries(entries);
-    },
-    enabled: shouldApplyVerification,
-    staleTime: 60_000,
-  });
+  type VerifiedMap = Record<string, boolean>;
+
+  const { data: verifiedMap = {}, isLoading: verifyingProducers } =
+    useQuery<VerifiedMap>({
+      queryKey: [
+        "producers-verified-map",
+        producerIds.slice(0, APPLY_VERIFICATION_LIMIT),
+      ],
+      queryFn: async () => {
+        const entries: Array<[string, boolean]> = await Promise.all(
+          producerIds.slice(0, APPLY_VERIFICATION_LIMIT).map(async (id) => {
+            try {
+              const res = await apiClient.get(`/api/producers/${id}`);
+              const isVerified = Boolean((res.data as any)?.isVerified);
+              return [id, isVerified];
+            } catch (e) {
+              // On error, default to false to be safe
+              return [id, false];
+            }
+          })
+        );
+        return Object.fromEntries(entries);
+      },
+      enabled: shouldApplyVerification,
+      staleTime: 60_000,
+    });
 
   // Local search across all keys
   const term = (debouncedSearch || "").trim().toLowerCase();
-  const locallyFilteredProducts = useMemo(() => {
-    return products.filter((p: any) => {
+  const locallyFilteredProducts: Product[] = useMemo(() => {
+    if (!products || !Array.isArray(products)) return [];
+
+    return products.filter((product) => {
+      if (!product) return false;
       if (!term) return true;
-      return Object.values(p).some((v) => {
-        if (v == null) return false;
+
+      // Convert product to record of string values for searching
+      const productRecord: Record<string, unknown> = {
+        ...product,
+        price: product.price?.toString() || "",
+        createdAt: product.createdAt?.toString() || "",
+        updatedAt: product.updatedAt?.toString() || "",
+        name: product.name || "",
+        nameRw: product.nameRw || "",
+        description: product.description || "",
+        categoryId: product.categoryId || "",
+        producerId: product.producerId || "",
+      };
+
+      return Object.values(productRecord).some((v) => {
+        if (v == null || v === undefined) return false;
         const s =
-          typeof v === "string" ? v : typeof v === "number" ? String(v) : "";
-        return s && s.toLowerCase().includes(term);
+          typeof v === "string"
+            ? v
+            : typeof v === "number"
+            ? v.toString()
+            : typeof v === "boolean"
+            ? v.toString()
+            : v instanceof Date
+            ? v.toISOString()
+            : "";
+        return s.toLowerCase().includes(term);
       });
     });
   }, [products, term]);
 
   // Apply active-producer filter
-  const activeProducerProducts = useMemo(() => {
+  const activeProducerProducts: Product[] = useMemo(() => {
     // If verification not applied (too many producers), skip filtering by verification
-    if (!shouldApplyVerification) return locallyFilteredProducts;
-    return locallyFilteredProducts.filter((p: any) => {
+    if (!shouldApplyVerification) return locallyFilteredProducts as Product[];
+    return locallyFilteredProducts.filter((p: Product) => {
       const pid = p?.producerId ? String(p.producerId) : undefined;
       if (!pid) return true; // keep if no producerId info
-      const v = (verifiedMap as any)[pid];
+      const v = verifiedMap[pid];
       // Only show when verified === true
       return v === true;
-    });
+    }) as Product[];
   }, [locallyFilteredProducts, verifiedMap, shouldApplyVerification]);
 
   // Sentinel for infinite scroll
@@ -316,94 +585,68 @@ export default function HomeProducts() {
       const product: any = productsById[productId];
       if (!product) return;
       if ((isAdmin || isProducer) && product.producerId === user?.id) {
-        setBoostProductId({ id: product.id, producer_id: product.producerId || "" });
+        setBoostProductId({
+          id: product.id,
+          producer_id: product.producerId || "",
+        });
       }
     },
     [isAdmin, isProducer, user?.id, productsById]
   );
 
-  // Show page-level skeleton as early as possible (before first page is present)
-  const noFirstPageYet =
-    !productsPages || !(productsPages.pages && productsPages.pages.length > 0);
-  const initialLoading = categoriesLoading || productsLoading || noFirstPageYet;
-  if (initialLoading) {
+  // Debug logging
+  console.log("Categories loading:", categoriesLoading);
+  console.log("Products loading:", productsLoading);
+  console.log("Products pages:", productsPages);
+
+  // Get all products from pages
+  const allProducts =
+    productsPages?.pages?.flatMap((page) => page.products || []) || [];
+  const hasProducts = allProducts.length > 0;
+
+  // Debug logging for loading states
+  console.log("=== DEBUG ===");
+  console.log("Categories loading:", categoriesLoading);
+  console.log("Products loading:", productsLoading);
+  console.log("Has products pages:", !!productsPages);
+  console.log("Pages count:", productsPages?.pages?.length || 0);
+  console.log("Total products:", allProducts.length);
+  console.log("First page data:", productsPages?.pages?.[0]);
+
+  // Determine loading states
+  const isLoading = categoriesLoading || productsLoading;
+  const showSkeleton = isLoading && !hasProducts;
+
+  // Show skeleton only if everything is loading and we have no data yet
+  if (showSkeleton) {
+    console.log("Showing loading skeleton - initial load");
     return <HomeProductsSkeleton />;
   }
 
   return (
-    <section id="home-products" className="">
-      <div className=" ">
-        {/* Header with Search toggle and Add Product if admin/producer */}
-        <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-2xl font-bold">
-              {selectedCompany ? selectedCompany.name : "Discover"}
+    <section id="home-products" className="space-y-8 w-full min-h-screen">
+      <div className="">
+        {/* Brands */}
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-6">
+            <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white">
+              💕 Brands Stories
             </h2>
-            <p className="text-sm text-muted-foreground">
-              {selectedCompany
-                ? selectedCompany.location || "Fashion Brand"
-                : "Explore fashion from all brands"}
-            </p>
+            <div className="flex gap-1">
+              <div className="w-2 h-2 bg-pink-400 rounded-full animate-ping" />
+              <div
+                className="w-2 h-2 bg-purple-400 rounded-full animate-ping"
+                style={{ animationDelay: "0.5s" }}
+              />
+              <div
+                className="w-2 h-2 bg-rose-400 rounded-full animate-ping"
+                style={{ animationDelay: "1s" }}
+              />
+            </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => {
-                setSearchExpanded((v) => !v);
-                if (!searchExpanded) {
-                  setTimeout(() => {
-                    const input = document.querySelector(
-                      'input[type="text"]'
-                    ) as HTMLInputElement | null;
-                    input?.focus();
-                  }, 80);
-                } else {
-                  setSearchQuery("");
-                }
-              }}
-              className={`p-2 rounded-full transition-all duration-200 ${
-                searchExpanded
-                  ? "bg-foreground text-background"
-                  : "hover:bg-muted"
-              }`}
-              aria-label="Toggle search"
-            >
-              <Search className="h-6 w-6" />
-            </button>
-          </div>
-        </div>
-
-        {/* Instagram Stories - Companies selector */}
-        <div className="mb-1.5">
           <div className="overflow-x-auto scrollbar-hide">
-            <div className="flex items-start gap-3 pb-2 min-w-max px-1 pt-2">
-              {/* All Brands */}
-              <button
-                onClick={() => handleCompanySelect(null)}
-                className="flex flex-col items-center gap-2 group min-w-[80px]"
-                aria-label="Show all brands"
-              >
-                <div
-                  className={`relative transition-all duration-300 ${
-                    !selectedCompany
-                      ? "bg-gradient-to-tr from-purple-500 via-pink-500 to-red-500 shadow-lg scale-110"
-                      : "bg-gray-300 dark:bg-gray-600 group-hover:bg-gray-400 dark:group-hover:bg-gray-500"
-                  } p-[3px] rounded-full group-hover:scale-105`}
-                >
-                  <div className="bg-white dark:bg-slate-900 rounded-full p-[2px]">
-                    <div className="h-[72px] w-[72px] rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative overflow-hidden">
-                      <span className="text-white font-bold text-xl z-10">
-                        All
-                      </span>
-                      <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/10 to-transparent"></div>
-                    </div>
-                  </div>
-                </div>
-                <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center leading-tight">
-                  All Brands
-                </span>
-              </button>
-
-              {/* Company Stories */}
+            <div className="flex items-start gap-6 pb-6 min-w-max">
+              {/* Company Cards */}
               {companies.map((company: any) => {
                 const isSelected = selectedCompany?.id === company.id;
                 const label = company.name;
@@ -418,111 +661,87 @@ export default function HomeProducts() {
                 return (
                   <button
                     key={company.id}
-                    onClick={() => handleCompanySelect(company)}
-                    className="flex flex-col items-center gap-2 group min-w-[80px]"
+                    onClick={() => router.push(`/store/${company.id}`)}
+                    className="group relative min-w-[180px] aspect-[4/5] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                     aria-pressed={isSelected}
                     title={label}
                   >
-                    <div
-                      className={`relative transition-all duration-300 ${
-                        isSelected
-                          ? "bg-gradient-to-tr from-purple-500 via-pink-500 to-red-500 shadow-lg scale-110"
-                          : "bg-gray-300 dark:bg-gray-600 group-hover:bg-gradient-to-tr group-hover:from-purple-400 group-hover:via-pink-400 group-hover:to-red-400"
-                      } p-[3px] rounded-full group-hover:scale-105`}
-                    >
-                      <div className="bg-white dark:bg-slate-900 rounded-full p-[2px]">
-                        <div className="h-[72px] w-[72px] rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 flex items-center justify-center relative">
-                          {logo ? (
-                            <Image
-                              src={logo}
-                              alt={label}
-                              width={72}
-                              height={72}
-                              sizes="72px"
-                              quality={60}
-                              placeholder="empty"
-                              loading="lazy"
-                              className="h-full w-full object-cover"
-                            />
-                          ) : (
-                            <span className="text-xl font-bold text-gray-600 dark:text-gray-300">
-                              {initials}
-                            </span>
-                          )}
-                          <div className="absolute inset-0 bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
-                        </div>
+                    {/* Background image or initials */}
+                    {logo ? (
+                      <Image
+                        src={logo}
+                        alt={label}
+                        fill
+                        sizes="180px"
+                        quality={60}
+                        placeholder="empty"
+                        loading="lazy"
+                        className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-800">
+                        <span className="text-4xl font-bold text-gray-700 dark:text-gray-200">
+                          {initials}
+                        </span>
                       </div>
-                      {isSelected && (
-                        <div className="absolute -bottom-1 -right-1 h-6 w-6 bg-green-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center">
-                          <div className="h-2 w-2 bg-white rounded-full"></div>
-                        </div>
-                      )}
+                    )}
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90" />
+                    {/* Content */}
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <div className="translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
+                        <h3 className="text-white text-lg font-semibold drop-shadow">
+                          {label}
+                        </h3>
+                        {company.location && (
+                          <p className="text-white/90 text-xs truncate drop-shadow-sm">
+                            {company.location}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-xs font-medium text-gray-700 dark:text-gray-300 text-center leading-tight max-w-[75px] truncate">
-                      {label}
-                    </span>
                   </button>
                 );
               })}
-
-              {/* View All Companies */}
-              <button
-                onClick={() => router.push("/companies")}
-                className="flex flex-col items-center gap-2 group min-w-[80px]"
-                aria-label="View all companies"
-                title="View all companies"
-              >
-                <div className="relative bg-gray-200 dark:bg-gray-700 p-[3px] rounded-full group-hover:bg-gradient-to-tr group-hover:from-blue-400 group-hover:via-purple-400 group-hover:to-pink-400 transition-all duration-300 group-hover:scale-105">
-                  <div className="bg-white dark:bg-slate-900 rounded-full p-[2px]">
-                    <div className="h-[72px] w-[72px] rounded-full bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center relative border-2 border-dashed border-gray-300 dark:border-gray-600">
-                      <div className="flex flex-col items-center">
-                        <span className="text-2xl font-bold text-gray-400 dark:text-gray-500">
-                          +
-                        </span>
-                        <span className="text-[10px] font-medium text-gray-400 dark:text-gray-500">
-                          More
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400 text-center leading-tight">
-                  View All
-                </span>
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Category filter bar */}
-        <CategoryPills
-          categories={[
-            { id: "all", name: "All", nameRw: "Byose" } as any,
-            ...categories,
-          ]}
-          selectedId={selectedCategoryId}
-          onSelect={setSelectedCategoryId}
-          loading={categoriesLoading}
-        />
-
-        {/* Compact Search Bar */}
-        {searchExpanded && (
-          <CompactSearchBar
-            value={searchQuery}
-            onChange={setSearchQuery}
-            onCancel={() => {
-              setSearchExpanded(false);
-              setSearchQuery("");
-            }}
-            placeholder={
-              selectedCompany
-                ? `Search ${selectedCompany.name}...`
-                : "Search products..."
-            }
-            resultsCount={activeProducerProducts.length}
-            stickyTopClass="top-20"
-          />
-        )}
+        {/* Modern Categories Grid with Bigger Images */}
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white">
+                🎀 Shop by Category
+              </h2>
+              <div className="flex items-center gap-1">
+                <span
+                  className="text-base animate-spin"
+                  style={{ animationDuration: "3s" }}
+                >
+                  🌈
+                </span>
+                <span className="text-sm animate-bounce">✨</span>
+              </div>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 md:gap-6 px-2 md:px-0">
+            {categories.map((category) => (
+              <CategoryCard
+                key={category.id}
+                category={category}
+                isSelected={selectedCategoryId === category.id}
+                onClick={() =>
+                  router.push(`/products-search?category=${category.id}`)
+                }
+                productCount={
+                  products.filter((p: any) => p.categoryId === category.id)
+                    .length
+                }
+              />
+            ))}
+          </div>
+        </div>
 
         {/* Selected Company Bar */}
         {selectedCompany && (
@@ -532,64 +751,145 @@ export default function HomeProducts() {
           />
         )}
 
-        {/* Products Grid - Instagram Style */}
-        {productsLoading || verifyingProducers ? (
-          <div className="grid grid-cols-12 gap-2 md:gap-3 px-4 lg:px-0">
-            {Array.from({ length: 12 }).map((_, i) => (
-              <div
-                key={i}
-                className="col-span-6 md:col-span-4 lg:col-span-2 aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse rounded-lg"
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-12 gap-2 md:gap-3">
-            {activeProducerProducts.map((product: Product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                isProducer={isProducer}
-                isAdmin={isAdmin}
-                currentUserId={user?.id || undefined}
-                showBoostLabel={true}
-                isFavorited={favorites.includes(product.id)}
-                onToggleFavorite={toggleFavorite}
-                onViewDetails={onViewDetails}
-                onBoost={handleBoost}
-                hideDesc={true}
-              />
-            ))}
-            {/* Sentinel */}
-            <div ref={loadMoreRef} className="col-span-full h-2" />
-            {isFetchingNextPage && (
-              <div className="col-span-full flex justify-center py-4">
-                <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!productsLoading &&
-          !verifyingProducers &&
-          activeProducerProducts.length === 0 && (
-            <div className="text-center py-16">
-              <div className="rounded-3xl p-12 max-w-md mx-auto border">
-                <Search className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-2xl font-bold mb-2">No Products Found</h3>
-                <p className="text-muted-foreground">
-                  Try different keywords or choose another category
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setSearchQuery("")}
-                  className="mt-4"
-                >
-                  Clear Search
-                </Button>
+        {/* Cute Trending Products Section */}
+        <div className="mb-16">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold text-black dark:text-white">
+                {selectedCompany
+                  ? `${selectedCompany.name} Products`
+                  : "🔥 Trending Products"}
+              </h2>
+              <div className="flex items-center gap-3">
+                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse shadow-xl">
+                  HOT 🔥
+                </span>
+                <div className="flex gap-2">
+                  <span
+                    className="text-2xl animate-bounce"
+                    style={{ animationDelay: "0s" }}
+                  >
+                    💫
+                  </span>
+                  <span
+                    className="text-lg animate-bounce"
+                    style={{ animationDelay: "0.3s" }}
+                  >
+                    ⭐
+                  </span>
+                </div>
               </div>
             </div>
+          </div>
+
+          {productsLoading || verifyingProducers ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl"
+                />
+              ))}
+            </div>
+          ) : activeProducerProducts.length > 0 ? (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                {activeProducerProducts.slice(0, 10).map((product: Product) => (
+                  <div key={product.id} className="group">
+                    <ProductCard
+                      product={product}
+                      isProducer={isProducer}
+                      isAdmin={isAdmin}
+                      currentUserId={user?.id || undefined}
+                      showBoostLabel={true}
+                      isFavorited={favorites.includes(product.id)}
+                      onToggleFavorite={toggleFavorite}
+                      onViewDetails={onViewDetails}
+                      onBoost={handleBoost}
+                      hideDesc={true}
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {/* Enhanced Products Search Banner */}
+              {activeProducerProducts.length > 10 && (
+                <div className="mt-8">
+                  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 via-blue-600 to-blue-600 p-6 md:p-8 shadow-2xl">
+                    {/* Animated Background Elements */}
+                    <div className="absolute inset-0 overflow-hidden">
+                      <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full animate-pulse" />
+                      <div className="absolute top-1/2 -left-6 w-16 h-16 bg-white/5 rounded-full animate-bounce" />
+                      <div className="absolute bottom-4 right-1/3 w-8 h-8 bg-white/10 rounded-full animate-ping" />
+                    </div>
+
+                    {/* Content */}
+                    <div className="relative z-10 text-center">
+                      <div className="flex items-center justify-center gap-2 mb-4">
+                        <span className="text-2xl sm:text-3xl animate-bounce">
+                          🎉
+                        </span>
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
+                          More Amazing Products Await!
+                        </h3>
+                        <span
+                          className="text-2xl sm:text-3xl animate-bounce"
+                          style={{ animationDelay: "0.3s" }}
+                        >
+                          ✨
+                        </span>
+                      </div>
+
+                      <p className="text-white/90 text-sm sm:text-base md:text-lg mb-6 max-w-2xl mx-auto">
+                        Discover {activeProducerProducts.length - 10}+ more
+                        incredible products in our full collection. Find your
+                        perfect style match! 💖
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <Button
+                          onClick={() => router.push("/products-search")}
+                          className="bg-white text-purple-600 hover:bg-gray-50 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg text-sm sm:text-base w-full sm:w-auto"
+                        >
+                          🔍 Browse All Products
+                        </Button>
+
+                        <div className="flex items-center gap-2 text-white/80 text-xs sm:text-sm">
+                          <span className="animate-pulse">⚡</span>
+                          <span>Advanced search & filters available</span>
+                          <span className="animate-pulse">⚡</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="col-span-full py-12 text-center">
+              <div className="text-6xl mb-4">📦</div>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                No products found
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                We couldn't find any products matching your criteria. Try
+                adjusting your filters.
+              </p>
+              <Button
+                onClick={() => {
+                  setSelectedCategoryId("all");
+                  setSearchQuery("");
+                  setSelectedCompany(null);
+                }}
+                variant="outline"
+                className="border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary transition-colors"
+              >
+                Clear Filters
+              </Button>
+            </div>
           )}
+        </div>
+
         {/* Boost Dialog for home products */}
         {boostProductId &&
           (isAdmin || isProducer) &&

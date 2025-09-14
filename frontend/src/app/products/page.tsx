@@ -1,12 +1,12 @@
 "use client";
 
-import HomeProducts from "@/components/HomeProducts";
 import React from "react";
+import ProductsSearchPage from "../products-search/page";
 
 export default function Products() {
   return (
-    <div className="pt-8 md:pt-10 pb-12">
-      <HomeProducts />
+    <div className="">
+      <ProductsSearchPage />
     </div>
   );
 }
