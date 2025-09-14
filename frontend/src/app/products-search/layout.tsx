@@ -3,7 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import { API_BASE_URL, API_ENDPOINTS } from "@/config/api";
 
 // Use the same SITE_URL strategy as store layout for absolute URLs and consistent metadataBase
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nyambika.com";
 
 export async function generateMetadata({
   searchParams,

@@ -6,7 +6,7 @@ import { API_BASE_URL, API_ENDPOINTS } from "@/config/api";
 export const dynamic = "force-dynamic";
 
 // Build absolute URL helper (align with store layout approach)
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://nyambika.com";
 const toAbsolute = (u: string) =>
   u?.startsWith("http") || u?.startsWith("data:")
     ? u
