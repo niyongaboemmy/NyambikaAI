@@ -45,6 +45,14 @@ export async function generateMetadata({
         ...(base.twitter || {}),
         images: [logo],
       },
+      icons: {
+        icon: [
+          { url: logo, sizes: "32x32", type: "image/png" },
+          { url: logo, sizes: "16x16", type: "image/png" },
+        ],
+        shortcut: [{ url: logo, type: "image/png" }],
+        apple: [{ url: logo, sizes: "180x180", type: "image/png" }],
+      },
     };
   }
 
@@ -97,6 +105,14 @@ export async function generateMetadata({
         ...(base.twitter || {}),
         images: [logo],
       },
+      icons: {
+        icon: [
+          { url: logo, sizes: "32x32", type: "image/png" },
+          { url: logo, sizes: "16x16", type: "image/png" },
+        ],
+        shortcut: [{ url: logo, type: "image/png" }],
+        apple: [{ url: logo, sizes: "180x180", type: "image/png" }],
+      },
     };
   } catch (error) {
     // Network or API failure: still honor the selected category by using its ID as name
@@ -133,6 +149,14 @@ export async function generateMetadata({
       twitter: {
         ...(base.twitter || {}),
         images: [logo],
+      },
+      icons: {
+        icon: [
+          { url: logo, sizes: "32x32", type: "image/png" },
+          { url: logo, sizes: "16x16", type: "image/png" },
+        ],
+        shortcut: [{ url: logo, type: "image/png" }],
+        apple: [{ url: logo, sizes: "180x180", type: "image/png" }],
       },
     };
   }
