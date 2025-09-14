@@ -332,40 +332,88 @@ JSON format:
   const userText = `Suggest concise titles from this image.
 ${opts?.categoryHint ? `Category hint: ${opts.categoryHint}` : ''}`.trim();
 
-  const resp = await openai.chat.completions.create({
-    model: 'gpt-4o',
-    response_format: { type: 'json_object' },
-    messages: [
-      { role: 'system', content: system },
-      {
-        role: 'user',
-        content: [
-          { type: 'text', text: userText },
-          { type: 'image_url', image_url: { url: imageUrl } },
-        ],
-      },
-    ],
-    max_tokens: 500,
-  });
+  // Normalize image: convert external URLs to base64 data URL so OpenAI can always access it
+  let imageForModel = imageUrl;
+  try {
+    if (/^https?:\/\//i.test(imageUrl)) {
+      const base64 = await toBase64FromUrl(imageUrl);
+      imageForModel = `data:image/jpeg;base64,${base64}`;
+    } else if (/^data:image\//i.test(imageUrl)) {
+      // already a data URL; use as-is
+      imageForModel = imageUrl;
+    }
+  } catch (e) {
+    // If we fail to fetch the image for any reason, keep original URL; model might still reach it if public
+    imageForModel = imageUrl;
+  }
 
   try {
-    const json = JSON.parse(resp.choices[0].message.content || '{}');
-    // Minimal validation with sensible defaults
-    return {
-      nameEn: String(json.nameEn || 'Stylish Fashion Item'),
-      nameRw: String(json.nameRw || 'Igikoresho cya Moda'),
-      alternativesEn: Array.isArray(json.alternativesEn) ? json.alternativesEn : [],
-      alternativesRw: Array.isArray(json.alternativesRw) ? json.alternativesRw : [],
-      rationale: typeof json.rationale === 'string' ? json.rationale : undefined,
-    };
-  } catch (e) {
-    // If the model failed to return JSON, provide a graceful fallback
+    const resp = await openai.chat.completions.create({
+      model: 'gpt-4o',
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: system },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: userText },
+            { type: 'image_url', image_url: { url: imageForModel } },
+          ],
+        },
+      ],
+      max_tokens: 500,
+    });
+
+    try {
+      const json = JSON.parse(resp.choices[0].message.content || '{}');
+      // Minimal validation with sensible defaults
+      return {
+        nameEn: String(json.nameEn || 'Stylish Fashion Item'),
+        nameRw: String(json.nameRw || 'Igikoresho cya Moda'),
+        alternativesEn: Array.isArray(json.alternativesEn) ? json.alternativesEn : [],
+        alternativesRw: Array.isArray(json.alternativesRw) ? json.alternativesRw : [],
+        rationale: typeof json.rationale === 'string' ? json.rationale : undefined,
+      };
+    } catch (e) {
+      // If the model failed to return JSON, provide a graceful fallback
+      return {
+        nameEn: 'Stylish Fashion Item',
+        nameRw: 'Igikoresho cya Moda',
+        alternativesEn: [],
+        alternativesRw: [],
+        rationale: 'Fallback used due to JSON parse error',
+      };
+    }
+  } catch (err: any) {
+    const msg = err?.message || String(err);
+    // Friendly fallbacks on common API failures
+    if (/429|quota|insufficient|rate/i.test(msg)) {
+      const category = opts?.categoryHint || '';
+      const base = category.toLowerCase().includes('dress')
+        ? 'Elegant Traditional Dress'
+        : category.toLowerCase().includes('shirt')
+        ? 'Classic Casual Shirt'
+        : 'Stylish Fashion Item';
+      const baseRw = category.toLowerCase().includes('dress')
+        ? 'Ikanzu Nyarwanda Nziza'
+        : category.toLowerCase().includes('shirt')
+        ? 'Ishati Yoroheje'
+        : 'Igikoresho cya Moda';
+      return {
+        nameEn: base,
+        nameRw: baseRw,
+        alternativesEn: [base + ' Pro', 'Modern ' + base.split(' ')[0]],
+        alternativesRw: [baseRw + ' Y’Ubukwe', 'Igishushanyo Gishya'],
+        rationale: 'AI quota/rate limit fallback used',
+      };
+    }
+    // Generic fallback
     return {
       nameEn: 'Stylish Fashion Item',
       nameRw: 'Igikoresho cya Moda',
       alternativesEn: [],
       alternativesRw: [],
-      rationale: 'Fallback used due to JSON parse error',
+      rationale: 'AI service unavailable; generic fallback used',
     };
   }
 }
