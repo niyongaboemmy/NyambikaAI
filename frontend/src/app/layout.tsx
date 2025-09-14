@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
@@ -32,10 +31,7 @@ declare global {
   }
 }
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+// Removed next/font/google to prevent network fetch during build in restricted environments
 
 export const metadata: Metadata = {
   title: "NyambikaAI - AI-Powered Fashion Platform",
@@ -103,7 +99,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`font-sans ${inter.variable}`}>
+      <body className="font-sans">
         <Providers>
           {children}
           <LoadingIndicatorStyles />
