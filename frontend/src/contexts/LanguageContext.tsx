@@ -25,6 +25,17 @@ const translations = {
     profile: 'Profile',
     signIn: 'Sign In',
     signOut: 'Sign Out',
+    // Pages
+    'privacy.title': 'Privacy Policy',
+    'privacy.subtitle': 'Learn how we collect, use, and protect your data at NyambikaAI.',
+    'terms.title': 'Terms of Service',
+    'terms.subtitle': 'The rules and conditions for using NyambikaAI and our services.',
+    'cookies.title': 'Cookie Policy',
+    'cookies.subtitle': 'How we use cookies and similar technologies to improve your experience.',
+    'about.title': 'About NyambikaAI',
+    'about.subtitle': "We are building the AI-powered fashion platform for Rwanda.",
+    'contact.title': 'Get in Touch',
+    'contact.subtitle': "We'd love to hear from you. Send us a message and our team will reply promptly.",
   },
   rw: {
     home: 'Urugo',
@@ -35,6 +46,17 @@ const translations = {
     profile: 'Umwirondoro',
     signIn: 'Kwinjira',
     signOut: 'Gusohoka',
+    // Pages
+    'privacy.title': 'Politiki y’Ibanga',
+    'privacy.subtitle': 'Uko dukusanya, dukoresha, kandi turinda amakuru yawe muri NyambikaAI.',
+    'terms.title': 'Amasezerano yo Gukoresha',
+    'terms.subtitle': 'Amategeko n’amabwiriza yo gukoresha NyambikaAI.',
+    'cookies.title': 'Politiki ya Cookies',
+    'cookies.subtitle': 'Uko dukoresha cookies kugira ngo tunoze uburyo ukoresha urubuga.',
+    'about.title': 'Ibyerekeye NyambikaAI',
+    'about.subtitle': 'Turimo kubaka urubuga rw’imyenda rufashijwe na AI mu Rwanda.',
+    'contact.title': 'Tuvugishe',
+    'contact.subtitle': 'Twishimiye ubutumwa bwawe. Twohereze ubutumwa tugusubize vuba.',
   },
   fr: {
     home: 'Accueil',
@@ -45,6 +67,17 @@ const translations = {
     profile: 'Profil',
     signIn: 'Se connecter',
     signOut: 'Se déconnecter',
+    // Pages
+    'privacy.title': 'Politique de Confidentialité',
+    'privacy.subtitle': 'Découvrez comment nous collectons, utilisons et protégeons vos données.',
+    'terms.title': 'Conditions d’Utilisation',
+    'terms.subtitle': "Les règles et conditions d'utilisation de NyambikaAI.",
+    'cookies.title': 'Politique des Cookies',
+    'cookies.subtitle': 'Comment nous utilisons les cookies pour améliorer votre expérience.',
+    'about.title': 'À propos de NyambikaAI',
+    'about.subtitle': 'Nous construisons la plateforme de mode alimentée par l’IA pour le Rwanda.',
+    'contact.title': 'Nous contacter',
+    'contact.subtitle': 'Envoyez-nous un message et notre équipe vous répondra rapidement.',
   },
 };
 

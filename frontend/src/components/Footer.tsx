@@ -43,6 +43,8 @@ export default function Footer() {
   ];
 
   const legalLinks = [
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
     { href: "/privacy", label: "Privacy" },
     { href: "/terms", label: "Terms" },
     { href: "/cookies", label: "Cookies" },
@@ -240,7 +242,7 @@ export default function Footer() {
                 <Phone className="mr-3 h-4 w-4" /> +250 782 634 364
               </div>
               <div className="flex items-center">
-                <Mail className="mr-3 h-4 w-4" /> info@nyambika.rw
+                <Mail className="mr-3 h-4 w-4" /> info@nyambika.com
               </div>
               <div className="flex items-center">
                 <MapPin className="mr-3 h-4 w-4" /> Kigali, Rwanda
