@@ -72,6 +72,7 @@ export default function ContactForm() {
                 }
                 placeholder="Your name"
                 required
+                className="rounded-xl"
               />
             </div>
             <div>
@@ -86,6 +87,7 @@ export default function ContactForm() {
                 }
                 placeholder="you@example.com"
                 required
+                className="rounded-xl"
               />
             </div>
             <div>
@@ -100,6 +102,7 @@ export default function ContactForm() {
                 placeholder="How can we help?"
                 rows={6}
                 required
+                className="rounded-xl"
               />
             </div>
             <div className="pt-2">
