@@ -84,7 +84,7 @@ All implemented in `backend/agent-routes.ts`.
 
 ## Commission and Payment Rules
 
-- Commission rate: 20% of subscription amount per payment.
+- Commission rate: 40% of subscription amount per payment.
 - `subscriptionPayments` rows represent payments; `agentCommission` stored per row.
 - Billing cycles supported: `monthly` and `annual`.
 - Payment methods supported in UI: MTN Mobile Money, Airtel Money, Bank Transfer, Wallet.

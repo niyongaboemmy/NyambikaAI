@@ -29,7 +29,7 @@ Last updated: 2025-09-15
 
 ## 5. Compensation and Payouts
 
-- Commission: 20% of each subscription amount for payments processed/attributed to the Agent (stored as `agentCommission` in `subscriptionPayments`).
+- Commission: 40% of each subscription amount for payments processed/attributed to the Agent (stored as `agentCommission` in `subscriptionPayments`).
 - Payout schedule: monthly payout for completed commissions; pending or failed items are excluded until status is "completed".
 - Currency: RWF.
 - Adjustments: refunds/chargebacks or reversals reduce corresponding commissions in future payouts.

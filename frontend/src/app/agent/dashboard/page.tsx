@@ -128,7 +128,7 @@ export default function AgentDashboard() {
   const stats = {
     totalProducers: producers.length,
     activeSubscriptions: producers.filter(p => p.subscription?.status === 'active').length,
-    totalEarnings: producers.reduce((sum, p) => sum + (p.totalPaid * 0.2), 0), // 20% commission
+    totalEarnings: producers.reduce((sum, p) => sum + (p.totalPaid * 0.4), 0), // 40% commission
     expiringSoon: producers.filter(p => {
       if (!p.subscription) return false;
       const endDate = new Date(p.subscription.endDate);
@@ -317,7 +317,7 @@ export default function AgentDashboard() {
                   <p className="text-gray-400 text-xs">Subscriptions</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-white">{(producer.totalPaid * 0.2).toLocaleString()}</p>
+                  <p className="text-2xl font-bold text-white">{(producer.totalPaid * 0.4).toLocaleString()}</p>
                   <p className="text-gray-400 text-xs">Commission (RWF)</p>
                 </div>
               </div>

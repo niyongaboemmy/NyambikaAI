@@ -218,7 +218,7 @@ export const subscriptionPayments = pgTable("subscription_payments", {
     .notNull(),
   agentId: varchar("agent_id").references(() => users.id), // agent who made the payment
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
-  agentCommission: decimal("agent_commission", { precision: 10, scale: 2 }), // 20% commission
+  agentCommission: decimal("agent_commission", { precision: 10, scale: 2 }), // 40% commission
   paymentMethod: text("payment_method").notNull(),
   paymentReference: text("payment_reference"),
   status: text("status").notNull().default("pending"), // pending, completed, failed

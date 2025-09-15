@@ -58,7 +58,7 @@ Key references:
 - `PUT /api/orders/producer/:producerId`
 
 ## Subscription and Plans
-- Commission (agent): 20% of subscription payments processed by agents (global business rule).
+- Commission (agent): 40% of subscription payments processed by agents (global business rule).
 - Example plans (from product docs/memory):
   - 1 month: 50,000 RWF
   - 3 months: 135,000 RWF (10% discount)

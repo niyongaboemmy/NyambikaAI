@@ -403,7 +403,7 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
       billingCycle === "monthly"
         ? selectedPlan.monthlyPrice
         : selectedPlan.annualPrice; // decimal columns are strings in Drizzle
-    const agentCommission = (Number(amount) * 0.2).toFixed(2); // Drizzle decimal expects string
+    const agentCommission = (Number(amount) * 0.4).toFixed(2); // Drizzle decimal expects string (40% commission)
 
     // Calculate end date
     const startDate = new Date();
@@ -614,7 +614,7 @@ export async function assignAgentToProducer(req: Request, res: Response) {
 
     // Optionally, record a payment if paymentMethod was included
     if (paymentMethod) {
-      const agentCommission = (Number(amount) * 0.2).toFixed(2);
+      const agentCommission = (Number(amount) * 0.4).toFixed(2);
       await db.insert(subscriptionPayments).values({
         id: randomUUID(),
         subscriptionId: subId,

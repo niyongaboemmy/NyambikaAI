@@ -142,7 +142,7 @@ export const renewSubscription = async (req: Request, res: Response) => {
 
     const planData = plan[0];
     const amount = subscription.billingCycle === 'monthly' ? planData.monthlyPrice : planData.annualPrice;
-    const agentCommission = agentId ? (parseFloat(amount) * 0.2).toString() : null;
+    const agentCommission = agentId ? (parseFloat(amount) * 0.4).toString() : null;
 
     // Create payment record
     const paymentId = randomUUID();

@@ -633,7 +633,7 @@ export default function Register() {
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
                                   <Check className="h-3.5 w-3.5 text-emerald-600" />{" "}
-                                  Earn 20% commission on payments
+                                  Earn 40% commission on payments
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
                                   <Check className="h-3.5 w-3.5 text-emerald-600" />{" "}
