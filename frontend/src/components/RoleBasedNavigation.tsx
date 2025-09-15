@@ -59,7 +59,11 @@ export default function RoleBasedNavigation() {
   const router = useRouter();
   const { status, plan } = useProducerSubscriptionStatus();
   // Fetch wallet only when authenticated
-  const { data: wallet, formattedBalance, isLoading: walletLoading } = useWallet({ enabled: !!isAuthenticated });
+  const {
+    data: wallet,
+    formattedBalance,
+    isLoading: walletLoading,
+  } = useWallet({ enabled: !!isAuthenticated });
   const { open: openUserWalletDialog } = useUserWalletDialog();
   const { openChangePassword } = useChangePassword();
   const daysLeft = status?.expiresAt
@@ -113,7 +117,11 @@ export default function RoleBasedNavigation() {
       links: publicLinks,
       menu: [
         { href: "/products", label: "Products", icon: ShoppingCart },
-        { href: "/product-categories", label: "Product Categories", icon: Grid3X3 },
+        {
+          href: "/product-categories",
+          label: "Product Categories",
+          icon: Grid3X3,
+        },
         { href: "/product-registration", label: "Add Product", icon: Plus },
         { href: "/admin-orders", label: "Orders", icon: Package },
         { href: "/admin-users", label: "Users Management", icon: Users },
@@ -480,7 +488,9 @@ export default function RoleBasedNavigation() {
                             <Wallet className="h-3 w-3 text-white" />
                           </div>
                           <div className="flex-1 text-left">
-                            <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Wallet Balance</div>
+                            <div className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                              Wallet Balance
+                            </div>
                             <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
                               {walletLoading ? "Loading..." : formattedBalance}
                             </div>
@@ -677,15 +687,19 @@ export default function RoleBasedNavigation() {
                             <button
                               type="button"
                               onClick={() => openUserWalletDialog()}
-                              className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 group"
+                              className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 group w-full"
                             >
                               <div className="p-1 rounded bg-blue-600 group-hover:bg-blue-700 transition-colors">
                                 <Wallet className="h-3 w-3 text-white" />
                               </div>
                               <div className="text-left">
-                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">Balance</div>
+                                <div className="text-xs font-medium text-gray-700 dark:text-gray-300">
+                                  Balance
+                                </div>
                                 <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                                  {walletLoading ? "Loading..." : formattedBalance}
+                                  {walletLoading
+                                    ? "Loading..."
+                                    : formattedBalance}
                                 </div>
                               </div>
                             </button>
