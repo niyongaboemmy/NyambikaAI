@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import crypto from "crypto";
 import { db } from "./db";
 import {
   users,
@@ -7,6 +8,7 @@ import {
   products,
   subscriptionPayments,
   companies,
+  subscriptionPlans,
 } from "./shared/schema.dialect";
 import { eq, and, desc, count, sum, sql } from "drizzle-orm";
 
@@ -68,6 +70,141 @@ export async function getAdminStats(_req: Request, res: Response) {
   } catch (error) {
     console.error("Error fetching admin stats:", error);
     res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+
+// Get latest subscription for a producer (admin)
+export async function getProducerSubscriptionAdmin(req: Request, res: Response) {
+  try {
+    const { producerId } = req.params as { producerId: string };
+    // Validate producer exists
+    const [producer] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(and(eq(users.id, producerId), eq(users.role, "producer")))
+      .limit(1);
+    if (!producer) {
+      return res.status(404).json({ message: "Producer not found" });
+    }
+
+    // Get most recent subscription record with plan info
+    const rows = await db
+      .select({
+        subscription: subscriptions,
+        plan: subscriptionPlans,
+      })
+      .from(subscriptions)
+      .leftJoin(subscriptionPlans, eq(subscriptions.planId, subscriptionPlans.id))
+      .where(eq(subscriptions.userId, producerId))
+      .orderBy(desc(subscriptions.createdAt))
+      .limit(1);
+
+    if (!rows.length) {
+      return res.status(404).json({ message: "No subscription found" });
+    }
+
+    return res.json(rows[0]);
+  } catch (error) {
+    console.error("Error fetching producer subscription (admin):", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Activate a producer subscription without payment (admin-only)
+export async function activateProducerSubscription(req: Request, res: Response) {
+  try {
+    const { producerId } = req.params as { producerId: string };
+    const { planId, billingCycle } = (req.body || {}) as {
+      planId?: string;
+      billingCycle?: "monthly" | "annual";
+    };
+
+    if (!producerId || !planId || !billingCycle) {
+      return res.status(400).json({
+        message: "producerId, planId and billingCycle are required",
+      });
+    }
+
+    // Validate producer exists and has role 'producer'
+    const [producer] = await db
+      .select()
+      .from(users)
+      .where(and(eq(users.id, producerId), eq(users.role, "producer")))
+      .limit(1);
+    if (!producer) {
+      return res.status(404).json({ message: "Producer not found" });
+    }
+
+    // Validate plan
+    const [plan] = await db
+      .select()
+      .from(subscriptionPlans)
+      .where(eq(subscriptionPlans.id, planId))
+      .limit(1);
+    if (!plan) {
+      return res.status(404).json({ message: "Subscription plan not found" });
+    }
+
+    // Compute subscription dates
+    const startDate = new Date();
+    const endDate = new Date(startDate);
+    if (billingCycle === "monthly") endDate.setMonth(endDate.getMonth() + 1);
+    else endDate.setFullYear(endDate.getFullYear() + 1);
+
+    // Determine amount based on plan and cycle (for record only; no payment required)
+    const amount =
+      billingCycle === "monthly" ? plan.monthlyPrice : plan.annualPrice; // decimals as strings
+
+    // Upsert subscription for this producer
+    const [existing] = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, producerId))
+      .limit(1);
+
+    if (existing) {
+      await db
+        .update(subscriptions)
+        .set({
+          planId,
+          status: "active",
+          billingCycle,
+          startDate: startDate as any,
+          endDate: endDate as any,
+          amount, // record plan price, even though no payment is taken now
+          paymentMethod: null,
+          paymentReference: null,
+        })
+        .where(eq(subscriptions.id, existing.id));
+    } else {
+      await db.insert(subscriptions).values({
+        id: crypto.randomUUID(),
+        userId: producerId,
+        planId,
+        agentId: null,
+        status: "active",
+        billingCycle,
+        startDate: startDate as any,
+        endDate: endDate as any,
+        amount,
+        paymentMethod: null,
+        paymentReference: null,
+        autoRenew: false,
+      } as any);
+    }
+
+    return res.json({
+      message: "Subscription activated successfully",
+      producerId,
+      planId,
+      billingCycle,
+      startDate,
+      endDate,
+    });
+  } catch (error) {
+    console.error("Error activating producer subscription:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 }
 

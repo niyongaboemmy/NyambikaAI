@@ -72,6 +72,8 @@ import {
   verifyProducer as adminVerifyProducer,
   verifyAgent as adminVerifyAgent,
   getProducerCompany as adminGetProducerCompany,
+  activateProducerSubscription as adminActivateProducerSubscription,
+  getProducerSubscriptionAdmin as adminGetProducerSubscription,
 } from "./admin-routes";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -94,7 +96,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.setHeader("Content-Type", "text/html"); // no charset
     res.end("OK");
   });
-
 
   // Dedicated health endpoint with a simple, stable response
   app.get("/health", (_req, res) => {
@@ -1544,6 +1545,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await adminVerifyAgent(req as any, res as any);
       } catch (error) {
         console.error("Error in /api/admin/agents/:agentId/verify:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Admin: get latest subscription (with plan) for a producer
+  app.get(
+    "/api/admin/producers/:producerId/subscription",
+    requireAuth,
+    requireRole(["admin"]),
+    async (req, res) => {
+      try {
+        await adminGetProducerSubscription(req as any, res as any);
+      } catch (error) {
+        console.error(
+          "Error in /api/admin/producers/:producerId/subscription:",
+          error
+        );
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Admin: activate producer subscription without payment
+  app.post(
+    "/api/admin/producers/:producerId/activate-subscription",
+    requireAuth,
+    requireRole(["admin"]),
+    async (req, res) => {
+      try {
+        await adminActivateProducerSubscription(req as any, res as any);
+      } catch (error) {
+        console.error(
+          "Error in /api/admin/producers/:producerId/activate-subscription:",
+          error
+        );
         res.status(500).json({ message: "Internal server error" });
       }
     }

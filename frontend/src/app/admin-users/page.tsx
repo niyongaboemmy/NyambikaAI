@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
+import SubscriptionPlanSelector from "@/components/SubscriptionPlanSelector";
 import { useAuth } from "@/contexts/AuthContext";
 
 type Role = "producer" | "agent" | "customer" | "admin";
@@ -76,6 +77,36 @@ const AdminUsersPage: React.FC = () => {
   const [companyLoading, setCompanyLoading] = useState(false);
   const [companyError, setCompanyError] = useState<string | null>(null);
 
+  // Admin subscription activation state (for producers)
+  const [activationPlanId, setActivationPlanId] = useState<string>("");
+  const [activationBilling, setActivationBilling] = useState<
+    "monthly" | "annual"
+  >("monthly");
+  const [activationLoading, setActivationLoading] = useState(false);
+  const [activationMessage, setActivationMessage] = useState<string | null>(
+    null
+  );
+
+  // Current subscription (for selected producer)
+  interface AdminProducerSubscription {
+    subscription: {
+      id: string;
+      status: "active" | "expired" | "pending" | string;
+      startDate?: string;
+      endDate?: string;
+      billingCycle?: "monthly" | "annual" | string;
+    };
+    plan: {
+      id: string;
+      name: string;
+    } | null;
+  }
+  const [subInfo, setSubInfo] = useState<AdminProducerSubscription | null>(
+    null
+  );
+  const [subLoading, setSubLoading] = useState(false);
+  const [subError, setSubError] = useState<string | null>(null);
+
   // Enforce admin role on the page level (ProtectedRoute ensures auth only)
   const isAdmin = user?.role === "admin";
 
@@ -128,6 +159,32 @@ const AdminUsersPage: React.FC = () => {
     };
     if (isModalOpen && selected?.role === "producer") {
       loadCompany(selected.id);
+    }
+    return () => {
+      ignore = true;
+    };
+  }, [isModalOpen, selected]);
+
+  // Fetch current subscription for producer when modal opens
+  useEffect(() => {
+    let ignore = false;
+    const loadSub = async (producerId: string) => {
+      setSubLoading(true);
+      setSubError(null);
+      try {
+        const res = await apiClient.get<AdminProducerSubscription>(
+          API_ENDPOINTS.ADMIN_PRODUCER_SUBSCRIPTION(producerId)
+        );
+        if (!ignore) setSubInfo(res.data);
+      } catch (e) {
+        // It's okay if none exists; show a subtle message only if it's a true error
+        if (!ignore) setSubError(null);
+      } finally {
+        if (!ignore) setSubLoading(false);
+      }
+    };
+    if (isModalOpen && selected?.role === "producer") {
+      loadSub(selected.id);
     }
     return () => {
       ignore = true;
@@ -219,6 +276,13 @@ const AdminUsersPage: React.FC = () => {
     setSelected(null);
     setCompany(null);
     setCompanyError(null);
+    setActivationPlanId("");
+    setActivationBilling("monthly");
+    setActivationLoading(false);
+    setActivationMessage(null);
+    setSubInfo(null);
+    setSubError(null);
+    setSubLoading(false);
   };
 
   const verifySelected = async () => {
@@ -428,8 +492,12 @@ const AdminUsersPage: React.FC = () => {
               <div className="mb-6 rounded-2xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Create New User</h3>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Admins can create users with any role.</p>
+                    <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+                      Create New User
+                    </h3>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      Admins can create users with any role.
+                    </p>
                   </div>
                   <button
                     onClick={() => setFormOpen((v) => !v)}
@@ -459,10 +527,14 @@ const AdminUsersPage: React.FC = () => {
                         );
                         const created = res.data;
                         // Append to corresponding list
-                        if (created.role === "producer") setProducers((prev) => [created, ...prev]);
-                        else if (created.role === "agent") setAgents((prev) => [created, ...prev]);
-                        else if (created.role === "customer") setCustomers((prev) => [created, ...prev]);
-                        else if (created.role === "admin") setAdmins((prev) => [created, ...prev]);
+                        if (created.role === "producer")
+                          setProducers((prev) => [created, ...prev]);
+                        else if (created.role === "agent")
+                          setAgents((prev) => [created, ...prev]);
+                        else if (created.role === "customer")
+                          setCustomers((prev) => [created, ...prev]);
+                        else if (created.role === "admin")
+                          setAdmins((prev) => [created, ...prev]);
 
                         // Reset form
                         setFormName("");
@@ -787,8 +859,8 @@ const AdminUsersPage: React.FC = () => {
 
               {/* Details Modal */}
               {isModalOpen && selected && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-                  <div className="w-full max-w-md rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 shadow-xl">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-2 sm:p-4">
+                  <div className="w-full max-w-full sm:max-w-2xl lg:max-w-4xl rounded-2xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 backdrop-blur p-4 sm:p-6 shadow-2xl">
                     <div className="flex items-start justify-between">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -805,49 +877,50 @@ const AdminUsersPage: React.FC = () => {
                         ✕
                       </button>
                     </div>
-                    <div className="mt-3 space-y-2 text-sm text-gray-800 dark:text-gray-100">
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">
-                          Name:
-                        </span>{" "}
-                        {selected.fullName || selected.username || "—"}
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">
-                          Email:
-                        </span>{" "}
-                        {selected.email}
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">
-                          Phone:
-                        </span>{" "}
-                        {selected.phone || "—"}
-                      </div>
-                      <div>
-                        <span className="text-gray-500 dark:text-gray-400">
-                          Created:
-                        </span>{" "}
-                        {formatDate(selected.createdAt)}
-                      </div>
-                      {selected.role === "producer" ||
-                      selected.role === "agent" ? (
+                    <div className="mt-3 text-sm text-gray-800 dark:text-gray-100 max-h-[75vh] overflow-y-auto pr-1">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:gap-4">
                         <div>
                           <span className="text-gray-500 dark:text-gray-400">
-                            Verification:
+                            Name:
                           </span>{" "}
-                          {selected.isVerified ? (
-                            <span className="text-emerald-600 dark:text-emerald-300">
-                              Verified
-                            </span>
-                          ) : (
-                            <span className="text-yellow-700 dark:text-yellow-300">
-                              Pending
-                            </span>
-                          )}
+                          {selected.fullName || selected.username || "—"}
                         </div>
-                      ) : null}
-
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            Email:
+                          </span>{" "}
+                          {selected.email}
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            Phone:
+                          </span>{" "}
+                          {selected.phone || "—"}
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">
+                            Created:
+                          </span>{" "}
+                          {formatDate(selected.createdAt)}
+                        </div>
+                        {(selected.role === "producer" ||
+                          selected.role === "agent") && (
+                          <div>
+                            <span className="text-gray-500 dark:text-gray-400">
+                              Verification:
+                            </span>{" "}
+                            {selected.isVerified ? (
+                              <span className="text-emerald-600 dark:text-emerald-300">
+                                Verified
+                              </span>
+                            ) : (
+                              <span className="text-yellow-700 dark:text-yellow-300">
+                                Pending
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
                       {selected.role === "producer" && (
                         <div className="mt-3 rounded-lg border dark:border-none border-gray-200 dark:border-gray-700 p-3">
                           <div className="flex items-center justify-between mb-2">
@@ -866,7 +939,6 @@ const AdminUsersPage: React.FC = () => {
                           {company ? (
                             <div className="flex items-start gap-3">
                               {company.logoUrl ? (
-                                 
                                 <img
                                   src={company.logoUrl}
                                   alt="Company logo"
@@ -906,26 +978,186 @@ const AdminUsersPage: React.FC = () => {
                           ) : null}
                         </div>
                       )}
+                      {selected.role === "producer" && (
+                        <div className="mt-3 rounded-lg border dark:border-none border-gray-200 dark:border-gray-700 p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-semibold">
+                              Subscription
+                            </h4>
+                            {subLoading && (
+                              <span className="text-xs text-gray-500">
+                                Loading…
+                              </span>
+                            )}
+                          </div>
+                          {subInfo ? (
+                            <div className="text-sm">
+                              <div className="flex flex-wrap gap-2 items-center">
+                                <span className="text-gray-600 dark:text-gray-300">
+                                  Status:
+                                </span>
+                                <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200">
+                                  {subInfo.subscription.status}
+                                </span>
+                              </div>
+                              <div className="mt-1 text-gray-600 dark:text-gray-300">
+                                Plan:{" "}
+                                <span className="font-medium">
+                                  {subInfo.plan?.name || "—"}
+                                </span>
+                              </div>
+                              <div className="mt-1 text-gray-600 dark:text-gray-300">
+                                Billing:{" "}
+                                {subInfo.subscription.billingCycle || "—"}
+                              </div>
+                              <div className="mt-1 text-gray-600 dark:text-gray-300">
+                                Ends:{" "}
+                                {subInfo.subscription.endDate
+                                  ? new Date(
+                                      subInfo.subscription.endDate
+                                    ).toLocaleDateString()
+                                  : "—"}
+                              </div>
+                            </div>
+                          ) : !subLoading && !subError ? (
+                            <div className="text-xs text-gray-500">
+                              No subscription found.
+                            </div>
+                          ) : null}
+                        </div>
+                      )}
+                      {selected.role === "producer" && (
+                        <div className="mt-4 pt-3 border-t dark:border-gray-700 text-sm">
+                          <h5 className="font-medium mb-2">
+                            Activate Subscription
+                          </h5>
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
+                            Select a plan and billing cycle, then activate. No
+                            payment or wallet balance is required.
+                          </p>
+                          <div className="flex items-center gap-3 mb-3">
+                            <label className="text-xs text-gray-600 dark:text-gray-300">
+                              Billing cycle:
+                            </label>
+                            <div className="inline-flex rounded-md overflow-hidden border dark:border-gray-700">
+                              <button
+                                type="button"
+                                onClick={() => setActivationBilling("monthly")}
+                                className={`px-3 py-1 text-xs ${
+                                  activationBilling === "monthly"
+                                    ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                                    : "bg-transparent"
+                                }`}
+                              >
+                                Monthly
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setActivationBilling("annual")}
+                                className={`px-3 py-1 text-xs ${
+                                  activationBilling === "annual"
+                                    ? "bg-gray-900 text-white dark:bg-white dark:text-gray-900"
+                                    : "bg-transparent"
+                                }`}
+                              >
+                                Annual
+                              </button>
+                            </div>
+                          </div>
+                          <div className="mb-3">
+                            <SubscriptionPlanSelector
+                              onPlanSelect={(planId, cycle) => {
+                                setActivationPlanId(planId);
+                                if (cycle && cycle !== activationBilling)
+                                  setActivationBilling(cycle);
+                              }}
+                              selectedPlanId={activationPlanId}
+                              selectedBillingCycle={activationBilling}
+                              className="max-h-80"
+                            />
+                          </div>
+                          {activationMessage && (
+                            <div className="mb-2 text-xs text-emerald-600 dark:text-emerald-300">
+                              {activationMessage}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <button
+                              disabled={!activationPlanId || activationLoading}
+                              onClick={async () => {
+                                if (!selected) return;
+                                setActivationLoading(true);
+                                setActivationMessage(null);
+                                try {
+                                  await apiClient.post(
+                                    API_ENDPOINTS.ADMIN_ACTIVATE_SUBSCRIPTION(
+                                      selected.id
+                                    ),
+                                    {
+                                      planId: activationPlanId,
+                                      billingCycle: activationBilling,
+                                    }
+                                  );
+                                  // Refresh lists and close modal
+                                  try {
+                                    const [prodRes, agentRes, custRes, admRes] =
+                                      await Promise.all([
+                                        apiClient.get<AdminUserItem[]>(
+                                          API_ENDPOINTS.ADMIN_PRODUCERS
+                                        ),
+                                        apiClient.get<AdminUserItem[]>(
+                                          API_ENDPOINTS.ADMIN_AGENTS
+                                        ),
+                                        apiClient.get<AdminUserItem[]>(
+                                          API_ENDPOINTS.ADMIN_CUSTOMERS
+                                        ),
+                                        apiClient.get<AdminUserItem[]>(
+                                          API_ENDPOINTS.ADMIN_ADMINS
+                                        ),
+                                      ]);
+                                    setProducers(prodRes.data || []);
+                                    setAgents(agentRes.data || []);
+                                    setCustomers(custRes.data || []);
+                                    setAdmins(admRes.data || []);
+                                  } catch (_) {}
+                                  closeDetails();
+                                } catch (e) {
+                                  setActivationMessage(handleApiError(e));
+                                } finally {
+                                  setActivationLoading(false);
+                                }
+                              }}
+                              className="rounded-md bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 disabled:opacity-60"
+                            >
+                              {activationLoading
+                                ? "Activating…"
+                                : activationPlanId
+                                ? "Activate"
+                                : "Select a plan"}
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className="mt-4 flex justify-end gap-2">
-                      {!selected.isVerified &&
-                        (selected.role === "producer" ||
-                          selected.role === "agent") && (
-                          <button
-                            disabled={isVerifying}
-                            onClick={verifySelected}
-                            className="rounded-md bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 disabled:opacity-60"
-                          >
-                            {isVerifying ? "Verifying..." : "Verify"}
-                          </button>
-                        )}
-                      <button
-                        onClick={closeDetails}
-                        className="rounded-md border dark:border-none border-gray-200 dark:border-gray-700 px-3 py-1.5"
-                      >
-                        Close
-                      </button>
-                    </div>
+                  </div>
+                  <div className="mt-4 flex justify-end gap-2">
+                    {!selected.isVerified &&
+                      (selected.role === "producer" ||
+                        selected.role === "agent") && (
+                        <button
+                          disabled={isVerifying}
+                          onClick={verifySelected}
+                          className="rounded-md bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 disabled:opacity-60"
+                        >
+                          {isVerifying ? "Verifying..." : "Verify"}
+                        </button>
+                      )}
+                    <button
+                      onClick={closeDetails}
+                      className="rounded-md border dark:border-none border-gray-200 dark:border-gray-700 px-3 py-1.5"
+                    >
+                      Close
+                    </button>
                   </div>
                 </div>
               )}

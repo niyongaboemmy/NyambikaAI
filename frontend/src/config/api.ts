@@ -197,6 +197,10 @@ export const API_ENDPOINTS = {
     `/api/admin/agents/${agentId}/verify`,
   ADMIN_PRODUCER_COMPANY: (producerId: string) =>
     `/api/admin/producers/${producerId}/company`,
+  ADMIN_PRODUCER_SUBSCRIPTION: (producerId: string) =>
+    `/api/admin/producers/${producerId}/subscription`,
+  ADMIN_ACTIVATE_SUBSCRIPTION: (producerId: string) =>
+    `/api/admin/producers/${producerId}/activate-subscription`,
 
   // Favorites
   FAVORITES: "/api/favorites",

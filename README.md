@@ -17,33 +17,40 @@ NyambikaAI/
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - Python 3.11+
 - PostgreSQL database
 
 ### 1. Install All Dependencies
+
 ```bash
 npm run install:all
 ```
 
 ### 2. Environment Setup
+
 Copy and configure environment files for each service:
+
 - `frontend/.env` - Frontend configuration
 - `backend/.env` - Backend API and database
 - `python/clothflow_service/.env` - Python AI service
 
 ### 3. Database Setup
+
 ```bash
 npm run db:push    # Push database schema
 npm run seed       # Seed with sample data
 ```
 
 ### 4. Start All Services
+
 ```bash
 npm run dev
 ```
 
 This starts:
+
 - **Frontend**: http://localhost:5173 (React + Vite)
 - **Backend**: http://localhost:3001 (Express API)
 - **Python Service**: http://localhost:8000 (FastAPI AI)
@@ -51,11 +58,13 @@ This starts:
 ## 📦 Individual Services
 
 ### Frontend (React + Vite)
+
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
+
 - Modern React 18 with TypeScript
 - Tailwind CSS with glassmorphism design
 - Multi-language support (EN/RW/FR)
@@ -63,11 +72,13 @@ npm run dev
 - AI-powered UI components
 
 ### Backend (Node.js + Express)
+
 ```bash
 cd backend
 npm install
 npm run dev
 ```
+
 - Express.js with TypeScript
 - PostgreSQL with Drizzle ORM
 - Google OAuth authentication
@@ -75,6 +86,7 @@ npm run dev
 - Session management
 
 ### Python Service (FastAPI)
+
 ```bash
 cd python/clothflow_service
 python -m venv .venv
@@ -82,6 +94,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn main:app --reload --port 8000
 ```
+
 - FastAPI with async support
 - AI-powered virtual try-on
 - Image processing pipeline
@@ -90,6 +103,7 @@ uvicorn main:app --reload --port 8000
 ## 🛠️ Available Scripts
 
 ### Root Level Commands
+
 ```bash
 npm run dev              # Start all services in development
 npm run build            # Build frontend and backend
@@ -101,27 +115,31 @@ npm run seed             # Seed database with sample data
 ```
 
 ### Individual Service Commands
+
 ```bash
 npm run dev:frontend     # Start only frontend
-npm run dev:backend      # Start only backend  
+npm run dev:backend      # Start only backend
 npm run dev:python       # Start only Python service
 ```
 
 ## 🌟 Key Features
 
 ### AI Try-On Studio
+
 - **Virtual Clothing Try-On**: Advanced AI simulation
 - **Real-time Processing**: Instant results with progress tracking
 - **Multi-format Support**: JPG, PNG, WEBP image formats
 - **Session Management**: Save and retrieve try-on sessions
 
 ### User Experience
+
 - **Multi-language**: English, Kinyarwanda, French
 - **Theme Support**: Dark/Light mode with system detection
 - **Responsive Design**: Mobile-first with touch optimization
 - **Progressive Web App**: Offline capabilities
 
 ### E-commerce Features
+
 - **Product Catalog**: Browse by categories and companies
 - **Shopping Cart**: Add to cart and checkout
 - **Order Management**: Track orders and history
@@ -129,6 +147,7 @@ npm run dev:python       # Start only Python service
 - **Company Stores**: Dedicated brand pages
 
 ### Authentication & Security
+
 - **Google OAuth**: Secure social login
 - **Session Management**: Persistent user sessions
 - **CORS Protection**: Configured security headers
@@ -139,6 +158,7 @@ npm run dev:python       # Start only Python service
 ### Environment Variables
 
 **Frontend (.env)**
+
 ```env
 VITE_API_URL=http://localhost:3001
 VITE_PYTHON_API_URL=http://localhost:8000
@@ -147,6 +167,7 @@ VITE_STRIPE_PUBLISHABLE_KEY=your_stripe_key
 ```
 
 **Backend (.env)**
+
 ```env
 PORT=3001
 DATABASE_URL=postgresql://user:pass@localhost:5432/nyambika
@@ -159,6 +180,7 @@ PYTHON_SERVICE_URL=http://localhost:8000
 ```
 
 **Python Service (.env)**
+
 ```env
 PORT=8000
 HOST=0.0.0.0
@@ -169,14 +191,17 @@ CLOTHFLOW_API_KEY=your_api_key
 ## 🚀 Deployment
 
 ### Production Build
+
 ```bash
 npm run build
 ```
 
 ### Docker Support
+
 Each service includes Docker configuration for containerized deployment.
 
 ### Environment-Specific Deployment
+
 - **Development**: All services run locally
 - **Staging**: Deploy to staging environment
 - **Production**: Deploy to production with proper scaling
@@ -187,6 +212,16 @@ Each service includes Docker configuration for containerized deployment.
 - **Error Logging**: Comprehensive error handling
 - **Analytics**: User interaction tracking
 - **Health Checks**: Service health monitoring
+
+## 📚 Documentation
+
+- Documentation Index: `frontend/docs/README.md`
+- Agent
+  - `frontend/docs/agent/Agent_Documentation.md`
+  - `frontend/docs/agent/Agent_Agreement_of_Work.md`
+- Producer
+  - `frontend/docs/producer/Producer_Documentation.md`
+  - `frontend/docs/producer/Producer_Agreement_of_Work.md`
 
 ## 🤝 Contributing
 
@@ -203,6 +238,7 @@ This project is licensed under the MIT License - see individual service README f
 ## 🆘 Support
 
 For support and questions:
+
 - Check individual service README files
 - Review environment configuration
 - Ensure all services are running on correct ports
