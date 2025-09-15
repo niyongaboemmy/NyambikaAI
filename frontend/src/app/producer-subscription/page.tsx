@@ -6,12 +6,7 @@ import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import {
   Check,
   Crown,
-  Star,
   Zap,
-  Shield,
-  Sparkles,
-  Bot,
-  Cpu,
   Brain,
   Rocket,
   ArrowRight,
@@ -19,20 +14,10 @@ import {
   Users,
   BarChart3,
   Package,
-  ShoppingCart,
   Briefcase,
-  ChevronLeft,
-  ChevronRight,
   RefreshCw,
-  Vibrate,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/custom-ui/card";
 import { Badge } from "@/components/custom-ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import apiClient from "@/lib/api-client";
@@ -83,15 +68,10 @@ export default function ProducerSubscriptionPage() {
   const [renewMode, setRenewMode] = useState<boolean>(false);
   const [showPayment, setShowPayment] = useState<boolean>(false);
   const [defaultMethod, setDefaultMethod] = useState<PaymentMethodKind>("momo");
-  const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [touchStart, setTouchStart] = useState<{ x: number; y: number } | null>(
-    null
-  );
   const plural = (n: number) => (n === 1 ? "" : "s");
   const fetchedPlansRef = useRef(false);
-  const planContainerRef = useRef<HTMLDivElement>(null);
 
   // Mobile detection and touch handlers
   useEffect(() => {
@@ -113,42 +93,6 @@ export default function ProducerSubscriptionPage() {
     fetchSubscriptionPlans();
   }, [user?.role, router]);
 
-  // Mobile swipe handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    setTouchStart({
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    });
-  }, []);
-
-  const handleTouchEnd = useCallback(
-    (e: React.TouchEvent) => {
-      if (!touchStart || !isMobile || plans.length === 0) return;
-
-      const touchEnd = {
-        x: e.changedTouches[0].clientX,
-        y: e.changedTouches[0].clientY,
-      };
-
-      const deltaX = touchStart.x - touchEnd.x;
-      const deltaY = Math.abs(touchStart.y - touchEnd.y);
-
-      // Only trigger swipe if horizontal movement is greater than vertical
-      if (Math.abs(deltaX) > 50 && deltaY < 100) {
-        if (deltaX > 0 && currentPlanIndex < plans.length - 1) {
-          // Swipe left - next plan
-          setCurrentPlanIndex((prev) => prev + 1);
-          simulateHapticFeedback();
-        } else if (deltaX < 0 && currentPlanIndex > 0) {
-          // Swipe right - previous plan
-          setCurrentPlanIndex((prev) => prev - 1);
-          simulateHapticFeedback();
-        }
-      }
-      setTouchStart(null);
-    },
-    [touchStart, isMobile, plans.length, currentPlanIndex]
-  );
 
   // Haptic feedback simulation
   const simulateHapticFeedback = useCallback(() => {
@@ -438,8 +382,6 @@ export default function ProducerSubscriptionPage() {
       {/* Mobile-Optimized Container */}
       <div
         className="container mx-auto px-3 sm:px-4 py-2 sm:py-4 relative z-10"
-        onTouchStart={isMobile ? handleTouchStart : undefined}
-        onTouchEnd={isMobile ? handleTouchEnd : undefined}
       >
         {/* Mobile Header with Pull-to-Refresh */}
         <motion.div
@@ -809,235 +751,8 @@ export default function ProducerSubscriptionPage() {
               </div>
             </motion.div>
 
-            {/* Mobile Plan Navigation */}
-            {isMobile && plans.length > 0 && (
-              <div className="flex items-center justify-between mb-4 px-2">
-                <button
-                  onClick={() => {
-                    if (currentPlanIndex > 0) {
-                      setCurrentPlanIndex((prev) => prev - 1);
-                      simulateHapticFeedback();
-                    }
-                  }}
-                  disabled={currentPlanIndex === 0}
-                  className={`p-3 rounded-full transition-all duration-200 ${
-                    currentPlanIndex === 0
-                      ? "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                      : "bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg active:scale-95"
-                  }`}
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-
-                <div className="flex items-center gap-2">
-                  {plans.map((_, index) => (
-                    <div
-                      key={index}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                        index === currentPlanIndex
-                          ? "bg-gradient-to-r from-blue-500 to-violet-500 w-6"
-                          : "bg-gray-300 dark:bg-gray-600"
-                      }`}
-                    />
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => {
-                    if (currentPlanIndex < plans.length - 1) {
-                      setCurrentPlanIndex((prev) => prev + 1);
-                      simulateHapticFeedback();
-                    }
-                  }}
-                  disabled={currentPlanIndex === plans.length - 1}
-                  className={`p-3 rounded-full transition-all duration-200 ${
-                    currentPlanIndex === plans.length - 1
-                      ? "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                      : "bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg active:scale-95"
-                  }`}
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            )}
-
-            {/* Subscription Plans - Mobile Swipe View or Desktop Grid */}
-            {isMobile ? (
-              <div
-                className="relative overflow-hidden mb-6"
-                onTouchStart={handleTouchStart}
-                onTouchEnd={handleTouchEnd}
-              >
-                <motion.div
-                  ref={planContainerRef}
-                  className="flex"
-                  animate={{ x: -currentPlanIndex * (window.innerWidth - 48) }}
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                >
-                  {plans.map((plan, index) => {
-                    const IconComponent = getPlanIcon(index);
-                    const price =
-                      billingCycle === "monthly"
-                        ? plan.monthlyPrice
-                        : plan.annualPrice;
-                    const isPopular = index === 1;
-                    const isActive = index === currentPlanIndex;
-
-                    return (
-                      <motion.div
-                        key={plan.id}
-                        className="w-full flex-shrink-0 px-3"
-                        style={{ width: window.innerWidth - 48 }}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{
-                          opacity: isActive ? 1 : 0.7,
-                          scale: isActive ? 1 : 0.95,
-                        }}
-                        transition={{ duration: 0.3 }}
-                      >
-                        {/* Mobile Plan Card */}
-                        <div
-                          className="relative group cursor-pointer"
-                          onClick={() => {
-                            setSelectedPlan(plan.id);
-                            setRenewMode(false);
-                            setDefaultMethod("momo");
-                            setShowPayment(true);
-                            simulateHapticFeedback();
-                          }}
-                        >
-                          {isPopular && (
-                            <div className="absolute top-1 left-1/2 transform -translate-x-1/2 z-20">
-                              <Badge className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-3 py-1 text-sm shadow-lg">
-                                ⭐ Popular
-                              </Badge>
-                            </div>
-                          )}
-
-                          {/* Mobile Card Background with Enhanced Touch Feedback */}
-                          <div
-                            className={`relative overflow-hidden rounded-2xl border backdrop-blur-xl shadow-xl transition-all duration-300 active:scale-95 ${
-                              selectedPlan === plan.id
-                                ? "border-blue-400/50 bg-blue-50/90 dark:bg-blue-900/30 shadow-2xl"
-                                : isPopular
-                                ? "border-violet-200/50 bg-white/90 dark:bg-gray-800/90"
-                                : "border-white/30 bg-white/80 dark:bg-gray-800/80"
-                            }`}
-                          >
-                            {/* Enhanced Mobile Card Content - Reduced Height */}
-                            <div className="relative p-4 pt-6">
-                              {/* Header - Compact */}
-                              <div className="text-center mb-4">
-                                <div
-                                  className={`inline-flex p-2 rounded-xl mb-3 ${
-                                    isPopular
-                                      ? "bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/50 dark:to-blue-900/50"
-                                      : "bg-gradient-to-br from-blue-100 to-violet-100 dark:from-blue-900/50 dark:to-violet-900/50"
-                                  }`}
-                                >
-                                  <IconComponent
-                                    className={`h-6 w-6 ${
-                                      isPopular
-                                        ? "text-violet-600 dark:text-violet-400"
-                                        : "text-blue-600 dark:text-blue-400"
-                                    }`}
-                                  />
-                                </div>
-                                <h3 className="text-xl font-bold mb-1">
-                                  {plan.name}
-                                </h3>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
-                                  {plan.description}
-                                </p>
-
-                                {/* Price Display - Compact */}
-                                <div className="mb-4">
-                                  <span
-                                    className={`text-2xl font-bold ${
-                                      isPopular
-                                        ? "bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent"
-                                        : "bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent"
-                                    }`}
-                                  >
-                                    {parseInt(price).toLocaleString()}
-                                  </span>
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
-                                    RWF/
-                                    {billingCycle === "monthly" ? "mo" : "yr"}
-                                  </span>
-                                </div>
-                              </div>
-
-                              {/* Features - Reduced */}
-                              <div className="space-y-2 mb-4">
-                                {(Array.isArray(plan.features)
-                                  ? plan.features
-                                  : []
-                                )
-                                  .slice(0, 3)
-                                  .map((feature, featureIndex) => (
-                                    <div
-                                      key={featureIndex}
-                                      className="flex items-center text-xs"
-                                    >
-                                      <div className="w-4 h-4 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 flex items-center justify-center mr-2 flex-shrink-0">
-                                        <Check className="h-2.5 w-2.5 text-white" />
-                                      </div>
-                                      <span className="text-gray-700 dark:text-gray-300 leading-tight">
-                                        {feature}
-                                      </span>
-                                    </div>
-                                  ))}
-                              </div>
-
-                              {/* Stats Grid - Compact */}
-                              <div className="grid grid-cols-2 gap-2 mb-4">
-                                {plan.maxProducts > 0 && (
-                                  <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg">
-                                    <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                                      {plan.maxProducts}
-                                    </div>
-                                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                                      Products
-                                    </div>
-                                  </div>
-                                )}
-                                {plan.maxOrders > 0 && (
-                                  <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
-                                    <div className="text-sm font-bold text-purple-600 dark:text-purple-400">
-                                      {plan.maxOrders}
-                                    </div>
-                                    <div className="text-xs text-gray-600 dark:text-gray-400">
-                                      Orders
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-
-                              {/* Enhanced CTA Button for Mobile - Compact */}
-                              <div className="mt-4">
-                                <div
-                                  className={`w-full py-3 px-4 rounded-full text-center text-base font-bold transition-all duration-300 active:scale-95 ${
-                                    isPopular
-                                      ? "bg-gradient-to-r from-violet-500 to-blue-500 text-white shadow-lg hover:shadow-xl"
-                                      : "bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg hover:shadow-xl"
-                                  } flex items-center justify-center gap-2`}
-                                >
-                                  <Rocket className="w-4 h-4" />
-                                  Choose Plan
-                                  <Vibrate className="w-3 h-3 opacity-60" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </motion.div>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-7 md:gap-7 mb-6 md:px-2">
+            {/* Subscription Plans - Always use responsive grid (vertical list on mobile) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-7 md:gap-7 mb-6 md:px-2">
                 {plans.map((plan, index) => {
                   const IconComponent = getPlanIcon(index);
                   const price =
@@ -1211,88 +926,11 @@ export default function ProducerSubscriptionPage() {
                     </motion.div>
                   );
                 })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Mobile Swipe Instructions */}
-        {isMobile && plans.length > 1 && showPlans && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="text-center mb-4 px-4"
-          >
-            <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl p-3 border border-white/20 shadow-lg">
-              <div className="flex items-center justify-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                <ChevronLeft className="w-4 h-4 animate-pulse" />
-                <span>Swipe to explore plans</span>
-                <ChevronRight className="w-4 h-4 animate-pulse" />
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Mobile Bottom Navigation */}
-        {isMobile && showPlans && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-t border-white/20 p-4 z-50">
-            <div className="flex items-center justify-between max-w-sm mx-auto">
-              <button
-                onClick={() => {
-                  if (currentPlanIndex > 0) {
-                    setCurrentPlanIndex((prev) => prev - 1);
-                    simulateHapticFeedback();
-                  }
-                }}
-                disabled={currentPlanIndex === 0}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 ${
-                  currentPlanIndex === 0
-                    ? "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                    : "bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg active:scale-95"
-                }`}
-              >
-                <ChevronLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Previous</span>
-              </button>
-
-              <div className="flex items-center gap-1">
-                {plans.map((_, index) => (
-                  <button
-                    key={index}
-                    onClick={() => {
-                      setCurrentPlanIndex(index);
-                      simulateHapticFeedback();
-                    }}
-                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                      index === currentPlanIndex
-                        ? "bg-gradient-to-r from-blue-500 to-violet-500 w-8"
-                        : "bg-gray-300 dark:bg-gray-600"
-                    }`}
-                  />
-                ))}
-              </div>
-
-              <button
-                onClick={() => {
-                  if (currentPlanIndex < plans.length - 1) {
-                    setCurrentPlanIndex((prev) => prev + 1);
-                    simulateHapticFeedback();
-                  }
-                }}
-                disabled={currentPlanIndex === plans.length - 1}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 ${
-                  currentPlanIndex === plans.length - 1
-                    ? "bg-gray-100 dark:bg-gray-800 text-gray-400"
-                    : "bg-gradient-to-r from-blue-500 to-violet-500 text-white shadow-lg active:scale-95"
-                }`}
-              >
-                <span className="text-sm font-medium">Next</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
           </div>
         )}
+
+        {/* Mobile swipe/step navigation removed for simple vertical scroll */}
 
         {/* Payment method selection and floating button removed. The dialog opens directly on plan pick or renew. */}
 
