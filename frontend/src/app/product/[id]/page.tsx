@@ -17,6 +17,10 @@ import {
   Edit3,
   Zap,
   MessageCircle,
+  ChevronDown,
+  Package,
+  Clock,
+  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Badge } from "@/components/custom-ui/badge";
@@ -61,6 +65,8 @@ export default function ProductDetail() {
   } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [showDescriptionFit, setShowDescriptionFit] = useState(false);
+  const [showShipping, setShowShipping] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const { addItem } = useCart();
@@ -89,6 +95,36 @@ export default function ProductDetail() {
         toast({
           title: "Link copied",
           description: "Product link copied to clipboard.",
+        });
+
+        // Suggested products (simple heuristic: fetch a few and exclude current)
+        const { data: suggestions } = useQuery<ExtendedProduct[] | undefined>({
+          queryKey: ["suggested-products", productIdStr],
+          queryFn: async () => {
+            try {
+              const res = await apiClient.get(`/api/products`, {
+                params: { limit: 8 },
+              });
+              const items: ExtendedProduct[] = (
+                res.data?.items ||
+                res.data ||
+                []
+              )
+                .filter((p: any) => String(p.id) !== String(productIdStr))
+                .map((p: any) => ({
+                  ...p,
+                  images: [
+                    p.imageUrl,
+                    ...((p.additionalImages as string[]) || []),
+                  ].filter(Boolean),
+                }));
+              return items;
+            } catch {
+              return undefined;
+            }
+          },
+          enabled: !!productIdStr,
+          staleTime: 60_000,
         });
       }
     } catch (e) {
