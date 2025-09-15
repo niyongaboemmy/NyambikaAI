@@ -196,129 +196,131 @@ export default function BoostProductDialog({
             Go First & Stand Out
           </AlertDialogTitle>
 
-          <AlertDialogDescription className="text-base leading-relaxed">
-            {settingLoading ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
-                <div className="w-4 h-4 bg-purple-500 rounded-full animate-bounce delay-100"></div>
-                <div className="w-4 h-4 bg-pink-500 rounded-full animate-bounce delay-200"></div>
-                <span className="ml-2">Loading boost settings...</span>
-              </div>
-            ) : !setting ? (
-              <div className="flex items-center justify-center space-x-2 text-red-500">
-                <AlertTriangle className="w-5 h-5" />
-                <span>Could not load boost settings. Please try again.</span>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {/* Compact benefits with inline display */}
-                <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg p-3 border border-yellow-200/30 dark:border-yellow-700/30">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <TrendingUp className="w-4 h-4 text-yellow-600" />
-                    <span className="font-semibold text-yellow-700 dark:text-yellow-300 text-sm">
-                      Get Priority Placement
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
-                    <span className="flex items-center space-x-1">
-                      <Sparkles className="w-2.5 h-2.5 text-yellow-500" />
-                      <span>Top of search</span>
-                    </span>
-                    <span className="flex items-center space-x-1">
-                      <Sparkles className="w-2.5 h-2.5 text-yellow-500" />
-                      <span>Featured spot</span>
-                    </span>
-                    <span className="flex items-center space-x-1">
-                      <Sparkles className="w-2.5 h-2.5 text-yellow-500" />
-                      <span>More views</span>
-                    </span>
-                  </div>
+          <AlertDialogDescription asChild className="text-base leading-relaxed">
+            <div>
+              {settingLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
+                  <div className="w-4 h-4 bg-purple-500 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-4 h-4 bg-pink-500 rounded-full animate-bounce delay-200"></div>
+                  <span className="ml-2">Loading boost settings...</span>
                 </div>
-
-                {/* Compact cost and balance in one row */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-lg p-3 border border-green-200/30 dark:border-green-700/30">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <Zap className="w-4 h-4 text-green-500" />
-                      <span className="font-semibold text-sm">Cost</span>
+              ) : !setting ? (
+                <div className="flex items-center justify-center space-x-2 text-red-500">
+                  <AlertTriangle className="w-5 h-5" />
+                  <span>Could not load boost settings. Please try again.</span>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {/* Compact benefits with inline display */}
+                  <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-lg p-3 border border-yellow-200/30 dark:border-yellow-700/30">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <TrendingUp className="w-4 h-4 text-yellow-600" />
+                      <span className="font-semibold text-yellow-700 dark:text-yellow-300 text-sm">
+                        Get Priority Placement
+                      </span>
                     </div>
-                    <div className="text-lg font-bold text-green-600 dark:text-green-400">
-                      RF {setting.amountInRwf.toLocaleString()}
+                    <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
+                      <span className="flex items-center space-x-1">
+                        <Sparkles className="w-2.5 h-2.5 text-yellow-500" />
+                        <span>Top of search</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <Sparkles className="w-2.5 h-2.5 text-yellow-500" />
+                        <span>Featured spot</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <Sparkles className="w-2.5 h-2.5 text-yellow-500" />
+                        <span>More views</span>
+                      </span>
                     </div>
                   </div>
 
-                  {wallet && (
-                    <div
-                      className={`bg-gradient-to-r rounded-lg p-3 border transition-all duration-300 ${
-                        hasInsufficientBalance
-                          ? "from-red-500/10 to-orange-500/10 border-red-200/30 dark:border-red-700/30"
-                          : "from-purple-500/10 to-pink-500/10 border-purple-200/30 dark:border-purple-700/30"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <div className="flex items-center space-x-2">
-                          <Wallet
-                            className={`w-4 h-4 ${
-                              hasInsufficientBalance
-                                ? "text-red-500"
-                                : "text-purple-500"
-                            }`}
-                          />
-                          <span className="font-semibold text-sm">Balance</span>
-                        </div>
-                        <button
-                          type="button"
-                          aria-label="Reload balance"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            refetchWallet();
-                          }}
-                          className="p-1 rounded-md hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
-                        >
-                          <RotateCcw
-                            className={`w-4 h-4 ${walletFetching ? "animate-spin" : ""}`}
-                          />
-                        </button>
+                  {/* Compact cost and balance in one row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="bg-gradient-to-r from-green-500/10 to-blue-500/10 rounded-lg p-3 border border-green-200/30 dark:border-green-700/30">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <Zap className="w-4 h-4 text-green-500" />
+                        <span className="font-semibold text-sm">Cost</span>
                       </div>
+                      <div className="text-lg font-bold text-green-600 dark:text-green-400">
+                        RF {setting.amountInRwf.toLocaleString()}
+                      </div>
+                    </div>
+
+                    {wallet && (
                       <div
-                        className={`text-lg font-bold ${
+                        className={`bg-gradient-to-r rounded-lg p-3 border transition-all duration-300 ${
                           hasInsufficientBalance
-                            ? "text-red-600 dark:text-red-400"
-                            : "text-purple-600 dark:text-purple-400"
+                            ? "from-red-500/10 to-orange-500/10 border-red-200/30 dark:border-red-700/30"
+                            : "from-purple-500/10 to-pink-500/10 border-purple-200/30 dark:border-purple-700/30"
                         }`}
                       >
-                        RF {Number(wallet.balance).toLocaleString()}
-                      </div>
-                      {hasInsufficientBalance && (
-                        <div className="mt-2 space-y-2">
-                          <div className="flex items-center space-x-1 text-red-500 text-xs animate-pulse">
-                            <AlertTriangle className="w-3 h-3" />
-                            <span>Insufficient balance</span>
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="flex items-center space-x-2">
+                            <Wallet
+                              className={`w-4 h-4 ${
+                                hasInsufficientBalance
+                                  ? "text-red-500"
+                                  : "text-purple-500"
+                              }`}
+                            />
+                            <span className="font-semibold text-sm">Balance</span>
                           </div>
                           <button
+                            type="button"
+                            aria-label="Reload balance"
                             onClick={(e) => {
                               e.stopPropagation();
-                              openWallet();
+                              refetchWallet();
                             }}
-                            className="flex items-center space-x-1 text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md transition-all duration-200 hover:scale-105 shadow-sm"
+                            className="p-1 rounded-md hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
                           >
-                            <Plus className="w-3 h-3" />
-                            <span>Add Funds</span>
+                            <RotateCcw
+                              className={`w-4 h-4 ${walletFetching ? "animate-spin" : ""}`}
+                            />
                           </button>
                         </div>
-                      )}
-                    </div>
-                  )}
+                        <div
+                          className={`text-lg font-bold ${
+                            hasInsufficientBalance
+                              ? "text-red-600 dark:text-red-400"
+                              : "text-purple-600 dark:text-purple-400"
+                          }`}
+                        >
+                          RF {Number(wallet.balance).toLocaleString()}
+                        </div>
+                        {hasInsufficientBalance && (
+                          <div className="mt-2 space-y-2">
+                            <div className="flex items-center space-x-1 text-red-500 text-xs animate-pulse">
+                              <AlertTriangle className="w-3 h-3" />
+                              <span>Insufficient balance</span>
+                            </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openWallet();
+                              }}
+                              className="flex items-center space-x-1 text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md transition-all duration-200 hover:scale-105 shadow-sm"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>Add Funds</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  {/* Competitive boosting note */}
+                  <div className="mt-2 flex items-start gap-2 rounded-lg p-3 bg-amber-50 border border-amber-200/50 dark:bg-amber-950/30 dark:border-amber-700/30">
+                    <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
+                    <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-200">
+                      <span className="font-semibold">Note:</span> Boosting is competitive. Others can overtake you. Check and boost regularly to stay on top.
+                    </p>
+                  </div>
                 </div>
-                {/* Competitive boosting note */}
-                <div className="mt-2 flex items-start gap-2 rounded-lg p-3 bg-amber-50 border border-amber-200/50 dark:bg-amber-950/30 dark:border-amber-700/30">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
-                  <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-200">
-                    <span className="font-semibold">Note:</span> Boosting is competitive. Others can overtake you. Check and boost regularly to stay on top.
-                  </p>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </AlertDialogDescription>
         </AlertDialogHeader>
 

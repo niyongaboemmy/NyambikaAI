@@ -43,7 +43,8 @@ const buildUrl = (m: ShareMetadata) => {
   const absolute = (input?: string): string | undefined => {
     if (!input) return undefined;
     // If already absolute (http/https/data), return as is
-    if (/^(https?:)?\/\//i.test(input) || input.startsWith("data:")) return input;
+    if (/^(https?:)?\/\//i.test(input) || input.startsWith("data:"))
+      return input;
     try {
       return new URL(input, SITE_URL).toString();
     } catch {
@@ -54,7 +55,8 @@ const buildUrl = (m: ShareMetadata) => {
   const defaultLogo = absolute("/nyambika_light_icon.png") || undefined;
   const shareImage = absolute(m.icon) || defaultLogo;
 
-  const url = m.url || (typeof window !== "undefined" ? window.location.href : "");
+  const url =
+    m.url || (typeof window !== "undefined" ? window.location.href : "");
   // Some platforms only read OG tags from the target URL. Our server-side metadata
   // (store/[id]/layout.tsx) ensures correct OG for LinkedIn/Facebook.
 
@@ -71,26 +73,38 @@ const buildUrl = (m: ShareMetadata) => {
     hashtagStr,
     image: shareImage,
     // Twitter/X
-    twitter: `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}${
-      via ? `&via=${encodeURIComponent(via)}` : ""
-    }${hashtagStr ? `&hashtags=${encodeURIComponent(hashtagStr)}` : ""}`,
+    twitter: `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(
+      url
+    )}${via ? `&via=${encodeURIComponent(via)}` : ""}${
+      hashtagStr ? `&hashtags=${encodeURIComponent(hashtagStr)}` : ""
+    }`,
     // Facebook — URL only; preview comes from OG tags on the page
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      url
+    )}`,
     // LinkedIn — URL only; preview from OG tags
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(
+      url
+    )}`,
     // WhatsApp
-    whatsapp: `https://api.whatsapp.com/send?text=${text}%20${encodeURIComponent(url)}`,
+    whatsapp: `https://api.whatsapp.com/send?text=${text}%20${encodeURIComponent(
+      url
+    )}`,
     // Telegram
-    telegram: `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${text}`,
+    telegram: `https://t.me/share/url?url=${encodeURIComponent(
+      url
+    )}&text=${text}`,
     // Email
-    email: `mailto:?subject=${encodeURIComponent(m.title)}&body=${text}%0A%0A${encodeURIComponent(url)}`,
+    email: `mailto:?subject=${encodeURIComponent(
+      m.title
+    )}&body=${text}%0A%0A${encodeURIComponent(url)}`,
     // Instagram note: no official web share intent; we open Instagram homepage with query as fallback
     instagram: `https://www.instagram.com/?url=${encodeURIComponent(url)}`,
     // Pinterest requires a media (image) param to render a rich pin
     pinterest: shareImage
-      ? `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(url)}&media=${encodeURIComponent(
-          shareImage
-        )}&description=${text}`
+      ? `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(
+          url
+        )}&media=${encodeURIComponent(shareImage)}&description=${text}`
       : undefined,
   } as const;
 };
@@ -185,11 +199,10 @@ export default function Share({
         onClick={handleNativeShare}
       >
         <Share2 className="w-4 h-4" />
-        <span className="ml-1 hidden sm:inline text-sm">{triggerLabel}</span>
-        <span className="ml-1 sm:hidden text-sm">Share</span>
+        <span className="ml-1 text-sm">{triggerLabel}</span>
       </Button>
 
-      <AnimatePresence>
+      <>
         {open && (
           <motion.div
             key="overlay"
@@ -221,7 +234,7 @@ export default function Share({
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: 20, opacity: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                className="relative w-full md:max-w-md rounded-t-2xl md:rounded-2xl border border-white/20 dark:border-white/10 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl shadow-2xl overflow-hidden"
+                className="relative w-full md:w-[600px] rounded-t-2xl md:rounded-2xl border border-white/20 dark:border-white/10 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl shadow-2xl overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Decorative gradient top border */}
@@ -233,7 +246,7 @@ export default function Share({
                 </div>
 
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 pt-3 md:pt-4">
+                <div className="flex items-center justify-between px-5 pt-3 md:pt-5">
                   <div className="flex items-center gap-2">
                     {u.image ? (
                       <img
@@ -263,13 +276,13 @@ export default function Share({
                 </div>
 
                 {/* Content */}
-                <div className="px-4 pb-[calc(env(safe-area-inset-bottom)+12px)] pt-2 md:pb-4">
+                <div className="px-5 pb-[calc(env(safe-area-inset-bottom)+36px)] pt-3 md:pb-6 md:pt-4">
                   <div className="text-xs text-gray-600 dark:text-gray-400 mb-3">
                     Choose a platform or copy the link
                   </div>
 
                   {/* Platforms grid with selectable state */}
-                  <div className="grid grid-cols-4 sm:grid-cols-4 gap-2">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <PlatformCard
                       selected={selected === "twitter"}
                       label="Twitter / X"
@@ -331,9 +344,9 @@ export default function Share({
                   </div>
 
                   {/* Actions */}
-                  <div className="mt-4 flex flex-col sm:flex-row gap-2">
+                  <div className="mt-6 flex flex-col sm:flex-row gap-3 mb-9">
                     <Button
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg shadow-blue-500/20 h-12 md:h-10 text-base md:text-sm"
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg shadow-blue-500/20 h-12 md:h-11 text-base md:text-sm"
                       onClick={() => {
                         const href =
                           selected === "twitter"
@@ -373,7 +386,7 @@ export default function Share({
                     </Button>
                     <Button
                       variant="secondary"
-                      className="flex-1 border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 hover:bg-white/80 dark:hover:bg-gray-800/80 h-12 md:h-10 text-base md:text-sm"
+                      className="flex-1 border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 hover:bg-white/80 dark:hover:bg-gray-800/80 h-12 md:h-11 text-base md:text-sm"
                       onClick={copyLink}
                     >
                       <Copy className="w-4 h-4 mr-1" /> Copy link
@@ -384,7 +397,7 @@ export default function Share({
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </>
     </>
   );
 }
@@ -407,7 +420,7 @@ function PlatformCard({
       type="button"
       aria-pressed={selected}
       onClick={onClick}
-      className={`group relative flex flex-col items-center justify-center gap-1 py-3 rounded-xl border transition overflow-hidden ${
+      className={`group relative flex flex-col items-center justify-center gap-2 py-4 rounded-xl border transition overflow-hidden ${
         selected
           ? "scale-[1.04] border-transparent bg-gradient-to-br from-white/85 to-white/60 dark:from-gray-800/95 dark:to-gray-800/70 shadow-xl ring-4 ring-offset-0 ring-blue-400/80"
           : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 hover:bg-white/80 dark:hover:bg-gray-800/80"
@@ -421,17 +434,17 @@ function PlatformCard({
         className={`absolute inset-x-10 -bottom-10 h-16 rounded-full blur-xl opacity-30 group-hover:opacity-60 transition bg-gradient-to-r ${color}`}
       />
       <span
-        className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-lg text-white bg-gradient-to-br ${color} shadow-md shadow-black/10 ${
+        className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-xl text-white bg-gradient-to-br ${color} shadow-lg shadow-black/20 ${
           selected ? "scale-110" : ""
         }`}
       >
         {icon}
       </span>
       <span
-        className={`relative z-10 text-[12px] mt-1 text-center px-2 line-clamp-1 ${
+        className={`relative z-10 text-[11px] text-center px-1 line-clamp-1 font-medium ${
           selected
             ? "font-semibold text-blue-700 dark:text-blue-300"
-            : "text-gray-700 dark:text-gray-300 font-medium"
+            : "text-gray-700 dark:text-gray-300"
         }`}
       >
         {label}

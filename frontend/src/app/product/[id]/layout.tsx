@@ -43,9 +43,13 @@ async function getProduct(id: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  // In Next.js 15+, dynamic route params can be a Promise in some cases
+  params: { id: string } | Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const safeId = encodeURIComponent((params.id || "").trim());
+  const resolved = (params instanceof Promise ? await params : params) as {
+    id: string;
+  };
+  const safeId = encodeURIComponent((resolved.id || "").trim());
   const product = await getProduct(safeId);
 
   const title = product?.name

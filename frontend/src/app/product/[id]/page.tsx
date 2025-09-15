@@ -16,7 +16,7 @@ import {
   Trash2,
   Edit3,
   Zap,
-  MoreHorizontal,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Badge } from "@/components/custom-ui/badge";
@@ -33,6 +33,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCompany } from "@/contexts/CompanyContext";
 import BoostProductDialog from "@/components/BoostProductDialog";
 import Share from "@/components/Share";
+import WhatsAppChatModal from "@/components/WhatsAppChatModal";
 
 interface ExtendedProduct extends Product {
   images?: string[];
@@ -64,6 +65,7 @@ export default function ProductDetail() {
   const { toast } = useToast();
   const { addItem } = useCart();
   const productIdStr = Array.isArray(id) ? (id ? id[0] : "") : (id as string);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const handleBack = () => {
     if (user?.business_id) {
@@ -226,6 +228,37 @@ export default function ProductDetail() {
       }
     },
     enabled: !!id,
+  });
+
+  // Producer contact info for WhatsApp
+  const { data: producerContact } = useQuery<any>({
+    queryKey: ["producer-contact", (product as any)?.producerId],
+    queryFn: async () => {
+      if (!product?.producerId) return null;
+      const res = await apiClient.get(`/api/producers/${product.producerId}`);
+      return res.data;
+    },
+    enabled: Boolean(product?.producerId),
+    staleTime: 60_000,
+  });
+
+  // Lightweight presence indicator (served by local API)
+  const { data: presence } = useQuery<{
+    isOnline: boolean;
+    lastSeen?: string | null;
+  } | null>({
+    queryKey: ["producer-presence", (product as any)?.producerId],
+    queryFn: async () => {
+      if (!product?.producerId) return null;
+      const res = await fetch(`/api/producers/${product.producerId}/presence`, {
+        cache: "no-store",
+      });
+      if (!res.ok) return null;
+      return res.json();
+    },
+    enabled: Boolean(product?.producerId),
+    refetchInterval: 30_000,
+    staleTime: 15_000,
   });
 
   // Fetch wallet to display balance
@@ -559,7 +592,18 @@ export default function ProductDetail() {
                 </div>
               </motion.div>
             </div>
-
+            <div className="absolute z-50 p-1 pt-3">
+              <Share
+                metadata={{
+                  title: product.name,
+                  description: product.description,
+                  icon: product.imageUrl || undefined,
+                }}
+                size="sm"
+                triggerLabel="Share"
+                triggerClassName="rounded-full text-xs bg-blue-500 text-white"
+              />
+            </div>
             {/* Desktop Toolbar - Top Right Floating */}
             <motion.div
               initial={{ y: -20, opacity: 0 }}
@@ -573,7 +617,7 @@ export default function ProductDetail() {
                   (user?.role === "producer" &&
                     product.producerId === user?.id)) && (
                   <>
-                    <div className="flex items-center gap-1 pr-2 border-r border-gray-200 dark:border-gray-700">
+                    <div className="flex items-center gap-1">
                       {/* Edit Button */}
                       <motion.div
                         whileHover={{ scale: 1.05 }}
@@ -625,26 +669,6 @@ export default function ProductDetail() {
                     </div>
                   </>
                 )}
-
-                {/* Social Actions */}
-                <div className="flex items-center gap-1">
-                  {/* Share Button */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Share
-                      metadata={{
-                        title: product.name,
-                        description: product.description,
-                        icon: product.imageUrl || undefined,
-                      }}
-                      size="sm"
-                      triggerLabel="Share"
-                      triggerClassName="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 border border-blue-200/50 dark:border-blue-700/50 hover:from-blue-100 hover:to-cyan-100 dark:hover:from-blue-800/40 dark:hover:to-cyan-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 [&>span]:hidden"
-                    />
-                  </motion.div>
-                </div>
               </div>
             </motion.div>
           </div>
@@ -659,7 +683,8 @@ export default function ProductDetail() {
                   fill
                   sizes="(min-width: 1024px) 50vw, 100vw"
                   quality={70}
-                  priority={false}
+                  priority
+                  fetchPriority="high"
                   placeholder="empty"
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
@@ -701,14 +726,19 @@ export default function ProductDetail() {
             {/* Product Info */}
             <div className="space-y-2 sm:space-y-2">
               <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200/60 dark:border-gray-700/60 dark:border-none shadow-gray-500/10 dark:shadow-black/30">
-                <h1 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1">
-                  {product.name}
-                </h1>
-                {product.nameRw && (
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mb-2">
-                    {product.nameRw}
-                  </p>
-                )}
+                <div className="flex flex-row items-center justify-between gap-2">
+                  <div>
+                    <h1 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1">
+                      {product.name}
+                    </h1>
+                    {product.nameRw && (
+                      <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">
+                        {product.nameRw}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between mb-1 sm:mb-2">
                   <div className="flex items-center gap-2">
                     <div className="flex items-center gap-1">
@@ -734,7 +764,7 @@ export default function ProductDetail() {
                     {product.inStock ? "✓ In Stock" : "Out of Stock"}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-1 sm:gap-2 mb-2 sm:mb-3">
+                <div className="flex items-center gap-1 sm:gap-2 mb-1">
                   <p className="text-lg sm:text-xl md:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1 sm:mb-2">
                     RF {parseFloat(String(product.price)).toLocaleString()}
                   </p>
@@ -753,7 +783,7 @@ export default function ProductDetail() {
                   )}
                 </div>
 
-                <p className="text-xs text-gray-700 dark:text-gray-300 leading-relaxed">
+                <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed line-clamp-2">
                   {product.description}
                 </p>
               </div>
@@ -835,30 +865,45 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              {/* AI Try-On Section */}
-              {/* <TryOnWidget
-                productId={Array.isArray(id) ? id[0] : id!}
-                productImageUrl={product.imageUrl}
-                autoOpenFullscreen={false}
-                onRegisterControls={setTryOnControls}
-              /> */}
-
               {/* Action Buttons */}
               <div className="space-y-1.5 sm:space-y-2">
                 <div className="flex gap-1.5 sm:gap-2">
+                  {/* WhatsApp (large) */}
+                  <Button
+                    onClick={() => setIsChatOpen(true)}
+                    disabled={!producerContact?.phone}
+                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-500/30 dark:border-emerald-400/40 min-h-[44px]"
+                    title={
+                      producerContact?.phone
+                        ? "Chat on WhatsApp"
+                        : "Producer phone unavailable"
+                    }
+                  >
+                    <span
+                      className={`inline-block w-2 h-2 rounded-full ${
+                        presence?.isOnline
+                          ? "bg-emerald-300 animate-pulse"
+                          : "bg-gray-300"
+                      }`}
+                    />
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp
+                  </Button>
+                  {/* Add to Cart */}
                   <Button
                     onClick={handleAddToCart}
                     disabled={!selectedSize || !selectedColor}
                     variant="outline"
-                    className="flex-1 border-2 border-blue-400/60 bg-gradient-to-r from-white/95 via-blue-50/80 to-indigo-50/95 dark:from-slate-800/95 dark:via-blue-900/80 dark:to-indigo-900/95 text-blue-600 dark:text-blue-400 hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:via-indigo-900/20 dark:hover:to-purple-900/30 py-2 sm:py-1.5 rounded-md sm:rounded-lg backdrop-blur-md transition-all duration-300 hover:scale-105 text-xs sm:text-sm min-h-[40px] sm:min-h-auto shadow-lg shadow-blue-500/10 dark:shadow-blue-500/20 hover:shadow-blue-500/20 dark:hover:shadow-blue-500/30 dark:border-blue-600/50"
+                    className="flex-1 border-2 border-blue-400/60 bg-gradient-to-r from-white/95 via-blue-50/80 to-indigo-50/95 dark:from-slate-800/95 dark:via-blue-900/80 dark:to-indigo-900/95 text-blue-600 dark:text-blue-400 hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:via-indigo-900/20 dark:hover:to-purple-900/30 py-2 sm:py-2 rounded-md sm:rounded-lg backdrop-blur-md transition-all duration-300 hover:scale-105 text-xs sm:text-sm min-h-[44px] sm:min-h-[44px] shadow-lg shadow-blue-500/10 dark:shadow-blue-500/20 hover:shadow-blue-500/20 dark:hover:shadow-blue-500/30 dark:border-blue-600/50"
                   >
-                    <ShoppingCart className="h-3 w-3 mr-0.5 sm:mr-1" />
+                    <ShoppingCart className="h-3.5 w-3.5 mr-1" />
                     Add to Cart
                   </Button>
+                  {/* Buy Now */}
                   <Button
                     onClick={handleBuyNow}
                     disabled={!selectedSize || !selectedColor}
-                    className="w-full py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm flex items-center justify-center gap-1 sm:gap-2 border border-blue-500/30 dark:border-blue-400/40"
+                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm flex items-center justify-center gap-2 border border-blue-500/30 dark:border-blue-400/40 min-h-[44px]"
                   >
                     Buy Now
                   </Button>
@@ -924,6 +969,40 @@ export default function ProductDetail() {
             productId={product.id}
           />
         )}
+
+      {/* Inline WhatsApp Chat Modal */}
+      {product && (
+        <WhatsAppChatModal
+          isOpen={isChatOpen}
+          onOpenChange={setIsChatOpen}
+          producer={{
+            id: String(product.producerId || ""),
+            name:
+              producerContact?.business_name ||
+              producerContact?.fullName ||
+              producerContact?.name ||
+              null,
+            phone: producerContact?.phone ?? null,
+          }}
+          product={{
+            id: product.id,
+            name: product.name,
+            url:
+              typeof window !== "undefined" ? window.location.href : undefined,
+          }}
+          online={presence || null}
+          defaultMessage={`Hello ${
+            producerContact?.business_name ||
+            producerContact?.fullName ||
+            producerContact?.name ||
+            "there"
+          }, I'm interested in "${product.name}". Is it available in ${
+            selectedSize || "[your preferred size]"
+          } and ${
+            selectedColor || "[your preferred color]"
+          }? Price RF ${parseFloat(String(product.price)).toLocaleString()}?`}
+        />
+      )}
     </div>
   );
 }
