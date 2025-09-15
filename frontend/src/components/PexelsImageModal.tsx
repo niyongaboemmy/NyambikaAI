@@ -308,7 +308,7 @@ export function PexelsImageModal({
           <div className="flex-shrink-0 backdrop-blur-xl bg-white/95 dark:bg-slate-900/95 border-b border-slate-200/50 dark:border-slate-700/50 shadow-sm">
             {/* Mobile Header */}
             <div className="block sm:hidden px-3 xs:px-4 py-2 xs:py-3">
-              <div className="flex items-center justify-between mb-2 xs:mb-3">
+              <div className="flex items-center justify-between mb-8 md:mb-3">
                 {/* Mobile Logo */}
                 <div className="flex items-center gap-1.5 xs:gap-2">
                   <div className="relative">
