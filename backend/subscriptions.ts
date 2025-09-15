@@ -6,7 +6,7 @@ import { eq, and, gte, desc } from 'drizzle-orm';
 
 // Extend Request interface to include subscription property
 interface AuthenticatedRequest extends Request {
-  user?: { id: string; role: string };
+  user?: { id: string; email: string; role: string };
   subscription?: any;
 }
 
