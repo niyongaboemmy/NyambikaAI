@@ -1259,43 +1259,6 @@ const AdminUsersPage: React.FC = () => {
                               )}
                             </div>
                           )}
-
-                          {/* Actions */}
-                          {!selected.isVerified &&
-                            (selected.role === "producer" ||
-                              selected.role === "agent") && (
-                              <div className="pt-4 border-t border-gray-200/50 dark:border-gray-700/50">
-                                <button
-                                  disabled={isVerifying}
-                                  onClick={verifySelected}
-                                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-colors"
-                                >
-                                  {isVerifying ? (
-                                    <>
-                                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                      Verifying…
-                                    </>
-                                  ) : (
-                                    <>
-                                      <svg
-                                        className="w-4 h-4"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                      </svg>
-                                      Verify User
-                                    </>
-                                  )}
-                                </button>
-                              </div>
-                            )}
                         </>
                       )}
                     </div>
