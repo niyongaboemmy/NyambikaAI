@@ -216,8 +216,7 @@ export default function Footer() {
                   setSubmitting(true);
                   const { data } = await apiClient.post(
                     API_ENDPOINTS.NEWSLETTER_SUBSCRIBE,
-                    { email, source: "footer" },
-                    { suppressAuthModal: true as any }
+                    { email, source: "footer" }
                   );
                   if (data?.ok) {
                     toast?.({
