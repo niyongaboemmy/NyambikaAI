@@ -28,6 +28,9 @@ export const users = pgTable("users", {
   isVerified: boolean("is_verified").default(false),
   measurements: text("measurements"), // JSON string for body measurements
   profileImage: text("profile_image"),
+  // Agent terms & conditions acceptance
+  termsAccepted: boolean("terms_accepted").default(false),
+  termsAcceptedAt: timestamp("terms_accepted_at"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

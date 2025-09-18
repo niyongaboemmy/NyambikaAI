@@ -28,6 +28,8 @@ import { UserWalletDialogProvider } from "@/contexts/UserWalletDialogContext";
 import UserWalletDialog from "@/components/UserWalletDialog";
 import { ChangePasswordProvider } from "@/contexts/ChangePasswordContext";
 import { ChangePasswordDialogWrapper } from "@/components/ChangePasswordDialogWrapper";
+import AgentTermsModal from "@/components/AgentTermsModal";
+import ProducerTermsModal from "@/components/ProducerTermsModal";
 
 // ClientOnly component to wrap client-side only components
 function ClientOnly({ children }: { children: React.ReactNode }) {
@@ -96,6 +98,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                                   <NavigationEvents />
                                   <GlobalAuthLoader />
                                   <LoginModal />
+                                  <AgentTermsModal />
+                                  <ProducerTermsModal />
                                   <UserWalletDialog />
                                   <ChangePasswordDialogWrapper />
                                   {children}
@@ -108,6 +112,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
                         <ClientOnly>
                           <CompanyModal />
                           <GlobalAuthLoader />
+                          <AgentTermsModal />
+                          <ProducerTermsModal />
                         </ClientOnly>
                         <Toaster />
                       </ChangePasswordProvider>

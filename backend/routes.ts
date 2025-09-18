@@ -104,6 +104,167 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.end("OK");
   });
 
+  // Public: fetch terms by role (defaults to customer). This can later be sourced from DB or CMS.
+  app.get("/api/terms", async (req: any, res) => {
+    try {
+      const role = String(req.query.role || "customer").toLowerCase();
+      const base = {
+        version: "1.0",
+        updatedAt: "2025-01-01",
+        site: "Nyambika",
+      };
+
+  // Generic: current user accepts terms (agent or producer)
+  app.post("/api/terms/accept", requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUserById(req.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const now = new Date();
+      const updated = await storage.updateUser(user.id, {
+        // @ts-ignore columns exist in schema
+        termsAccepted: true as any,
+        // @ts-ignore
+        termsAcceptedAt: now as any,
+      } as any);
+
+      const { password: _pw, fullName, ...userWithoutPassword } =
+        (updated || user) as any;
+      return res.json({
+        ok: true,
+        user: {
+          ...userWithoutPassword,
+          name: fullName || user.email.split("@")[0],
+          termsAccepted: true,
+          termsAcceptedAt: now,
+        },
+      });
+    } catch (e) {
+      console.error("Error in POST /api/terms/accept:", e);
+      return res.status(500).json({ message: "Failed to accept terms" });
+    }
+  });
+
+      // Agent-specific terms
+      if (role === "agent") {
+        return res.json({
+          ...base,
+          role: "agent",
+          title: "Agent Terms & Conditions",
+          sections: [
+            {
+              id: "scope",
+              heading: "Scope of Work",
+              content:
+                "Agents manage producer subscriptions, assist with onboarding, and process Mobile Money payments on behalf of producers.",
+            },
+            {
+              id: "commission",
+              heading: "Commission",
+              content:
+                "Agents earn 40% commission on subscription payments processed. Payouts are reflected in your agent dashboard.",
+            },
+            {
+              id: "compliance",
+              heading: "Compliance & Conduct",
+              content:
+                "Agents must follow local regulations and Nyambika policies. Fraudulent activity or misuse will result in termination.",
+            },
+            {
+              id: "privacy",
+              heading: "Privacy",
+              content:
+                "Customer and producer data must be handled confidentially and used only for official purposes.",
+            },
+            {
+              id: "payments",
+              heading: "Payments & Settlements",
+              content:
+                "All payments processed must be accurately recorded with references. Disputes are investigated per platform policy.",
+            },
+          ],
+        });
+      }
+
+      // Producer-specific terms
+      if (role === "producer") {
+        return res.json({
+          ...base,
+          role: "producer",
+          title: "Producer Terms & Conditions",
+          sections: [
+            {
+              id: "eligibility",
+              heading: "Eligibility & Verification",
+              content:
+                "Producers must provide accurate business information and pass verification. An active subscription is required to sell on NyambikaAI.",
+            },
+            {
+              id: "products",
+              heading: "Product Listings & Quality",
+              content:
+                "All product details (title, images, price, sizes, colors) must be accurate. Counterfeit or prohibited items are not allowed.",
+            },
+            {
+              id: "orders",
+              heading: "Order Fulfillment",
+              content:
+                "Orders must be acknowledged promptly and fulfilled within the communicated timeframe. Keep customers informed about delays.",
+            },
+            {
+              id: "returns",
+              heading: "Returns, Refunds & Disputes",
+              content:
+                "Follow our returns and dispute policy. Resolve customer complaints professionally. NyambikaAI may mediate when needed.",
+            },
+            {
+              id: "pricing",
+              heading: "Pricing & Fees",
+              content:
+                "Subscription fees apply per selected plan. Additional optional services (e.g., product boost) may incur fees.",
+            },
+            {
+              id: "payments",
+              heading: "Payouts",
+              content:
+                "Payouts are settled to your configured wallet or payment method according to platform schedules and policy.",
+            },
+            {
+              id: "conduct",
+              heading: "Conduct & Compliance",
+              content:
+                "Maintain professional communication. Comply with local laws and platform rules. Misuse may lead to suspension.",
+            },
+            {
+              id: "privacy",
+              heading: "Privacy & Data",
+              content:
+                "Handle customer data responsibly and only for order processing and support purposes.",
+            },
+          ],
+        });
+      }
+
+      // Default/basic terms for other roles (minimal placeholder)
+      return res.json({
+        ...base,
+        role,
+        title: "General Terms & Conditions",
+        sections: [
+          {
+            id: "use",
+            heading: "Acceptable Use",
+            content:
+              "Use the platform responsibly and in accordance with our policies and local laws.",
+          },
+        ],
+      });
+    } catch (e) {
+      console.error("Error in GET /api/terms:", e);
+      return res.status(500).json({ message: "Failed to load terms" });
+    }
+  });
+
   // Dedicated health endpoint with a simple, stable response
   app.get("/health", (_req, res) => {
     res.status(200);
@@ -115,7 +276,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/newsletter/subscribe", async (req: any, res) => {
     try {
       const { email, source } = req.body || {};
-      const emailStr = typeof email === "string" ? email.trim().toLowerCase() : "";
+      const emailStr =
+        typeof email === "string" ? email.trim().toLowerCase() : "";
       const sourceStr = typeof source === "string" ? source.trim() : null;
       const emailRegex = /[^\s@]+@[^\s@]+\.[^\s@]+/;
       if (!emailStr || !emailRegex.test(emailStr)) {
@@ -185,6 +347,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "Invalid token" });
     }
   };
+
+  // Agent-only: accept terms (sets users.terms_accepted and timestamp)
+  app.post("/api/agent/terms/accept", requireAuth, async (req: any, res) => {
+    try {
+      if ((req.userRole || "").toLowerCase() !== "agent") {
+        return res
+          .status(403)
+          .json({ message: "Only agents can accept agent terms" });
+      }
+      const user = await storage.getUserById(req.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      const now = new Date();
+      const updated = await storage.updateUser(user.id, {
+        // @ts-ignore drizzle insert schema includes these columns
+        termsAccepted: true as any,
+        // @ts-ignore
+        termsAcceptedAt: now as any,
+      } as any);
+
+      const {
+        password: _pw,
+        fullName,
+        ...userWithoutPassword
+      } = (updated || user) as any;
+      res.json({
+        ok: true,
+        user: {
+          ...userWithoutPassword,
+          name: fullName || user.email.split("@")[0],
+          termsAccepted: true,
+          termsAcceptedAt: now,
+        },
+      });
+    } catch (e) {
+      console.error("Error in POST /api/agent/terms/accept:", e);
+      return res.status(500).json({ message: "Failed to accept terms" });
+    }
+  });
 
   // ===== AI: Suggest product titles from image =====
   app.post("/api/ai/suggest-titles", requireAuth, async (req: any, res) => {
@@ -432,13 +633,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   );
-
-
-  
-
-  
-
-  
 
   // Generic wallet debit charge (for non-topup payments)
   app.post(
@@ -749,14 +943,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
               }
             }
-
             return res.json({ ok: true, status: finalStatus, gateway: json });
-          } catch (error) {
-            console.error(
-              "Error in POST /api/payments/opay/checkstatus:",
-              error
-            );
-            res.status(500).json({ message: "Internal server error" });
+          } catch (e) {
+            console.error("Error checking payment status:", e);
+            return res
+              .status(500)
+              .json({ message: "Failed to check payment status" });
           }
         }
       );
@@ -1789,7 +1981,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req, res) => {
       try {
         const agentId = String(req.params.agentId);
-        const { from, to, status, payoutStatus, producerId, planId, limit, offset } = (req.query || {}) as {
+        const {
+          from,
+          to,
+          status,
+          payoutStatus,
+          producerId,
+          planId,
+          limit,
+          offset,
+        } = (req.query || {}) as {
           from?: string;
           to?: string;
           status?: string;
@@ -1805,7 +2006,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           conditions.push(eq(subscriptionPayments.status, status));
         }
         if (payoutStatus && typeof payoutStatus === "string") {
-          conditions.push(eq(subscriptionPayments.agentPayoutStatus as any, payoutStatus));
+          conditions.push(
+            eq(subscriptionPayments.agentPayoutStatus as any, payoutStatus)
+          );
         }
         if (producerId && typeof producerId === "string") {
           conditions.push(eq(subscriptions.userId, producerId));
@@ -1816,13 +2019,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (from) {
           const fromDate = new Date(from);
           if (!isNaN(fromDate.getTime())) {
-            conditions.push(sql`${subscriptionPayments.createdAt} >= ${fromDate}`);
+            conditions.push(
+              sql`${subscriptionPayments.createdAt} >= ${fromDate}`
+            );
           }
         }
         if (to) {
           const toDate = new Date(to);
           if (!isNaN(toDate.getTime())) {
-            conditions.push(sql`${subscriptionPayments.createdAt} <= ${toDate}`);
+            conditions.push(
+              sql`${subscriptionPayments.createdAt} <= ${toDate}`
+            );
           }
         }
 
@@ -1847,7 +2054,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             createdAt: subscriptionPayments.createdAt,
             agentPayoutStatus: subscriptionPayments.agentPayoutStatus as any,
             agentPayoutDate: subscriptionPayments.agentPayoutDate as any,
-            agentPayoutReference: subscriptionPayments.agentPayoutReference as any,
+            agentPayoutReference:
+              subscriptionPayments.agentPayoutReference as any,
             agentPayoutNotes: subscriptionPayments.agentPayoutNotes as any,
             producerName: users.fullName,
             planName: subscriptionPlans.name,
@@ -2361,6 +2569,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         businessName,
         business_name: businessName,
         business_id: businessId,
+        termsAccepted: (user as any).termsAccepted ?? false,
+        termsAcceptedAt: (user as any).termsAcceptedAt ?? null,
       };
 
       console.log("Login successful for user:", mappedUser.id);
@@ -2409,6 +2619,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         businessName,
         business_name: businessName,
         business_id: businessId,
+        termsAccepted: (user as any).termsAccepted ?? false,
+        termsAcceptedAt: (user as any).termsAcceptedAt ?? null,
       };
       res.json(mappedUser);
     } catch (error) {

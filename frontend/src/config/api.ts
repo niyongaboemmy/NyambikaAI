@@ -30,6 +30,9 @@ export interface UserInterface {
   name: string | null;
   business_name: string | null;
   business_id: string | null;
+  // Agent terms
+  termsAccepted?: boolean;
+  termsAcceptedAt?: string | null;
 }
 
 // Create centralized axios instance
@@ -245,4 +248,8 @@ export const API_ENDPOINTS = {
   
   // Newsletter
   NEWSLETTER_SUBSCRIBE: "/api/newsletter/subscribe",
+
+  // Terms
+  TERMS_BY_ROLE: (role: string) => `/api/terms?role=${role}`,
+  AGENT_ACCEPT_TERMS: "/api/agent/terms/accept",
 } as const;
