@@ -3458,6 +3458,56 @@ try {
           return res.status(400).json({ message: "Missing required fields" });
         }
 
+        // Enforce subscription plan maxProducts for producers (admins bypass)
+        try {
+          if (req.userRole === "producer") {
+            // Find active subscription for this producer
+            const activeSubs = await db
+              .select()
+              .from(subscriptions)
+              .where(and(eq(subscriptions.userId, req.userId), eq(subscriptions.status, "active")))
+              .limit(1);
+            let maxProductsLimit: number | null = null;
+            if (activeSubs && activeSubs[0]) {
+              const planId = (activeSubs[0] as any).planId as string;
+              if (planId) {
+                const plans = await db
+                  .select()
+                  .from(subscriptionPlans)
+                  .where(eq(subscriptionPlans.id, planId))
+                  .limit(1);
+                if (plans && plans[0]) {
+                  const mp = (plans[0] as any).maxProducts;
+                  maxProductsLimit = typeof mp === "number" ? mp : parseInt(String(mp || 0), 10) || 0;
+                }
+              }
+            }
+            // If no active subscription found, treat as zero allowed (block creation)
+            if (maxProductsLimit === null) maxProductsLimit = 0;
+
+            if (maxProductsLimit > 0) {
+              // Count current products for this producer
+              const current = await db
+                .select({ id: products.id })
+                .from(products)
+                .where(eq(products.producerId, req.userId));
+              const currentCount = current.length;
+              if (currentCount >= maxProductsLimit) {
+                return res.status(403).json({
+                  message:
+                    `Product limit reached for your current plan. Max allowed products: ${maxProductsLimit}. Please remove some products or upgrade your plan.`,
+                  code: "PRODUCT_LIMIT_REACHED",
+                  maxProducts: maxProductsLimit,
+                  currentProducts: currentCount,
+                });
+              }
+            }
+          }
+        } catch (limitErr) {
+          console.warn("Failed to evaluate product limit: ", (limitErr as any)?.message || limitErr);
+          // Do not block creation on evaluation error; proceed gracefully
+        }
+
         const productData = {
           name,
           nameRw,
@@ -3494,8 +3544,43 @@ try {
         producerId: producerId as string,
       };
 
-      const products = await storage.getProducts(options);
-      res.json(products);
+      const list = await storage.getProducts(options);
+
+      // If listing products for a specific producer, enforce plan maxProducts by slicing
+      if (options.producerId) {
+        try {
+          let maxProductsLimit = 0; // default 0 means unlimited if not found? we'll treat 0 as unlimited per seed
+          // Fetch active subscription for that producer
+          const activeSubs = await db
+            .select()
+            .from(subscriptions)
+            .where(and(eq(subscriptions.userId, options.producerId), eq(subscriptions.status, "active")))
+            .limit(1);
+          if (activeSubs && activeSubs[0]) {
+            const planId = (activeSubs[0] as any).planId as string;
+            if (planId) {
+              const plans = await db
+                .select()
+                .from(subscriptionPlans)
+                .where(eq(subscriptionPlans.id, planId))
+                .limit(1);
+              if (plans && plans[0]) {
+                const mp = (plans[0] as any).maxProducts;
+                maxProductsLimit = typeof mp === "number" ? mp : parseInt(String(mp || 0), 10) || 0;
+              }
+            }
+          }
+
+          if (maxProductsLimit > 0 && Array.isArray(list) && list.length > maxProductsLimit) {
+            return res.json(list.slice(0, maxProductsLimit));
+          }
+        } catch (e) {
+          console.warn("Failed to enforce listing limit: ", (e as any)?.message || e);
+          // Fall through to return full list if enforcement fails
+        }
+      }
+
+      res.json(list);
     } catch (error) {
       console.error("Error fetching products:", error);
       res.status(500).json({ message: "Internal server error" });

@@ -100,7 +100,7 @@ export default function RoleBasedNavigation() {
       links: publicLinks,
       menu: [
         {
-          href: company?.id ? `/store/${company.id}` : "/#",
+          href: user && user.business_id ? `/store/${user.business_id}` : "/#",
           label: "My Store",
           icon: User2,
         },
