@@ -26,6 +26,7 @@ import {
   userWallets,
   walletPayments,
   paymentSettings,
+  emailSubscriptions,
 } from "./shared/schema.dialect";
 import { and, eq, desc, sql, inArray } from "drizzle-orm";
 import {
@@ -108,6 +109,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(200);
     res.setHeader("Content-Type", "text/plain");
     res.end("ok");
+  });
+
+  // Newsletter subscription (public)
+  app.post("/api/newsletter/subscribe", async (req: any, res) => {
+    try {
+      const { email, source } = req.body || {};
+      const emailStr = typeof email === "string" ? email.trim().toLowerCase() : "";
+      const sourceStr = typeof source === "string" ? source.trim() : null;
+      const emailRegex = /[^\s@]+@[^\s@]+\.[^\s@]+/;
+      if (!emailStr || !emailRegex.test(emailStr)) {
+        return res.status(400).json({ message: "Valid email is required" });
+      }
+
+      // Idempotent: check if already exists
+      const existing = await db
+        .select()
+        .from(emailSubscriptions)
+        .where(eq(emailSubscriptions.email, emailStr))
+        .limit(1);
+      if (existing && existing[0]) {
+        return res.status(200).json({ ok: true, already: true });
+      }
+
+      const vals: any = {
+        email: emailStr,
+        source: sourceStr,
+      };
+      if (isMySQL) {
+        vals.id = randomUUID();
+        await db.insert(emailSubscriptions).values(vals).execute();
+      } else {
+        await db.insert(emailSubscriptions).values(vals).returning();
+      }
+      return res.status(200).json({ ok: true, already: false });
+    } catch (error) {
+      console.error("Error in POST /api/newsletter/subscribe:", error);
+      return res.status(500).json({ message: "Failed to subscribe" });
+    }
   });
 
   // Esicia/Kpay configuration imported from centralized module

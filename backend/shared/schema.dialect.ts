@@ -26,6 +26,7 @@ export const notifications = s.notifications;
 export const userWallets = s.userWallets;
 export const walletPayments = s.walletPayments;
 export const paymentSettings = s.paymentSettings;
+export const emailSubscriptions = s.emailSubscriptions;
 
 // Insert schemas
 export const insertUserSchema = s.insertUserSchema;
@@ -45,6 +46,7 @@ export const insertNotificationSchema = s.insertNotificationSchema;
 export const insertUserWalletSchema = s.insertUserWalletSchema;
 export const insertWalletPaymentSchema = s.insertWalletPaymentSchema;
 export const insertPaymentSettingSchema = s.insertPaymentSettingSchema;
+export const insertEmailSubscriptionSchema = s.insertEmailSubscriptionSchema;
 
 // Types: re-export from Postgres schema for compile-time convenience
 export type {
@@ -82,4 +84,6 @@ export type {
   InsertWalletPayment,
   PaymentSetting,
   InsertPaymentSetting,
+  EmailSubscription,
+  InsertEmailSubscription,
 } from './schema';

@@ -299,6 +299,16 @@ export const paymentSettings = pgTable("payment_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Newsletter email subscriptions
+export const emailSubscriptions = pgTable("email_subscriptions", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  email: text("email").notNull().unique(),
+  source: text("source"), // e.g., 'footer', 'landing', etc.
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas (allow app-provided UUIDs; only paymentSettings keeps id omitted)
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true });
 
@@ -333,6 +343,7 @@ export const insertUserWalletSchema = createInsertSchema(userWallets).omit({ cre
 export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({ createdAt: true });
 
 export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({ id: true, createdAt: true });
+export const insertEmailSubscriptionSchema = createInsertSchema(emailSubscriptions).omit({ createdAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -389,3 +400,5 @@ export type InsertWalletPayment = z.infer<typeof insertWalletPaymentSchema>;
 
 export type PaymentSetting = typeof paymentSettings.$inferSelect;
 export type InsertPaymentSetting = z.infer<typeof insertPaymentSettingSchema>;
+export type EmailSubscription = typeof emailSubscriptions.$inferSelect;
+export type InsertEmailSubscription = z.infer<typeof insertEmailSubscriptionSchema>;

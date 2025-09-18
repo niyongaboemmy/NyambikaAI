@@ -9,11 +9,13 @@ import {
   Phone,
   Mail,
   MapPin,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Input } from "@/components/custom-ui/input";
 import { Separator } from "@/components/custom-ui/separator";
 import Link from "next/link";
+import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -53,22 +55,33 @@ export default function Footer() {
   const socialLinks = [
     {
       icon: Facebook,
-      href: "#",
+      href: "https://www.facebook.com/nyambikadesign",
       label: "Facebook",
       color: "hover:text-blue-500",
     },
-    { icon: Twitter, href: "#", label: "Twitter", color: "hover:text-sky-500" },
+    {
+      icon: Twitter,
+      href: "https://x.com/Nyambika1/",
+      label: "Twitter",
+      color: "hover:text-sky-500",
+    },
     {
       icon: Instagram,
-      href: "#",
+      href: "https://www.instagram.com/nyambika_official/",
       label: "Instagram",
       color: "hover:text-pink-500",
     },
     {
       icon: Linkedin,
-      href: "#",
+      href: "https://www.linkedin.com/in/nyambikaofficial/",
       label: "LinkedIn",
       color: "hover:text-blue-600",
+    },
+    {
+      icon: MessageCircle,
+      href: "https://wa.me/250782634364",
+      label: "WhatsApp",
+      color: "hover:text-emerald-500",
     },
   ];
 
@@ -201,17 +214,31 @@ export default function Footer() {
                 }
                 try {
                   setSubmitting(true);
-                  // TODO: Replace with real endpoint
-                  await new Promise((r) => setTimeout(r, 800));
-                  toast?.({
-                    title: "Subscribed",
-                    description: "Thanks for joining our newsletter!",
-                  });
-                  setEmail("");
+                  const { data } = await apiClient.post(
+                    API_ENDPOINTS.NEWSLETTER_SUBSCRIBE,
+                    { email, source: "footer" },
+                    { suppressAuthModal: true as any }
+                  );
+                  if (data?.ok) {
+                    toast?.({
+                      title: data.already ? "Already subscribed" : "Subscribed",
+                      description: data.already
+                        ? "This email is already on our list."
+                        : "Thanks for joining our newsletter!",
+                    });
+                    setEmail("");
+                  } else {
+                    toast?.({
+                      title: "Subscription failed",
+                      description: "Please try again later.",
+                      variant: "destructive",
+                    });
+                  }
                 } catch (err) {
+                  const msg = handleApiError(err);
                   toast?.({
                     title: "Subscription failed",
-                    description: "Please try again later.",
+                    description: msg,
                     variant: "destructive",
                   });
                 } finally {
@@ -246,6 +273,21 @@ export default function Footer() {
               </div>
               <div className="flex items-center">
                 <MapPin className="mr-3 h-4 w-4" /> Kigali, Rwanda
+              </div>
+              <div className="pt-2">
+                <Button
+                  asChild
+                  className="bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 text-white"
+                >
+                  <a
+                    href="https://wa.me/250782634364"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    aria-label="Chat on WhatsApp"
+                  >
+                    Chat on WhatsApp
+                  </a>
+                </Button>
               </div>
             </div>
           </div>

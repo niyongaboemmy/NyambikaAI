@@ -242,4 +242,7 @@ export const API_ENDPOINTS = {
   PRODUCER_SUBSCRIPTION_STATUS: "/api/producer/subscription-status",
   SUBSCRIPTION_PLANS_BY_ID: (id: string) => `/api/subscription-plans/${id}`,
   SUBSCRIPTIONS: "/api/subscriptions",
+  
+  // Newsletter
+  NEWSLETTER_SUBSCRIBE: "/api/newsletter/subscribe",
 } as const;

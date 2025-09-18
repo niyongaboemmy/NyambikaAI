@@ -238,6 +238,14 @@ export const paymentSettings = table("payment_settings", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Newsletter email subscriptions
+export const emailSubscriptions = table("email_subscriptions", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  email: text("email").notNull().unique(),
+  source: text("source"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true });
 export const insertCompanySchema = createInsertSchema(companies).omit({ createdAt: true });
@@ -256,6 +264,7 @@ export const insertNotificationSchema = createInsertSchema(notifications).omit({
 export const insertUserWalletSchema = createInsertSchema(userWallets).omit({ createdAt: true, updatedAt: true });
 export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({ createdAt: true });
 export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({ id: true, createdAt: true });
+export const insertEmailSubscriptionSchema = createInsertSchema(emailSubscriptions).omit({ createdAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -292,3 +301,5 @@ export type WalletPayment = typeof walletPayments.$inferSelect;
 export type InsertWalletPayment = z.infer<typeof insertWalletPaymentSchema>;
 export type PaymentSetting = typeof paymentSettings.$inferSelect;
 export type InsertPaymentSetting = z.infer<typeof insertPaymentSettingSchema>;
+export type EmailSubscription = typeof emailSubscriptions.$inferSelect;
+export type InsertEmailSubscription = z.infer<typeof insertEmailSubscriptionSchema>;
