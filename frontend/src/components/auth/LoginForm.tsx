@@ -480,7 +480,7 @@ export default function LoginForm({
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.9, duration: 0.4 }}
                   >
-                    New to NyambikaAI?{" "}
+                    New to Nyambika?{" "}
                     <button
                       type="button"
                       className="text-blue-600 dark:text-blue-400 hover:underline font-medium"

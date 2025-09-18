@@ -14,7 +14,7 @@ export async function generateMetadata({
 
   if (!categoryId || categoryId === "all") {
     const base = buildMetadata({
-      title: "Product Search — NyambikaAI",
+      title: "Product Search — Nyambika",
       description:
         "Search and discover amazing products with AI-powered recommendations across all categories.",
       path: "/products-search",
@@ -34,7 +34,7 @@ export async function generateMetadata({
         images: [
           {
             url: logo,
-            alt: "NyambikaAI Logo",
+            alt: "Nyambika Logo",
             width: 1200 as any,
             height: 630 as any,
             secureUrl: logo as any,

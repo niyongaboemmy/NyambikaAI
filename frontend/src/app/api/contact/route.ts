@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const subject = `New contact from ${name}`;
     const html = `
       <div style="font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;">
-        <h2>NyambikaAI Contact Message</h2>
+        <h2>Nyambika Contact Message</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>Message:</strong></p>

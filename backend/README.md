@@ -1,4 +1,4 @@
-# NyambikaAI Backend 🚀
+# Nyambika Backend 🚀
 
 Node.js + Express API server with authentication, database management, and AI service integration.
 
@@ -14,6 +14,7 @@ Node.js + Express API server with authentication, database management, and AI se
 ## 📦 Installation
 
 1. **Navigate to backend directory:**
+
    ```bash
    cd backend
    ```
@@ -52,22 +53,27 @@ FRONTEND_URL=http://localhost:5173
 ## 🏃‍♂️ Running the Application
 
 ### Development Mode
+
 ```bash
 npm run dev
 ```
+
 Server runs on: `http://localhost:3001`
 
 ### Build for Production
+
 ```bash
 npm run build
 ```
 
 ### Start Production Server
+
 ```bash
 npm start
 ```
 
 ### Database Operations
+
 ```bash
 npm run db:push    # Push schema changes to database
 npm run seed       # Seed database with sample data
@@ -96,6 +102,7 @@ backend/
 ## 📡 API Endpoints
 
 ### Authentication
+
 ```
 POST /api/auth/login       # User login
 POST /api/auth/logout      # User logout
@@ -104,6 +111,7 @@ GET  /api/auth/oauth/google # Google OAuth
 ```
 
 ### Users
+
 ```
 GET    /api/users          # Get all users
 GET    /api/users/:id      # Get user by ID
@@ -112,6 +120,7 @@ DELETE /api/users/:id      # Delete user
 ```
 
 ### Products
+
 ```
 GET    /api/products       # Get all products
 GET    /api/products/:id   # Get product by ID
@@ -121,6 +130,7 @@ DELETE /api/products/:id   # Delete product (admin)
 ```
 
 ### Companies
+
 ```
 GET    /api/companies      # Get all companies
 GET    /api/companies/:id  # Get company by ID
@@ -128,6 +138,7 @@ GET    /api/companies/:id/products # Get company products
 ```
 
 ### Orders
+
 ```
 GET    /api/orders         # Get user orders
 POST   /api/orders         # Create new order
@@ -136,12 +147,14 @@ PUT    /api/orders/:id     # Update order status
 ```
 
 ### Try-On Service
+
 ```
 POST   /api/tryon          # Start try-on session
 GET    /api/tryon/:id      # Get try-on result
 ```
 
 ### Favorites
+
 ```
 GET    /api/favorites      # Get user favorites
 POST   /api/favorites      # Add to favorites
@@ -151,6 +164,7 @@ DELETE /api/favorites/:id  # Remove from favorites
 ## 🗄️ Database Schema
 
 ### Core Tables
+
 - **users**: User accounts and profiles
 - **companies**: Fashion brands and retailers
 - **products**: Clothing items and details
@@ -162,11 +176,13 @@ DELETE /api/favorites/:id  # Remove from favorites
 ## 🔗 Integration Points
 
 ### Frontend Communication
+
 - Serves API endpoints for React frontend
 - Handles user authentication and sessions
 - Manages shopping cart and order processing
 
 ### Python Service Integration
+
 - Proxies try-on requests to ClothFlow service
 - Manages session data and results
 - Handles file uploads and processing
@@ -182,6 +198,7 @@ DELETE /api/favorites/:id  # Remove from favorites
 ## 🚀 Deployment
 
 ### Production Checklist
+
 - [ ] Set `NODE_ENV=production`
 - [ ] Configure production database
 - [ ] Set secure session secrets

@@ -1,4 +1,4 @@
--- NyambikaAI MySQL schema DDL
+-- Nyambika MySQL schema DDL
 -- Requires MySQL 8.0.13+ (for expression defaults). If UUID() default is not allowed on your server,
 -- remove DEFAULT (UUID()) and let the application supply ids.
 

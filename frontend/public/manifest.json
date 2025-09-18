@@ -1,6 +1,6 @@
 {
-  "name": "NyambikaAI - AI Fashion Try-On",
-  "short_name": "NyambikaAI",
+  "name": "Nyambika - AI Fashion Try-On",
+  "short_name": "Nyambika",
   "description": "AI-powered fashion try-on platform for virtual clothing experiences",
   "start_url": "/",
   "display": "standalone",

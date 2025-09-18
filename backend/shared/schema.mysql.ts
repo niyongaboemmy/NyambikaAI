@@ -185,6 +185,11 @@ export const subscriptionPayments = table("subscription_payments", {
   paymentReference: text("payment_reference"),
   status: text("status").notNull().default("pending"),
   transactionId: text("transaction_id"),
+  // Agent payout confirmation fields
+  agentPayoutStatus: text("agent_payout_status").default("pending"),
+  agentPayoutDate: timestamp("agent_payout_date"),
+  agentPayoutReference: text("agent_payout_reference"),
+  agentPayoutNotes: text("agent_payout_notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

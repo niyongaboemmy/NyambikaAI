@@ -131,7 +131,7 @@ export default function CompanyModal() {
           <DialogDescription className="text-gray-600 dark:text-gray-300 italic text-xs">
             {isEdit
               ? "Update your business information used across the platform."
-              : "Please provide your business details to start selling on NyambikaAI."}
+              : "Please provide your business details to start selling on Nyambika."}
           </DialogDescription>
         </DialogHeader>
         {/* Loading overlay */}

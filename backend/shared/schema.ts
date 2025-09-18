@@ -223,6 +223,11 @@ export const subscriptionPayments = pgTable("subscription_payments", {
   paymentReference: text("payment_reference"),
   status: text("status").notNull().default("pending"), // pending, completed, failed
   transactionId: text("transaction_id"),
+  // Agent payout confirmation fields (admin marks when agent has received their commission)
+  agentPayoutStatus: text("agent_payout_status").default("pending"), // pending, paid
+  agentPayoutDate: timestamp("agent_payout_date"),
+  agentPayoutReference: text("agent_payout_reference"),
+  agentPayoutNotes: text("agent_payout_notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

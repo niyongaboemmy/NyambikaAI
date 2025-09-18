@@ -34,12 +34,12 @@ declare global {
 // Removed next/font/google to prevent network fetch during build in restricted environments
 
 export const metadata: Metadata = {
-  title: "NyambikaAI - AI-Powered Fashion Platform",
+  title: "Nyambika - AI-Powered Fashion Platform",
   description:
     "Experience the future of fashion with AI-powered virtual try-ons, personalized recommendations, and seamless shopping in Rwanda.",
   keywords:
     "AI fashion, virtual try-on, Rwanda fashion, e-commerce, artificial intelligence",
-  authors: [{ name: "NyambikaAI Team" }],
+  authors: [{ name: "Nyambika Team" }],
   icons: {
     icon: [
       {
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
-    title: "NyambikaAI - AI-Powered Fashion Platform",
+    title: "Nyambika - AI-Powered Fashion Platform",
     description:
       "Experience the future of fashion with AI-powered virtual try-ons and personalized recommendations.",
     type: "website",
@@ -79,7 +79,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "NyambikaAI - AI-Powered Fashion Platform",
+    title: "Nyambika - AI-Powered Fashion Platform",
     description:
       "Experience the future of fashion with AI-powered virtual try-ons and personalized recommendations.",
     images: ["/nyambika_dark_icon.png"],

@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/custom-ui/card";
 import PageHeader from "@/components/layout/PageHeader";
 
 export const metadata: Metadata = {
-  title: "Terms of Service • NyambikaAI",
+  title: "Terms of Service • Nyambika",
   description:
-    "Read the NyambikaAI Terms of Service that govern your use of our platform, AI try‑on features, and marketplace.",
+    "Read the Nyambika Terms of Service that govern your use of our platform, AI try‑on features, and marketplace.",
 };
 
 export default function TermsPage() {
@@ -25,8 +25,8 @@ export default function TermsPage() {
               1. Acceptance of Terms
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              By using NyambikaAI, you agree to these Terms. If you do not
-              agree, please discontinue use of the platform.
+              By using Nyambika, you agree to these Terms. If you do not agree,
+              please discontinue use of the platform.
             </p>
           </section>
 
@@ -49,7 +49,7 @@ export default function TermsPage() {
               3. AI Try‑On and Content
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              You retain rights to the photos you upload. You grant NyambikaAI a
+              You retain rights to the photos you upload. You grant Nyambika a
               limited license to process and display your content solely to
               provide the service.
             </p>
@@ -61,7 +61,7 @@ export default function TermsPage() {
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
               Orders are placed directly with producers on the platform.
-              NyambikaAI facilitates discovery and ordering. Payment and
+              Nyambika facilitates discovery and ordering. Payment and
               fulfillment terms may vary by producer.
             </p>
           </section>
@@ -72,7 +72,7 @@ export default function TermsPage() {
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
               The service is provided "as is" without warranties. To the maximum
-              extent permitted by law, NyambikaAI is not liable for indirect or
+              extent permitted by law, Nyambika is not liable for indirect or
               consequential damages.
             </p>
           </section>

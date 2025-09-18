@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/custom-ui/card";
 import PageHeader from "@/components/layout/PageHeader";
 
 export const metadata: Metadata = {
-  title: "Cookie Policy • NyambikaAI",
+  title: "Cookie Policy • Nyambika",
   description:
-    "Understand how NyambikaAI uses cookies and similar technologies to improve your experience.",
+    "Understand how Nyambika uses cookies and similar technologies to improve your experience.",
 };
 
 export default function CookiesPage() {

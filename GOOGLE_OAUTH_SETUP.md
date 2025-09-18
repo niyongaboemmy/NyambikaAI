@@ -1,38 +1,42 @@
-# Google OAuth Setup Guide for NyambikaAI
+# Google OAuth Setup Guide for Nyambika
 
 ## 1. Google Cloud Console Setup
 
 ### Step 1: Create a Google Cloud Project
+
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select an existing one
 3. Note your project ID
 
 ### Step 2: Enable Google+ API
+
 1. In the Google Cloud Console, go to **APIs & Services > Library**
 2. Search for "Google+ API" and enable it
 3. Also enable "Google Identity" if available
 
 ### Step 3: Configure OAuth Consent Screen
+
 1. Go to **APIs & Services > OAuth consent screen**
 2. Choose **External** user type (for testing with personal accounts)
 3. Fill in required fields:
-   - **App name**: NyambikaAI
+   - **App name**: Nyambika
    - **User support email**: Your email
    - **Developer contact information**: Your email
 4. Add scopes:
    - `openid`
-   - `email` 
+   - `email`
    - `profile`
 5. Add test users (your email addresses for testing)
 6. Save and continue
 
 ### Step 4: Create OAuth 2.0 Credentials
+
 1. Go to **APIs & Services > Credentials**
 2. Click **+ CREATE CREDENTIALS > OAuth 2.0 Client IDs**
 3. Choose **Web application**
 4. Configure:
-   - **Name**: NyambikaAI Web Client
-   - **Authorized JavaScript origins**: 
+   - **Name**: Nyambika Web Client
+   - **Authorized JavaScript origins**:
      - `http://localhost:3002`
    - **Authorized redirect URIs**:
      - `http://localhost:3002/api/auth/oauth/google/callback`
@@ -65,6 +69,7 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ## 4. Test the Setup
 
 1. Start your server:
+
    ```bash
    npm run dev
    ```
@@ -82,20 +87,24 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ### Common Issues:
 
 **"redirect_uri_mismatch" error:**
+
 - Ensure the redirect URI in Google Console exactly matches: `http://localhost:3001/api/auth/oauth/google/callback`
 - No trailing slashes, exact protocol (http vs https)
 
 **"access_blocked" error:**
+
 - Add your email as a test user in OAuth consent screen
 - Ensure app is in "Testing" mode for development
 
 **"invalid_client" error:**
+
 - Check that GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are correct
 - Ensure no extra spaces or quotes in .env file
 
 ### Production Setup:
 
 For production deployment:
+
 1. Update authorized origins and redirect URIs to your production domain
 2. Submit app for verification if needed
 3. Use environment-specific .env files

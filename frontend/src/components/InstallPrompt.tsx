@@ -183,7 +183,7 @@ export function InstallPrompt() {
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
       if (isIOS) {
         return {
-          title: "Add NyambikaAI to Home Screen",
+          title: "Add Nyambika to Home Screen",
           steps: [
             "Tap the Share button",
             "Scroll down and tap 'Add to Home Screen'",
@@ -193,7 +193,7 @@ export function InstallPrompt() {
         };
       } else {
         return {
-          title: "Install NyambikaAI App",
+          title: "Install Nyambika App",
           steps: [
             "Tap 'Install' below",
             "Confirm installation",
@@ -204,7 +204,7 @@ export function InstallPrompt() {
       }
     } else {
       return {
-        title: "Install NyambikaAI Desktop App",
+        title: "Install Nyambika Desktop App",
         steps: [
           "Click 'Install' below",
           "Confirm installation",
@@ -257,7 +257,7 @@ export function InstallPrompt() {
                     ${actualTheme === "dark" ? "text-white" : "text-gray-900"}
                   `}
                 >
-                  Install NyambikaAI
+                  Install Nyambika
                 </h3>
                 <p
                   className={`

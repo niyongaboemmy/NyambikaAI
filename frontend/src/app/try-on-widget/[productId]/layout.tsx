@@ -20,16 +20,25 @@ async function getProduct(id: string) {
   }
 }
 
-export async function generateMetadata({ params }: { params: { productId: string } }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: { productId: string };
+}): Promise<Metadata> {
   const safeId = encodeURIComponent((params.productId || "").trim());
   const product = await getProduct(safeId);
 
   const baseName = product?.name?.trim() || "Product";
-  const title = `AI Try-On — ${baseName} — NyambikaAI`;
-  const description = product?.description?.trim() || `Try on ${baseName} with AI on NyambikaAI and see how it looks on you.`;
+  const title = `AI Try-On — ${baseName} — Nyambika`;
+  const description =
+    product?.description?.trim() ||
+    `Try on ${baseName} with AI on Nyambika and see how it looks on you.`;
 
   const img = product?.imageUrl || "/nyambika_dark_icon.png";
-  const image = img.startsWith("http") || img.startsWith("data:") ? img : new URL(img, SITE_URL).toString();
+  const image =
+    img.startsWith("http") || img.startsWith("data:")
+      ? img
+      : new URL(img, SITE_URL).toString();
 
   return buildMetadata({
     title,
@@ -39,6 +48,10 @@ export async function generateMetadata({ params }: { params: { productId: string
   });
 }
 
-export default function TryOnWidgetLayout({ children }: { children: React.ReactNode }) {
+export default function TryOnWidgetLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return <>{children}</>;
 }

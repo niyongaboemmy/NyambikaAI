@@ -51,7 +51,7 @@ export async function generateMetadata({
   const description =
     (company?.location && company.location.trim()) ||
     (company?.name
-      ? `Explore products from ${company.name} on NyambikaAI`
+      ? `Explore products from ${company.name} on Nyambika`
       : undefined);
 
   // Ensure image is absolute

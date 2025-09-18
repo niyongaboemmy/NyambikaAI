@@ -1,4 +1,4 @@
-# NyambikaAI — Agent Documentation
+# Nyambika — Agent Documentation
 
 Last updated: 2025-09-15
 

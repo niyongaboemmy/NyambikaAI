@@ -1,10 +1,10 @@
-# NyambikaAI — Agent Agreement of Work
+# Nyambika — Agent Agreement of Work
 
 Last updated: 2025-09-15
 
 ## 1. Parties
 
-- NyambikaAI (the "Platform")
+- Nyambika (the "Platform")
 - Agent (the "Agent")
 
 ## 2. Scope of Services

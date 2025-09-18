@@ -12,6 +12,7 @@ import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
 import SelectedCompanyBar from "./feed/SelectedCompanyBar";
+import ProducerEncouragementBanner from "@/components/ProducerEncouragementBanner";
 
 interface HomeProductsProps {
   searchParams?: {
@@ -864,6 +865,13 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   </div>
                 </div>
               )}
+
+              {/* Producer Encouragement Banner - Show to non-producers */}
+              {/* {user && user.role !== 'producer' && ( */}
+              <div className="mt-12">
+                <ProducerEncouragementBanner />
+              </div>
+              {/* )} */}
             </>
           ) : (
             <div className="col-span-full py-12 text-center">

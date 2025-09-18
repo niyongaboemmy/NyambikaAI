@@ -1,4 +1,4 @@
-# NyambikaAI - AI-Powered Fashion Try-On Platform 🤖👗
+# Nyambika - AI-Powered Fashion Try-On Platform 🤖👗
 
 A comprehensive fashion e-commerce platform with AI-powered virtual try-on capabilities, built with modern microservices architecture.
 
@@ -7,7 +7,7 @@ A comprehensive fashion e-commerce platform with AI-powered virtual try-on capab
 This project is structured as three independent applications:
 
 ```
-NyambikaAI/
+Nyambika/
 ├── frontend/          # React + Vite client application
 ├── backend/           # Node.js + Express API server
 ├── python/            # Python FastAPI AI service

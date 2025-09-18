@@ -5,7 +5,7 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   (process.env.NODE_ENV === "development"
     ? "http://localhost:3003"
-    : "https://nyambikaai.onrender.com");
+    : "https://Nyambika.onrender.com");
 export enum RoleEnum {
   ADMIN = "admin",
   AGENT = "agent",
@@ -189,6 +189,7 @@ export const API_ENDPOINTS = {
   ADMIN_CUSTOMERS: "/api/admin/customers",
   ADMIN_ADMINS: "/api/admin/admins",
   ADMIN_CREATE_USER: "/api/admin/users",
+  ADMIN_VERIFY_USER: (userId: string) => `/api/admin/users/${userId}/verify`,
   ADMIN_ORDERS: "/api/admin/orders",
   ADMIN_PENDING_APPROVALS: "/api/admin/pending-approvals",
   ADMIN_VERIFY_PRODUCER: (producerId: string) =>
@@ -201,6 +202,15 @@ export const API_ENDPOINTS = {
     `/api/admin/producers/${producerId}/subscription`,
   ADMIN_ACTIVATE_SUBSCRIPTION: (producerId: string) =>
     `/api/admin/producers/${producerId}/activate-subscription`,
+  // Admin • Agent payments
+  ADMIN_AGENT_PAYMENTS: (agentId: string) =>
+    `/api/admin/agents/${agentId}/payments`,
+  ADMIN_AGENT_MARK_PAYOUT: (agentId: string, paymentId: string) =>
+    `/api/admin/agents/${agentId}/payments/${paymentId}/payout`,
+  ADMIN_AGENT_PAYMENTS_SUMMARY: (agentId: string) =>
+    `/api/admin/agents/${agentId}/payments/summary`,
+  ADMIN_AGENT_BULK_MARK_PAYOUT: (agentId: string) =>
+    `/api/admin/agents/${agentId}/payments/payout/bulk`,
 
   // Favorites
   FAVORITES: "/api/favorites",

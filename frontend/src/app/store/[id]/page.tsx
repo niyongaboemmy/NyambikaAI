@@ -514,13 +514,13 @@ export default function StorePage() {
                   <Skeleton className="h-5 w-40 mx-auto bg-white/20" />
                 </div>
               </div>
-              
+
               {/* Store Info */}
               <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-white/90">
                 <Skeleton className="h-4 w-48 bg-white/20" />
                 <Skeleton className="h-4 w-36 bg-white/20" />
               </div>
-              
+
               {/* Action Buttons */}
               <div className="flex flex-wrap justify-center gap-3 pt-2">
                 <Skeleton className="h-10 w-32 rounded-full bg-white/30" />
@@ -535,7 +535,7 @@ export default function StorePage() {
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((stat) => (
-                <div 
+                <div
                   key={stat}
                   className="bg-white dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700/50"
                 >
@@ -561,8 +561,8 @@ export default function StorePage() {
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-4">
               {[...Array(8)].map((_, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="group flex flex-col items-center p-3 rounded-xl bg-white dark:bg-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors duration-200"
                 >
                   <Skeleton className="w-14 h-14 rounded-full bg-gray-200 dark:bg-gray-700 group-hover:scale-105 transition-transform duration-200" />
@@ -582,13 +582,13 @@ export default function StorePage() {
               <div className="relative flex-1 max-w-2xl">
                 <Skeleton className="h-10 w-full rounded-lg bg-gray-100 dark:bg-gray-800" />
               </div>
-              
+
               {/* Filter Controls */}
               <div className="flex flex-wrap items-center gap-3">
                 <Skeleton className="h-9 w-28 rounded-lg bg-gray-100 dark:bg-gray-800" />
                 <Skeleton className="h-9 w-32 rounded-lg bg-gray-100 dark:bg-gray-800" />
                 <Skeleton className="h-9 w-24 rounded-lg bg-gray-100 dark:bg-gray-800" />
-                
+
                 {/* View Toggle */}
                 <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
                   <Skeleton className="h-8 w-8 rounded-md" />
@@ -596,7 +596,7 @@ export default function StorePage() {
                 </div>
               </div>
             </div>
-            
+
             {/* Active Filters */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 text-sm">
               <Skeleton className="h-4 w-48 bg-gray-100 dark:bg-gray-800" />
@@ -610,8 +610,8 @@ export default function StorePage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
-                <div 
-                  key={i} 
+                <div
+                  key={i}
                   className="group relative bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-200 border border-gray-100 dark:border-gray-700/50"
                 >
                   {/* Image Placeholder */}
@@ -619,12 +619,12 @@ export default function StorePage() {
                     <Skeleton className="w-full h-full" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                   </div>
-                  
+
                   {/* Product Info */}
                   <div className="p-4">
                     <Skeleton className="h-5 w-3/4 mb-2 bg-gray-200 dark:bg-gray-700" />
                     <Skeleton className="h-4 w-1/2 bg-gray-100 dark:bg-gray-600" />
-                    
+
                     <div className="mt-3 flex items-center justify-between">
                       <Skeleton className="h-5 w-16 bg-gray-200 dark:bg-gray-700" />
                       <div className="flex space-x-2">
@@ -633,7 +633,7 @@ export default function StorePage() {
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Badge */}
                   <div className="absolute top-3 right-3">
                     <Skeleton className="h-5 w-16 rounded-full bg-white/90 dark:bg-gray-700/90" />
@@ -641,7 +641,7 @@ export default function StorePage() {
                 </div>
               ))}
             </div>
-            
+
             {/* Pagination Skeleton */}
             <div className="mt-10 flex items-center justify-center">
               <div className="flex items-center space-x-2 bg-white dark:bg-gray-800 rounded-lg p-2 shadow-sm">
@@ -789,7 +789,7 @@ export default function StorePage() {
                   title: company.name,
                   description:
                     (company.location && company.location.trim()) ||
-                    `Explore products from ${company.name} on NyambikaAI`,
+                    `Explore products from ${company.name} on Nyambika`,
                   icon: company.logoUrl || undefined,
                   url:
                     (typeof window !== "undefined" &&
@@ -1180,21 +1180,21 @@ export default function StorePage() {
                     product={{
                       id: product.id,
                       name: product.name,
-                      nameRw: product.nameRw || '',
-                      description: product.description || '',
+                      nameRw: product.nameRw || "",
+                      description: product.description || "",
                       price: product.price || 0,
-                      imageUrl: product.imageUrl || '',
-                      categoryId: product.categoryId || '',
+                      imageUrl: product.imageUrl || "",
+                      categoryId: product.categoryId || "",
                       categoryName: product.categoryName || null,
                       sizes: product.sizes || null,
                       colors: product.colors || null,
                       inStock: product.inStock || false,
                       createdAt: new Date(),
                       updatedAt: new Date(),
-                      producerId: (company as any)?.producerId || '',
+                      producerId: (company as any)?.producerId || "",
                       additionalImages: null,
                       stockQuantity: product.stockQuantity || 0,
-                      isApproved: product.isApproved || false
+                      isApproved: product.isApproved || false,
                     }}
                     isProducer={isProducer}
                     isAdmin={isAdmin}
@@ -1224,21 +1224,21 @@ export default function StorePage() {
                     product={{
                       id: product.id,
                       name: product.name,
-                      nameRw: product.nameRw || '',
-                      description: product.description || '',
+                      nameRw: product.nameRw || "",
+                      description: product.description || "",
                       price: product.price || 0,
-                      imageUrl: product.imageUrl || '',
-                      categoryId: product.categoryId || '',
+                      imageUrl: product.imageUrl || "",
+                      categoryId: product.categoryId || "",
                       categoryName: product.categoryName || null,
                       sizes: product.sizes || null,
                       colors: product.colors || null,
                       inStock: product.inStock || false,
                       createdAt: new Date(),
                       updatedAt: new Date(),
-                      producerId: (company as any)?.producerId || '',
+                      producerId: (company as any)?.producerId || "",
                       additionalImages: null,
                       stockQuantity: product.stockQuantity || 0,
-                      isApproved: product.isApproved || false
+                      isApproved: product.isApproved || false,
                     }}
                     isProducer={isProducer}
                     isAdmin={isAdmin}

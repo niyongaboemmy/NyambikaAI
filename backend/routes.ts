@@ -5,7 +5,11 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import Stripe from "stripe";
 import { storage } from "./storage";
-import { analyzeFashionImage, generateSizeRecommendation, suggestProductTitles } from "./openai";
+import {
+  analyzeFashionImage,
+  generateSizeRecommendation,
+  suggestProductTitles,
+} from "./openai";
 import { generateVirtualTryOn } from "./tryon";
 import crypto, { randomUUID } from "crypto";
 import { getSubscriptionPlans } from "./subscription-plans";
@@ -17,6 +21,8 @@ import {
   users,
   products,
   orders,
+  subscriptionPlans,
+  subscriptionPayments,
   userWallets,
   walletPayments,
   paymentSettings,
@@ -163,188 +169,188 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // ===== Generic OPAY (Esicia) payment for non-wallet uses =====
   // This endpoint initiates a payment without touching the user wallet tables.
-  app.post(
-    "/api/payments/opay/pay",
-    requireAuth,
-    async (req: any, res) => {
-      try {
-        const {
-          amount,
-          phone,
-          email,
-          details = "generic_payment",
-          cname,
-          cnumber,
-          pmethod = "momo",
-          retailerid,
-          bankid,
-          currency = "RWF",
-          // Optional subscription metadata for auto-activation via callback
-          subscriptionPlanId,
-          billingCycle, // "monthly" | "annual"
-          // Agent flow: allow paying for a specific producer
-          targetProducerUserId,
-        } = req.body || {};
+  app.post("/api/payments/opay/pay", requireAuth, async (req: any, res) => {
+    try {
+      const {
+        amount,
+        phone,
+        email,
+        details = "generic_payment",
+        cname,
+        cnumber,
+        pmethod = "momo",
+        retailerid,
+        bankid,
+        currency = "RWF",
+        // Optional subscription metadata for auto-activation via callback
+        subscriptionPlanId,
+        billingCycle, // "monthly" | "annual"
+        // Agent flow: allow paying for a specific producer
+        targetProducerUserId,
+      } = req.body || {};
 
-        const parsedAmount = Number(amount);
-        if (!parsedAmount || parsedAmount <= 0) {
-          return res.status(400).json({ message: "Invalid amount" });
-        }
-        if (!phone || typeof phone !== "string") {
-          return res.status(400).json({ message: "Phone is required" });
-        }
+      const parsedAmount = Number(amount);
+      if (!parsedAmount || parsedAmount <= 0) {
+        return res.status(400).json({ message: "Invalid amount" });
+      }
+      if (!phone || typeof phone !== "string") {
+        return res.status(400).json({ message: "Phone is required" });
+      }
 
-        // Resolve user context for email/name
-        const userProfile = await storage
-          .getUserById(req.userId)
-          .catch(() => null as any);
-        const resolvedEmail = String(
-          email || userProfile?.email || "support@nyambika.com"
-        );
-        const resolvedCname = String(
-          cname || userProfile?.fullName || userProfile?.username || "Customer"
-        );
-        const resolvedCnumber = String(
-          cnumber || userProfile?.phone || userProfile?.id || req.userId
-        );
+      // Resolve user context for email/name
+      const userProfile = await storage
+        .getUserById(req.userId)
+        .catch(() => null as any);
+      const resolvedEmail = String(
+        email || userProfile?.email || "support@nyambika.com"
+      );
+      const resolvedCname = String(
+        cname || userProfile?.fullName || userProfile?.username || "Customer"
+      );
+      const resolvedCnumber = String(
+        cnumber || userProfile?.phone || userProfile?.id || req.userId
+      );
 
-        const isMock = String(process.env.OPAY_MOCK || "").toLowerCase() === "true";
-        const esiciaBase = ESICIA_STATIC.BASE_URL;
-        const esiciaRetailerId = retailerid || ESICIA_STATIC.RETAILER_ID;
-        const esiciaBankId = bankid || ESICIA_STATIC.BANK_ID;
-        const redirectUrl = ESICIA_STATIC.REDIRECT_URL;
-        const callbackBase = ESICIA_STATIC.CALLBACK_BASE;
-        const returl = new URL(
-          "/api/payments/opay/callback",
-          callbackBase
-        ).toString();
-        const hasAuth = Boolean(
-          process.env.ESICIA_USERNAME && process.env.ESICIA_PASSWORD
-        );
-        const debug =
-          String(process.env.PAY_DEBUG || "").toLowerCase() === "true";
+      const isMock =
+        String(process.env.OPAY_MOCK || "").toLowerCase() === "true";
+      const esiciaBase = ESICIA_STATIC.BASE_URL;
+      const esiciaRetailerId = retailerid || ESICIA_STATIC.RETAILER_ID;
+      const esiciaBankId = bankid || ESICIA_STATIC.BANK_ID;
+      const redirectUrl = ESICIA_STATIC.REDIRECT_URL;
+      const callbackBase = ESICIA_STATIC.CALLBACK_BASE;
+      const returl = new URL(
+        "/api/payments/opay/callback",
+        callbackBase
+      ).toString();
+      const hasAuth = Boolean(
+        process.env.ESICIA_USERNAME && process.env.ESICIA_PASSWORD
+      );
+      const debug =
+        String(process.env.PAY_DEBUG || "").toLowerCase() === "true";
 
-        const externalReference = `PAY-${Date.now()}-${Math.random()
-          .toString(36)
-          .slice(2, 8)}`;
+      const externalReference = `PAY-${Date.now()}-${Math.random()
+        .toString(36)
+        .slice(2, 8)}`;
 
-        // If this is a subscription payment, create a pending subscription now and link it to the reference
-        // It will be activated by the OPAY callback when payment is completed.
-        if (subscriptionPlanId && typeof subscriptionPlanId === "string") {
-          try {
-            const forUserId = targetProducerUserId || req.userId;
-            // Minimal pending row; endDate will be corrected on activation
-            const now = new Date();
-            const tempEnd = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +1 day placeholder
-            const vals: any = {
-              id: randomUUID(),
-              userId: forUserId,
-              planId: subscriptionPlanId,
-              agentId: targetProducerUserId ? req.userId : null,
-              status: "pending",
-              billingCycle: String(billingCycle || "monthly"),
-              startDate: now as any,
-              endDate: tempEnd as any,
-              amount: String(Math.max(1, Math.round(parsedAmount))),
-              paymentMethod: "mobile_money",
-              paymentReference: externalReference,
-              autoRenew: false,
-            };
-            if (isMySQL) {
-              await db.insert(subscriptions).values(vals).execute();
-            } else {
-              await db.insert(subscriptions).values(vals).returning();
-            }
-          } catch (e) {
-            console.warn("Failed to create pending subscription intent:", (e as any)?.message || e);
+      // If this is a subscription payment, create a pending subscription now and link it to the reference
+      // It will be activated by the OPAY callback when payment is completed.
+      if (subscriptionPlanId && typeof subscriptionPlanId === "string") {
+        try {
+          const forUserId = targetProducerUserId || req.userId;
+          // Minimal pending row; endDate will be corrected on activation
+          const now = new Date();
+          const tempEnd = new Date(now.getTime() + 24 * 60 * 60 * 1000); // +1 day placeholder
+          const vals: any = {
+            id: randomUUID(),
+            userId: forUserId,
+            planId: subscriptionPlanId,
+            agentId: targetProducerUserId ? req.userId : null,
+            status: "pending",
+            billingCycle: String(billingCycle || "monthly"),
+            startDate: now as any,
+            endDate: tempEnd as any,
+            amount: String(Math.max(1, Math.round(parsedAmount))),
+            paymentMethod: "mobile_money",
+            paymentReference: externalReference,
+            autoRenew: false,
+          };
+          if (isMySQL) {
+            await db.insert(subscriptions).values(vals).execute();
+          } else {
+            await db.insert(subscriptions).values(vals).returning();
           }
+        } catch (e) {
+          console.warn(
+            "Failed to create pending subscription intent:",
+            (e as any)?.message || e
+          );
         }
+      }
 
-        if (isMock) {
-          if (debug) console.log("[Esicia] MOCK generic payment: auto-success");
-          return res.status(200).json({
-            ok: true,
-            mode: "mock",
-            refid: externalReference,
-            redirectUrl: null,
-            message: "Mock payment completed",
-          });
-        }
-
-        if (!hasAuth) {
-          return res
-            .status(500)
-            .json({ message: "Payment gateway credentials missing" });
-        }
-
-        // Normalize inputs
-        const msisdnDigits = String(phone).replace(/\D/g, "");
-        const msisdnLocal = msisdnDigits.startsWith("2507")
-          ? "0" + msisdnDigits.slice(3)
-          : msisdnDigits.startsWith("07")
-          ? msisdnDigits
-          : msisdnDigits.length === 9 && msisdnDigits.startsWith("7")
-          ? "0" + msisdnDigits
-          : String(phone);
-        const safeDetails = String(details || "generic_payment");
-        const safeAmount = Math.max(1, Math.round(parsedAmount));
-        const safeCnumber =
-          String(resolvedCnumber).replace(/\D/g, "") || "000000000";
-
-        const payload = {
-          action: "pay",
-          msisdn: msisdnLocal,
-          details: safeDetails,
-          refid: externalReference,
-          amount: safeAmount,
-          currency: String(currency || "RWF"),
-          email: resolvedEmail,
-          cname: resolvedCname,
-          cnumber: safeCnumber,
-          pmethod,
-          retailerid: esiciaRetailerId,
-          returl,
-          redirecturl: redirectUrl,
-          bankid: String(esiciaBankId),
-          authkey: ESICIA_STATIC.AUTH_KEY,
-        } as any;
-
-        const response = await fetch(esiciaBase, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json, text/plain, */*",
-            "User-Agent": "NyambikaAI/1.0",
-            Authorization:
-              "Basic " +
-              Buffer.from(
-                `${ESICIA_STATIC.USERNAME}:${ESICIA_STATIC.PASSWORD}`
-              ).toString("base64"),
-          },
-          body: JSON.stringify(payload),
-          signal: AbortSignal.timeout(ESICIA_STATIC.TIMEOUT_MS),
-        });
-
-        const json = (await response.json()) as any;
-        if (debug) console.log("[Esicia] Generic pay response", json);
-
-        const retcode = String(json?.retcode ?? "");
-        const url = typeof json?.url === "string" ? json.url.trim() : "";
-        if (retcode !== "0") {
-          return res.status(400).json({ ok: false, gateway: json });
-        }
+      if (isMock) {
+        if (debug) console.log("[Esicia] MOCK generic payment: auto-success");
         return res.status(200).json({
           ok: true,
+          mode: "mock",
           refid: externalReference,
-          redirectUrl: url || null,
-          gateway: json,
+          redirectUrl: null,
+          message: "Mock payment completed",
         });
-      } catch (error) {
-        console.error("Error in POST /api/payments/opay/pay:", error);
-        res.status(500).json({ message: "Internal server error" });
       }
+
+      if (!hasAuth) {
+        return res
+          .status(500)
+          .json({ message: "Payment gateway credentials missing" });
+      }
+
+      // Normalize inputs
+      const msisdnDigits = String(phone).replace(/\D/g, "");
+      const msisdnLocal = msisdnDigits.startsWith("2507")
+        ? "0" + msisdnDigits.slice(3)
+        : msisdnDigits.startsWith("07")
+        ? msisdnDigits
+        : msisdnDigits.length === 9 && msisdnDigits.startsWith("7")
+        ? "0" + msisdnDigits
+        : String(phone);
+      const safeDetails = String(details || "generic_payment");
+      const safeAmount = Math.max(1, Math.round(parsedAmount));
+      const safeCnumber =
+        String(resolvedCnumber).replace(/\D/g, "") || "000000000";
+
+      const payload = {
+        action: "pay",
+        msisdn: msisdnLocal,
+        details: safeDetails,
+        refid: externalReference,
+        amount: safeAmount,
+        currency: String(currency || "RWF"),
+        email: resolvedEmail,
+        cname: resolvedCname,
+        cnumber: safeCnumber,
+        pmethod,
+        retailerid: esiciaRetailerId,
+        returl,
+        redirecturl: redirectUrl,
+        bankid: String(esiciaBankId),
+        authkey: ESICIA_STATIC.AUTH_KEY,
+      } as any;
+
+      const response = await fetch(esiciaBase, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json, text/plain, */*",
+          "User-Agent": "Nyambika/1.0",
+          Authorization:
+            "Basic " +
+            Buffer.from(
+              `${ESICIA_STATIC.USERNAME}:${ESICIA_STATIC.PASSWORD}`
+            ).toString("base64"),
+        },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(ESICIA_STATIC.TIMEOUT_MS),
+      });
+
+      const json = (await response.json()) as any;
+      if (debug) console.log("[Esicia] Generic pay response", json);
+
+      const retcode = String(json?.retcode ?? "");
+      const url = typeof json?.url === "string" ? json.url.trim() : "";
+      if (retcode !== "0") {
+        return res.status(400).json({ ok: false, gateway: json });
+      }
+      return res.status(200).json({
+        ok: true,
+        refid: externalReference,
+        redirectUrl: url || null,
+        gateway: json,
+      });
+    } catch (error) {
+      console.error("Error in POST /api/payments/opay/pay:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-  );
+  });
 
   // Public status check by refid (no DB lookup)
   app.post(
@@ -366,7 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json, text/plain, */*",
-            "User-Agent": "NyambikaAI/1.0",
+            "User-Agent": "Nyambika/1.0",
             Authorization:
               "Basic " +
               Buffer.from(
@@ -388,14 +394,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   );
 
+
+  
+
+  
+
+  
+
   // Generic wallet debit charge (for non-topup payments)
   app.post(
     "/api/payments/wallet/charge",
     requireAuth,
     async (req: any, res) => {
       try {
-        const { amount, description = "Wallet charge", metadata } =
-          req.body || {};
+        const {
+          amount,
+          description = "Wallet charge",
+          metadata,
+        } = req.body || {};
         const parsedAmount = Number(amount);
         if (!parsedAmount || parsedAmount <= 0) {
           return res.status(400).json({ message: "Invalid amount" });
@@ -641,7 +657,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               headers: {
                 "Content-Type": "application/json",
                 Accept: "application/json, text/plain, */*",
-                "User-Agent": "NyambikaAI/1.0",
+                "User-Agent": "Nyambika/1.0",
                 Authorization:
                   "Basic " +
                   Buffer.from(
@@ -1280,7 +1296,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json, text/plain, */*",
-            "User-Agent": "NyambikaAI/1.0",
+            "User-Agent": "Nyambika/1.0",
             Authorization:
               "Basic " +
               Buffer.from(
@@ -1456,7 +1472,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .from(subscriptions)
             .where(eq(subscriptions.paymentReference, ref))
             .limit(1);
-          if (pendingSub && (pendingSub.status || "").toLowerCase() === "pending") {
+          if (
+            pendingSub &&
+            (pendingSub.status || "").toLowerCase() === "pending"
+          ) {
             const now = new Date();
             const cycle = String(pendingSub.billingCycle || "monthly");
             const end = new Date(now);
@@ -1487,7 +1506,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             }
           }
         } catch (e) {
-          console.error("Failed to activate pending subscription on callback:", e);
+          console.error(
+            "Failed to activate pending subscription on callback:",
+            e
+          );
         }
       }
 
@@ -1716,6 +1738,106 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error("Error in /api/admin/agents:", error);
         res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Admin agents: list all agent payments (with filters + pagination via headers)
+  app.get(
+    "/api/admin/agents/:agentId/payments",
+    requireAuth,
+    requireRole(["admin"]),
+    async (req, res) => {
+      try {
+        const agentId = String(req.params.agentId);
+        const { from, to, status, payoutStatus, producerId, planId, limit, offset } = (req.query || {}) as {
+          from?: string;
+          to?: string;
+          status?: string;
+          payoutStatus?: string;
+          producerId?: string;
+          planId?: string;
+          limit?: string;
+          offset?: string;
+        };
+
+        const conditions: any[] = [eq(subscriptionPayments.agentId, agentId)];
+        if (status && typeof status === "string") {
+          conditions.push(eq(subscriptionPayments.status, status));
+        }
+        if (payoutStatus && typeof payoutStatus === "string") {
+          conditions.push(eq(subscriptionPayments.agentPayoutStatus as any, payoutStatus));
+        }
+        if (producerId && typeof producerId === "string") {
+          conditions.push(eq(subscriptions.userId, producerId));
+        }
+        if (planId && typeof planId === "string") {
+          conditions.push(eq(subscriptions.planId, planId));
+        }
+        if (from) {
+          const fromDate = new Date(from);
+          if (!isNaN(fromDate.getTime())) {
+            conditions.push(sql`${subscriptionPayments.createdAt} >= ${fromDate}`);
+          }
+        }
+        if (to) {
+          const toDate = new Date(to);
+          if (!isNaN(toDate.getTime())) {
+            conditions.push(sql`${subscriptionPayments.createdAt} <= ${toDate}`);
+          }
+        }
+
+        // total count
+        const [{ total } = { total: 0 }] = await db
+          .select({ total: sql<number>`COUNT(*)` })
+          .from(subscriptionPayments)
+          .leftJoin(
+            subscriptions,
+            eq(subscriptionPayments.subscriptionId, subscriptions.id)
+          )
+          .where(and.apply(null, conditions as any));
+
+        const q = db
+          .select({
+            id: subscriptionPayments.id,
+            amount: subscriptionPayments.amount,
+            agentCommission: subscriptionPayments.agentCommission,
+            status: subscriptionPayments.status,
+            paymentMethod: subscriptionPayments.paymentMethod,
+            paymentReference: subscriptionPayments.paymentReference,
+            createdAt: subscriptionPayments.createdAt,
+            agentPayoutStatus: subscriptionPayments.agentPayoutStatus as any,
+            agentPayoutDate: subscriptionPayments.agentPayoutDate as any,
+            agentPayoutReference: subscriptionPayments.agentPayoutReference as any,
+            agentPayoutNotes: subscriptionPayments.agentPayoutNotes as any,
+            producerName: users.fullName,
+            planName: subscriptionPlans.name,
+          })
+          .from(subscriptionPayments)
+          .leftJoin(
+            subscriptions,
+            eq(subscriptionPayments.subscriptionId, subscriptions.id)
+          )
+          .leftJoin(users, eq(subscriptions.userId, users.id))
+          .leftJoin(
+            subscriptionPlans,
+            eq(subscriptions.planId, subscriptionPlans.id)
+          )
+          .where(and.apply(null, conditions as any))
+          .orderBy(desc(subscriptionPayments.createdAt));
+
+        let rowsQuery: any = q as any;
+        const lim = Math.max(0, Number(limit || 0));
+        const off = Math.max(0, Number(offset || 0));
+        if (lim) rowsQuery = (rowsQuery as any).limit(lim);
+        if (off) rowsQuery = (rowsQuery as any).offset(off);
+
+        const rows = await rowsQuery;
+        res.setHeader("X-Total-Count", String(total || 0));
+        return res.json(rows);
+      } catch (error) {
+        console.error("Error fetching agent payments:", error);
+        return res.status(500).json({ message: "Internal server error" });
       }
     }
   );
@@ -2451,7 +2573,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
         path: "/",
         domain:
-          process.env.NODE_ENV === "production" ? ".nyambikaai.com" : undefined,
+          process.env.NODE_ENV === "production" ? ".Nyambika.com" : undefined,
       });
 
       // Prepare user data to be passed to the frontend (only include necessary fields)
@@ -2492,7 +2614,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     </script>
   </head>
   <body>
-    <p>Redirecting to NyambikaAI...</p>
+    <p>Redirecting to Nyambika...</p>
     <script>
       // Fallback in case the redirect doesn't work
       setTimeout(function() {

@@ -46,7 +46,7 @@ export const generateReceipt = (order: OrderDetails) => {
   pdf.setTextColor(255, 255, 255);
   pdf.setFontSize(24);
   pdf.setFont("helvetica", "bold");
-  pdf.text("NyambikaAI", 20, 25);
+  pdf.text("Nyambika", 20, 25);
 
   // Tagline
   pdf.setFontSize(10);
@@ -272,7 +272,7 @@ export const generateReceipt = (order: OrderDetails) => {
   pdf.setTextColor(...brandBlue);
   pdf.setFontSize(12);
   pdf.setFont("helvetica", "bold");
-  pdf.text("Thank you for choosing NyambikaAI!", pageWidth / 2, footerY + 12, {
+  pdf.text("Thank you for choosing Nyambika!", pageWidth / 2, footerY + 12, {
     align: "center",
   });
 
@@ -292,7 +292,7 @@ export const generateReceipt = (order: OrderDetails) => {
 
   // Generate filename
   const timestamp = new Date().toISOString().split("T")[0];
-  const filename = `NyambikaAI_Receipt_${order.id.slice(-8)}_${timestamp}.pdf`;
+  const filename = `Nyambika_Receipt_${order.id.slice(-8)}_${timestamp}.pdf`;
 
   pdf.save(filename);
 };

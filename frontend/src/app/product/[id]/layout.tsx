@@ -53,15 +53,17 @@ export async function generateMetadata({
   const product = await getProduct(safeId);
 
   const title = product?.name
-    ? `${product.name} — NyambikaAI`
-    : "Product — NyambikaAI";
+    ? `${product.name} — Nyambika`
+    : "Product — Nyambika";
   const description =
     (product?.description && product.description.trim()) ||
-    "View product details, photos, and pricing on NyambikaAI.";
+    "View product details, photos, and pricing on Nyambika.";
 
   // Prefer primary product image; fallback to first additional image; else brand icon
   const rawImage =
-    product?.imageUrl || product?.additionalImages?.[0] || "/nyambika_dark_icon.png";
+    product?.imageUrl ||
+    product?.additionalImages?.[0] ||
+    "/nyambika_dark_icon.png";
   const image = toAbsolute(rawImage).trim();
 
   const base = buildMetadata({

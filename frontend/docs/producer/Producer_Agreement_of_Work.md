@@ -1,10 +1,10 @@
-# NyambikaAI — Producer Agreement of Work
+# Nyambika — Producer Agreement of Work
 
 Last updated: 2025-09-15
 
 ## 1. Parties
 
-- NyambikaAI (the "Platform")
+- Nyambika (the "Platform")
 - Producer (the "Vendor" or "Company")
 
 ## 2. Scope of Services

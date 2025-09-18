@@ -30,7 +30,10 @@ export function GlobalAuthLoader() {
             <div className="absolute inset-0 animate-spin">
               <Sparkles className="absolute -top-2 left-1/2 transform -translate-x-1/2 h-4 w-4 text-blue-500" />
             </div>
-            <div className="absolute inset-0 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '3s' }}>
+            <div
+              className="absolute inset-0 animate-spin"
+              style={{ animationDirection: "reverse", animationDuration: "3s" }}
+            >
               <Sparkles className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 h-4 w-4 text-purple-500" />
             </div>
           </div>
@@ -38,7 +41,7 @@ export function GlobalAuthLoader() {
           {/* Loading Text */}
           <div className="space-y-2">
             <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              NyambikaAI
+              Nyambika
             </h2>
             <p className="text-gray-600 dark:text-gray-400 animate-pulse">
               Initializing AI fashion experience...

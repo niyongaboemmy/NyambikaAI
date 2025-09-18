@@ -3,9 +3,9 @@ import { Card, CardContent } from "@/components/custom-ui/card";
 import PageHeader from "@/components/layout/PageHeader";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy • NyambikaAI",
+  title: "Privacy Policy • Nyambika",
   description:
-    "Learn how NyambikaAI collects, uses, and protects your data. We value your privacy and are committed to transparency.",
+    "Learn how Nyambika collects, uses, and protects your data. We value your privacy and are committed to transparency.",
 };
 
 export default function PrivacyPage() {
@@ -46,8 +46,8 @@ export default function PrivacyPage() {
               2. How We Use Your Information
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              We use data to operate NyambikaAI, deliver personalized
-              experiences, ensure security, and comply with legal obligations.
+              We use data to operate Nyambika, deliver personalized experiences,
+              ensure security, and comply with legal obligations.
             </p>
             <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300 space-y-1">
               <li>Provide AI try‑on, recommendations, and shopping features</li>

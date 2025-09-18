@@ -77,12 +77,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
         // Check for OAuth callback with token in URL hash
         const hash = window.location.hash;
         const tokenMatch = hash.match(/token=([^&]+)/);
-        
+
         if (tokenMatch) {
           const token = decodeURIComponent(tokenMatch[1]);
           localStorage.setItem("auth_token", token);
           // Clean up the URL
-          window.history.replaceState(null, "", window.location.pathname + window.location.search);
+          window.history.replaceState(
+            null,
+            "",
+            window.location.pathname + window.location.search
+          );
         }
 
         const token = localStorage.getItem("auth_token");
@@ -98,16 +102,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const normalizeVerified = (v: any) => {
             if (typeof v === "boolean") return v;
             if (typeof v === "number") return v === 1;
-            if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+            if (typeof v === "string")
+              return v === "1" || v.toLowerCase() === "true";
             return false;
           };
-          const normalizedFromApi = { ...userData, isVerified: normalizeVerified(userData?.isVerified) } as UserInterface;
+          const normalizedFromApi = {
+            ...userData,
+            isVerified: normalizeVerified(userData?.isVerified),
+          } as UserInterface;
 
           // Also check for user data in localStorage (set by OAuth complete page)
           const storedUser = localStorage.getItem("user");
           if (storedUser) {
             const parsedUser: any = JSON.parse(storedUser);
-            const normalizedStored = { ...parsedUser, isVerified: normalizeVerified(parsedUser?.isVerified) } as UserInterface;
+            const normalizedStored = {
+              ...parsedUser,
+              isVerified: normalizeVerified(parsedUser?.isVerified),
+            } as UserInterface;
             setUser(normalizedStored);
           } else {
             setUser(normalizedFromApi);
@@ -139,10 +150,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const normalizeVerified = (v: any) => {
           if (typeof v === "boolean") return v;
           if (typeof v === "number") return v === 1;
-          if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+          if (typeof v === "string")
+            return v === "1" || v.toLowerCase() === "true";
           return false;
         };
-        setUser({ ...(providedUser as any), isVerified: normalizeVerified((providedUser as any)?.isVerified) });
+        setUser({
+          ...(providedUser as any),
+          isVerified: normalizeVerified((providedUser as any)?.isVerified),
+        });
         return;
       }
       // Fetch current user from backend if not provided
@@ -152,10 +167,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const normalizeVerified = (v: any) => {
           if (typeof v === "boolean") return v;
           if (typeof v === "number") return v === 1;
-          if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+          if (typeof v === "string")
+            return v === "1" || v.toLowerCase() === "true";
           return false;
         };
-        setUser({ ...userData, isVerified: normalizeVerified(userData?.isVerified) });
+        setUser({
+          ...userData,
+          isVerified: normalizeVerified(userData?.isVerified),
+        });
       } catch (e) {
         console.error("Failed to fetch user in setSession:", e);
       }
@@ -178,10 +197,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const normalizeVerified = (v: any) => {
         if (typeof v === "boolean") return v;
         if (typeof v === "number") return v === 1;
-        if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+        if (typeof v === "string")
+          return v === "1" || v.toLowerCase() === "true";
         return false;
       };
-      setUser({ ...(userData as any), isVerified: normalizeVerified((userData as any)?.isVerified) });
+      setUser({
+        ...(userData as any),
+        isVerified: normalizeVerified((userData as any)?.isVerified),
+      });
 
       // React-safe toast notification
       setTimeout(() => {
@@ -231,16 +254,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const normalizeVerified = (v: any) => {
         if (typeof v === "boolean") return v;
         if (typeof v === "number") return v === 1;
-        if (typeof v === "string") return v === "1" || v.toLowerCase() === "true";
+        if (typeof v === "string")
+          return v === "1" || v.toLowerCase() === "true";
         return false;
       };
-      setUser({ ...(userData as any), isVerified: normalizeVerified((userData as any)?.isVerified) });
+      setUser({
+        ...(userData as any),
+        isVerified: normalizeVerified((userData as any)?.isVerified),
+      });
 
       // React-safe toast notification
       setTimeout(() => {
         toast({
           title: "Registration successful",
-          description: `Welcome to NyambikaAI, ${userData.name}!`,
+          description: `Welcome to Nyambika, ${userData.name}!`,
         });
       }, 0);
     } catch (error: any) {

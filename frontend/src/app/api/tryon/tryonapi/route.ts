@@ -2,10 +2,17 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const RAW_TRYON_BASE_URL = process.env.TRYON_API_BASE_URL || "https://tryon-api.com";
+const RAW_TRYON_BASE_URL =
+  process.env.TRYON_API_BASE_URL || "https://tryon-api.com";
 // Normalize common typo domain (api.tryonapi.com -> tryon-api.com)
-const TRYON_BASE_URL = RAW_TRYON_BASE_URL.replace("api.tryonapi.com", "tryon-api.com");
-const TRYON_API_KEY = process.env.TRYON_API_KEY || process.env.NEXT_TRYON_API_KEY;
+const TRYON_BASE_URL = RAW_TRYON_BASE_URL.replace(
+  "api.tryonapi.com",
+  "tryon-api.com"
+);
+const TRYON_API_KEY =
+  process.env.TRYON_API_KEY ||
+  process.env.NEXT_TRYON_API_KEY ||
+  "ta_d753ea369e7b465986cc26bc5e8620ab";
 
 async function pollStatus(
   statusUrl: string,
@@ -20,9 +27,16 @@ async function pollStatus(
   let currentInterval = intervalMs;
   while (Date.now() - start < timeoutMs) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), Math.min(8000, currentInterval + 3000));
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      Math.min(8000, currentInterval + 3000)
+    );
     try {
-      const r = await fetch(statusUrl, { headers, cache: "no-store", signal: controller.signal });
+      const r = await fetch(statusUrl, {
+        headers,
+        cache: "no-store",
+        signal: controller.signal,
+      });
       const j = await r.json();
       last = j;
       if (
@@ -35,12 +49,18 @@ async function pollStatus(
       }
     } catch (err: any) {
       // Swallow fetch aborts/timeouts and keep last known state
-      last = last || { status: "processing", message: String(err?.message || err) };
+      last = last || {
+        status: "processing",
+        message: String(err?.message || err),
+      };
     } finally {
       clearTimeout(timeoutId);
     }
     await new Promise((res) => setTimeout(res, currentInterval));
-    currentInterval = Math.min(maxIntervalMs, Math.floor(currentInterval * backoffFactor));
+    currentInterval = Math.min(
+      maxIntervalMs,
+      Math.floor(currentInterval * backoffFactor)
+    );
   }
   return last || { status: "timeout", message: "Timed out waiting for result" };
 }
@@ -72,14 +92,18 @@ export async function POST(req: Request) {
     }
 
     // Basic file size validation to avoid oversized payloads (10MB each default)
-    const MAX_BYTES = Number(process.env.TRYON_MAX_UPLOAD_BYTES || 10 * 1024 * 1024);
+    const MAX_BYTES = Number(
+      process.env.TRYON_MAX_UPLOAD_BYTES || 10 * 1024 * 1024
+    );
     const personSize = (person as any)?.size ?? 0;
     const garmentSize = (garment as any)?.size ?? 0;
     if (personSize > MAX_BYTES || garmentSize > MAX_BYTES) {
       return NextResponse.json(
         {
           error: "File too large",
-          details: `Max per-file size is ${Math.floor(MAX_BYTES / (1024 * 1024))}MB`,
+          details: `Max per-file size is ${Math.floor(
+            MAX_BYTES / (1024 * 1024)
+          )}MB`,
         },
         { status: 413 }
       );
@@ -140,7 +164,11 @@ export async function POST(req: Request) {
 
     if (!submit) {
       return NextResponse.json(
-        { error: "Unable to reach TryOn API on all candidates", details: String(lastNetworkErr), candidates },
+        {
+          error: "Unable to reach TryOn API on all candidates",
+          details: String(lastNetworkErr),
+          candidates,
+        },
         { status: 502 }
       );
     }
@@ -164,7 +192,11 @@ export async function POST(req: Request) {
     if (submit.status !== 202) {
       const err = await submit.text();
       return NextResponse.json(
-        { error: "Failed to create try-on job", details: err, baseUrl: chosenBase },
+        {
+          error: "Failed to create try-on job",
+          details: err,
+          baseUrl: chosenBase,
+        },
         { status: submit.status }
       );
     }
@@ -248,4 +280,3 @@ export async function POST(req: Request) {
     );
   }
 }
-

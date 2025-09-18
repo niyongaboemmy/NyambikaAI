@@ -3,10 +3,17 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const RAW_TRYON_BASE_URL = process.env.TRYON_API_BASE_URL || "https://tryon-api.com";
+const RAW_TRYON_BASE_URL =
+  process.env.TRYON_API_BASE_URL || "https://tryon-api.com";
 // Normalize common typo domain
-const TRYON_BASE_URL = RAW_TRYON_BASE_URL.replace("api.tryonapi.com", "tryon-api.com");
-const TRYON_API_KEY = process.env.TRYON_API_KEY || process.env.NEXT_TRYON_API_KEY;
+const TRYON_BASE_URL = RAW_TRYON_BASE_URL.replace(
+  "api.tryonapi.com",
+  "tryon-api.com"
+);
+const TRYON_API_KEY =
+  process.env.TRYON_API_KEY ||
+  process.env.NEXT_TRYON_API_KEY ||
+  "ta_d753ea369e7b465986cc26bc5e8620ab";
 
 async function pollStatus(
   statusUrl: string,
@@ -20,7 +27,12 @@ async function pollStatus(
     const r = await fetch(statusUrl, { headers, cache: "no-store" });
     const j = await r.json();
     last = j;
-    if (j.status && j.status !== "processing" && j.status !== "queued" && j.status !== "processing_from_queue") {
+    if (
+      j.status &&
+      j.status !== "processing" &&
+      j.status !== "queued" &&
+      j.status !== "processing_from_queue"
+    ) {
       return j;
     }
     await new Promise((res) => setTimeout(res, intervalMs));
@@ -41,7 +53,8 @@ export async function POST(req: Request) {
     const person = incoming.get("person_image") as File | null;
     const garment = incoming.get("garment_image") as File | null;
     const fastModeRaw = incoming.get("fast_mode");
-    const fast_mode = fastModeRaw === "true" || Boolean(fastModeRaw) === true ? true : false;
+    const fast_mode =
+      fastModeRaw === "true" || Boolean(fastModeRaw) === true ? true : false;
 
     if (!person || !garment) {
       return NextResponse.json(
@@ -53,8 +66,13 @@ export async function POST(req: Request) {
     // Build outgoing FormData for TryOn API (plural field names)
     const out = new FormData();
     out.append("person_images", person, (person as any).name || "person.jpg");
-    out.append("garment_images", garment, (garment as any).name || "garment.jpg");
-    if (typeof fast_mode === "boolean") out.append("fast_mode", String(fast_mode));
+    out.append(
+      "garment_images",
+      garment,
+      (garment as any).name || "garment.jpg"
+    );
+    if (typeof fast_mode === "boolean")
+      out.append("fast_mode", String(fast_mode));
 
     const headers: Record<string, string> = {
       Authorization: `Bearer ${TRYON_API_KEY}`,
@@ -95,7 +113,11 @@ export async function POST(req: Request) {
 
     if (!submit) {
       return NextResponse.json(
-        { error: "Unable to reach TryOn API on all candidates", details: String(lastNetworkErr), candidates },
+        {
+          error: "Unable to reach TryOn API on all candidates",
+          details: String(lastNetworkErr),
+          candidates,
+        },
         { status: 502 }
       );
     }
@@ -119,7 +141,11 @@ export async function POST(req: Request) {
     if (submit.status !== 202) {
       const err = await submit.text();
       return NextResponse.json(
-        { error: "Failed to create try-on job", details: err, baseUrl: chosenBase },
+        {
+          error: "Failed to create try-on job",
+          details: err,
+          baseUrl: chosenBase,
+        },
         { status: submit.status }
       );
     }
@@ -133,23 +159,46 @@ export async function POST(req: Request) {
 
     if (status.status === "completed") {
       if (status.imageUrl) {
-        return NextResponse.json({ success: true, imageUrl: status.imageUrl, provider: status.provider, jobId });
+        return NextResponse.json({
+          success: true,
+          imageUrl: status.imageUrl,
+          provider: status.provider,
+          jobId,
+        });
       }
       if (status.imageBase64) {
-        return NextResponse.json({ success: true, imageBase64: status.imageBase64, provider: status.provider, jobId });
+        return NextResponse.json({
+          success: true,
+          imageBase64: status.imageBase64,
+          provider: status.provider,
+          jobId,
+        });
       }
-      return NextResponse.json({ success: true, message: "Completed but no image payload returned", jobId });
+      return NextResponse.json({
+        success: true,
+        message: "Completed but no image payload returned",
+        jobId,
+      });
     }
 
     if (status.status === "failed") {
       return NextResponse.json(
-        { error: status.error || "Generation failed", errorCode: status.errorCode, result: status.result, jobId },
+        {
+          error: status.error || "Generation failed",
+          errorCode: status.errorCode,
+          result: status.result,
+          jobId,
+        },
         { status: 500 }
       );
     }
 
     return NextResponse.json(
-      { status: status.status, message: status.message || "Still processing", jobId },
+      {
+        status: status.status,
+        message: status.message || "Still processing",
+        jobId,
+      },
       { status: 202 }
     );
   } catch (e: any) {

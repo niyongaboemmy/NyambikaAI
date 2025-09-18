@@ -5,15 +5,20 @@ import Link from "next/link";
 import PageHeader from "@/components/layout/PageHeader";
 
 export const metadata: Metadata = {
-  title: "About Us • NyambikaAI",
+  title: "About Us • Nyambika",
   description:
-    "Learn about NyambikaAI's mission to power Rwanda's fashion ecosystem with AI try‑on, modern commerce, and local producer enablement.",
+    "Learn about Nyambika's mission to power Rwanda's fashion ecosystem with AI try‑on, modern commerce, and local producer enablement.",
 };
 
 export default function AboutPage() {
   return (
     <div className="py-10">
-      <PageHeader badge="Our Story" badgeTone="pink" titleKey="about.title" subtitleKey="about.subtitle" />
+      <PageHeader
+        badge="Our Story"
+        badgeTone="pink"
+        titleKey="about.title"
+        subtitleKey="about.subtitle"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/20 dark:border-gray-800">
@@ -23,7 +28,9 @@ export default function AboutPage() {
                 Mission
               </h2>
               <p className="text-sm text-gray-700 dark:text-gray-300">
-                Empower Rwanda's fashion ecosystem with accessible AI technology, enabling consumers to visualize styles instantly and helping producers reach customers efficiently.
+                Empower Rwanda's fashion ecosystem with accessible AI
+                technology, enabling consumers to visualize styles instantly and
+                helping producers reach customers efficiently.
               </p>
             </section>
 

@@ -18,7 +18,7 @@ app.use(
       "http://127.0.0.1:3000",
       "http://127.0.0.1:3001",
       "http://127.0.0.1:3003",
-      "https://nyambikaai.onrender.com",
+      "https://Nyambika.onrender.com",
       "https://nyambika-python.onrender.com",
       "https://nyambika-ai.vercel.app",
       "https://nyambika.com",
@@ -33,7 +33,7 @@ app.use(
       "Content-Type",
       "Accept",
       "Authorization",
-      "x-api-key"
+      "x-api-key",
     ],
     credentials: true,
   })
@@ -47,33 +47,36 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/api", uploadRoutes);
 
 // Serve uploaded files directly (public access)
-const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-console.log('Serving static files from:', uploadsDir);
+const uploadsDir = path.join(process.cwd(), "public", "uploads");
+console.log("Serving static files from:", uploadsDir);
 
 // Ensure uploads directory exists
 if (!fs.existsSync(uploadsDir)) {
-  console.log('Creating uploads directory at:', uploadsDir);
+  console.log("Creating uploads directory at:", uploadsDir);
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
 // Serve static files with proper headers
-app.use('/uploads', express.static(uploadsDir, {
-  setHeaders: (res, path) => {
-    const ext = path.split('.').pop()?.toLowerCase();
-    const mimeTypes: Record<string, string> = {
-      'jpg': 'image/jpeg',
-      'jpeg': 'image/jpeg',
-      'png': 'image/png',
-      'gif': 'image/gif',
-      'webp': 'image/webp',
-      'pdf': 'application/pdf'
-    };
-    
-    if (ext && mimeTypes[ext]) {
-      res.setHeader('Content-Type', mimeTypes[ext]);
-    }
-  }
-}));
+app.use(
+  "/uploads",
+  express.static(uploadsDir, {
+    setHeaders: (res, path) => {
+      const ext = path.split(".").pop()?.toLowerCase();
+      const mimeTypes: Record<string, string> = {
+        jpg: "image/jpeg",
+        jpeg: "image/jpeg",
+        png: "image/png",
+        gif: "image/gif",
+        webp: "image/webp",
+        pdf: "application/pdf",
+      };
+
+      if (ext && mimeTypes[ext]) {
+        res.setHeader("Content-Type", mimeTypes[ext]);
+      }
+    },
+  })
+);
 
 // Also keep the API endpoint for backward compatibility
 app.use("/api/uploads", express.static(uploadsDir));
