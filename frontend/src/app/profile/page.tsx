@@ -44,6 +44,7 @@ import { useRouter } from "next/navigation";
 import UserWallet from "@/components/UserWallet";
 import { useCompany } from "@/contexts/CompanyContext";
 import { Building2 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Animated AI Brain SVG Component
 const AnimatedAIBrain = ({ className }: { className?: string }) => (
@@ -144,6 +145,7 @@ function Profile() {
   const { open } = useLoginPrompt();
   const { openChangePassword } = useChangePassword();
   const [isEditing, setIsEditing] = useState(false);
+  const { t } = useLanguage();
   const [userInfo, setUserInfo] = useState({
     name: "",
     fullNameRw: "",
@@ -183,15 +185,15 @@ function Profile() {
     },
     onSuccess: (updatedUser) => {
       toast({
-        title: "Profile updated successfully!",
-        description: "Your profile information has been saved.",
+        title: t("profile.toast.updateSuccess.title"),
+        description: t("profile.toast.updateSuccess.desc"),
       });
       setIsEditing(false);
       queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.ME] });
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to update profile",
+        title: t("profile.toast.updateFail.title"),
         description: error.message,
         variant: "destructive",
       });
@@ -457,16 +459,16 @@ function Profile() {
               </div>
               <div className="flex-1">
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                  Profile Dashboard
+                  {t("profile.title")}
                 </h1>
                 <p className="text-sm sm:text-sm text-gray-600 dark:text-gray-400">
-                  Manage your fashion journey and preferences
+                  {t("profile.subtitle")}
                 </p>
               </div>
               <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
                 <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
                 <span className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
-                  Active
+                  {t("profile.active")}
                 </span>
               </div>
             </div>
@@ -489,7 +491,7 @@ function Profile() {
                       {favorites.length}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Favorites
+                      {t("profile.stats.favorites")}
                     </p>
                   </CardContent>
                 </Card>
@@ -504,7 +506,7 @@ function Profile() {
                       {orders.length}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Orders
+                      {t("profile.stats.orders")}
                     </p>
                   </CardContent>
                 </Card>
@@ -519,7 +521,7 @@ function Profile() {
                       {tryOnSessions.length}
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Try-Ons
+                      {t("profile.stats.tryOns")}
                     </p>
                   </CardContent>
                 </Card>
@@ -534,7 +536,7 @@ function Profile() {
                       92%
                     </p>
                     <p className="text-xs text-gray-600 dark:text-gray-400">
-                      Match Score
+                      {t("profile.stats.matchScore")}
                     </p>
                   </CardContent>
                 </Card>
@@ -555,7 +557,7 @@ function Profile() {
                       </div>
                       <div className="flex-1 space-y-1 sm:space-y-2 min-w-0">
                         <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white truncate">
-                          {userInfo.name || "User"}
+                          {userInfo.name || t("profile.user.fallback")}
                         </h2>
                         <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 flex items-center gap-2 truncate">
                           <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
@@ -564,7 +566,7 @@ function Profile() {
                         <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                           <MapPin className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
                           <span className="truncate">
-                            {userInfo.location || "Location not set"}
+                            {userInfo.location || t("profile.location.notSet")}
                           </span>
                         </div>
                       </div>
@@ -587,7 +589,7 @@ function Profile() {
                             <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                           )}
                           <span className="text-sm">
-                            {isEditing ? "Save" : "Edit"}
+                            {isEditing ? t("profile.btn.save") : t("profile.btn.edit")}
                           </span>
                         </div>
                       </Button>
@@ -657,7 +659,7 @@ function Profile() {
                               ) : (
                                 <Check className="h-4 w-4" />
                               )}
-                              <span>Save Changes</span>
+                              <span>{t("profile.btn.saveChanges")}</span>
                             </div>
                           </Button>
                           <Button
@@ -665,7 +667,7 @@ function Profile() {
                             variant="outline"
                             className="flex-1"
                           >
-                            Cancel
+                            {t("profile.btn.cancel")}
                           </Button>
                         </div>
                       </div>
@@ -685,7 +687,7 @@ function Profile() {
                       <Activity className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                      Recent Activity
+                      {t("profile.recentActivity")}
                     </h3>
                   </div>
                   {orders.length > 0 ? (
@@ -701,7 +703,7 @@ function Profile() {
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                Order #{order.id}
+                                {t("orders.order")} #{order.id}
                               </p>
                               <p className="text-xs text-gray-600 dark:text-gray-400">
                                 {new Date(
@@ -725,14 +727,14 @@ function Profile() {
                     <div className="text-center py-4">
                       <ShoppingBag className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                       <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                        No recent orders
+                        {t("profile.noRecentOrders")}
                       </p>
                       <Button
                         onClick={() => router.push("/")}
                         size="sm"
                         className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
                       >
-                        Start Shopping
+                        {t("profile.startShopping")}
                       </Button>
                     </div>
                   )}
@@ -750,7 +752,7 @@ function Profile() {
                       <Zap className="h-4 w-4 sm:h-5 sm:w-5 text-amber-600 dark:text-amber-400" />
                     </div>
                     <h3 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">
-                      Quick Actions
+                      {t("profile.quickActions")}
                     </h3>
                   </div>
                   <div className="space-y-2 sm:space-y-3">
@@ -760,7 +762,7 @@ function Profile() {
                       className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
                     >
                       <Sparkles className="mr-3 h-4 w-4" />
-                      Try-On
+                      {t("profile.action.tryOn")}
                     </Button>
                     <Button
                       onClick={() => router.push("/favorites")}
@@ -769,7 +771,7 @@ function Profile() {
                     >
                       <div className="flex items-center">
                         <Heart className="mr-3 h-4 w-4" />
-                        Favorites
+                        {t("profile.action.favorites")}
                       </div>
                       <ChevronRight className="h-4 w-4" />
                     </Button>
@@ -780,7 +782,7 @@ function Profile() {
                     >
                       <div className="flex items-center">
                         <ShoppingBag className="mr-3 h-4 w-4" />
-                        Orders
+                        {t("profile.action.orders")}
                       </div>
                       <ChevronRight className="h-4 w-4" />
                     </Button>

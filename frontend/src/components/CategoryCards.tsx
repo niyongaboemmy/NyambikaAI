@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { apiClient, handleApiError } from "@/config/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Category = {
   id: string;
@@ -12,6 +13,7 @@ type Category = {
 };
 
 export default function CategoryCards() {
+  const { language } = useLanguage();
   const { data: categories = [], isLoading } = useQuery<Category[]>({
     queryKey: ["categories"],
     queryFn: async () => {
@@ -55,12 +57,12 @@ export default function CategoryCards() {
                       category.imageUrl ||
                       "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600"
                     }
-                    alt={category.name}
+                    alt={language === "rw" ? (category.nameRw || category.name) : category.name}
                     className="w-full h-64 object-cover rounded-2xl mb-6 group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="text-center">
                     <h3 className="text-2xl font-bold mb-3 text-gray-800 dark:text-gray-200">
-                      {category.nameRw}
+                      {language === "rw" ? (category.nameRw || category.name) : category.name}
                     </h3>
                     {category.description && (
                       <p className="text-gray-600 dark:text-gray-400 mb-4">

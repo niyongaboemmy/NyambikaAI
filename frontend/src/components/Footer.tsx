@@ -16,12 +16,14 @@ import { Input } from "@/components/custom-ui/input";
 import { Separator } from "@/components/custom-ui/separator";
 import Link from "next/link";
 import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Footer() {
   const year = new Date().getFullYear();
   const [email, setEmail] = React.useState("");
   const [submitting, setSubmitting] = React.useState(false);
   const [showTop, setShowTop] = React.useState(false);
+  const { t } = useLanguage();
 
   React.useEffect(() => {
     const onScroll = () => setShowTop(window.scrollY > 300);
@@ -31,25 +33,25 @@ export default function Footer() {
   }, []);
 
   const quickLinks = [
-    { href: "/", label: "Home" },
-    { href: "/products", label: "Products" },
-    { href: "/try-on", label: "AI Try-On" },
-    { href: "/profile", label: "Profile" },
+    { href: "/", label: t("footer.link.home") },
+    { href: "/products", label: t("footer.link.products") },
+    { href: "/try-on", label: t("footer.link.tryOn") },
+    { href: "/profile", label: t("footer.link.profile") },
   ];
 
   const supportLinks = [
-    { href: "/help", label: "Help Center" },
-    { href: "/size-guide", label: "Size Guide" },
-    { href: "/returns", label: "Returns" },
-    { href: "/contact", label: "Contact" },
+    { href: "/help", label: t("footer.link.help") },
+    { href: "/size-guide", label: t("footer.link.sizeGuide") },
+    { href: "/returns", label: t("footer.link.returns") },
+    { href: "/contact", label: t("footer.link.contact") },
   ];
 
   const legalLinks = [
-    { href: "/about", label: "About" },
-    { href: "/contact", label: "Contact" },
-    { href: "/privacy", label: "Privacy" },
-    { href: "/terms", label: "Terms" },
-    { href: "/cookies", label: "Cookies" },
+    { href: "/about", label: t("footer.link.about") },
+    { href: "/contact", label: t("footer.link.contact") },
+    { href: "/privacy", label: t("footer.link.privacy") },
+    { href: "/terms", label: t("footer.link.terms") },
+    { href: "/cookies", label: t("footer.link.cookies") },
   ];
 
   const socialLinks = [
@@ -119,18 +121,17 @@ export default function Footer() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
                   </span>
-                  Live AI
+                  {t("footer.liveBadge")}
                 </span>
                 <span className="text-xs text-gray-300">
-                  Try outfits virtually
+                  {t("footer.tryOutfits")}
                 </span>
               </div>
               <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight">
-                Experience AI Try‑On for Your Next Look
+                {t("footer.ctaTitle")}
               </h2>
               <p className="mt-2 text-gray-300 max-w-2xl text-sm">
-                Upload your photo, get instant smart fits, and shop confidently
-                with Nyambika’s AI.
+                {t("footer.ctaDesc")}
               </p>
             </div>
             <div className="shrink-0 flex items-center gap-3">
@@ -138,14 +139,14 @@ export default function Footer() {
                 asChild
                 className="bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20 dark:text-white"
               >
-                <Link href="/try-on">Start AI Try‑On</Link>
+                <Link href="/try-on">{t("footer.startTryOn")}</Link>
               </Button>
               <Button
                 asChild
                 variant="ghost"
                 className="text-white bg-gray-500/10 hover:bg-white/10 hover:text-white"
               >
-                <Link href="/products">Browse Products</Link>
+                <Link href="/products">{t("footer.browseProducts")}</Link>
               </Button>
             </div>
           </div>
@@ -165,8 +166,7 @@ export default function Footer() {
               </span>
             </div>
             <p className="text-gray-400 leading-relaxed text-sm">
-              AI-powered fashion platform for Rwanda's clothing sector.
-              Discover, try-on, and shop from local producers.
+              {t("footer.brandTagline")}
             </p>
             <div className="flex items-center gap-2.5">
               {socialLinks.map((s, i) => {
@@ -194,11 +194,9 @@ export default function Footer() {
           {/* Newsletter */}
           <div className="text-sm">
             <h3 className="text-sm font-semibold text-white tracking-wider mb-5 uppercase">
-              Stay Updated
+              {t("footer.stayUpdated")}
             </h3>
-            <p className="text-gray-400 mb-4">
-              Subscribe to get new arrivals, updates and special offers.
-            </p>
+            <p className="text-gray-400 mb-4">{t("footer.subscribeDesc")}</p>
             <form
               className="flex w-full items-center gap-2"
               onSubmit={async (e) => {
@@ -206,8 +204,8 @@ export default function Footer() {
                 const emailRegex = /[^\s@]+@[^\s@]+\.[^\s@]+/;
                 if (!emailRegex.test(email)) {
                   toast?.({
-                    title: "Invalid email",
-                    description: "Please enter a valid email address.",
+                    title: t("footer.invalidEmailTitle"),
+                    description: t("footer.invalidEmailDesc"),
                     variant: "destructive",
                   });
                   return;
@@ -220,23 +218,25 @@ export default function Footer() {
                   );
                   if (data?.ok) {
                     toast?.({
-                      title: data.already ? "Already subscribed" : "Subscribed",
+                      title: data.already
+                        ? t("footer.alreadySubscribed")
+                        : t("footer.subscribed"),
                       description: data.already
-                        ? "This email is already on our list."
-                        : "Thanks for joining our newsletter!",
+                        ? t("footer.alreadySubscribedDesc")
+                        : t("footer.subscribedDesc"),
                     });
                     setEmail("");
                   } else {
                     toast?.({
-                      title: "Subscription failed",
-                      description: "Please try again later.",
+                      title: t("footer.subscriptionFailed"),
+                      description: t("footer.subscriptionFailedDesc"),
                       variant: "destructive",
                     });
                   }
                 } catch (err) {
                   const msg = handleApiError(err);
                   toast?.({
-                    title: "Subscription failed",
+                    title: t("footer.subscriptionFailed"),
                     description: msg,
                     variant: "destructive",
                   });
@@ -249,17 +249,17 @@ export default function Footer() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
+                placeholder={t("footer.emailPlaceholder")}
                 className="bg-white/10 text-white placeholder:text-gray-400 border-white/10"
                 required
-                aria-label="Email address"
+                aria-label={t("footer.emailAria")}
               />
               <Button
                 type="submit"
                 className="bg-blue-600 hover:bg-blue-500"
                 disabled={submitting}
               >
-                {submitting ? "Subscribing..." : "Subscribe"}
+                {submitting ? t("footer.subscribing") : t("footer.subscribe")}
               </Button>
             </form>
 
@@ -282,9 +282,9 @@ export default function Footer() {
                     href="https://wa.me/250782634364"
                     target="_blank"
                     rel="noreferrer noopener"
-                    aria-label="Chat on WhatsApp"
+                    aria-label={t("footer.whatsappAria")}
                   >
-                    Chat on WhatsApp
+                    {t("footer.chatWhatsApp")}
                   </a>
                 </Button>
               </div>
@@ -295,7 +295,10 @@ export default function Footer() {
         <Separator className="my-10 bg-white/10" />
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-gray-400">
-          <p>© {year} Nyambika. All rights reserved.</p>
+          <p>
+            {t("footer.copyright").replace("{year}", String(year))}{" "}
+            {t("footer.allRights")}
+          </p>
           <div className="flex items-center gap-5">
             {legalLinks.map((l) => (
               <Link
@@ -313,7 +316,7 @@ export default function Footer() {
       {/* Back to Top */}
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-        aria-label="Back to top"
+        aria-label={t("footer.backToTop")}
         className={`fixed bottom-6 right-6 z-40 rounded-full p-3 shadow-lg transition-all bg-blue-600 hover:bg-blue-500 text-white ${
           showTop
             ? "opacity-100 translate-y-0"

@@ -54,7 +54,7 @@ export default function RoleBasedNavigation() {
   const { actualTheme, setTheme } = useTheme();
   const { count: cartCount } = useCart();
   const { open, isOpen } = useLoginPrompt();
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, t } = useLanguage();
   const pathname = usePathname();
   const router = useRouter();
   const { status, plan } = useProducerSubscriptionStatus();
@@ -75,65 +75,65 @@ export default function RoleBasedNavigation() {
 
   // Public navigation links (always visible)
   const publicLinks = [
-    { href: "/", label: "Home", icon: Home },
-    { href: "/try-on", label: "Try-On", icon: Package },
-    { href: "/companies", label: "Companies", icon: Building2 },
+    { href: "/", label: "home", icon: Home },
+    { href: "/try-on", label: "tryOn", icon: Package },
+    { href: "/companies", label: "companies", icon: Building2 },
   ];
 
   // Build producer menu with de-duplication (avoid duplicate "/products" entries)
   const producerMenuBase: NavItem[] = [
     {
       href: company?.id ? `/store/${company.id}` : "/#",
-      label: "My Products",
+      label: "myProducts",
       icon: User2,
     },
-    { href: "/product-registration", label: "Add Product", icon: Plus },
-    { href: "/producer-orders", label: "Orders", icon: Package },
+    { href: "/product-registration", label: "addProduct", icon: Plus },
+    { href: "/producer-orders", label: "orders", icon: Package },
   ];
 
   const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     customer: {
       links: publicLinks,
-      menu: [{ href: "/orders", label: "My Orders", icon: Package }],
+      menu: [{ href: "/orders", label: "myOrders", icon: Package }],
     },
     producer: {
       links: publicLinks,
       menu: [
         {
           href: user && user.business_id ? `/store/${user.business_id}` : "/#",
-          label: "My Store",
+          label: "myStore",
           icon: User2,
         },
-        { href: "/product-registration", label: "Add Product", icon: Plus },
+        { href: "/product-registration", label: "addProduct", icon: Plus },
         {
           href: "/producer-subscription",
-          label: "Subscription",
+          label: "subscription",
           icon: Settings,
         },
-        { href: "/producer-orders", label: "Orders", icon: Package },
+        { href: "/producer-orders", label: "orders", icon: Package },
       ],
     },
     admin: {
       links: publicLinks,
       menu: [
-        { href: "/products", label: "Products", icon: ShoppingCart },
+        { href: "/products", label: "products", icon: ShoppingCart },
         {
           href: "/product-categories",
-          label: "Product Categories",
+          label: "productCategories",
           icon: Grid3X3,
         },
-        { href: "/product-registration", label: "Add Product", icon: Plus },
-        { href: "/admin-orders", label: "Orders", icon: Package },
-        { href: "/admin-users", label: "Users Management", icon: Users },
+        { href: "/product-registration", label: "addProduct", icon: Plus },
+        { href: "/admin-orders", label: "orders", icon: Package },
+        { href: "/admin-users", label: "usersManagement", icon: Users },
       ],
     },
     agent: {
       links: publicLinks,
       menu: [
-        { href: "/agent-dashboard", label: "Dashboard", icon: BarChart3 },
+        { href: "/agent-dashboard", label: "dashboard", icon: BarChart3 },
         {
           href: "/agent/producers-management",
-          label: "Producers Management",
+          label: "producersManagement",
           icon: Users,
         },
       ],
@@ -301,7 +301,7 @@ export default function RoleBasedNavigation() {
                     className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
                   >
                     {Icon && <Icon className="h-4 w-4" />}
-                    <span className="font-medium">{link.label}</span>
+                    <span className="font-medium">{t(link.label)}</span>
                   </Button>
                 );
               })}
@@ -316,7 +316,7 @@ export default function RoleBasedNavigation() {
                     className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
                   >
                     <Grid3X3 className="h-4 w-4" />
-                    <span className="font-medium">Browse</span>
+                    <span className="font-medium">{t("browse")}</span>
                     <ChevronDown className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -332,7 +332,7 @@ export default function RoleBasedNavigation() {
                         className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                       >
                         {Icon && <Icon className="h-4 w-4" />}
-                        {link.label}
+                        {t(link.label)}
                       </DropdownMenuItem>
                     );
                   })}
@@ -352,8 +352,8 @@ export default function RoleBasedNavigation() {
                 className="hidden md:flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                 title={
                   status.hasActiveSubscription
-                    ? `Active plan${plan ? ": " + plan.name : ""}`
-                    : "Subscription expired or not active"
+                    ? `${t("activePlan")}${plan ? ": " + plan.name : ""}`
+                    : t("subscriptionInactive")
                 }
               >
                 {status.hasActiveSubscription &&
@@ -361,7 +361,7 @@ export default function RoleBasedNavigation() {
                 daysLeft > 0 &&
                 daysLeft <= 5 ? (
                   <Badge className="bg-yellow-500 text-black dark:text-white">
-                    Expiring in {daysLeft}d
+                    {t("expiringIn")} {daysLeft}d
                   </Badge>
                 ) : (
                   <Badge
@@ -371,11 +371,11 @@ export default function RoleBasedNavigation() {
                         : "bg-red-600 text-white"
                     }
                   >
-                    {status.hasActiveSubscription ? "Active" : "Expired"}
+                    {status.hasActiveSubscription ? t("active") : t("expired")}
                   </Badge>
                 )}
                 <span className="text-xs font-medium max-w-[120px] truncate">
-                  {plan?.name || "Subscription"}
+                  {plan?.name || t("subscription")}
                 </span>
               </Button>
             )}
@@ -489,10 +489,10 @@ export default function RoleBasedNavigation() {
                           </div>
                           <div className="flex-1 text-left">
                             <div className="text-xs font-medium text-gray-700 dark:text-gray-300">
-                              Wallet Balance
+                              {t("walletBalance")}
                             </div>
                             <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                              {walletLoading ? "Loading..." : formattedBalance}
+                              {walletLoading ? t("loading") : formattedBalance}
                             </div>
                           </div>
                         </button>
@@ -509,7 +509,7 @@ export default function RoleBasedNavigation() {
                           className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                         >
                           {Icon && <Icon className="h-4 w-4" />}
-                          {item.label}
+                          {t(item.label)}
                         </DropdownMenuItem>
                       );
                     })}
@@ -521,7 +521,7 @@ export default function RoleBasedNavigation() {
                       }}
                     >
                       <User className="h-4 w-4" />
-                      Profile Settings
+                      {t("profileSettings")}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="cursor-pointer gap-3"
@@ -530,7 +530,7 @@ export default function RoleBasedNavigation() {
                       }}
                     >
                       <Lock className="h-4 w-4" />
-                      Change Password
+                      {t("changePassword")}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -538,7 +538,7 @@ export default function RoleBasedNavigation() {
                       className="cursor-pointer gap-3 text-red-600 focus:text-red-700"
                     >
                       <LogOut className="h-4 w-4" />
-                      Sign Out
+                      {t("signOut")}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -558,7 +558,7 @@ export default function RoleBasedNavigation() {
                 className="hidden md:flex bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-full"
               >
                 <LogIn className="h-4 w-4 mr-2" />
-                Sign In
+                {t("signIn")}
               </Button>
             )}
 
@@ -581,7 +581,7 @@ export default function RoleBasedNavigation() {
                   {/* Navigation Section */}
                   <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700">
                     <p className="text-sm font-semibold text-gray-900 dark:text-white">
-                      Navigation
+                      {t("navigation")}
                     </p>
                   </div>
                   {allNavLinks.map((link, i) => {
@@ -601,7 +601,7 @@ export default function RoleBasedNavigation() {
                             <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                           )}
                         </div>
-                        <span className="font-medium">{link.label}</span>
+                        <span className="font-medium">{t(link.label)}</span>
                       </DropdownMenuItem>
                     );
                   })}
@@ -610,7 +610,7 @@ export default function RoleBasedNavigation() {
                   <DropdownMenuSeparator />
                   <div className="px-3 py-2">
                     <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-semibold">
-                      Tools
+                      {t("tools")}
                     </p>
                   </div>
 
@@ -629,7 +629,7 @@ export default function RoleBasedNavigation() {
                       )}
                     </div>
                     <span className="font-medium">
-                      {actualTheme === "dark" ? "Light Mode" : "Dark Mode"}
+                      {actualTheme === "dark" ? t("lightMode") : t("darkMode")}
                     </span>
                   </DropdownMenuItem>
 
@@ -649,7 +649,7 @@ export default function RoleBasedNavigation() {
                           </span>
                         )}
                       </div>
-                      <span className="font-medium">Shopping Cart</span>
+                      <span className="font-medium">{t("shoppingCart")}</span>
                       {cartCount > 0 && (
                         <span className="ml-auto text-xs bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full">
                           {cartCount}
@@ -664,7 +664,7 @@ export default function RoleBasedNavigation() {
                       <DropdownMenuSeparator />
                       <div className="px-3 py-2">
                         <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide font-semibold">
-                          Account
+                          {t("account")}
                         </p>
                       </div>
 

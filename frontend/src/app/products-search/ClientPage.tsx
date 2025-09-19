@@ -21,6 +21,7 @@ import { Button } from "@/components/custom-ui/button";
 import { Skeleton } from "@/components/custom-ui/skeleton";
 import { Badge } from "@/components/custom-ui/badge";
 import { Card, CardContent } from "@/components/custom-ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Custom hook for debouncing
 function useDebounce<T>(value: T, delay: number): T {
@@ -81,20 +82,21 @@ function ErrorFallback({
   error: Error;
   onRetry: () => void;
 }) {
+  const { t } = useLanguage();
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] p-6 text-center animate-fade-in">
       <div className="bg-red-50 dark:bg-red-900/20 rounded-full p-4 mb-4">
         <AlertCircle className="h-12 w-12 text-red-500" />
       </div>
       <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-        Something went wrong
+        {t("search.error.title")}
       </h2>
       <p className="text-gray-600 dark:text-gray-400 mb-4 max-w-md">
-        {error.message || "We couldn't load the products. Please try again."}
+        {error.message || t("search.error.message")}
       </p>
       <Button onClick={onRetry} className="gap-2">
         <RefreshCw className="h-4 w-4" />
-        Try again
+        {t("search.error.retry")}
       </Button>
     </div>
   );
@@ -126,13 +128,14 @@ function SortDropdown({
   sortBy: SortOption;
   onSortChange: (sort: SortOption) => void;
 }) {
+  const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
   const sortOptions = [
-    { value: "newest" as const, label: "Newest First" },
-    { value: "popular" as const, label: "Most Popular" },
-    { value: "price-asc" as const, label: "Price: Low to High" },
-    { value: "price-desc" as const, label: "Price: High to Low" },
+    { value: "newest" as const, label: t("search.sort.newest") },
+    { value: "popular" as const, label: t("search.sort.popular") },
+    { value: "price-asc" as const, label: t("search.sort.priceAsc") },
+    { value: "price-desc" as const, label: t("search.sort.priceDesc") },
   ];
 
   const currentSort = sortOptions.find((option) => option.value === sortBy);
@@ -178,6 +181,7 @@ function SortDropdown({
 export default function ClientProductsSearchPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { t } = useLanguage();
 
   // State management
   const [searchQuery, setSearchQuery] = useState(
@@ -437,10 +441,10 @@ export default function ClientProductsSearchPage() {
             </div>
             <div className="min-w-0 flex-1">
               <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent truncate">
-                Discover Products
+                {t("search.title")}
               </h1>
               <div className="hidden md:inline-block text-xs sm:text-sm text-gray-600 dark:text-gray-400 w-full">
-                Find amazing products with AI-powered search ✨
+                {t("search.subtitle")}
               </div>
             </div>
           </div>
@@ -454,7 +458,7 @@ export default function ClientProductsSearchPage() {
               <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-2xl backdrop-blur-sm">
                 <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-spin" />
                 <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                  Searching for "{debouncedSearchQuery}"
+                  {t("search.searchingFor")} "{debouncedSearchQuery}"
                 </span>
                 <Sparkles className="h-4 w-4 text-purple-500 animate-pulse" />
               </div>
@@ -502,10 +506,10 @@ export default function ClientProductsSearchPage() {
                   {/* Floating title */}
                   <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
                     <h3 className="text-white font-bold text-xs sm:text-sm truncate">
-                      All Products
+                      {t("search.allProducts")}
                     </h3>
                     <p className="text-white/80 text-[10px] sm:text-xs truncate">
-                      Browse all
+                      {t("search.browseAll")}
                     </p>
                   </div>
 
@@ -572,7 +576,7 @@ export default function ClientProductsSearchPage() {
                           </h3>
                           {category.productCount && (
                             <p className="text-white/80 text-[10px] sm:text-xs truncate">
-                              {category.productCount} items
+                              {category.productCount} {t("search.items")}
                             </p>
                           )}
                         </div>
@@ -607,7 +611,9 @@ export default function ClientProductsSearchPage() {
                     {products.length}
                   </span>
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    product{products.length !== 1 ? "s" : ""}
+                    {products.length !== 1
+                      ? t("search.products")
+                      : t("search.product")}
                   </span>
                 </div>
 
@@ -615,7 +621,7 @@ export default function ClientProductsSearchPage() {
                   <div className="flex items-center gap-1 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50 px-2 sm:px-3 py-1 rounded-full">
                     <span className="text-xs font-medium text-blue-700 dark:text-blue-300 truncate max-w-[80px] sm:max-w-[120px]">
                       {categories.find((c) => c.id === selectedCategoryId)
-                        ?.name || "Category"}
+                        ?.name || t("search.category")}
                     </span>
                     <button
                       onClick={() => handleCategoryChange("all")}
@@ -628,9 +634,9 @@ export default function ClientProductsSearchPage() {
               </div>
 
               {/* Right side - Sort dropdown */}
-              <div className="flex-shrink-0 self-start sm:self-auto">
+              {/* <div className="flex-shrink-0 self-start sm:self-auto">
                 <SortDropdown sortBy={sortBy} onSortChange={handleSortChange} />
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -641,12 +647,19 @@ export default function ClientProductsSearchPage() {
             <p className="text-sm text-gray-600 dark:text-gray-400">
               {products.length > 0 ? (
                 <>
-                  Showing {products.length} product
-                  {products.length !== 1 ? "s" : ""}
-                  {debouncedSearchQuery && <> for "{debouncedSearchQuery}"</>}
+                  {t("search.showing")} {products.length}{" "}
+                  {products.length !== 1
+                    ? t("search.products")
+                    : t("search.product")}
+                  {debouncedSearchQuery && (
+                    <>
+                      {" "}
+                      {t("search.searchingFor")} "{debouncedSearchQuery}"
+                    </>
+                  )}
                 </>
               ) : (
-                "No products found"
+                t("search.noProducts")
               )}
             </p>
           </div>
@@ -695,16 +708,18 @@ export default function ClientProductsSearchPage() {
                       <>
                         <Loader2 className="h-4 w-4 animate-spin" />
                         <span className="hidden sm:inline">
-                          Loading more products...
+                          {t("search.loadingMore")}
                         </span>
-                        <span className="sm:hidden">Loading...</span>
+                        <span className="sm:hidden">{t("search.loading")}</span>
                       </>
                     ) : (
                       <>
                         <span className="hidden sm:inline">
-                          Load More Products
+                          {t("search.loadMoreProducts")}
                         </span>
-                        <span className="sm:hidden">Load More</span>
+                        <span className="sm:hidden">
+                          {t("search.loadMore")}
+                        </span>
                         <div className="w-2 h-2 bg-white/30 rounded-full animate-pulse" />
                       </>
                     )}
@@ -738,12 +753,14 @@ export default function ClientProductsSearchPage() {
                 <Search className="h-16 w-16 text-gray-400 animate-pulse" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                No products found
+                {t("search.noProducts")}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md leading-relaxed">
                 {debouncedSearchQuery
-                  ? `We couldn't find any products matching "${debouncedSearchQuery}". Try adjusting your search or filters.`
-                  : "No products available in this category."}
+                  ? `${t(
+                      "search.noProductsFor"
+                    )} "${debouncedSearchQuery}". ${t("search.tryAdjust")}`
+                  : t("search.noProductsInCategory")}
               </p>
               {(debouncedSearchQuery || selectedCategoryId !== "all") && (
                 <Button
@@ -755,7 +772,7 @@ export default function ClientProductsSearchPage() {
                   className="touch-feedback gap-2 px-6 py-3 rounded-full border-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 hover:scale-105"
                 >
                   <X className="h-4 w-4" />
-                  Clear filters
+                  {t("search.clearFilters")}
                 </Button>
               )}
             </div>

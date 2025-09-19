@@ -14,8 +14,10 @@ import { Button } from "@/components/custom-ui/button";
 import { Card } from "@/components/custom-ui/card";
 import { useCart } from "@/contexts/CartContext";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function CartPage() {
+  const { t, language } = useLanguage();
   const {
     items: cartItems,
     updateQuantity,
@@ -42,12 +44,12 @@ function CartPage() {
           <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-500/20 dark:to-purple-500/20 backdrop-blur-sm border border-gray-200/50 dark:border-white/10 mb-2">
             <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600 dark:text-blue-400" />
             <span className="text-xs sm:text-sm text-gray-700 dark:text-white/80">
-              AI-Powered Cart
+              {t("cart.aiBadge")}
             </span>
             <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600 dark:text-purple-400" />
           </div>
           <h1 className="text-xl sm:text-2xl lg:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-purple-600 dark:from-blue-400 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-            Shopping Cart
+            {t("cart.title")}
           </h1>
         </div>
 
@@ -58,14 +60,14 @@ function CartPage() {
               <ShoppingBag className="relative w-16 h-16 sm:w-20 sm:h-20 text-blue-600 dark:text-blue-400 mb-4 sm:mb-6" />
             </div>
             <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-2 text-center">
-              Empty Cart
+              {t("cart.emptyTitle")}
             </h3>
             <p className="text-gray-600 dark:text-white/60 mb-6 sm:mb-8 text-center text-sm sm:text-base">
-              Your cart is waiting for amazing products
+              {t("cart.emptySubtitle")}
             </p>
             <Link href="/products">
               <Button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 sm:px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 text-sm sm:text-base">
-                Start Shopping
+                {t("cart.startShopping")}
               </Button>
             </Link>
           </div>
@@ -90,10 +92,10 @@ function CartPage() {
                       />
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base truncate">
-                          {item.name}
+                          {language === "rw" && (item as any).nameRw ? (item as any).nameRw : item.name}
                         </h3>
                         <p className="text-xs sm:text-sm text-gray-600 dark:text-white/60">
-                          Size: {item.size}
+                          {t("cart.size")}: {item.size}
                         </p>
                       </div>
                     </div>
@@ -174,7 +176,7 @@ function CartPage() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600 dark:text-purple-400" />
                   <span className="text-base sm:text-lg font-bold text-gray-800 dark:text-white">
-                    Total
+                    {t("cart.total")}
                   </span>
                 </div>
                 <span className="text-xl sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
@@ -187,7 +189,7 @@ function CartPage() {
                 <Link href="/checkout" className="flex-1">
                   <Button className="w-full bg-gradient-to-r from-violet-500 to-blue-600 hover:from-blue-600 hover:to-violet-700 text-white py-3 sm:py-4 rounded-full font-semibold text-base sm:text-sm transition-all duration-300 transform hover:scale-105 shadow-lg">
                     <ShoppingBag className="mr-2 w-4 h-4 sm:w-5 sm:h-5" />
-                    Submit Order
+                    {t("cart.submitOrder")}
                   </Button>
                 </Link>
                 <Link href="/products" className="sm:flex-shrink-0">
@@ -195,7 +197,7 @@ function CartPage() {
                     variant="ghost"
                     className="w-full sm:w-auto bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-700 dark:text-white px-4 sm:px-6 py-3 sm:py-4 rounded-full font-semibold transition-all duration-300 text-sm sm:text-sm"
                   >
-                    Continue Shopping
+                    {t("cart.continueShopping")}
                   </Button>
                 </Link>
               </div>

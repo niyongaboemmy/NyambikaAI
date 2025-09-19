@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { Bell, Package, CheckCircle, X } from "lucide-react";
 import { apiClient } from "@/config/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Notification {
   id: string;
@@ -25,6 +26,7 @@ interface ProducerNotificationsProps {
 export default function ProducerNotifications({ producerId }: ProducerNotificationsProps) {
   const queryClient = useQueryClient();
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useLanguage();
 
   const {
     data: notifications = [],
@@ -92,7 +94,7 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                Notifications
+                {t("notifications.title")}
               </h3>
               <button
                 onClick={() => setIsOpen(false)}
@@ -103,7 +105,9 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
             </div>
             {unreadCount > 0 && (
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+                {unreadCount === 1
+                  ? t("notifications.unread.one").replace("{count}", String(unreadCount))
+                  : t("notifications.unread.other").replace("{count}", String(unreadCount))}
               </p>
             )}
           </div>
@@ -121,7 +125,7 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
             ) : notifications.length === 0 ? (
               <div className="p-8 text-center">
                 <Bell className="h-12 w-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-gray-600 dark:text-gray-400">No notifications yet</p>
+                <p className="text-gray-600 dark:text-gray-400">{t("notifications.none")}</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -151,8 +155,8 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
                             </p>
                             {notification.customerName && notification.totalAmount && (
                               <div className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                <span className="font-medium">Customer:</span> {notification.customerName} |{" "}
-                                <span className="font-medium">Amount:</span> {formatPrice(notification.totalAmount)}
+                                <span className="font-medium">{t("notifications.customer")}:</span> {notification.customerName} |{" "}
+                                <span className="font-medium">{t("notifications.amount")}:</span> {formatPrice(notification.totalAmount)}
                               </div>
                             )}
                             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -163,7 +167,7 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
                             <button
                               onClick={() => handleMarkAsRead(notification.id)}
                               className="ml-2 p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                              title="Mark as read"
+                              title={t("notifications.markAsRead")}
                             >
                               <CheckCircle className="h-4 w-4" />
                             </button>
@@ -183,7 +187,7 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
                 onClick={() => setIsOpen(false)}
                 className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
               >
-                View All Notifications
+                {t("notifications.viewAll")}
               </button>
             </div>
           )}

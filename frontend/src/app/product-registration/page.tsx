@@ -9,6 +9,7 @@ import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import ProductForm, { ProductFormData } from "@/components/product/ProductForm";
 import { useRouter } from "next/navigation";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Use ProductFormData from shared component
 
@@ -55,6 +56,7 @@ function ProductRegistration() {
   const { toast } = useToast();
   const router = useRouter();
   const { open } = useLoginPrompt();
+  const { t } = useLanguage();
   const [formKey, setFormKey] = useState(0);
 
   // Prompt login if unauthenticated; redirect home if not producer/admin
@@ -142,15 +144,15 @@ function ProductRegistration() {
     },
     onSuccess: (product) => {
       toast({
-        title: "Product created successfully!",
-        description: `${product.name} has been submitted for approval.`,
+        title: t("productCreatedTitle"),
+        description: `${t("productCreatedDesc_prefix")}${product.name}${t("productCreatedDesc_suffix")}`,
       });
       // Instead of navigating away, clear the form by remounting it
       setFormKey((k) => k + 1);
     },
     onError: (error: any) => {
       toast({
-        title: "Failed to create product",
+        title: t("productCreateFailed"),
         description: error.message,
         variant: "destructive",
       });
@@ -171,19 +173,19 @@ function ProductRegistration() {
           {/* Block UI while loading plan or products info */}
           {(subLoading || plansLoading || productsLoading) && (
             <div className="rounded-2xl border border-purple-200/20 bg-purple-500/10 p-6 text-purple-100">
-              Checking your subscription plan and product limits...
+              {t("loading")}
             </div>
           )}
           {/* Enforce: active subscription required for producers (admins can bypass form) */}
           {user?.role === "producer" && !subLoading && subStatus && !subStatus.hasActiveSubscription && (
             <div className="rounded-2xl border border-amber-200/20 bg-amber-500/10 p-6 text-amber-100 mb-6">
-              <p className="font-semibold mb-1">Active subscription required</p>
-              <p className="opacity-90">You need an active subscription to create new products.</p>
+              <p className="font-semibold mb-1">{t("activeSubscriptionRequired")}</p>
+              <p className="opacity-90">{t("needActiveSubscription")}</p>
               <button
                 onClick={() => router.push("/producer-subscription")}
                 className="mt-4 inline-flex items-center rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-white hover:opacity-90"
               >
-                Manage Subscription
+                {t("manageSubscription")}
               </button>
             </div>
           )}
@@ -191,30 +193,30 @@ function ProductRegistration() {
           {/* Enforce: max products limit for producers only (0 means unlimited) */}
           {user?.role === "producer" && !subLoading && !productsLoading && currentPlanMaxProducts > 0 && (myProducts as any[]).length >= currentPlanMaxProducts ? (
             <div className="rounded-2xl border border-red-200/20 bg-red-500/10 p-6 text-red-100">
-              <p className="font-semibold mb-1">Product limit reached</p>
+              <p className="font-semibold mb-1">{t("productLimitReached")}</p>
               <p className="opacity-90">
-                Your current plan allows up to {currentPlanMaxProducts} products. Please remove some products or upgrade your plan to add more.
+                {t("planAllowsUpTo_prefix")} {currentPlanMaxProducts} {t("planAllowsUpTo_suffix")}
               </p>
               <div className="mt-4 flex gap-3">
                 <button
                   onClick={() => router.push("/producer-subscription")}
                   className="inline-flex items-center rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-white hover:opacity-90"
                 >
-                  Upgrade Plan
+                  {t("upgradePlan")}
                 </button>
                 <button
                   onClick={() => router.push("/producer/dashboard")}
                   className="inline-flex items-center rounded-xl border border-white/20 px-4 py-2 text-white/90 hover:bg-white/10"
                 >
-                  Go to Dashboard
+                  {t("goToDashboard")}
                 </button>
               </div>
             </div>
           ) : (
           <ProductForm
             key={formKey}
-            title="New Product"
-            submitLabel="Create Product"
+            title={t("newProduct")}
+            submitLabel={t("createProduct")}
             initialValues={initialFormData}
             categories={(categories as any[]).map((c: any) => ({
               id: c.id,

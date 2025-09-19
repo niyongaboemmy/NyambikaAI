@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
@@ -86,6 +86,15 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  // Improves behavior of on-screen keyboards on mobile
+  interactiveWidget: "resizes-content",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -98,8 +107,30 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* Global mobile scroll and touch behavior hardening to avoid page disturbance while swiping */}
+        <style
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{
+            __html: `
+              html, body {
+                height: 100%;
+                overscroll-behavior: none;
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-y;
+              }
+              body {
+                overflow-x: hidden;
+                overscroll-behavior-y: none;
+              }
+              /* Prevent pull-to-refresh on supported browsers */
+              @supports (-webkit-touch-callout: none) {
+                body { overscroll-behavior: none; }
+              }
+            `,
+          }}
+        />
       </head>
-      <body className="font-sans">
+      <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden">
         <Providers>
           {children}
           <LoadingIndicatorStyles />

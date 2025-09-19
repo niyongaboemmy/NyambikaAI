@@ -39,6 +39,7 @@ import {
   Wifi,
   Activity,
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface OrderDetails {
   id: string;
@@ -143,6 +144,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const [copiedTracking, setCopiedTracking] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const resolvedParams = use(params);
+  const { t, language } = useLanguage();
 
   const { user } = useAuth();
   const {
@@ -200,14 +202,14 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
         queryKey: ["/api/orders", resolvedParams.id],
       });
       toast({
-        title: "Order Confirmed",
-        description: "Thank you for confirming that you received your order!",
+        title: t("orders.detail.confirmedTitle"),
+        description: t("orders.detail.confirmedDesc"),
       });
     },
     onError: (error) => {
       toast({
         title: "Error",
-        description: "Failed to confirm order. Please try again.",
+        description: t("orders.detail.confirmError"),
         variant: "destructive",
       });
     },
@@ -235,7 +237,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedTracking(true);
-      toast({ title: "Copied to clipboard!" });
+      toast({ title: t("orders.detail.copied") });
       setTimeout(() => setCopiedTracking(false), 2000);
     } catch (err) {
       console.error("Failed to copy: ", err);
@@ -257,8 +259,8 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
       navigator.clipboard.writeText(order.trackingNumber);
       setCopiedTracking(true);
       toast({
-        title: "Copied!",
-        description: "Tracking number copied to clipboard",
+        title: t("orders.detail.copiedShort"),
+        description: t("orders.detail.trackingCopied"),
       });
       setTimeout(() => setCopiedTracking(false), 2000);
     }
@@ -286,10 +288,9 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
         <div className="max-w-2xl mx-auto px-3 sm:px-4 py-8 sm:py-16 text-center">
           <Card className="relative overflow-hidden">
             <Package className="h-16 w-16 text-red-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-4">Order Not Found</h2>
+            <h2 className="text-2xl font-bold mb-4">{t("orders.detail.notFoundTitle")}</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              The order you're looking for doesn't exist or you don't have
-              permission to view it.
+              {t("orders.detail.notFoundDesc")}
             </p>
             <Button
               onClick={() =>
@@ -299,7 +300,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
               }
               className="gradient-bg text-white"
             >
-              Back to Orders
+              {t("orders.detail.backToOrders")}
             </Button>
           </Card>
         </div>
@@ -361,8 +362,8 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                 className="bg-gray-100 dark:bg-gray-900/50 dark:border-none hover:bg-white/20 dark:hover:bg-slate-800/50 transition-all duration-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 transform hover:scale-105 hover:shadow-md"
               >
                 <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Back to Orders</span>
-                <span className="sm:hidden">Back</span>
+                <span className="hidden sm:inline">{t("orders.detail.backToOrders")}</span>
+                <span className="sm:hidden">{t("orders.detail.back")}</span>
               </Button>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="relative">
@@ -378,10 +379,8 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                   </h1>
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <Cpu className="h-2.5 w-2.5" />
-                    <span className="hidden sm:inline">
-                      AI-Powered Tracking
-                    </span>
-                    <span className="sm:hidden">AI Track</span>
+                    <span className="hidden sm:inline">{t("orders.detail.aiTrack")}</span>
+                    <span className="sm:hidden">{t("orders.detail.aiTrackShort")}</span>
                   </div>
                 </div>
               </div>
@@ -391,7 +390,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     statusConfig[order.status].color
                   } font-medium px-2 sm:px-3 py-1 text-xs sm:text-sm`}
                 >
-                  {statusConfig[order.status].label}
+                  {t(`orders.status.${order.status}` as any)}
                 </Badge>
               </div>
             </div>
@@ -422,14 +421,12 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       </div>
                       <div>
                         <div className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1">
-                          <span className="hidden sm:inline">
-                            Order Journey
-                          </span>
-                          <span className="sm:hidden">Journey</span>
+                          <span className="hidden sm:inline">{t("orders.detail.journey")}</span>
+                          <span className="sm:hidden">{t("orders.detail.journeyShort")}</span>
                           <Layers className="h-2.5 w-2.5 text-purple-400 animate-pulse" />
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
-                          {statusConfig[order.status].description}
+                          {/* Optional: localized descriptions can be added */}
                         </div>
                       </div>
                     </CardTitle>
@@ -440,7 +437,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         </div>
                         <Wifi className="absolute -top-1 -right-5 h-3 w-3 text-purple-400 animate-pulse" />
                       </div>
-                      <div className="text-xs text-gray-500">Complete</div>
+                      <div className="text-xs text-gray-500">{t("orders.detail.complete")}</div>
                     </div>
                   </div>
                 </CardHeader>
@@ -451,7 +448,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         <Truck className="h-4 w-4 text-blue-500 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
-                            Tracking
+                            {t("orders.detail.tracking")}
                           </div>
                           <div className="font-mono text-xs text-gray-700 dark:text-gray-300 truncate">
                             {order.trackingNumber}
@@ -488,13 +485,12 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     </div>
                     <div>
                       <div className="text-xs sm:text-sm font-bold flex items-center gap-1">
-                        <span className="hidden sm:inline">Order Items</span>
-                        <span className="sm:hidden">Items</span>
+                        <span className="hidden sm:inline">{t("orders.detail.orderItems")}</span>
+                        <span className="sm:hidden">{t("orders.detail.items")}</span>
                         <Cpu className="h-2.5 w-2.5 text-yellow-500 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">
-                        {order.items.length} item
-                        {order.items.length !== 1 ? "s" : ""}
+                        {order.items.length} {order.items.length === 1 ? t("orders.detail.count") : t("orders.detail.countPlural")}
                       </div>
                     </div>
                   </CardTitle>
@@ -513,7 +509,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                               item.product?.imageUrl ||
                               "https://via.placeholder.com/80"
                             }
-                            alt={item.product?.name || "Product"}
+                            alt={(language === "rw" && (item as any).product?.nameRw) ? (item as any).product?.nameRw : (item.product?.name || "Product")}
                             className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                           />
                           <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg animate-pulse">
@@ -522,19 +518,20 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         </div>
                         <div className="flex-1 text-center sm:text-left">
                           <h4 className="font-semibold text-gray-900 dark:text-white text-xs sm:text-sm truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                            {item.product?.name ||
-                              `Product ${item.productId.slice(-8)}`}
+                            {(language === "rw" && (item as any).product?.nameRw)
+                              ? (item as any).product?.nameRw
+                              : (item.product?.name || `Product ${item.productId.slice(-8)}`)}
                           </h4>
                           <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
                             {item.size && (
                               <div className="flex items-center justify-center sm:justify-start gap-1 animate-in fade-in-0 duration-300 delay-100">
-                                <span className="font-medium">Size:</span>
+                                <span className="font-medium">{t("orders.detail.size")}:</span>
                                 <span>{item.size}</span>
                               </div>
                             )}
                             {item.color && (
                               <div className="flex items-center justify-center sm:justify-start gap-1 animate-in fade-in-0 duration-300 delay-200">
-                                <span className="font-medium">Color:</span>
+                                <span className="font-medium">{t("orders.detail.color")}:</span>
                                 <span>{item.color}</span>
                               </div>
                             )}
@@ -545,7 +542,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                             {formatPrice(item.price)}
                           </div>
                         </div>
-                        <div className="text-xs text-gray-500">each</div>
+                        <div className="text-xs text-gray-500">{t("orders.detail.each")}</div>
                         <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                           {formatPrice(parseFloat(item.price) * item.quantity)}
                         </div>
@@ -566,15 +563,11 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       </div>
                       <div>
                         <div className="text-xs sm:text-sm font-bold flex items-center gap-1">
-                          <span className="hidden sm:inline">
-                            Delivery Address
-                          </span>
-                          <span className="sm:hidden">Address</span>
+                          <span className="hidden sm:inline">{t("orders.detail.deliveryAddress")}</span>
+                          <span className="sm:hidden">{t("orders.detail.addressShort")}</span>
                           <Activity className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
                         </div>
-                        <div className="text-xs text-gray-600 dark:text-gray-400">
-                          AI-optimized route
-                        </div>
+                        <div className="text-xs text-gray-600 dark:text-gray-400">{t("orders.detail.aiRoute")}</div>
                       </div>
                     </CardTitle>
                   </CardHeader>
@@ -633,8 +626,8 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     </div>
                     <div>
                       <div className="text-xs sm:text-sm font-bold flex items-center gap-1">
-                        <span className="hidden sm:inline">Order Summary</span>
-                        <span className="sm:hidden">Summary</span>
+                        <span className="hidden sm:inline">{t("orders.detail.orderSummary")}</span>
+                        <span className="sm:hidden">{t("orders.detail.summary")}</span>
                         <Cpu className="h-2.5 w-2.5 text-purple-400 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">
@@ -648,7 +641,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-xs text-gray-600 dark:text-gray-400">
-                          Items ({order.items.length})
+                          {t("orders.detail.itemsLine").replace("{count}", String(order.items.length))}
                         </span>
                         <span className="text-xs font-medium">
                           {formatPrice(order.total)}
@@ -658,7 +651,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <div className="flex justify-between items-center">
                         <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1">
                           <Brain className="h-2.5 w-2.5 text-purple-400" />
-                          Total
+                          {t("orders.detail.total")}
                         </span>
                         <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                           {formatPrice(order.total)}
@@ -678,22 +671,22 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <CreditCard className="h-3 w-3 text-white" />
                     </div>
                     <div className="text-xs sm:text-sm font-bold flex items-center gap-1">
-                      <span className="hidden sm:inline">Payment Details</span>
-                      <span className="sm:hidden">Payment</span>
+                      <span className="hidden sm:inline">{t("orders.detail.paymentDetails")}</span>
+                      <span className="sm:hidden">{t("orders.detail.payment")}</span>
                       <Activity className="h-2.5 w-2.5 text-green-400 animate-pulse" />
                     </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="relative z-10 p-3 sm:p-4 space-y-2">
                   <div className="flex justify-between text-xs sm:text-sm">
-                    <span>Method</span>
+                    <span>{t("orders.detail.method")}</span>
                     <span className="capitalize font-medium">
                       {order.paymentMethod.replace("_", " ")}
                     </span>
                   </div>
                   {order.paymentStatus && (
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span>Status</span>
+                      <span>{t("orders.detail.status")}</span>
                       <Badge
                         variant={
                           order.paymentStatus === "completed"
@@ -718,8 +711,8 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                   <CardHeader className="p-3 sm:p-4">
                     <CardTitle className="flex items-center gap-2 text-xs sm:text-sm">
                       <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span className="hidden sm:inline">Order Notes</span>
-                      <span className="sm:hidden">Notes</span>
+                      <span className="hidden sm:inline">{t("orders.detail.orderNotes")}</span>
+                      <span className="sm:hidden">{t("orders.detail.notes")}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="p-3 sm:p-4">
@@ -739,8 +732,8 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-xs sm:text-sm py-2 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
                     >
                       <Star className="h-3 w-3 mr-2" />
-                      <span className="hidden sm:inline">Leave a Review</span>
-                      <span className="sm:hidden">Review</span>
+                      <span className="hidden sm:inline">{t("orders.detail.leaveReview")}</span>
+                      <span className="sm:hidden">{t("orders.detail.review")}</span>
                     </Button>
                   )}
                   {/* Customer Confirmation Button */}
@@ -755,15 +748,13 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         {confirming ? (
                           <>
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Confirming...
+                            {t("orders.detail.confirming")}
                           </>
                         ) : (
                           <>
                             <CheckCircle className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">
-                              Confirm Order Received
-                            </span>
-                            <span className="sm:hidden">Confirm Received</span>
+                            <span className="hidden sm:inline">{t("orders.detail.confirmReceived")}</span>
+                            <span className="sm:hidden">{t("orders.detail.confirmReceivedShort")}</span>
                           </>
                         )}
                       </Button>
@@ -774,11 +765,11 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
                       <CheckCircle className="h-5 w-5 text-green-600 mx-auto mb-2" />
                       <p className="text-sm text-green-700 dark:text-green-300 font-medium">
-                        Order Confirmed
+                        {t("orders.detail.confirmedTitle")}
                       </p>
                       {order.customerConfirmationDate && (
                         <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                          Confirmed on{" "}
+                          {t("orders.detail.confirmedOn")} {" "}
                           {formatDate(order.customerConfirmationDate)}
                         </p>
                       )}
@@ -790,24 +781,24 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     variant="outline"
                     className="w-full text-xs sm:text-sm py-2 border-gray-300 dark:border-gray-600 transform transition-all duration-300 hover:scale-105 hover:shadow-md hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <span className="hidden sm:inline">Copy Order ID</span>
-                    <span className="sm:hidden">Copy ID</span>
+                    <span className="hidden sm:inline">{t("orders.detail.copyOrderId")}</span>
+                    <span className="sm:hidden">{t("orders.detail.copyId")}</span>
                   </Button>
                   <Button
                     onClick={() => router.push("/orders")}
                     variant="outline"
                     className="w-full text-xs sm:text-sm py-2 border-gray-300 dark:border-gray-600 transform transition-all duration-300 hover:scale-105 hover:shadow-md hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
-                    <span className="hidden sm:inline">View All Orders</span>
-                    <span className="sm:hidden">All Orders</span>
+                    <span className="hidden sm:inline">{t("orders.detail.viewAll")}</span>
+                    <span className="sm:hidden">{t("orders.detail.allOrders")}</span>
                   </Button>
                   <Button
                     onClick={() => router.push("/")}
                     variant="ghost"
                     className="w-full text-xs sm:text-sm py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <span className="hidden sm:inline">Continue Shopping</span>
-                    <span className="sm:hidden">Shop More</span>
+                    <span className="hidden sm:inline">{t("orders.detail.continueShopping")}</span>
+                    <span className="sm:hidden">{t("orders.detail.shopMore")}</span>
                   </Button>
                 </CardContent>
               </Card>

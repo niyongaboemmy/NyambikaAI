@@ -1,3 +1,4 @@
+import { useLanguage } from "@/contexts/LanguageContext";
 type Category = {
   id: string;
   name: string;
@@ -22,6 +23,7 @@ export default function CategoryPills({
   onSelect,
   loading,
 }: Props) {
+  const { language } = useLanguage();
   return (
     <div className="mb-2">
       <div className="overflow-x-auto scrollbar-hide">
@@ -30,12 +32,13 @@ export default function CategoryPills({
             const active = (selectedId || "all") === c.id;
             const imageUrl = c.imageUrl || defaultCategoryImage;
 
+            const label = language === "rw" ? (c.nameRw || c.name) : c.name;
             return (
               <button
                 key={c.id}
                 onClick={() => onSelect(c.id)}
                 className="flex flex-col items-center gap-2 group min-w-[70px] transition-all duration-200"
-                title={c.nameRw || c.name}
+                title={label}
               >
                 <div
                   className={`relative transition-all duration-300 ${
@@ -48,7 +51,7 @@ export default function CategoryPills({
                     <div className="h-12 w-12 rounded-full overflow-hidden relative">
                       <img
                         src={imageUrl}
-                        alt={c.name}
+                        alt={label}
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           (e.currentTarget as HTMLImageElement).src =
@@ -68,7 +71,7 @@ export default function CategoryPills({
                       : "text-gray-700 dark:text-gray-300"
                   }`}
                 >
-                  {c.nameRw || c.name}
+                  {label}
                 </span>
               </button>
             );

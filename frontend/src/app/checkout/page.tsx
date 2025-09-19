@@ -29,6 +29,7 @@ import {
   ShoppingBag,
   Loader2,
 } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ShippingAddress {
   fullName: string;
@@ -52,6 +53,7 @@ function CheckoutPage() {
   const { items, total, subtotal, shipping, clear } = useCart();
   const { user, isAuthenticated } = useAuth();
   const { toast } = useToast();
+  const { t, language } = useLanguage();
 
   const createOrder = useCreateOrder();
   const isSubmitting = createOrder.isPending;
@@ -94,8 +96,8 @@ function CheckoutPage() {
   useEffect(() => {
     if (!isAuthenticated) {
       toast({
-        title: "Authentication Required",
-        description: "Please sign in to proceed with checkout.",
+        title: t("checkout.authRequiredTitle"),
+        description: t("checkout.authRequiredDesc"),
         variant: "destructive",
       });
       router.push("/auth/signin?redirect=/checkout");
@@ -147,7 +149,7 @@ function CheckoutPage() {
     // Email format
     if (address.email) {
       const ok = /.+@.+\..+/.test(address.email);
-      if (!ok) (bucket as any).email = "Please enter a valid email";
+      if (!ok) (bucket as any).email = t("checkout.invalidEmail");
     }
 
     // Phone format (Rwanda: allow 07xxxxxxxx or +2507xxxxxxxx)
@@ -155,7 +157,7 @@ function CheckoutPage() {
       const digits = String(address.phone).replace(/\D/g, "");
       const ok = /^07\d{8}$/.test(digits) || /^2507\d{8}$/.test(digits);
       if (!ok)
-        (bucket as any).phone = "Please enter a valid phone (07XXXXXXXX)";
+        (bucket as any).phone = t("checkout.invalidPhone");
     }
 
     setErrors(newErrors);
@@ -174,8 +176,8 @@ function CheckoutPage() {
       : validateAddress(billingAddress, "billing");
     if (!shipOk || !billOk) {
       toast({
-        title: "Validation errors",
-        description: "Please fix the highlighted fields.",
+        title: t("checkout.validationErrorsTitle"),
+        description: t("checkout.validationErrorsDesc"),
         variant: "destructive",
       });
       // Scroll to first error field
@@ -296,7 +298,7 @@ function CheckoutPage() {
           <div className="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm flex items-center justify-center">
             <div className="glassmorphism border rounded-2xl px-4 py-3 flex items-center gap-3">
               <Loader2 className="h-5 w-5 animate-spin text-primary" />
-              <span className="text-sm">Submitting your order…</span>
+              <span className="text-sm">{t("checkout.submittingOverlay")}</span>
             </div>
           </div>
         )}
@@ -309,10 +311,10 @@ function CheckoutPage() {
               className="glassmorphism"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Cart
+              {t("checkout.backToCart")}
             </Button>
             <h1 className="text-lg sm:text-xl font-bold gradient-text">
-              Checkout
+              {t("checkout.title")}
             </h1>
             <div className="w-0 sm:w-20" />
           </div>
@@ -354,14 +356,14 @@ function CheckoutPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Truck className="h-5 w-5" />
-                    Shipping Information
+                    {t("checkout.shippingInfo")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
                   <div className="grid sm:grid-cols-2 gap-2 sm:gap-4">
                     <FormInput
                       id="fullName"
-                      label="Full Name *"
+                      label={t("checkout.fullName")}
                       icon={User}
                       value={shippingAddress.fullName}
                       error={errors.fullName}
@@ -373,7 +375,7 @@ function CheckoutPage() {
                     />
                     <FormInput
                       id="email"
-                      label="Email *"
+                      label={t("checkout.email")}
                       type="email"
                       icon={Mail}
                       value={shippingAddress.email}
@@ -389,7 +391,7 @@ function CheckoutPage() {
                   <div className="grid sm:grid-cols-2 gap-2 sm:gap-4">
                     <FormInput
                       id="phone"
-                      label="Phone Number *"
+                      label={t("checkout.phone")}
                       icon={Phone}
                       value={shippingAddress.phone}
                       error={errors.phone}
@@ -401,7 +403,7 @@ function CheckoutPage() {
                     />
                     <FormInput
                       id="country"
-                      label="Country"
+                      label={t("checkout.country")}
                       icon={MapPin}
                       value={shippingAddress.country}
                       onChange={(e) =>
@@ -413,7 +415,7 @@ function CheckoutPage() {
 
                   <FormInput
                     id="address"
-                    label="Street Address *"
+                    label={t("checkout.address")}
                     icon={MapPin}
                     value={shippingAddress.address}
                     error={errors.address}
@@ -427,7 +429,7 @@ function CheckoutPage() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
                     <FormInput
                       id="city"
-                      label="City *"
+                      label={t("checkout.city")}
                       value={shippingAddress.city}
                       error={errors.city}
                       data-error={Boolean(errors.city) || undefined}
@@ -438,7 +440,7 @@ function CheckoutPage() {
                     />
                     <FormInput
                       id="province"
-                      label="Province"
+                      label={t("checkout.province")}
                       value={shippingAddress.province}
                       onChange={(e) =>
                         handleAddressChange("province", e.target.value)
@@ -447,7 +449,7 @@ function CheckoutPage() {
                     />
                     <FormInput
                       id="postalCode"
-                      label="Postal Code"
+                      label={t("checkout.postalCode")}
                       value={shippingAddress.postalCode}
                       onChange={(e) =>
                         handleAddressChange("postalCode", e.target.value)
@@ -463,10 +465,9 @@ function CheckoutPage() {
               {/* Size Evidence Photos */}
               <Card className="w-full overflow-hidden">
                 <CardHeader>
-                  <CardTitle>Size Evidence Photos (Optional)</CardTitle>
+                  <CardTitle>{t("checkout.sizeEvidenceTitle")}</CardTitle>
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Upload up to 2 photos to help the producer understand your
-                    size requirements
+                    {t("checkout.sizeEvidenceDesc")}
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -482,13 +483,13 @@ function CheckoutPage() {
               {/* Order Notes */}
               <Card className="w-full overflow-hidden">
                 <CardHeader>
-                  <CardTitle>Order Notes (Optional)</CardTitle>
+                  <CardTitle>{t("checkout.orderNotesTitle")}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any special instructions for your order..."
+                    placeholder={t("checkout.orderNotesPlaceholder")}
                     rows={3}
                     className="rounded-md text-sm sm:text-base min-h-[72px]"
                   />
@@ -502,7 +503,7 @@ function CheckoutPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <ShoppingBag className="h-5 w-5" />
-                    Order Summary
+                    {t("checkout.orderSummary")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 sm:space-y-4">
@@ -520,8 +521,8 @@ function CheckoutPage() {
                         />
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-xs sm:text-sm truncate">
-                            {item.name}
-                          </h4>
+                          {language === "rw" && (item as any).nameRw ? (item as any).nameRw : item.name}
+                        </h4>
                           <div className="flex flex-wrap gap-1 text-xs text-gray-600 dark:text-gray-400">
                             {item.size && <span>Size: {item.size}</span>}
                             {item.color && <span>• Color: {item.color}</span>}
@@ -547,16 +548,16 @@ function CheckoutPage() {
                   {/* Price Breakdown */}
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Subtotal</span>
+                      <span>{t("checkout.subtotal")}</span>
                       <span>{formatPrice(subtotal)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span>Shipping</span>
+                      <span>{t("checkout.shipping")}</span>
                       <span>{formatPrice(shipping)}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-bold">
-                      <span>Total</span>
+                      <span>{t("checkout.total")}</span>
                       <span className="text-primary">{formatPrice(total)}</span>
                     </div>
                   </div>
@@ -570,23 +571,22 @@ function CheckoutPage() {
                     {isBusy ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Submitting Order...
+                        {t("checkout.submitting")}
                       </>
                     ) : (
                       <>
                         <ShoppingBag className="h-4 w-4 mr-2" />
                         <span className="hidden sm:inline">
-                          Submit Order •{" "}
+                          {t("checkout.submitOrder")} •{" "}
                         </span>
-                        <span className="sm:hidden">Submit • </span>
+                        <span className="sm:hidden">{t("checkout.submitShort")} • </span>
                         {formatPrice(total)}
                       </>
                     )}
                   </Button>
 
                   <p className="text-xs text-gray-600 dark:text-gray-400 text-center">
-                    By placing this order, you agree to our Terms of Service and
-                    Privacy Policy.
+                    {t("checkout.termsNotice")}
                   </p>
                 </CardContent>
               </Card>

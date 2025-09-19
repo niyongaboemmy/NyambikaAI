@@ -108,11 +108,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/terms", async (req: any, res) => {
     try {
       const role = String(req.query.role || "customer").toLowerCase();
+      const lang = String(req.query.lang || "en").toLowerCase();
       const base = {
         version: "1.0",
         updatedAt: "2025-01-01",
         site: "Nyambika",
       };
+
+      const tr = (
+        en: string,
+        rw: string,
+        fr: string
+      ) => (lang === "rw" ? rw : lang === "fr" ? fr : en);
 
       // Generic: current user accepts terms (agent or producer)
       app.post("/api/terms/accept", requireAuth, async (req: any, res) => {
@@ -153,37 +160,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({
           ...base,
           role: "agent",
-          title: "Agent Terms & Conditions",
+          title: tr(
+            "Agent Terms & Conditions",
+            "Amasezerano y'Umukozi (Agent)",
+            "Conditions de l'Agent"
+          ),
           sections: [
             {
               id: "scope",
-              heading: "Scope of Work",
-              content:
+              heading: tr(
+                "Scope of Work",
+                "Inshingano z'Akazi",
+                "Champ d'application"
+              ),
+              content: tr(
                 "Agents manage producer subscriptions, assist with onboarding, and process Mobile Money payments on behalf of producers.",
+                "Abakozi bita ku kwiyandikisha kw'abakora (producers), bagafasha mu kwinjiza ku rubuga no gutunganya ubwishyu bwa Mobile Money ku bw'abakora.",
+                "Les agents gèrent les abonnements des producteurs, aident à l'intégration et traitent les paiements Mobile Money pour le compte des producteurs."
+              ),
             },
             {
               id: "commission",
-              heading: "Commission",
-              content:
+              heading: tr("Commission", "Komisiyo", "Commission"),
+              content: tr(
                 "Agents earn 40% commission on subscription payments processed. Payouts are reflected in your agent dashboard.",
+                "Abakozi babona komisiyo ya 40% ku mafaranga y'ubunyamuryango batunganyije. Kwishyurwa kugaragara ku kibaho cy'umukozi.",
+                "Les agents gagnent 40% de commission sur les abonnements traités. Les paiements sont visibles sur votre tableau de bord agent."
+              ),
             },
             {
               id: "compliance",
-              heading: "Compliance & Conduct",
-              content:
+              heading: tr(
+                "Compliance & Conduct",
+                "Kurikiza Amategeko n'Imyitwarire",
+                "Conformité et Conduite"
+              ),
+              content: tr(
                 "Agents must follow local regulations and Nyambika policies. Fraudulent activity or misuse will result in termination.",
+                "Abakozi bagomba gukurikiza amategeko y'igihugu na politiki za Nyambika. Uburiganya cyangwa ikoreshwa ribi bihanwa no guhagarikwa.",
+                "Les agents doivent respecter les réglementations locales et les politiques de Nyambika. Toute fraude ou abus entraînera une résiliation."
+              ),
             },
             {
               id: "privacy",
-              heading: "Privacy",
-              content:
+              heading: tr("Privacy", "Ibanga", "Confidentialité"),
+              content: tr(
                 "Customer and producer data must be handled confidentially and used only for official purposes.",
+                "Amakuru y'abakiriya n'abakora agomba gucungwa mu ibanga kandi agakoreshwa gusa ku mpamvu zemewe n'amategeko.",
+                "Les données des clients et des producteurs doivent être traitées de manière confidentielle et utilisées uniquement à des fins officielles."
+              ),
             },
             {
               id: "payments",
-              heading: "Payments & Settlements",
-              content:
+              heading: tr(
+                "Payments & Settlements",
+                "Kwishyura no Kwishyura Byuzuye",
+                "Paiements et Règlements"
+              ),
+              content: tr(
                 "All payments processed must be accurately recorded with references. Disputes are investigated per platform policy.",
+                "Ubwishyu bwose butunganyijwe bugomba kwandikwa neza n'inyandiko z'icyitegererezo. Impaka zisuzumwa hakurikijwe politiki ya platiforme.",
+                "Tous les paiements traités doivent être correctement enregistrés avec des références. Les litiges sont examinés conformément à la politique de la plateforme."
+              ),
             },
           ],
         });
@@ -194,55 +232,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({
           ...base,
           role: "producer",
-          title: "Producer Terms & Conditions",
+          title: tr(
+            "Producer Terms & Conditions",
+            "Amasezerano y'Umucuruzi (Producer)",
+            "Conditions du Producteur"
+          ),
           sections: [
             {
               id: "eligibility",
-              heading: "Eligibility & Verification",
-              content:
+              heading: tr(
+                "Eligibility & Verification",
+                "Uburenganzira & Kwemezwa",
+                "Éligibilité et Vérification"
+              ),
+              content: tr(
                 "Producers must provide accurate business information and pass verification. An active subscription is required to sell on Nyambika.",
+                "Abakora bagomba gutanga amakuru nyayo y'ubucuruzi no kunyura mu kwemezwa. Uburyo bwo kwiyandikisha bukora burakenewe kugira ngo ugurishe kuri Nyambika.",
+                "Les producteurs doivent fournir des informations exactes et réussir la vérification. Un abonnement actif est requis pour vendre sur Nyambika."
+              ),
             },
             {
               id: "products",
-              heading: "Product Listings & Quality",
-              content:
+              heading: tr(
+                "Product Listings & Quality",
+                "Ibyerekeye Ibicuruzwa & Ubwiza",
+                "Fiches Produits et Qualité"
+              ),
+              content: tr(
                 "All product details (title, images, price, sizes, colors) must be accurate. Counterfeit or prohibited items are not allowed.",
+                "Amakuru yose y'igicuruzwa (umutwe, amashusho, igiciro, ingano, amabara) agomba kuba nyayo. Ibicuruzwa by'ubuhendabana cyangwa bitemewe ntibyemewe.",
+                "Tous les détails (titre, images, prix, tailles, couleurs) doivent être exacts. Les contrefaçons ou articles interdits sont prohibés."
+              ),
             },
             {
               id: "orders",
-              heading: "Order Fulfillment",
-              content:
+              heading: tr(
+                "Order Fulfillment",
+                "Kuzuza Amabwiriza y'Ibicuruzwa",
+                "Exécution des Commandes"
+              ),
+              content: tr(
                 "Orders must be acknowledged promptly and fulfilled within the communicated timeframe. Keep customers informed about delays.",
+                "Amabwiriza agomba kwemerezwa vuba kandi akuzuzwa mu gihe cyatangajwe. Menyesha abakiriya igihe habayeho gutinda.",
+                "Les commandes doivent être confirmées rapidement et honorées dans les délais communiqués. Informez les clients des retards."
+              ),
             },
             {
               id: "returns",
-              heading: "Returns, Refunds & Disputes",
-              content:
+              heading: tr(
+                "Returns, Refunds & Disputes",
+                "Garuka, Gusubizwa & Impaka",
+                "Retours, Remboursements et Litiges"
+              ),
+              content: tr(
                 "Follow our returns and dispute policy. Resolve customer complaints professionally. Nyambika may mediate when needed.",
+                "Kurikiza politiki yacu yo gusubiza no gukemura impaka. Kemura ibibazo by'abakiriya mu buryo bw'umwuga. Nyambika ishobora gufasha mu buhuza aho bikenewe.",
+                "Suivez notre politique de retours et litiges. Résolvez les réclamations des clients de manière professionnelle. Nyambika peut intervenir si nécessaire."
+              ),
             },
             {
               id: "pricing",
-              heading: "Pricing & Fees",
-              content:
+              heading: tr("Pricing & Fees", "Ibiciro & Amafaranga", "Tarifs et Frais"),
+              content: tr(
                 "Subscription fees apply per selected plan. Additional optional services (e.g., product boost) may incur fees.",
+                "Amafaranga y'ubunyamuryango akurikizwa ku igenamigambi wahisemo. Serivisi z'inyongera z'ubushake (nko guteza imbere igicuruzwa) zishobora kugira ikiguzi.",
+                "Des frais d'abonnement s'appliquent selon l'offre choisie. Des services optionnels supplémentaires (ex: boost produit) peuvent être facturés."
+              ),
             },
             {
               id: "payments",
-              heading: "Payouts",
-              content:
+              heading: tr("Payouts", "Kwishyurwa", "Versements"),
+              content: tr(
                 "Payouts are settled to your configured wallet or payment method according to platform schedules and policy.",
+                "Kwishyurwa gukorerwa kuri wallet washyizeho cyangwa uburyo bwo kwishyurwa hakurikijwe gahunda na politiki ya platiforme.",
+                "Les versements sont effectués vers votre portefeuille configuré ou moyen de paiement selon les calendriers et politiques de la plateforme."
+              ),
             },
             {
               id: "conduct",
-              heading: "Conduct & Compliance",
-              content:
+              heading: tr(
+                "Conduct & Compliance",
+                "Imyitwarire & Kubahiriza Amategeko",
+                "Conduite et Conformité"
+              ),
+              content: tr(
                 "Maintain professional communication. Comply with local laws and platform rules. Misuse may lead to suspension.",
+                "Gumana itumanaho ry'umwuga. Kubahiriza amategeko y'igihugu n'amategeko ya platiforme. Ikoreshwa ribi rishobora gutera guhagarikwa.",
+                "Maintenez une communication professionnelle. Respectez les lois locales et les règles de la plateforme. Un abus peut entraîner une suspension."
+              ),
             },
             {
               id: "privacy",
-              heading: "Privacy & Data",
-              content:
+              heading: tr("Privacy & Data", "Ibanga & Amakuru", "Confidentialité et Données"),
+              content: tr(
                 "Handle customer data responsibly and only for order processing and support purposes.",
+                "Cunga amakuru y'abakiriya neza kandi uyakoreshe gusa mu gutunganya amabwiriza no gutanga ubufasha.",
+                "Traitez les données des clients de manière responsable et uniquement pour traiter les commandes et l'assistance."
+              ),
             },
           ],
         });
@@ -252,13 +338,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.json({
         ...base,
         role,
-        title: "General Terms & Conditions",
+        title: tr(
+          "General Terms & Conditions",
+          "Amasezerano Rusange",
+          "Conditions Générales"
+        ),
         sections: [
           {
             id: "use",
-            heading: "Acceptable Use",
-            content:
+            heading: tr("Acceptable Use", "Ukoresha Bikwiye", "Utilisation Acceptable"),
+            content: tr(
               "Use the platform responsibly and in accordance with our policies and local laws.",
+              "Koresha platiforme mu buryo bukwiriye ubyubahiriza politiki zacu n'amategeko y'igihugu.",
+              "Utilisez la plateforme de manière responsable, conformément à nos politiques et aux lois locales."
+            ),
           },
         ],
       });

@@ -7,17 +7,19 @@ import { Input } from "@/components/custom-ui/input";
 import { Textarea } from "@/components/custom-ui/textarea";
 import { Phone, Mail, MapPin, Send } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ContactForm() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguage();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name || !form.email || !form.message) {
       toast?.({
-        title: "Missing fields",
-        description: "Please fill in all fields.",
+        title: t("contact.toast.missing.title"),
+        description: t("contact.toast.missing.desc"),
         variant: "destructive",
       });
       return;
@@ -25,8 +27,8 @@ export default function ContactForm() {
     const emailRegex = /[^\s@]+@[^\s@]+\.[^\s@]+/;
     if (!emailRegex.test(form.email)) {
       toast?.({
-        title: "Invalid email",
-        description: "Please provide a valid email.",
+        title: t("contact.toast.invalid.title"),
+        description: t("contact.toast.invalid.desc"),
         variant: "destructive",
       });
       return;
@@ -40,14 +42,14 @@ export default function ContactForm() {
       });
       if (!res.ok) throw new Error("Failed to submit");
       toast?.({
-        title: "Message sent",
-        description: "Thanks for reaching out! We'll get back to you soon.",
+        title: t("contact.toast.sent.title"),
+        description: t("contact.toast.sent.desc"),
       });
       setForm({ name: "", email: "", message: "" });
     } catch (err) {
       toast?.({
-        title: "Submission failed",
-        description: "Please try again later.",
+        title: t("contact.toast.failed.title"),
+        description: t("contact.toast.failed.desc"),
         variant: "destructive",
       });
     } finally {
@@ -63,21 +65,21 @@ export default function ContactForm() {
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                Name
+                {t("contact.form.name")}
               </label>
               <Input
                 value={form.name}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, name: e.target.value }))
                 }
-                placeholder="Your name"
+                placeholder={t("contact.form.placeholder.name")}
                 required
                 className="rounded-xl"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                Email
+                {t("contact.form.email")}
               </label>
               <Input
                 type="email"
@@ -85,21 +87,21 @@ export default function ContactForm() {
                 onChange={(e) =>
                   setForm((f) => ({ ...f, email: e.target.value }))
                 }
-                placeholder="you@example.com"
+                placeholder={t("contact.form.placeholder.email")}
                 required
                 className="rounded-xl"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-800 dark:text-gray-200 mb-1">
-                Message
+                {t("contact.form.message")}
               </label>
               <Textarea
                 value={form.message}
                 onChange={(e) =>
                   setForm((f) => ({ ...f, message: e.target.value }))
                 }
-                placeholder="How can we help?"
+                placeholder={t("contact.form.placeholder.message")}
                 rows={6}
                 required
                 className="rounded-xl"
@@ -112,7 +114,7 @@ export default function ContactForm() {
                 className="bg-blue-600 hover:bg-blue-500"
               >
                 <Send className="mr-2 h-4 w-4" />
-                {loading ? "Sending..." : "Send Message"}
+                {loading ? t("contact.form.sending") : t("contact.form.send")}
               </Button>
             </div>
           </form>
@@ -123,7 +125,7 @@ export default function ContactForm() {
       <Card className="backdrop-blur-xl bg-white/80 dark:bg-gray-900/80 border border-white/20 dark:border-gray-800">
         <CardContent className="p-6 md:p-8 space-y-4 text-sm text-gray-700 dark:text-gray-300">
           <h3 className="text-base font-semibold text-gray-900 dark:text-white">
-            Contact Information
+            {t("contact.info.title")}
           </h3>
           <div className="flex items-center">
             <Phone className="h-4 w-4 mr-2" /> +250 782 634 364

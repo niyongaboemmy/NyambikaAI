@@ -38,6 +38,7 @@ import { useCompany } from "@/contexts/CompanyContext";
 import BoostProductDialog from "@/components/BoostProductDialog";
 import Share from "@/components/Share";
 import WhatsAppChatModal from "@/components/WhatsAppChatModal";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ExtendedProduct extends Product {
   images?: string[];
@@ -51,6 +52,7 @@ interface ExtendedProduct extends Product {
 export default function ProductDetail() {
   const { id } = useParams();
   const router = useRouter();
+  const { t } = useLanguage();
   const { user, isAuthenticated } = useAuth();
   const queryClient = useQueryClient();
   const [boostOpen, setBoostOpen] = useState(false);
@@ -93,8 +95,8 @@ export default function ProductDetail() {
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
         toast({
-          title: "Link copied",
-          description: "Product link copied to clipboard.",
+          title: t("product.linkCopiedTitle"),
+          description: t("product.linkCopiedDesc"),
         });
 
         // Suggested products (simple heuristic: fetch a few and exclude current)
@@ -206,7 +208,7 @@ export default function ProductDetail() {
       await apiClient.delete(API_ENDPOINTS.PRODUCT_BY_ID(productIdStr));
     },
     onSuccess: () => {
-      toast({ title: "Deleted", description: "Product deleted successfully." });
+      toast({ title: t("product.deleted"), description: t("product.deletedDesc") });
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["infinite-products"] });
@@ -217,7 +219,7 @@ export default function ProductDetail() {
     onError: (e) => {
       const msg = handleApiError(e);
       toast({
-        title: "Delete failed",
+        title: t("product.deleteFailed"),
         description: msg,
         variant: "destructive",
       });
@@ -227,7 +229,7 @@ export default function ProductDetail() {
     if (!product) return;
     const ok =
       typeof window !== "undefined"
-        ? window.confirm("Delete this product? This cannot be undone.")
+        ? window.confirm(t("product.deleteConfirm"))
         : false;
     if (!ok) return;
     deleteMutation.mutate();
@@ -371,16 +373,16 @@ export default function ProductDetail() {
     if (!product) return;
     if (!selectedSize) {
       toast({
-        title: "Size Required",
-        description: "Please select a size first",
+        title: t("product.sizeRequired"),
+        description: t("product.selectSizeFirst"),
         variant: "destructive",
       });
       return;
     }
     if (!selectedColor) {
       toast({
-        title: "Color Required",
-        description: "Please select a color first",
+        title: t("product.colorRequired"),
+        description: t("product.selectColorFirst"),
         variant: "destructive",
       });
       return;
@@ -401,8 +403,8 @@ export default function ProductDetail() {
       quantity
     );
     toast({
-      title: "Added to cart",
-      description: "Product added to your cart",
+      title: t("product.addedToCart"),
+      description: t("product.addedToCartDesc"),
     });
   };
 
@@ -569,8 +571,8 @@ export default function ProductDetail() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
         <div className="flex justify-center items-center min-h-screen">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
-            <Button onClick={handleBack}>Back to Products</Button>
+            <h2 className="text-2xl font-bold mb-4">{t("product.notFound")}</h2>
+            <Button onClick={handleBack}>{t("product.backToProducts")}</Button>
           </div>
         </div>
       </div>
@@ -617,13 +619,13 @@ export default function ProductDetail() {
                   <div className="relative flex items-center gap-1.5 sm:gap-2">
                     <ArrowLeft className="h-4 w-4 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
-                      Back
+                      {t("product.back")}
                     </span>
                   </div>
                 </Button>
                 <div className="hidden md:block">
                   <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-900 via-gray-700 to-gray-900 dark:from-white dark:via-gray-200 dark:to-white bg-clip-text text-transparent">
-                    Product Details
+                    {t("product.details")}
                   </h1>
                 </div>
               </motion.div>
@@ -636,7 +638,7 @@ export default function ProductDetail() {
                   icon: product.imageUrl || undefined,
                 }}
                 size="sm"
-                triggerLabel="Share"
+                triggerLabel={t("product.share")}
                 triggerClassName="rounded-full text-xs bg-blue-500 text-white"
               />
             </div>
@@ -664,7 +666,7 @@ export default function ProductDetail() {
                           size="icon"
                           onClick={() => router.push(`/product-edit/${id}`)}
                           className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200/50 dark:border-emerald-700/50 hover:from-emerald-100 hover:to-teal-100 dark:hover:from-emerald-800/40 dark:hover:to-teal-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
-                          title="Edit product"
+                          title={t("product.edit")}
                         >
                           <Edit3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-200" />
                         </Button>
@@ -680,7 +682,7 @@ export default function ProductDetail() {
                           size="icon"
                           onClick={() => setBoostOpen(true)}
                           className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200/50 dark:border-amber-700/50 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-800/40 dark:hover:to-orange-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20"
-                          title="Boost product"
+                          title={t("product.boost")}
                         >
                           <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform duration-200" />
                         </Button>
@@ -697,7 +699,7 @@ export default function ProductDetail() {
                           disabled={deleteMutation.isPending}
                           onClick={handleDelete}
                           className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-900/30 dark:to-red-900/30 border border-rose-200/50 dark:border-rose-700/50 hover:from-rose-100 hover:to-red-100 dark:hover:from-rose-800/40 dark:hover:to-red-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Delete product"
+                          title={t("product.delete")}
                         >
                           <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform duration-200" />
                         </Button>
@@ -727,7 +729,7 @@ export default function ProductDetail() {
                 {/* AI Badge */}
                 <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium flex items-center gap-1 shadow-lg shadow-purple-500/30 backdrop-blur-sm border border-white/20">
                   <Wand2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                  AI Ready
+                  {t("product.aiReady")}
                 </div>
               </div>
               {product.images && product.images.length > 1 && (
@@ -797,7 +799,7 @@ export default function ProductDetail() {
                     variant={product.inStock ? "default" : "secondary"}
                     className="text-xs"
                   >
-                    {product.inStock ? "✓ In Stock" : "Out of Stock"}
+                    {product.inStock ? t("product.inStock") : t("product.outOfStock")}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-2 mb-1">

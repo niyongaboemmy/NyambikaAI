@@ -26,11 +26,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/custom-ui/card";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 function AdminDashboard() {
   const { user } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState("overview");
   const [dashboardData, setDashboardData] = useState({
     stats: {},
@@ -54,7 +56,7 @@ function AdminDashboard() {
     const s: any = dashboardData.stats || {};
     return [
       {
-        title: "Total Users",
+        title: t("admin.stats.totalUsers"),
         value: s.totalUsers ?? 0,
         change: "",
         icon: Users,
@@ -62,7 +64,7 @@ function AdminDashboard() {
         bgColor: "bg-blue-100 dark:bg-blue-900/20",
       },
       {
-        title: "Producers",
+        title: t("admin.stats.producers"),
         value: s.totalProducers ?? 0,
         change: "",
         icon: UserCheck,
@@ -70,7 +72,7 @@ function AdminDashboard() {
         bgColor: "bg-purple-100 dark:bg-purple-900/20",
       },
       {
-        title: "Orders",
+        title: t("admin.stats.orders"),
         value: s.totalOrders ?? 0,
         change: "",
         icon: Package,
@@ -78,7 +80,7 @@ function AdminDashboard() {
         bgColor: "bg-orange-100 dark:bg-orange-900/20",
       },
       {
-        title: "Revenue",
+        title: t("admin.stats.revenue"),
         value: formatCurrency(s.totalRevenue ?? 0),
         change: "",
         icon: DollarSign,
@@ -97,19 +99,19 @@ function AdminDashboard() {
     const pct = (n: number) => (total > 0 ? Math.round((n / total) * 100) : 0);
     return [
       {
-        role: "Producers",
+        role: t("admin.roles.producers"),
         count: producers,
         percentage: pct(producers),
         color: "bg-purple-500",
       },
       {
-        role: "Agents",
+        role: t("admin.roles.agents"),
         count: agents,
         percentage: pct(agents),
         color: "bg-blue-500",
       },
       {
-        role: "Customers",
+        role: t("admin.roles.customers"),
         count: customers,
         percentage: pct(customers),
         color: "bg-green-500",
@@ -129,13 +131,13 @@ function AdminDashboard() {
           : "info",
       action:
         o.status === "delivered"
-          ? "Order delivered"
+          ? t("admin.activity.orderDelivered")
           : o.status === "cancelled"
-          ? "Order cancelled"
-          : "Order update",
-      target: `Order #${String(o.id).slice(-8)} • ${
+          ? t("admin.activity.orderCancelled")
+          : t("admin.activity.orderUpdate"),
+      target: `${t("producer.order")} #${String(o.id).slice(-8)} • ${
         o.items?.length || 0
-      } item(s)`,
+      } ${o.items?.length === 1 ? t("orders.detail.count") : t("orders.detail.countPlural")}`,
       user: o.customerEmail || "customer",
       timestamp: new Date(
         o.createdAt || o.updatedAt || Date.now()
@@ -220,11 +222,10 @@ function AdminDashboard() {
             {/* Header */}
             <div className="mb-8">
               <h1 className="text-3xl md:text-4xl font-bold gradient-text">
-                System Administration
+                {t("admin.header.title")}
               </h1>
               <p className="text-muted-foreground mt-2">
-                Monitor platform activity and manage users, products, and
-                operations
+                {t("admin.header.subtitle")}
               </p>
             </div>
 
@@ -241,7 +242,7 @@ function AdminDashboard() {
                         : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                     }`}
                   >
-                    {tab}
+                    {t(`admin.tabs.${tab}` as any)}
                   </button>
                 ))}
               </div>
@@ -284,7 +285,7 @@ function AdminDashboard() {
                   <Card className="floating-card">
                     <CardHeader>
                       <CardTitle className="gradient-text">
-                        User Distribution
+                        {t("admin.userDistribution")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -313,7 +314,7 @@ function AdminDashboard() {
                   <Card className="floating-card">
                     <CardHeader>
                       <CardTitle className="gradient-text">
-                        Recent Activity
+                        {t("admin.recentActivity")}
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -351,11 +352,11 @@ function AdminDashboard() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="gradient-text">
-                        Producers ({dashboardData.producers.length})
+                        {t("admin.producers.title").replace("{count}", String(dashboardData.producers.length))}
                       </CardTitle>
                       <Button variant="outline" size="sm">
                         <Search className="h-4 w-4 mr-2" />
-                        Search
+                        {t("admin.search")}
                       </Button>
                     </div>
                   </CardHeader>
@@ -381,8 +382,7 @@ function AdminDashboard() {
                                     {producer.email}
                                   </p>
                                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                                    Business:{" "}
-                                    {producer.businessName || "Not specified"}
+                                    {t("admin.business")}: {producer.businessName || "Not specified"}
                                   </p>
                                 </div>
                               </div>
@@ -394,7 +394,7 @@ function AdminDashboard() {
                                       : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
                                   }`}
                                 >
-                                  {producer.isVerified ? "Verified" : "Pending"}
+                                  {producer.isVerified ? t("admin.verified") : t("admin.pending")}
                                 </span>
                                 <Button
                                   variant="ghost"
@@ -416,21 +416,18 @@ function AdminDashboard() {
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="gradient-text">
-                        Agents ({dashboardData.agents.length})
+                        {t("admin.agents.title").replace("{count}", String(dashboardData.agents.length))}
                       </CardTitle>
                       <Button variant="outline" size="sm">
                         <Search className="h-4 w-4 mr-2" />
-                        Search
+                        {t("admin.search")}
                       </Button>
                     </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {dashboardData.agents.slice(0, 5).map((agent: any) => (
-                        <div
-                          key={agent.id}
-                          className="glassmorphism rounded-xl p-4"
-                        >
+                        <div key={agent.id} className="glassmorphism rounded-xl p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
                               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 rounded-full flex items-center justify-center">
@@ -444,20 +441,15 @@ function AdminDashboard() {
                                   {agent.email}
                                 </p>
                                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                                  Managed Producers:{" "}
-                                  {agent.managedProducers || 0}
+                                  {t("admin.managedProducers")}: {agent.managedProducers || 0}
                                 </p>
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
                               <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">
-                                Active
+                                {t("admin.active")}
                               </span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8"
-                              >
+                              <Button variant="ghost" size="icon" className="h-8 w-8">
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </div>
@@ -465,96 +457,6 @@ function AdminDashboard() {
                         </div>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-
-            {activeTab === "approvals" && (
-              <div className="space-y-6">
-                {/* Pending Approvals */}
-                <Card className="floating-card">
-                  <CardHeader>
-                    <CardTitle className="gradient-text">
-                      Pending Approvals ({dashboardData.pendingApprovals.length}
-                      )
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    {dashboardData.pendingApprovals.map((item: any) => (
-                      <div
-                        key={item.id}
-                        className="glassmorphism rounded-xl p-6"
-                      >
-                        <div className="flex items-center space-x-4">
-                          {item.image && (
-                            <img
-                              src={item.image}
-                              alt={item.title}
-                              className="w-20 h-20 object-cover rounded-lg"
-                            />
-                          )}
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                                {item.title}
-                              </h3>
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs capitalize ${getPriorityColor(
-                                  item.priority
-                                )}`}
-                              >
-                                {item.priority}
-                              </span>
-                              <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100 capitalize">
-                                {item.type}
-                              </span>
-                            </div>
-                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
-                              Producer: {item.producer}
-                            </p>
-                            {item.businessName && (
-                              <p className="text-gray-600 dark:text-gray-400 text-sm mb-1">
-                                Business: {item.businessName}
-                              </p>
-                            )}
-                            <p className="text-gray-500 dark:text-gray-400 text-xs">
-                              Submitted: {item.submittedDate}
-                            </p>
-                          </div>
-                          <div className="flex space-x-2">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-green-600"
-                            >
-                              <UserCheck className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-red-600"
-                            >
-                              <Ban className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                            >
-                              <MoreVertical className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
                   </CardContent>
                 </Card>
               </div>

@@ -17,6 +17,7 @@ import { ArrowLeft, Loader2, Camera, Eye } from "lucide-react";
 import { handleApiError } from "@/lib/utils";
 import apiClient from "@/lib/api-client";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type OrderStatus =
   | "pending"
@@ -44,6 +45,7 @@ export default function ProducerOrderDetailsPage() {
   const { open } = useLoginPrompt();
   const queryClient = useQueryClient();
   const [updating, setUpdating] = useState(false);
+  const { t, language } = useLanguage();
 
   const {
     data: order,
@@ -122,13 +124,13 @@ export default function ProducerOrderDetailsPage() {
   if (error) {
     return (
       <div className="container mx-auto p-4">
-        <div className="text-red-500">Error loading order: {error.message}</div>
+        <div className="text-red-500">{t("producer.error.title")}: {error.message}</div>
         <Button
           variant="outline"
           onClick={() => router.back()}
           className="mt-4"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Go back
+          <ArrowLeft className="mr-2 h-4 w-4" /> {t("producer.details.goBack")}
         </Button>
       </div>
     );
@@ -137,13 +139,13 @@ export default function ProducerOrderDetailsPage() {
   if (!order) {
     return (
       <div className="container mx-auto p-4">
-        <div>Order not found</div>
+        <div>{t("orders.detail.notFoundTitle")}</div>
         <Button
           variant="outline"
           onClick={() => router.back()}
           className="mt-4"
         >
-          <ArrowLeft className="mr-2 h-4 w-4" /> Go back
+          <ArrowLeft className="mr-2 h-4 w-4" /> {t("producer.details.goBack")}
         </Button>
       </div>
     );
@@ -160,35 +162,35 @@ export default function ProducerOrderDetailsPage() {
         onClick={() => router.push("/producer/orders")}
         className="mb-6"
       >
-        <ArrowLeft className="mr-2 h-4 w-4" /> Back to Orders
+        <ArrowLeft className="mr-2 h-4 w-4" /> {t("producer.details.backToOrders")}
       </Button>
 
       <div className="grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Order Details</CardTitle>
+              <CardTitle>{t("producer.details.title")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Order Number</span>
+                  <span className="text-muted-foreground">{t("producer.details.orderNumber")}</span>
                   <span>#{order.id.split("-")[0].toUpperCase()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Date</span>
+                  <span className="text-muted-foreground">{t("producer.details.date")}</span>
                   <span>{format(new Date(order.createdAt), "PPPp")}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Status</span>
+                  <span className="text-muted-foreground">{t("producer.details.status")}</span>
                   <Badge className={statusColors[order.status as OrderStatus]}>
-                    {order.status}
+                    {t(`orders.status.${order.status}` as any)}
                   </Badge>
                 </div>
               </div>
 
               <div className="mt-6 border-t pt-6">
-                <h3 className="font-medium mb-4">Products</h3>
+                <h3 className="font-medium mb-4">{t("producer.details.products")}</h3>
                 <div className="space-y-4">
                   {order.items.map((item: any) => (
                     <div
@@ -200,19 +202,19 @@ export default function ProducerOrderDetailsPage() {
                           {item.product?.imageUrl && (
                             <img
                               src={item.product.imageUrl}
-                              alt={item.product.name}
+                              alt={(language === "rw" && (item as any).product?.nameRw) ? (item as any).product?.nameRw : item.product.name}
                               className="w-full h-full object-cover"
                             />
                           )}
                         </div>
                         <div>
                           <p className="font-medium">
-                            {item.product?.name || "Product"}
+                            {(language === "rw" && (item as any).product?.nameRw) ? (item as any).product?.nameRw : (item.product?.name || "Product")}
                           </p>
                           <p className="text-sm text-muted-foreground">
                             Qty: {item.quantity}
-                            {item.size && ` • Size: ${item.size}`}
-                            {item.color && ` • Color: ${item.color}`}
+                            {item.size && ` • ${t("orders.detail.size")}: ${item.size}`}
+                            {item.color && ` • ${t("orders.detail.color")}: ${item.color}`}
                           </p>
                         </div>
                       </div>
@@ -235,7 +237,7 @@ export default function ProducerOrderDetailsPage() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Camera className="mr-2 h-5 w-5" />
-                  Size Evidence Photos
+                  {t("producer.details.sizeEvidence")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -246,7 +248,7 @@ export default function ProducerOrderDetailsPage() {
                         <div className="aspect-square bg-muted rounded-lg overflow-hidden border">
                           <img
                             src={imageUrl}
-                            alt={`Size evidence ${index + 1}`}
+                            alt={`${t("producer.details.sizeEvidence")} ${index + 1}`}
                             className="w-full h-full object-cover hover:scale-105 transition-transform duration-200"
                           />
                         </div>
@@ -258,11 +260,11 @@ export default function ProducerOrderDetailsPage() {
                             onClick={() => window.open(imageUrl, "_blank")}
                           >
                             <Eye className="mr-2 h-4 w-4" />
-                            View Full Size
+                            {t("producer.details.viewFullSize")}
                           </Button>
                         </div>
                         <p className="text-xs text-muted-foreground mt-2 text-center">
-                          Photo {index + 1}
+                          {t("producer.details.photo").replace("{index}", String(index + 1))}
                         </p>
                       </div>
                     )
@@ -270,9 +272,7 @@ export default function ProducerOrderDetailsPage() {
                 </div>
                 <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                   <p className="text-sm text-blue-700 dark:text-blue-300">
-                    <strong>Customer provided these photos</strong> to help you
-                    understand their size requirements. Use these as reference
-                    when preparing their order.
+                    {t("producer.details.photosHelp")}
                   </p>
                 </div>
               </CardContent>
@@ -283,7 +283,7 @@ export default function ProducerOrderDetailsPage() {
           {order.notes && (
             <Card>
               <CardHeader>
-                <CardTitle>Customer Notes</CardTitle>
+                <CardTitle>{t("producer.details.customerNotes")}</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground whitespace-pre-wrap">
@@ -297,24 +297,24 @@ export default function ProducerOrderDetailsPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Order Summary</CardTitle>
+              <CardTitle>{t("producer.details.orderSummary")}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="text-muted-foreground">{t("producer.details.subtotal")}</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Shipping</span>
+                  <span className="text-muted-foreground">{t("producer.details.shipping")}</span>
                   <span>
                     {order.shippingCost
                       ? formatPrice(order.shippingCost)
-                      : "Free"}
+                      : t("producer.details.free")}
                   </span>
                 </div>
                 <div className="border-t pt-2 mt-2 flex justify-between font-medium">
-                  <span>Total</span>
+                  <span>{t("producer.details.total")}</span>
                   <span>{formatPrice(order.total)}</span>
                 </div>
               </div>
@@ -323,22 +323,22 @@ export default function ProducerOrderDetailsPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Customer Information</CardTitle>
+              <CardTitle>{t("producer.details.customerInformation")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <h4 className="font-medium">Contact Information</h4>
+                <h4 className="font-medium">{t("producer.details.contactInformation")}</h4>
                 <p className="text-muted-foreground">
-                  {order.customer?.email || "No email provided"}
+                  {order.customer?.email || t("producer.details.noEmail")}
                 </p>
                 <p className="text-muted-foreground">
-                  {order.customer?.phone || "No phone provided"}
+                  {order.customer?.phone || t("producer.details.noPhone")}
                 </p>
               </div>
               <div>
-                <h4 className="font-medium">Shipping Address</h4>
+                <h4 className="font-medium">{t("producer.details.shippingAddress")}</h4>
                 <p className="text-muted-foreground">
-                  {order.shippingAddress?.name || "No name provided"}
+                  {order.shippingAddress?.name || t("producer.details.noName")}
                   <br />
                   {order.shippingAddress?.address1}
                   <br />
@@ -359,7 +359,7 @@ export default function ProducerOrderDetailsPage() {
           </Card>
 
           <div className="space-y-2">
-            <h3 className="font-medium mb-3">Update Order Status</h3>
+            <h3 className="font-medium mb-3">{t("producer.details.updateStatus")}</h3>
 
             {order.status === "pending" && (
               <>
@@ -371,7 +371,7 @@ export default function ProducerOrderDetailsPage() {
                   {updating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Mark as Processing
+                  {t("producer.details.markProcessing")}
                 </Button>
                 <Button
                   variant="outline"
@@ -382,7 +382,7 @@ export default function ProducerOrderDetailsPage() {
                   {updating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Mark as Handled
+                  {t("producer.details.markHandled")}
                 </Button>
               </>
             )}
@@ -397,7 +397,7 @@ export default function ProducerOrderDetailsPage() {
                   {updating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Mark as Handled
+                  {t("producer.details.markHandled")}
                 </Button>
                 <Button
                   variant="outline"
@@ -408,7 +408,7 @@ export default function ProducerOrderDetailsPage() {
                   {updating ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   ) : null}
-                  Mark as Shipped
+                  {t("producer.details.markShipped")}
                 </Button>
               </>
             )}
@@ -422,7 +422,7 @@ export default function ProducerOrderDetailsPage() {
                 {updating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Mark as Shipped
+                {t("producer.details.markShipped")}
               </Button>
             )}
 
@@ -435,7 +435,7 @@ export default function ProducerOrderDetailsPage() {
                 {updating ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : null}
-                Mark as Delivered
+                {t("producer.details.markDelivered")}
               </Button>
             )}
 
@@ -443,13 +443,13 @@ export default function ProducerOrderDetailsPage() {
               <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
                 <p className="text-sm text-green-700 dark:text-green-300 font-medium">
                   {order.status === "confirmed"
-                    ? "Order Confirmed by Customer"
-                    : "Order Delivered"}
+                    ? t("producer.details.confirmedByCustomer")
+                    : t("producer.details.orderDelivered")}
                 </p>
                 {order.isConfirmedByCustomer &&
                   order.customerConfirmationDate && (
                     <p className="text-xs text-green-600 dark:text-green-400 mt-1">
-                      Confirmed on{" "}
+                      {t("producer.details.confirmedOn")} {" "}
                       {format(new Date(order.customerConfirmationDate), "PPP")}
                     </p>
                   )}

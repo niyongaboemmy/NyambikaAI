@@ -8,6 +8,7 @@ import { Package, Clock, CheckCircle, XCircle, Eye, Edit3 } from "lucide-react";
 import ProducerNotifications from "@/components/ProducerNotifications";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient } from "@/config/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Product {
   id: string;
@@ -69,6 +70,7 @@ function ProducerOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [updateStatus, setUpdateStatus] = useState("");
   const [updateNotes, setUpdateNotes] = useState("");
+  const { t, language } = useLanguage();
 
   const { user } = useAuth();
   const {
@@ -173,8 +175,8 @@ function ProducerOrdersPage() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center py-12">
             <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Error Loading Orders</h2>
-            <p className="text-gray-600 dark:text-gray-400">Failed to load producer orders. Please try again.</p>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">{t("producer.error.title")}</h2>
+            <p className="text-gray-600 dark:text-gray-400">{t("producer.error.desc")}</p>
           </div>
         </div>
       </div>
@@ -188,10 +190,10 @@ function ProducerOrdersPage() {
           {/* Header */}
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Producer Dashboard
+              {t("producer.dashboard.title")}
             </h1>
             <p className="text-gray-600 dark:text-gray-400">
-              Manage orders for Producer {producerId.slice(-1)}
+              {t("producer.dashboard.subtitle").replace("{id}", producerId.slice(-1))}
             </p>
           </div>
           <ProducerNotifications producerId={producerId} />
@@ -201,7 +203,7 @@ function ProducerOrdersPage() {
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Orders</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.totalOrders")}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{orders.length}</p>
                 </div>
                 <Package className="h-8 w-8 text-blue-500" />
@@ -210,7 +212,7 @@ function ProducerOrdersPage() {
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Pending</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.pending")}</p>
                   <p className="text-2xl font-bold text-yellow-600">{orders.filter(o => o.status === 'pending').length}</p>
                 </div>
                 <Clock className="h-8 w-8 text-yellow-500" />
@@ -219,7 +221,7 @@ function ProducerOrdersPage() {
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Processing</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.processing")}</p>
                   <p className="text-2xl font-bold text-purple-600">{orders.filter(o => o.status === 'processing').length}</p>
                 </div>
                 <Package className="h-8 w-8 text-purple-500" />
@@ -228,7 +230,7 @@ function ProducerOrdersPage() {
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Completed</p>
+                  <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.completed")}</p>
                   <p className="text-2xl font-bold text-green-600">{orders.filter(o => o.status === 'delivered').length}</p>
                 </div>
                 <CheckCircle className="h-8 w-8 text-green-500" />
@@ -241,8 +243,8 @@ function ProducerOrdersPage() {
             {orders.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No Orders Yet</h3>
-                <p className="text-gray-600 dark:text-gray-400">You don't have any orders to manage.</p>
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">{t("producer.orders.empty.title")}</h3>
+                <p className="text-gray-600 dark:text-gray-400">{t("producer.orders.empty.desc")}</p>
               </div>
             ) : (
               orders.map((order) => {
@@ -256,26 +258,26 @@ function ProducerOrdersPage() {
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            Order #{order.id.slice(-8)}
+                            {t("producer.order")} #{order.id.slice(-8)}
                           </h3>
                           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[order.status as keyof typeof statusColors]}`}>
                             <StatusIcon className="h-3 w-3" />
-                            {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                            {t(`orders.status.${order.status}` as any)}
                           </span>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
                           <div>
-                            <span className="font-medium">Customer:</span> {order.shippingAddress.fullName}
+                            <span className="font-medium">{t("producer.customer")}:</span> {order.shippingAddress.fullName}
                           </div>
                           <div>
-                            <span className="font-medium">Total:</span> {formatPrice(order.total)}
+                            <span className="font-medium">{t("producer.total")}:</span> {formatPrice(order.total)}
                           </div>
                           <div>
-                            <span className="font-medium">Date:</span> {formatDate(order.createdAt)}
+                            <span className="font-medium">{t("producer.date")}:</span> {formatDate(order.createdAt)}
                           </div>
                         </div>
                         <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                          <span className="font-medium">Items:</span> {order.items.length} product(s)
+                          <span className="font-medium">{t("producer.items")}:</span> {order.items.length} {order.items.length === 1 ? t("producer.productsOne") : t("producer.productsMany")}
                         </div>
                       </div>
                       <div className="flex gap-2">
@@ -284,7 +286,7 @@ function ProducerOrdersPage() {
                           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                         >
                           <Eye className="h-4 w-4" />
-                          View Details
+                          {t("producer.viewDetails")}
                         </button>
                         <button
                           onClick={() => {
@@ -295,7 +297,7 @@ function ProducerOrdersPage() {
                           className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
                         >
                           <Edit3 className="h-4 w-4" />
-                          Update
+                          {t("producer.update")}
                         </button>
                       </div>
                     </div>
@@ -312,7 +314,7 @@ function ProducerOrdersPage() {
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-                      Order Details
+                      {t("producer.orderDetails")}
                     </h2>
                     <button
                       onClick={() => setSelectedOrder(null)}
@@ -325,7 +327,7 @@ function ProducerOrdersPage() {
                   <div className="space-y-6">
                     {/* Customer Info */}
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Customer Information</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t("producer.customerInfo")}</h3>
                       <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 space-y-2">
                         <p><span className="font-medium">Name:</span> {selectedOrder.shippingAddress.fullName}</p>
                         <p><span className="font-medium">Email:</span> {selectedOrder.customerEmail}</p>
@@ -336,7 +338,7 @@ function ProducerOrdersPage() {
 
                     {/* Order Items */}
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Order Items</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t("producer.orderItems")}</h3>
                       <div className="space-y-4">
                         {selectedOrder.items
                           .filter(item => item.product?.producerId === user?.id)
@@ -346,7 +348,7 @@ function ProducerOrdersPage() {
                                 {item.product?.imageUrl ? (
                                   <img
                                     src={item.product.imageUrl}
-                                    alt={item.product.name}
+                                    alt={(language === 'rw' && (item as any).product?.nameRw) ? (item as any).product?.nameRw : item.product.name}
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
@@ -356,10 +358,10 @@ function ProducerOrdersPage() {
                                 )}
                               </div>
                               <div className="flex-1">
-                                <h4 className="font-medium text-gray-900 dark:text-white">{item.product?.name || 'Product'}</h4>
+                                <h4 className="font-medium text-gray-900 dark:text-white">{(language === 'rw' && (item as any).product?.nameRw) ? (item as any).product?.nameRw : (item.product?.name || 'Product')}</h4>
                                 <p className="text-sm text-gray-600 dark:text-gray-300">Qty: {item.quantity}</p>
                                 <p className="text-sm font-medium text-gray-900 dark:text-white">
-                                  {formatPrice(item.price)} each
+                                  {formatPrice(item.price)} {t("orders.detail.each")}
                                 </p>
                               </div>
                               <div className="text-right">
@@ -374,15 +376,15 @@ function ProducerOrdersPage() {
                       {/* Order Summary */}
                       <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
                         <div className="flex justify-between py-2">
-                          <span className="text-gray-600 dark:text-gray-400">Subtotal</span>
+                          <span className="text-gray-600 dark:text-gray-400">{t("producer.subtotal")}</span>
                           <span className="font-medium">{formatPrice(selectedOrder.subtotal)}</span>
                         </div>
                         <div className="flex justify-between py-2">
-                          <span className="text-gray-600 dark:text-gray-400">Shipping</span>
+                          <span className="text-gray-600 dark:text-gray-400">{t("producer.shipping")}</span>
                           <span className="font-medium">{formatPrice(selectedOrder.shipping)}</span>
                         </div>
                         <div className="flex justify-between py-2 text-lg font-bold">
-                          <span>Total</span>
+                          <span>{t("producer.totalLabel")}</span>
                           <span>{formatPrice(selectedOrder.total)}</span>
                         </div>
                       </div>
@@ -390,35 +392,35 @@ function ProducerOrdersPage() {
 
                     {/* Update Status */}
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Update Order</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">{t("producer.updateOrder")}</h3>
                       <div className="space-y-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Status
+                            {t("producer.status")}
                           </label>
                           <select
                             value={updateStatus}
                             onChange={(e) => setUpdateStatus(e.target.value)}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                           >
-                            <option value="pending">Pending</option>
-                            <option value="confirmed">Confirmed</option>
-                            <option value="processing">Processing</option>
-                            <option value="shipped">Shipped</option>
-                            <option value="delivered">Delivered</option>
-                            <option value="cancelled">Cancelled</option>
+                            <option value="pending">{t("orders.status.pending")}</option>
+                            <option value="confirmed">{t("orders.status.confirmed")}</option>
+                            <option value="processing">{t("orders.status.processing")}</option>
+                            <option value="shipped">{t("orders.status.shipped")}</option>
+                            <option value="delivered">{t("orders.status.delivered")}</option>
+                            <option value="cancelled">{t("orders.status.cancelled")}</option>
                           </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                            Notes
+                            {t("producer.notes")}
                           </label>
                           <textarea
                             value={updateNotes}
                             onChange={(e) => setUpdateNotes(e.target.value)}
                             rows={3}
                             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                            placeholder="Add notes about this order..."
+                            placeholder={t("producer.notesPlaceholder")}
                           />
                         </div>
                         <div className="flex gap-3">
@@ -427,13 +429,13 @@ function ProducerOrdersPage() {
                             disabled={updateOrderMutation.isPending}
                             className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg transition-colors"
                           >
-                            {updateOrderMutation.isPending ? "Updating..." : "Update Order"}
+                            {updateOrderMutation.isPending ? t("producer.updating") : t("producer.updateOrder")}
                           </button>
                           <button
                             onClick={() => setSelectedOrder(null)}
                             className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                           >
-                            Cancel
+                            {t("producer.cancel")}
                           </button>
                         </div>
                       </div>

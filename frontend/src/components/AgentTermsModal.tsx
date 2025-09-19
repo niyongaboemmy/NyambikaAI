@@ -8,6 +8,7 @@ import {
   UserInterface,
 } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TermsSection {
   id: string;
@@ -26,6 +27,7 @@ interface TermsResponse {
 
 export default function AgentTermsModal() {
   const { user, setSession } = useAuth() as any;
+  const { t, language, setLanguage } = useLanguage();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [terms, setTerms] = useState<TermsResponse | null>(null);
@@ -40,7 +42,7 @@ export default function AgentTermsModal() {
       if (!isAgentNeedingTerms) return;
       try {
         const res = await apiClient.get<TermsResponse>(
-          API_ENDPOINTS.TERMS_BY_ROLE("agent")
+          `${API_ENDPOINTS.TERMS_BY_ROLE("agent")}&lang=${language}`
         );
         if (!ignore) {
           setTerms(res.data);
@@ -54,13 +56,12 @@ export default function AgentTermsModal() {
             updatedAt: new Date().toISOString().slice(0, 10),
             site: "Nyambika",
             role: "agent",
-            title: "Agent Terms & Conditions",
+            title: t("agentTermsTitle"),
             sections: [
               {
                 id: "scope",
-                heading: "Scope of Work",
-                content:
-                  "Agents help producers subscribe and process payments.",
+                heading: t("termsScopeOfWork"),
+                content: t("termsScopeContent"),
               },
             ],
           });
@@ -72,7 +73,7 @@ export default function AgentTermsModal() {
     return () => {
       ignore = true;
     };
-  }, [isAgentNeedingTerms]);
+  }, [isAgentNeedingTerms, language]);
 
   const accept = async () => {
     try {
@@ -91,7 +92,7 @@ export default function AgentTermsModal() {
       setOpen(false);
     } catch (e) {
       console.error("Failed to accept terms", e);
-      alert("Failed to accept terms. Please try again.");
+      alert(t("acceptTermsFailed"));
     } finally {
       setLoading(false);
     }
@@ -100,29 +101,53 @@ export default function AgentTermsModal() {
   if (!open || !isAgentNeedingTerms) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
 
       {/* Modal */}
-      <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-white/80 dark:bg-gray-900/80 shadow-2xl backdrop-blur-xl overflow-hidden">
-        {/* Header with gradient ring */}
-        <div className="relative px-6 sm:px-8 pt-6 pb-4 bg-gradient-to-r from-purple-500/20 via-pink-500/10 to-blue-500/20">
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 animate-pulse" />
-            <div>
+      <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-white/80 dark:bg-gray-900/80 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col max-h-[90vh]">
+        {/* Header with gradient ring (sticky) */}
+        <div className="sticky top-0 z-10 px-4 sm:px-8 pt-4 pb-3 sm:pt-6 sm:pb-4 bg-gradient-to-r from-purple-500/20 via-pink-500/10 to-blue-500/20 border-b border-white/10">
+          <div className="flex flex-col md:flex-row md:items-center gap-3">
+            <div className="hidden md:inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 animate-pulse" />
+            <div className="flex-1">
               <h2 className="text-xl sm:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
-                {terms?.title || "Agent Terms & Conditions"}
+                {terms?.title || t("agentTermsTitle")}
               </h2>
               <p className="text-xs text-gray-600 dark:text-gray-300">
-                Version {terms?.version} • Updated {terms?.updatedAt}
+                {t("version")} {terms?.version} • {t("updated")}{" "}
+                {terms?.updatedAt}
               </p>
+            </div>
+            {/* Inline language switcher */}
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              {[
+                { code: "en", label: "EN", flag: "🇺🇸" },
+                { code: "rw", label: "RW", flag: "🇷🇼" },
+                { code: "fr", label: "FR", flag: "🇫🇷" },
+              ].map((l) => (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => setLanguage(l.code as any)}
+                  className={`px-2.5 py-1.5 text-xs sm:text-[11px] rounded-md border transition-colors ${
+                    language === l.code
+                      ? "bg-white/70 dark:bg-gray-800/70 border-purple-400 text-purple-700 dark:text-purple-300"
+                      : "bg-white/40 dark:bg-gray-800/40 border-white/20 dark:border-white/10 text-gray-700 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-gray-800/60"
+                  }`}
+                  aria-label={`Switch language to ${l.label}`}
+                >
+                  <span className="mr-1 hidden sm:inline">{l.flag}</span>
+                  {l.label}
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Content */}
-        <div className="px-6 sm:px-8 py-4 max-h-[60vh] overflow-y-auto space-y-4">
+        <div className="px-4 sm:px-8 py-3 sm:py-4 overflow-y-auto space-y-4">
           {terms?.sections?.map((s) => (
             <div
               key={s.id}
@@ -140,39 +165,48 @@ export default function AgentTermsModal() {
           {/* Summary bullet points visually modern */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-              <div className="text-sm font-medium">40% Commission</div>
+              <div className="text-sm font-medium">
+                {t("termsCommissionTitle")}
+              </div>
               <div className="text-xs text-gray-600 dark:text-gray-300">
-                Earn on every subscription you process
+                {t("termsCommissionDesc")}
               </div>
             </div>
             <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
-              <div className="text-sm font-medium">Professional Conduct</div>
+              <div className="text-sm font-medium">
+                {t("termsProfessionalConductTitle")}
+              </div>
               <div className="text-xs text-gray-600 dark:text-gray-300">
-                Follow policies and local regulations
+                {t("termsProfessionalConductDesc")}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="px-6 sm:px-8 py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 bg-white/60 dark:bg-gray-900/60">
+        {/* Actions (sticky) */}
+        <div
+          className="sticky bottom-0 z-10 px-4 sm:px-8 py-3 sm:py-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 bg-white/80 dark:bg-gray-900/80 border-t border-white/10"
+          style={{
+            paddingBottom: "calc(env(safe-area-inset-bottom) + 0.5rem)",
+          }}
+        >
           <button
             type="button"
             disabled={loading}
             onClick={() => {
               // Block app usage until acceptance; just no-op
             }}
-            className="w-full sm:w-auto inline-flex justify-center items-center rounded-xl border border-gray-300/60 dark:border-gray-700 px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
+            className="w-full sm:w-auto inline-flex justify-center items-center rounded-full border border-gray-300/60 dark:border-gray-700 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
           >
-            Read Again
+            {t("readAgain")}
           </button>
           <button
             type="button"
             disabled={loading}
             onClick={accept}
-            className="w-full sm:w-auto inline-flex justify-center items-center rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-5 py-2.5 text-sm font-medium text-white shadow hover:from-purple-500 hover:to-pink-500 disabled:opacity-60"
+            className="w-full sm:w-auto inline-flex justify-center items-center rounded-full bg-gradient-to-r from-purple-600 to-blue-600 px-5 py-3 text-sm font-medium text-white shadow hover:from-blue-600 hover:to-purple-600 disabled:opacity-60"
           >
-            {loading ? "Confirming..." : "I Agree & Continue"}
+            {loading ? t("confirming") : t("agreeAndContinue")}
           </button>
         </div>
       </div>

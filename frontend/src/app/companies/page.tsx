@@ -8,6 +8,7 @@ import { Skeleton } from "../../components/custom-ui/skeleton";
 import { TrendingUp, Star, Sparkles, Package, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { apiClient, handleApiError } from "@/config/api";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 // Hook to fetch companies data
 const useCompanies = () => {
@@ -74,6 +75,7 @@ const generateCompanyMetrics = (company: Company): CompanyMetrics => {
 export default function Companies() {
   const { data: companies = [], isLoading } = useCompanies();
   const router = useRouter();
+  const { t } = useLanguage();
   const [q, setQ] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "performance" | "trending">(
     "performance"
@@ -318,7 +320,7 @@ export default function Companies() {
             transition={{ duration: 0.4 }}
           >
             <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-1">
-              ✨ AI Fashion Brands
+              ✨ {t("companies.title")}
             </h1>
 
             <motion.p
@@ -327,7 +329,7 @@ export default function Companies() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              🇷🇼 Rwanda's innovative fashion entrepreneurs
+              🇷🇼 {t("companies.subtitle")}
             </motion.p>
 
             {/* Minimal Stats */}
@@ -386,7 +388,7 @@ export default function Companies() {
                 {/* Input Field */}
                 <Input
                   type="text"
-                  placeholder="Search brands..."
+                  placeholder={t("companies.searchPlaceholder")}
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   className="w-full pl-10 pr-10 py-2.5 text-sm bg-white/95 dark:bg-gray-800/95 border border-gray-200/60 dark:border-gray-700/60 rounded-xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all duration-200 backdrop-blur-sm hover:bg-white dark:hover:bg-gray-800 shadow-sm hover:shadow-md"
@@ -424,9 +426,9 @@ export default function Companies() {
             {/* Compact Sort Controls */}
             <div className="flex gap-1 p-0.5 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50">
               {[
-                { key: "name", label: "Name", icon: "🏷️" },
-                { key: "performance", label: "Score", icon: "🤖" },
-                { key: "trending", label: "Hot", icon: "🔥" },
+                { key: "name", label: t("companies.sort.name"), icon: "🏷️" },
+                { key: "performance", label: t("companies.sort.score"), icon: "🤖" },
+                { key: "trending", label: t("companies.sort.trending"), icon: "🔥" },
               ].map(({ key, label, icon }) => (
                 <button
                   key={key}
@@ -571,7 +573,7 @@ export default function Companies() {
 
                   {/* Compact Button */}
                   <button className="w-full py-2 px-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-xs font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
-                    View Store
+                    {t("companies.viewStore")}
                   </button>
                 </div>
               </motion.div>
@@ -589,10 +591,10 @@ export default function Companies() {
                 <Search className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                No brands found
+                {t("companies.empty.title")}
               </h3>
               <p className="text-gray-500 dark:text-gray-400">
-                Try adjusting your search or filters
+                {t("companies.empty.desc")}
               </p>
             </motion.div>
           )}

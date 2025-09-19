@@ -4,6 +4,7 @@ import type { Product } from "@/shared/types/product";
 import { Button } from "@/components/custom-ui/button";
 import { Heart, Pencil, Trash, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export type ProductCardProps = {
   product: Product;
@@ -94,6 +95,9 @@ function ProductCard({
   imagePriority,
   imageFetchPriority,
 }: ProductCardProps) {
+  const { language } = useLanguage();
+  const primaryName = language === "rw" ? (product.nameRw || product.name) : product.name;
+  const subtitleName = language === "rw" ? product.name : undefined;
   const canManage = !!(
     isAdmin ||
     (isProducer && product.producerId === currentUserId)
@@ -130,7 +134,7 @@ function ProductCard({
       >
         <Image
           src={product.imageUrl || "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=500"}
-          alt={product.name || "Product image"}
+          alt={primaryName || "Product image"}
           width={600}
           height={600}
           sizes="(min-width: 1024px) 16.66vw, (min-width: 768px) 25vw, 50vw"
@@ -252,16 +256,16 @@ function ProductCard({
               compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
             )}
           >
-            {product.name}
+            {primaryName}
           </h3>
-          {!hideDesc && (
+          {!hideDesc && language === "rw" && subtitleName && (
             <p
               className={cn(
                 "text-gray-600 dark:text-gray-400 truncate mb-2",
                 compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
               )}
             >
-              {product.nameRw}
+              {subtitleName}
             </p>
           )}
           <div className="text-center">

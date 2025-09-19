@@ -30,6 +30,7 @@ import { generateReceipt } from "@/utils/receiptGenerator";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { OrderConfirmationButton } from "@/components/OrderConfirmationButton";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Order {
   id: string;
@@ -131,6 +132,7 @@ function OrdersPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { open } = useLoginPrompt();
+  const { t, language } = useLanguage();
   const [cancellingOrderId, setCancellingOrderId] = useState<string | null>(
     null
   );
@@ -166,8 +168,8 @@ function OrdersPage() {
     onSuccess: (data, orderId) => {
       console.log("Order cancelled successfully:", data);
       toast({
-        title: "Order Cancelled",
-        description: "Your order has been successfully cancelled.",
+        title: t("orders.cancelled"),
+        description: t("orders.cancelledDesc"),
       });
       // Refresh orders list
       queryClient.invalidateQueries({ queryKey: ["orders"] });
@@ -176,7 +178,7 @@ function OrdersPage() {
     onError: (error) => {
       console.error("Cancel order mutation error:", error);
       toast({
-        title: "Cancellation Failed",
+        title: t("orders.cancelFailed"),
         description: handleApiError(error),
         variant: "destructive",
       });
@@ -187,9 +189,7 @@ function OrdersPage() {
   const handleCancelOrder = (orderId: string) => {
     if (cancellingOrderId) return; // Prevent multiple cancellations
 
-    const confirmCancel = window.confirm(
-      "Are you sure you want to cancel this order? This action cannot be undone."
-    );
+    const confirmCancel = window.confirm(t("orders.cancelConfirm"));
 
     if (confirmCancel) {
       setCancellingOrderId(orderId);
@@ -201,13 +201,13 @@ function OrdersPage() {
     try {
       generateReceipt(order);
       toast({
-        title: "Receipt Downloaded",
-        description: "Your receipt has been downloaded successfully.",
+        title: t("orders.receiptDownloaded"),
+        description: t("orders.receiptDownloadedDesc"),
       });
     } catch (error) {
       toast({
-        title: "Download Failed",
-        description: "Failed to generate receipt. Please try again.",
+        title: t("orders.receiptFailed"),
+        description: t("orders.receiptFailedDesc"),
         variant: "destructive",
       });
     }
@@ -284,7 +284,7 @@ function OrdersPage() {
                 className="hover:bg-white/20 dark:hover:bg-slate-800/50 transition-all duration-300 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back
+                {t("orders.back")}
               </Button>
               <div className="flex items-center gap-3">
                 <div className="relative">
@@ -296,18 +296,18 @@ function OrdersPage() {
                 </div>
                 <div>
                   <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-                    My Orders
+                    {t("orders.title")}
                   </h1>
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
-                    AI-Powered Management
+                    {t("orders.aiBadge")}
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="px-3 py-0.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full border border-blue-200/50 dark:border-blue-700/50">
                   <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
-                    {orders.length} Orders
+                    {orders.length} {t("orders.count")}
                   </span>
                 </div>
               </div>
@@ -328,18 +328,17 @@ function OrdersPage() {
                     </div>
                   </div>
                   <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                    Your Order Journey Awaits
+                    {t("orders.empty.title")}
                   </h2>
                   <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
-                    Discover amazing products and start your shopping adventure
-                    with AI-powered recommendations.
+                    {t("orders.empty.subtitle")}
                   </p>
                   <Button
                     onClick={() => router.push("/products")}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-md transition-all duration-300 transform hover:scale-105"
                   >
                     <Zap className="h-5 w-5 mr-2" />
-                    Start Shopping
+                    {t("orders.empty.cta")}
                   </Button>
                 </div>
               </Card>
@@ -395,14 +394,14 @@ function OrdersPage() {
                             <div className="flex flex-col gap-0 mb-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white">
-                                  Order #{order.id.slice(-8).toUpperCase()}
+                                  {t("orders.order")} #{order.id.slice(-8).toUpperCase()}
                                 </h3>
                                 <Badge
                                   className={`${
                                     statusConfig[order.status].color
                                   } font-medium px-2 sm:px-3 py-0.5 text-xs`}
                                 >
-                                  {statusConfig[order.status].label}
+                                  {t(`orders.status.${order.status}` as any)}
                                 </Badge>
                               </div>
                               <div className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-1">
@@ -439,7 +438,7 @@ function OrdersPage() {
                                   item.product?.imageUrl ||
                                   "https://via.placeholder.com/40"
                                 }
-                                alt={item.product?.name || "Product"}
+                                alt={(language === "rw" && (item as any).product?.nameRw) ? (item as any).product?.nameRw : (item.product?.name || "Product")}
                                 className="w-10 h-10 object-cover rounded-full border-2 border-white dark:border-gray-800"
                                 style={{ zIndex: 4 - idx }}
                               />
@@ -452,16 +451,17 @@ function OrdersPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-                              {order.items[0]?.product?.name || "Products"}
-                              {order.items.length > 1 &&
-                                ` +${order.items.length - 1} more`}
+                              {(language === "rw" && (order.items[0] as any)?.product?.nameRw)
+                                ? (order.items[0] as any).product.nameRw
+                                : (order.items[0]?.product?.name || t("home.products"))}
+                              {order.items.length > 1 && ` +${order.items.length - 1} more`}
                             </div>
                             <div className="text-sm text-gray-600 dark:text-gray-400">
                               {order.items.reduce(
                                 (sum, item) => sum + item.quantity,
                                 0
-                              )}{" "}
-                              items • Total quantity
+                              )} {" "}
+                              {t("orders.itemsLabel")}
                             </div>
                           </div>
                         </div>
@@ -477,7 +477,7 @@ function OrdersPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-                              Shipping Address
+                              {t("orders.shippingAddress")}
                             </div>
                             <div className="text-sm text-gray-600 dark:text-gray-400">
                               {shippingAddr.address}
@@ -494,7 +494,7 @@ function OrdersPage() {
                           className="flex-1 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full hover:shadow-md transition-all duration-300 transform hover:scale-105 text-sm"
                         >
                           <Eye className="h-4 w-4" />
-                          View Details
+                          {t("orders.viewDetails")}
                         </Button>
 
                         {/* Customer confirmation button: show when producer marked done or order delivered/completed */}
@@ -525,7 +525,7 @@ function OrdersPage() {
                             className="flex-1 border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full hover:shadow-md transition-all duration-300 transform hover:scale-105 text-sm"
                           >
                             <Download className="h-4 w-4" />
-                            Receipt
+                            {t("orders.receipt")}
                           </Button>
                         )}
 
@@ -539,8 +539,8 @@ function OrdersPage() {
                           >
                             <X className="h-4 w-4" />
                             {cancellingOrderId === order.id
-                              ? "Cancelling..."
-                              : "Cancel"}
+                              ? t("orders.cancelling")
+                              : t("orders.cancel")}
                           </Button>
                         )}
                       </div>

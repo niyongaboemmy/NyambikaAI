@@ -13,6 +13,7 @@ import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
 import SelectedCompanyBar from "./feed/SelectedCompanyBar";
 import ProducerEncouragementBanner from "@/components/ProducerEncouragementBanner";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HomeProductsProps {
   searchParams?: {
@@ -34,6 +35,7 @@ function CategoryCard({
   onClick: () => void;
   productCount?: number;
 }) {
+  const { t } = useLanguage();
   const getCategoryImage = (category: any) => {
     if (category.imageUrl) {
       return category.imageUrl;
@@ -141,7 +143,7 @@ function CategoryCard({
           </h3>
           {productCount !== undefined && (
             <p className="text-white/90 text-sm font-medium drop-shadow">
-              {productCount} items ✨
+              {productCount} {t("home.items")} ✨
             </p>
           )}
         </div>
@@ -295,6 +297,7 @@ function HomeProductsSkeleton() {
 
 export default function HomeProducts({ searchParams }: HomeProductsProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const searchParamsStr = searchParams
     ? new URLSearchParams(searchParams as Record<string, string>).toString()
     : "";
@@ -631,7 +634,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-6">
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white">
-              💕 Brands Stories
+              💕 {t("home.brands")}
             </h2>
             <div className="flex gap-1">
               <div className="w-2 h-2 bg-pink-400 rounded-full animate-ping" />
@@ -713,7 +716,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white">
-                🎀 Shop by Category
+                🎀 {t("home.shopByCategory")}
               </h2>
               <div className="flex items-center gap-1">
                 <span
@@ -758,12 +761,12 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
             <div className="flex items-center gap-4">
               <h2 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold text-black dark:text-white">
                 {selectedCompany
-                  ? `${selectedCompany.name} Products`
-                  : "🔥 Trending Products"}
+                  ? `${selectedCompany.name} ${t("home.products")}`
+                  : `🔥 ${t("home.trending")}`}
               </h2>
               <div className="flex items-center gap-3">
                 <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse shadow-xl">
-                  HOT 🔥
+                  {t("home.hot")} 🔥
                 </span>
                 <div className="flex gap-2">
                   <span
@@ -831,7 +834,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                           🎉
                         </span>
                         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
-                          More Amazing Products Await!
+                          {t("home.moreTitle")}
                         </h3>
                         <span
                           className="text-2xl sm:text-3xl animate-bounce"
@@ -842,9 +845,9 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                       </div>
 
                       <p className="text-white/90 text-sm sm:text-base md:text-lg mb-6 max-w-2xl mx-auto">
-                        Discover {activeProducerProducts.length - 10}+ more
-                        incredible products in our full collection. Find your
-                        perfect style match! 💖
+                        {t("home.moreDesc.prefix")}{" "}
+                        {activeProducerProducts.length - 10}
+                        {t("home.moreDesc.suffix")} 💖
                       </p>
 
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -852,12 +855,12 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                           onClick={() => router.push("/products-search")}
                           className="bg-white text-purple-600 hover:bg-gray-50 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg text-sm sm:text-base w-full sm:w-auto"
                         >
-                          🔍 Browse All Products
+                          🔍 {t("home.browseAll")}
                         </Button>
 
                         <div className="flex items-center gap-2 text-white/80 text-xs sm:text-sm">
                           <span className="animate-pulse">⚡</span>
-                          <span>Advanced search & filters available</span>
+                          <span>{t("home.advancedSearch")}</span>
                           <span className="animate-pulse">⚡</span>
                         </div>
                       </div>
@@ -865,23 +868,15 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   </div>
                 </div>
               )}
-
-              {/* Producer Encouragement Banner - Show to non-producers */}
-              {/* {user && user.role !== 'producer' && ( */}
-              <div className="mt-12">
-                <ProducerEncouragementBanner />
-              </div>
-              {/* )} */}
             </>
           ) : (
             <div className="col-span-full py-12 text-center">
               <div className="text-6xl mb-4">📦</div>
               <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
-                No products found
+                {t("home.noProducts")}
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
-                We couldn't find any products matching your criteria. Try
-                adjusting your filters.
+                {t("home.noProductsDesc")}
               </p>
               <Button
                 onClick={() => {
