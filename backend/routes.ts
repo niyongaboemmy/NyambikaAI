@@ -114,36 +114,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         site: "Nyambika",
       };
 
-  // Generic: current user accepts terms (agent or producer)
-  app.post("/api/terms/accept", requireAuth, async (req: any, res) => {
-    try {
-      const user = await storage.getUserById(req.userId);
-      if (!user) return res.status(404).json({ message: "User not found" });
+      // Generic: current user accepts terms (agent or producer)
+      app.post("/api/terms/accept", requireAuth, async (req: any, res) => {
+        try {
+          const user = await storage.getUserById(req.userId);
+          if (!user) return res.status(404).json({ message: "User not found" });
 
-      const now = new Date();
-      const updated = await storage.updateUser(user.id, {
-        // @ts-ignore columns exist in schema
-        termsAccepted: true as any,
-        // @ts-ignore
-        termsAcceptedAt: now as any,
-      } as any);
+          const now = new Date();
+          const updated = await storage.updateUser(user.id, {
+            // @ts-ignore columns exist in schema
+            termsAccepted: true as any,
+            // @ts-ignore
+            termsAcceptedAt: now as any,
+          } as any);
 
-      const { password: _pw, fullName, ...userWithoutPassword } =
-        (updated || user) as any;
-      return res.json({
-        ok: true,
-        user: {
-          ...userWithoutPassword,
-          name: fullName || user.email.split("@")[0],
-          termsAccepted: true,
-          termsAcceptedAt: now,
-        },
+          const {
+            password: _pw,
+            fullName,
+            ...userWithoutPassword
+          } = (updated || user) as any;
+          return res.json({
+            ok: true,
+            user: {
+              ...userWithoutPassword,
+              name: fullName || user.email.split("@")[0],
+              termsAccepted: true,
+              termsAcceptedAt: now,
+            },
+          });
+        } catch (e) {
+          console.error("Error in POST /api/terms/accept:", e);
+          return res.status(500).json({ message: "Failed to accept terms" });
+        }
       });
-    } catch (e) {
-      console.error("Error in POST /api/terms/accept:", e);
-      return res.status(500).json({ message: "Failed to accept terms" });
-    }
-  });
 
       // Agent-specific terms
       if (role === "agent") {
@@ -197,7 +200,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: "eligibility",
               heading: "Eligibility & Verification",
               content:
-                "Producers must provide accurate business information and pass verification. An active subscription is required to sell on NyambikaAI.",
+                "Producers must provide accurate business information and pass verification. An active subscription is required to sell on Nyambika.",
             },
             {
               id: "products",
@@ -215,7 +218,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               id: "returns",
               heading: "Returns, Refunds & Disputes",
               content:
-                "Follow our returns and dispute policy. Resolve customer complaints professionally. NyambikaAI may mediate when needed.",
+                "Follow our returns and dispute policy. Resolve customer complaints professionally. Nyambika may mediate when needed.",
             },
             {
               id: "pricing",
@@ -3465,7 +3468,12 @@ try {
             const activeSubs = await db
               .select()
               .from(subscriptions)
-              .where(and(eq(subscriptions.userId, req.userId), eq(subscriptions.status, "active")))
+              .where(
+                and(
+                  eq(subscriptions.userId, req.userId),
+                  eq(subscriptions.status, "active")
+                )
+              )
               .limit(1);
             let maxProductsLimit: number | null = null;
             if (activeSubs && activeSubs[0]) {
@@ -3478,7 +3486,10 @@ try {
                   .limit(1);
                 if (plans && plans[0]) {
                   const mp = (plans[0] as any).maxProducts;
-                  maxProductsLimit = typeof mp === "number" ? mp : parseInt(String(mp || 0), 10) || 0;
+                  maxProductsLimit =
+                    typeof mp === "number"
+                      ? mp
+                      : parseInt(String(mp || 0), 10) || 0;
                 }
               }
             }
@@ -3494,8 +3505,7 @@ try {
               const currentCount = current.length;
               if (currentCount >= maxProductsLimit) {
                 return res.status(403).json({
-                  message:
-                    `Product limit reached for your current plan. Max allowed products: ${maxProductsLimit}. Please remove some products or upgrade your plan.`,
+                  message: `Product limit reached for your current plan. Max allowed products: ${maxProductsLimit}. Please remove some products or upgrade your plan.`,
                   code: "PRODUCT_LIMIT_REACHED",
                   maxProducts: maxProductsLimit,
                   currentProducts: currentCount,
@@ -3504,7 +3514,10 @@ try {
             }
           }
         } catch (limitErr) {
-          console.warn("Failed to evaluate product limit: ", (limitErr as any)?.message || limitErr);
+          console.warn(
+            "Failed to evaluate product limit: ",
+            (limitErr as any)?.message || limitErr
+          );
           // Do not block creation on evaluation error; proceed gracefully
         }
 
@@ -3554,7 +3567,12 @@ try {
           const activeSubs = await db
             .select()
             .from(subscriptions)
-            .where(and(eq(subscriptions.userId, options.producerId), eq(subscriptions.status, "active")))
+            .where(
+              and(
+                eq(subscriptions.userId, options.producerId),
+                eq(subscriptions.status, "active")
+              )
+            )
             .limit(1);
           if (activeSubs && activeSubs[0]) {
             const planId = (activeSubs[0] as any).planId as string;
@@ -3566,16 +3584,26 @@ try {
                 .limit(1);
               if (plans && plans[0]) {
                 const mp = (plans[0] as any).maxProducts;
-                maxProductsLimit = typeof mp === "number" ? mp : parseInt(String(mp || 0), 10) || 0;
+                maxProductsLimit =
+                  typeof mp === "number"
+                    ? mp
+                    : parseInt(String(mp || 0), 10) || 0;
               }
             }
           }
 
-          if (maxProductsLimit > 0 && Array.isArray(list) && list.length > maxProductsLimit) {
+          if (
+            maxProductsLimit > 0 &&
+            Array.isArray(list) &&
+            list.length > maxProductsLimit
+          ) {
             return res.json(list.slice(0, maxProductsLimit));
           }
         } catch (e) {
-          console.warn("Failed to enforce listing limit: ", (e as any)?.message || e);
+          console.warn(
+            "Failed to enforce listing limit: ",
+            (e as any)?.message || e
+          );
           // Fall through to return full list if enforcement fails
         }
       }
