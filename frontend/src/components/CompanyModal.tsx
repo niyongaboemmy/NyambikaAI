@@ -165,7 +165,7 @@ export default function CompanyModal() {
 
         <form onSubmit={onSubmit} className="space-y-4 relative px-2 md:px-3">
           <div
-            className="grid grid-cols-1 gap-4"
+            className="grid grid-cols-1 gap-4 overflow-y-auto"
             style={{
               height: "calc(100vh - 120px)",
             }}
