@@ -21,6 +21,7 @@ import {
   Loader2,
   Sparkles,
 } from "lucide-react";
+import { PexelsImageModal } from "@/components/PexelsImageModal";
 
 export default function CompanyModal() {
   const {
@@ -42,6 +43,7 @@ export default function CompanyModal() {
     logoUrl: "",
     websiteUrl: "",
   });
+  const [imagePickerOpen, setImagePickerOpen] = useState(false);
   const isEdit = useMemo(() => !!company?.id, [company?.id]);
   const isFormValid = useMemo(() => {
     return (
@@ -108,8 +110,8 @@ export default function CompanyModal() {
       }}
     >
       <DialogContent
-        className="max-w-2xl rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 p-3"
-        style={{ maxHeight: "99vh" }}
+        className="max-w-2xl rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 p-3 flex flex-col"
+        style={{ maxHeight: "100dvh" }}
         onInteractOutside={(e) => {
           // Disallow dismiss while company is missing or loading
           if (isMissing || isLoading) e.preventDefault();
@@ -164,12 +166,9 @@ export default function CompanyModal() {
           </div>
         )}
 
-        <form onSubmit={onSubmit} className="space-y-4 relative px-2 md:px-3">
+        <form onSubmit={onSubmit} className="space-y-4 relative px-2 md:px-3 flex-1 flex flex-col">
           <div
-            className="grid grid-cols-1 gap-4 overflow-y-auto"
-            style={{
-              height: "calc(100vh - 300px)",
-            }}
+            className="flex-1 grid grid-cols-1 gap-4 overflow-y-auto pb-24"
           >
             <FormInput
               id="name"
@@ -243,6 +242,36 @@ export default function CompanyModal() {
               placeholder="https://..."
               disabled={isLoading}
             />
+            {/* Image picker button and preview */}
+            <div className="flex items-center gap-3 -mt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setImagePickerOpen(true)}
+                disabled={isLoading}
+              >
+                Choose Logo Image
+              </Button>
+              {form.logoUrl && (
+                <div className="flex items-center gap-2">
+                  <img
+                    src={form.logoUrl}
+                    alt="Company logo preview"
+                    className="w-10 h-10 rounded-md object-cover ring-1 ring-black/10"
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => setForm({ ...form, logoUrl: "" })}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              )}
+            </div>
             <FormInput
               id="websiteUrl"
               type="url"
@@ -256,53 +285,67 @@ export default function CompanyModal() {
               disabled={isLoading}
             />
           </div>
-          <div className="flex items-center justify-between gap-2 pt-2">
-            {/* Logout button on the left to allow user to exit flow */}
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => {
-                logout();
-              }}
-              disabled={isLoading}
-              className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-            >
-              Logout
-            </Button>
-
-            {/* Form action buttons on the right */}
-            <div className="flex justify-end gap-2">
-              {/* Allow closing only when editing OR when required fields are valid */}
+          {/* Sticky action bar ensures buttons remain visible above keyboard */}
+          <div className="sticky bottom-0 -mx-3 px-3 pt-2 pb-2 bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 dark:supports-[backdrop-filter]:bg-gray-900/80 border-t border-gray-200/60 dark:border-gray-700/60">
+            <div className="flex items-center justify-between gap-2">
+              {/* Logout button on the left to allow user to exit flow */}
               <Button
                 type="button"
-                variant="secondary"
-                onClick={() => setModalOpen(false)}
-                disabled={isMissing || isLoading}
-                className="min-w-[80px]"
+                variant="outline"
+                onClick={() => {
+                  logout();
+                }}
+                disabled={isLoading}
+                className="text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
               >
-                Close
+                Logout
               </Button>
-              <Button
-                type="submit"
-                disabled={!isFormValid || isLoading}
-                className="min-w-[140px] bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all duration-200 transform hover:scale-105"
-              >
-                {isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    {isEdit ? "Saving..." : "Creating..."}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    {isEdit ? "Save Changes" : "Create Company"}
-                  </div>
-                )}
-              </Button>
+
+              {/* Form action buttons on the right */}
+              <div className="flex justify-end gap-2">
+                {/* Allow closing only when editing OR when required fields are valid */}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setModalOpen(false)}
+                  disabled={isMissing || isLoading}
+                  className="min-w-[80px]"
+                >
+                  Close
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!isFormValid || isLoading}
+                  className="min-w-[140px] bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium transition-all duration-200 transform hover:scale-105"
+                >
+                  {isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {isEdit ? "Saving..." : "Creating..."}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4" />
+                      {isEdit ? "Save Changes" : "Create Company"}
+                    </div>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </form>
       </DialogContent>
+      {/* Pexels / Upload Image Modal */}
+      <PexelsImageModal
+        isOpen={imagePickerOpen}
+        onClose={() => setImagePickerOpen(false)}
+        onSelect={(url: string) => {
+          setForm((prev) => ({ ...prev, logoUrl: url }));
+        }}
+        aspectRatio="square"
+        searchValue={(company?.name || form.name || "") + " logo"}
+        fixedSize="medium"
+      />
     </Dialog>
   );
 }
