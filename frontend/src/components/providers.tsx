@@ -121,9 +121,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
                               <VerifiedContentGate className={containerClass}>
                                 <>
                                   <ClientOnly>
-                                    <DOMSafetyWrapper />
-                                    <NavigationProgress />
-                                    <NavigationEvents />
                                     <LoginModal />
                                     <UserWalletDialog />
                                     <ChangePasswordDialogWrapper />
