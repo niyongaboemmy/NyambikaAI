@@ -14,8 +14,8 @@ export function Toaster() {
   if (!mounted) return null;
 
   return (
-    <div className="fixed top-0 z-[100] flex max-h-screen w-full flex-col-reverse p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px] pointer-events-none">
-      <div className="space-y-2 pointer-events-auto">
+    <div className="fixed bottom-0 right-0 z-[40] flex max-h-screen p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px] pointer-events-none">
+      <div className="space-y-2 pointer-events-auto inline-flex flex-col w-auto">
         {toasts.map(function ({ id, title, description, action, variant, duration }) {
           return (
             <ToastItem
