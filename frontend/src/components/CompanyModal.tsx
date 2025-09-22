@@ -109,9 +109,6 @@ export default function CompanyModal() {
     >
       <DialogContent
         className="max-w-2xl rounded-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 p-3"
-        style={{
-          height: "calc(100vh - 80px)",
-        }}
         onInteractOutside={(e) => {
           // Disallow dismiss while company is missing or loading
           if (isMissing || isLoading) e.preventDefault();
@@ -167,7 +164,12 @@ export default function CompanyModal() {
         )}
 
         <form onSubmit={onSubmit} className="space-y-4 relative px-2 md:px-3">
-          <div className="grid grid-cols-1 gap-4">
+          <div
+            className="grid grid-cols-1 gap-4"
+            style={{
+              height: "calc(100vh - 120px)",
+            }}
+          >
             <FormInput
               id="name"
               label="Company Name"
