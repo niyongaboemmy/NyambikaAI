@@ -112,11 +112,21 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Trigger refresh when user changes AND token is available
   useEffect(() => {
-    // load on login change
+    if (!user || user.role !== 'producer') return;
+    if (!token) return; // wait for token to be populated from localStorage
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id, user?.role]);
+  }, [user?.id, user?.role, token]);
+
+  // Also trigger refresh specifically when token becomes available after login
+  useEffect(() => {
+    if (!token) return;
+    if (!user || user.role !== 'producer') return;
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   const value: CompanyContextType = {
     company,
