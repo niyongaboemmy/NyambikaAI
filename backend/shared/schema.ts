@@ -31,6 +31,10 @@ export const users = pgTable("users", {
   // Agent terms & conditions acceptance
   termsAccepted: boolean("terms_accepted").default(false),
   termsAcceptedAt: timestamp("terms_accepted_at"),
+  // Referral network fields (for agents)
+  referralCode: text("referral_code").unique(), // unique, shareable code
+  referredBy: varchar("referred_by"), // parent agent id (nullable) - self-referential FK omitted to avoid TS circular ref
+  isActive: boolean("is_active").default(true), // used to block commissions for inactive/banned accounts
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -234,6 +238,28 @@ export const subscriptionPayments = pgTable("subscription_payments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Agent referral commissions (level 1 and 2 passive earnings)
+export const agentCommissions = pgTable("agent_commissions", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  // The agent who receives this referral commission
+  agentId: varchar("agent_id").references(() => users.id).notNull(),
+  // The direct agent whose action triggered this commission (the managed agent)
+  sourceAgentId: varchar("source_agent_id").references(() => users.id).notNull(),
+  // The subscription payment that generated this event
+  subscriptionPaymentId: varchar("subscription_payment_id")
+    .references(() => subscriptionPayments.id)
+    .notNull(),
+  // Level: 1 (parent of source) or 2 (grandparent of source)
+  level: integer("level").notNull(),
+  // Commission amount and status
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: text("status").notNull().default("pending"), // pending, approved, paid, cancelled
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Notifications table
 export const notifications = pgTable("notifications", {
   id: varchar("id")
@@ -338,6 +364,7 @@ export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ createdAt: true });
 
 export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPayments).omit({ createdAt: true });
+export const insertAgentCommissionSchema = createInsertSchema(agentCommissions).omit({ createdAt: true });
 
 export const insertNotificationSchema = createInsertSchema(notifications).omit({ createdAt: true });
 
@@ -391,6 +418,9 @@ export type SubscriptionPayment = typeof subscriptionPayments.$inferSelect;
 export type InsertSubscriptionPayment = z.infer<
   typeof insertSubscriptionPaymentSchema
 >;
+
+export type AgentCommission = typeof agentCommissions.$inferSelect;
+export type InsertAgentCommission = z.infer<typeof insertAgentCommissionSchema>;
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;

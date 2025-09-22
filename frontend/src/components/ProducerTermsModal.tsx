@@ -104,7 +104,7 @@ export default function ProducerTermsModal() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
-      <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-white/80 dark:bg-gray-900/80 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-white/80 dark:bg-gray-900/80 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col max-h-[99vh]">
         <div className="sticky top-0 z-10 px-4 sm:px-8 pt-4 pb-3 sm:pt-6 sm:pb-4 bg-gradient-to-r from-indigo-500/20 via-blue-500/10 to-cyan-500/20 border-b border-white/10">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
             <div className="hidden md:inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-500 animate-pulse" />
@@ -112,7 +112,7 @@ export default function ProducerTermsModal() {
               <h2 className="text-xl sm:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600">
                 {terms?.title || t("producerTermsTitle")}
               </h2>
-              <p className="text-xs text-gray-600 dark:text-gray-300">
+              <p className="hidden md:block text-xs text-gray-600 dark:text-gray-300">
                 {t("version")} {terms?.version} • {t("updated")}{" "}
                 {terms?.updatedAt}
               </p>
@@ -143,7 +143,7 @@ export default function ProducerTermsModal() {
           </div>
         </div>
 
-        <div className="px-4 sm:px-8 py-3 sm:py-4 overflow-y-auto space-y-4">
+        <div className="px-4 sm:px-6 py-3 sm:py-3 overflow-y-auto space-y-3">
           {terms?.sections?.map((s) => (
             <div
               key={s.id}
@@ -182,14 +182,14 @@ export default function ProducerTermsModal() {
             paddingBottom: "calc(env(safe-area-inset-bottom) + 0.5rem)",
           }}
         >
-          <button
+          {/* <button
             type="button"
             disabled={loading}
             onClick={() => {}}
             className="w-full sm:w-auto inline-flex justify-center items-center rounded-full border border-gray-300/60 dark:border-gray-700 px-5 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50/80 dark:hover:bg-gray-800/80"
           >
             {t("readAgain")}
-          </button>
+          </button> */}
           <button
             type="button"
             disabled={loading}

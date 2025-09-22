@@ -9,8 +9,99 @@ import {
   subscriptionPayments,
   companies,
   subscriptionPlans,
+  userWallets,
+  walletPayments,
+  paymentSettings,
+  agentCommissions,
 } from "./shared/schema.dialect";
 import { eq, and, desc, count, sum, sql } from "drizzle-orm";
+
+const isMySQL = String(process.env.DB_DIALECT || "postgres").toLowerCase() === "mysql";
+
+// Minimal helpers to handle wallet credits
+async function ensureUserWallet(userId: string) {
+  let [wallet] = await db
+    .select()
+    .from(userWallets)
+    .where(eq(userWallets.userId, userId))
+    .limit(1);
+  if (!wallet) {
+    const vals: any = { id: crypto.randomUUID(), userId, balance: "0", status: "active" };
+    if (isMySQL) {
+      await db.insert(userWallets).values(vals).execute();
+      wallet = vals as any;
+    } else {
+      const [created] = await db.insert(userWallets).values(vals).returning();
+      wallet = created as any;
+    }
+  }
+  return wallet as any;
+}
+
+// Generate a unique referral code (uppercase alphanumeric), ensuring uniqueness in users table
+async function generateUniqueReferralCode(length: number = 8): Promise<string> {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoid ambiguous chars
+  function randomCode() {
+    let s = "";
+    for (let i = 0; i < length; i++) {
+      s += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    return s;
+  }
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const code = randomCode();
+    const [exists] = await db
+      .select({ id: users.id })
+      .from(users)
+      .where(eq(users.referralCode, code))
+      .limit(1);
+    if (!exists) return code;
+  }
+  // Last resort, use crypto fallback
+  return crypto.randomUUID().replace(/-/g, "").slice(0, length).toUpperCase();
+}
+
+async function creditWallet(
+  userId: string,
+  amountNumber: number,
+  description: string,
+  externalReference?: string
+) {
+  if (!amountNumber || amountNumber <= 0) return;
+  const wallet = await ensureUserWallet(userId);
+  const currentBalance = Number(wallet.balance) || 0;
+  const newBalance = currentBalance + amountNumber;
+  const paymentVals: any = {
+    id: crypto.randomUUID(),
+    walletId: wallet.id,
+    userId,
+    type: "credit",
+    amount: String(amountNumber.toFixed(2)),
+    currency: "RWF",
+    method: "system",
+    provider: null as any,
+    phone: null as any,
+    status: "completed",
+    externalReference: externalReference || null,
+    description,
+  };
+  if (isMySQL) {
+    await db.insert(walletPayments).values(paymentVals).execute();
+    await db
+      .update(userWallets)
+      .set({ balance: String(newBalance.toFixed(2)), updatedAt: new Date() as any })
+      .where(eq(userWallets.id, wallet.id))
+      .execute();
+  } else {
+    await db.insert(walletPayments).values(paymentVals).returning();
+    await db
+      .update(userWallets)
+      .set({ balance: String(newBalance.toFixed(2)), updatedAt: new Date() as any })
+      .where(eq(userWallets.id, wallet.id))
+      .returning();
+  }
+}
 
 // Admin Stats Endpoint
 export async function getAdminStats(_req: Request, res: Response) {
@@ -392,11 +483,77 @@ export async function verifyProducer(req: Request, res: Response) {
 export async function verifyAgent(req: Request, res: Response) {
   try {
     const { agentId } = req.params;
+    // Fetch current agent state to detect first-time verification and referredBy
+    const [agent] = await db
+      .select({ id: users.id, role: users.role, isVerified: users.isVerified, referredBy: users.referredBy, referralCode: users.referralCode })
+      .from(users)
+      .where(eq(users.id, agentId))
+      .limit(1);
 
     await db
       .update(users)
       .set({ isVerified: true })
       .where(eq(users.id, agentId));
+
+    // On first-time verification, if this agent was referred by a parent agent, credit signup bonus to parent
+    if (agent && agent.isVerified === false && String(agent.role).toLowerCase() === "agent") {
+      // Ensure the agent now has a referralCode for future sharing
+      try {
+        if (!agent.referralCode) {
+          const code = await generateUniqueReferralCode();
+          if (isMySQL) {
+            await db.update(users).set({ referralCode: code }).where(eq(users.id, agentId)).execute();
+          } else {
+            await db.update(users).set({ referralCode: code }).where(eq(users.id, agentId)).returning();
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to set referral code on verify:", (e as any)?.message || e);
+      }
+
+      if (agent.referredBy) {
+        try {
+          let bonus = 0;
+          try {
+            const [setting] = await db
+              .select()
+              .from(paymentSettings)
+              .where(eq(paymentSettings.name, "agent_signup_bonus"))
+              .limit(1);
+            bonus = Number((setting as any)?.amountInRwf || 0) || 0;
+          } catch {}
+          // Default reward is 500 RWF if not configured in settings
+          if (!bonus) bonus = 500;
+          await creditWallet(
+            agent.referredBy as string,
+            bonus,
+            "Agent signup referral bonus (admin verified)",
+            `AG-ADMIN-VERIFY-${agentId}`
+          );
+
+          // Also record a commission row so it appears in the commissions API
+          const commissionVals: any = {
+            id: crypto.randomUUID(),
+            agentId: agent.referredBy,
+            sourceAgentId: agentId,
+            subscriptionPaymentId: null,
+            level: 1,
+            amount: String(Number(bonus).toFixed(2)),
+            status: "completed",
+          };
+          if (isMySQL) {
+            await db.insert(agentCommissions).values(commissionVals).execute();
+          } else {
+            await db.insert(agentCommissions).values(commissionVals).returning();
+          }
+        } catch (e) {
+          console.warn(
+            "Failed to credit parent on admin verify:",
+            (e as any)?.message || e
+          );
+        }
+      }
+    }
 
     res.json({ message: "Agent verified successfully" });
   } catch (error) {

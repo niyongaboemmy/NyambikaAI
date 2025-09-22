@@ -136,6 +136,11 @@ export default function RoleBasedNavigation() {
           label: "producersManagement",
           icon: Users,
         },
+        {
+          href: "/agent/referrals",
+          label: "referrals",
+          icon: Users,
+        },
       ],
     },
   };
@@ -723,7 +728,7 @@ export default function RoleBasedNavigation() {
                                 <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                               )}
                             </div>
-                            <span className="font-medium">{item.label}</span>
+                            <span className="font-medium">{t(item.label)}</span>
                           </DropdownMenuItem>
                         );
                       })}

@@ -42,6 +42,7 @@ export default function Register() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [formData, setFormData] = useState({
     role: "" as "customer" | "producer" | "agent" | "",
     name: "",
@@ -144,12 +145,14 @@ export default function Register() {
     setIsLoading(true);
     try {
       const fullPhone = `${dialCode}${formData.phone.replace(/\D/g, "")}`;
+      const ref = searchParams.get("ref");
       if (oauthToken) {
         // Finalize OAuth registration
         const resp = await apiClient.post("/api/auth/register-oauth", {
           oauthToken,
           role: formData.role,
           phone: fullPhone,
+          ...(ref ? { ref } : {}),
         });
         const { token, user } = resp.data || {};
         if (token) {
@@ -169,7 +172,8 @@ export default function Register() {
           formData.password,
           formData.name,
           formData.role as "customer" | "producer" | "agent",
-          fullPhone
+          fullPhone,
+          ref
         );
         router.push("/");
       }
@@ -315,21 +319,24 @@ export default function Register() {
     }
   }, [step]);
 
-  // Load saved role preference on mount; initialize OAuth mode if present
+  // Initialize role strictly by explicit role param; initialize OAuth prefill
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem("nyambika.role");
-      if (saved === "customer" || saved === "producer" || saved === "agent") {
-        setFormData((prev) => ({ ...prev, role: saved as any }));
-      }
-    } catch {}
+    // Strict role defaulting: role param => that role, else customer
+    const roleParam = (searchParams.get("role") || "").toLowerCase();
+    const validRoles = ["customer", "producer", "agent"] as const;
+    const isValid = (validRoles as readonly string[]).includes(roleParam);
+    const nextRole: "customer" | "producer" | "agent" = isValid
+      ? (roleParam as "customer" | "producer" | "agent")
+      : "customer";
+    setFormData((prev) => ({ ...prev, role: nextRole }));
+
+    // OAuth prefill (does not change role)
     try {
       const oauth = searchParams.get("oauth");
       const email = searchParams.get("email") || "";
       const name = searchParams.get("name") || "";
       const hasToken = !!searchParams.get("oauthToken");
       if (oauth && hasToken) {
-        // Prefill and lock to Step 1 initially (role selection), then Step 2 to confirm details
         setFormData((prev) => ({ ...prev, email, name }));
       }
     } catch {}

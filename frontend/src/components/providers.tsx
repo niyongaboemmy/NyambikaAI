@@ -30,6 +30,7 @@ import { ChangePasswordProvider } from "@/contexts/ChangePasswordContext";
 import { ChangePasswordDialogWrapper } from "@/components/ChangePasswordDialogWrapper";
 import AgentTermsModal from "@/components/AgentTermsModal";
 import ProducerTermsModal from "@/components/ProducerTermsModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ClientOnly component to wrap client-side only components
 function ClientOnly({ children }: { children: React.ReactNode }) {
@@ -42,6 +43,32 @@ function ClientOnly({ children }: { children: React.ReactNode }) {
   if (!mounted) return null;
 
   return <>{children}</>;
+}
+
+// Gate rendering of terms modals using auth context (must be under AuthProvider)
+function TermsModalsGate() {
+  const { user } = useAuth() as any;
+  if (!user?.isVerified) return null;
+  return (
+    <>
+      <AgentTermsModal />
+      <ProducerTermsModal />
+    </>
+  );
+}
+
+// Gate that hides children when the user exists but is not verified
+function VerifiedContentGate({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  const { user } = useAuth() as any;
+  const shouldHide = !!user && user.isVerified === false;
+  if (shouldHide) return null;
+  return <div className={className}>{children}</div>;
 }
 
 // Create a client-side only wrapper for AuthProvider
@@ -91,29 +118,27 @@ export function Providers({ children }: { children: React.ReactNode }) {
                         <AnimatedAIBackground>
                           <RouteProtection>
                             <ProducerSubscriptionGuard>
-                              <div className={containerClass}>
-                                <ClientOnly>
-                                  <DOMSafetyWrapper />
-                                  <NavigationProgress />
-                                  <NavigationEvents />
-                                  <GlobalAuthLoader />
-                                  <LoginModal />
-                                  <AgentTermsModal />
-                                  <ProducerTermsModal />
-                                  <UserWalletDialog />
-                                  <ChangePasswordDialogWrapper />
-                                  {children}
-                                </ClientOnly>
-                              </div>
+                              <VerifiedContentGate className={containerClass}>
+                                <>
+                                  <ClientOnly>
+                                    <DOMSafetyWrapper />
+                                    <NavigationProgress />
+                                    <NavigationEvents />
+                                    <LoginModal />
+                                    <UserWalletDialog />
+                                    <ChangePasswordDialogWrapper />
+                                    {children}
+                                  </ClientOnly>
+                                </>
+                              </VerifiedContentGate>
                               <Footer />
                             </ProducerSubscriptionGuard>
                           </RouteProtection>
                         </AnimatedAIBackground>
                         <ClientOnly>
                           <CompanyModal />
+                          <TermsModalsGate />
                           <GlobalAuthLoader />
-                          <AgentTermsModal />
-                          <ProducerTermsModal />
                         </ClientOnly>
                         <Toaster />
                       </ChangePasswordProvider>

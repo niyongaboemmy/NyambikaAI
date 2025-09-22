@@ -37,7 +37,8 @@ interface AuthContextType {
     password: string,
     name: string,
     role: "customer" | "producer" | "agent",
-    phone?: string
+    phone?: string,
+    ref?: string | null
   ) => Promise<void>;
   logout: () => void;
   isAuthenticated: boolean;
@@ -237,16 +238,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     password: string,
     name: string,
     role: "customer" | "producer" | "agent",
-    phone?: string
+    phone?: string,
+    ref?: string | null
   ) => {
     try {
       setIsLoading(true);
-      const response = await apiClient.post("/api/auth/register", {
-        name,
-        email,
-        password,
-        role,
-      });
+      const payload: any = { name, email, password, role };
+      if (phone) payload.phone = phone;
+      if (ref) payload.ref = ref;
+      const response = await apiClient.post("/api/auth/register", payload);
 
       const { user: userData, token } = response.data as any;
 

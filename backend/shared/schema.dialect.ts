@@ -22,6 +22,7 @@ export const reviews = s.reviews;
 export const subscriptionPlans = s.subscriptionPlans;
 export const subscriptions = s.subscriptions;
 export const subscriptionPayments = s.subscriptionPayments;
+export const agentCommissions = s.agentCommissions;
 export const notifications = s.notifications;
 export const userWallets = s.userWallets;
 export const walletPayments = s.walletPayments;
@@ -42,6 +43,7 @@ export const insertReviewSchema = s.insertReviewSchema;
 export const insertSubscriptionPlanSchema = s.insertSubscriptionPlanSchema;
 export const insertSubscriptionSchema = s.insertSubscriptionSchema;
 export const insertSubscriptionPaymentSchema = s.insertSubscriptionPaymentSchema;
+export const insertAgentCommissionSchema = s.insertAgentCommissionSchema;
 export const insertNotificationSchema = s.insertNotificationSchema;
 export const insertUserWalletSchema = s.insertUserWalletSchema;
 export const insertWalletPaymentSchema = s.insertWalletPaymentSchema;
@@ -76,6 +78,8 @@ export type {
   InsertSubscription,
   SubscriptionPayment,
   InsertSubscriptionPayment,
+  AgentCommission,
+  InsertAgentCommission,
   Notification,
   InsertNotification,
   UserWallet,

@@ -7,6 +7,11 @@ import {
   subscriptions,
   subscriptionPlans,
   subscriptionPayments,
+  agentCommissions,
+  users as usersTable,
+  userWallets,
+  walletPayments,
+  paymentSettings,
   products,
   User,
 } from "./shared/schema.dialect";
@@ -21,6 +26,339 @@ import {
   countDistinct,
   ne,
 } from "drizzle-orm";
+
+const isMySQL =
+  String(process.env.DB_DIALECT || "postgres").toLowerCase() === "mysql";
+
+// Ensure a wallet exists and return it
+async function ensureUserWallet(userId: string) {
+  let [wallet] = await db
+    .select()
+    .from(userWallets)
+    .where(eq(userWallets.userId, userId))
+    .limit(1);
+  if (!wallet) {
+    const vals: any = {
+      id: randomUUID(),
+      userId,
+      balance: "0",
+      status: "active",
+    };
+    if (isMySQL) {
+      await db.insert(userWallets).values(vals).execute();
+      wallet = vals as any;
+    } else {
+      const [created] = await db.insert(userWallets).values(vals).returning();
+      wallet = created as any;
+    }
+  }
+  return wallet as any;
+}
+
+// Credit a user's wallet and record history
+async function creditWallet(
+  userId: string,
+  amountNumber: number,
+  description: string,
+  metadata?: Record<string, any>
+) {
+  if (!amountNumber || amountNumber <= 0) return;
+  const wallet = await ensureUserWallet(userId);
+  const currentBalance = Number(wallet.balance) || 0;
+  const newBalance = currentBalance + amountNumber;
+  const paymentVals: any = {
+    id: randomUUID(),
+    walletId: wallet.id,
+    userId,
+    type: "credit",
+    amount: String(amountNumber.toFixed(2)),
+    currency: "RWF",
+    method: "system",
+    provider: null as any,
+    phone: null as any,
+    status: "completed",
+    externalReference: metadata?.externalReference || null,
+    description,
+  };
+  if (isMySQL) {
+    await db.insert(walletPayments).values(paymentVals).execute();
+    await db
+      .update(userWallets)
+      .set({
+        balance: String(newBalance.toFixed(2)),
+        updatedAt: new Date() as any,
+      })
+      .where(eq(userWallets.id, wallet.id))
+      .execute();
+  } else {
+    await db.insert(walletPayments).values(paymentVals).returning();
+    await db
+      .update(userWallets)
+      .set({
+        balance: String(newBalance.toFixed(2)),
+        updatedAt: new Date() as any,
+      })
+      .where(eq(userWallets.id, wallet.id))
+      .returning();
+  }
+  return { ...wallet, balance: String(newBalance.toFixed(2)) };
+}
+
+// Debit a user's wallet and record history
+async function debitWallet(
+  userId: string,
+  amountNumber: number,
+  description: string,
+  metadata?: Record<string, any>
+) {
+  if (!amountNumber || amountNumber <= 0) return;
+  const wallet = await ensureUserWallet(userId);
+  const currentBalance = Number(wallet.balance) || 0;
+  const newBalance = currentBalance - amountNumber;
+  const paymentVals: any = {
+    id: randomUUID(),
+    walletId: wallet.id,
+    userId,
+    type: "debit",
+    amount: String(amountNumber.toFixed(2)),
+    currency: "RWF",
+    method: "system",
+    provider: null as any,
+    phone: null as any,
+    status: "completed",
+    externalReference: metadata?.externalReference || null,
+    description,
+  };
+  if (isMySQL) {
+    await db.insert(walletPayments).values(paymentVals).execute();
+    await db
+      .update(userWallets)
+      .set({ balance: String(newBalance.toFixed(2)), updatedAt: new Date() as any })
+      .where(eq(userWallets.id, wallet.id))
+      .execute();
+  } else {
+    await db.insert(walletPayments).values(paymentVals).returning();
+    await db
+      .update(userWallets)
+      .set({ balance: String(newBalance.toFixed(2)), updatedAt: new Date() as any })
+      .where(eq(userWallets.id, wallet.id))
+      .returning();
+  }
+  return { ...wallet, balance: String(newBalance.toFixed(2)) };
+}
+
+// Read numeric setting amount (e.g., basis points or RWF) with a fallback
+async function getSettingAmount(name: string, fallback: number) {
+  try {
+    const [row] = await db
+      .select()
+      .from(paymentSettings)
+      .where(eq(paymentSettings.name, name))
+      .limit(1);
+    const val = Number((row as any)?.amountInRwf ?? 0);
+    return isNaN(val) || val <= 0 ? fallback : val;
+  } catch (_e) {
+    return fallback;
+  }
+}
+
+// Admin: Refund a subscription payment and reverse commissions to wallets
+export async function refundSubscriptionPayment(req: Request, res: Response) {
+  try {
+    const paymentId = String((req.params as any)?.id || "");
+    if (!paymentId)
+      return res.status(400).json({ message: "Payment id is required" });
+
+    const [pay] = await db
+      .select()
+      .from(subscriptionPayments)
+      .where(eq(subscriptionPayments.id, paymentId))
+      .limit(1);
+    if (!pay) return res.status(404).json({ message: "Payment not found" });
+    if (String((pay as any).status).toLowerCase() === "refunded") {
+      return res.status(400).json({ message: "Payment already refunded" });
+    }
+
+    // Mark payment refunded
+    if (isMySQL) {
+      await db
+        .update(subscriptionPayments)
+        .set({ status: "refunded" } as any)
+        .where(eq(subscriptionPayments.id, paymentId))
+        .execute();
+    } else {
+      await db
+        .update(subscriptionPayments)
+        .set({ status: "refunded" } as any)
+        .where(eq(subscriptionPayments.id, paymentId))
+        .returning();
+    }
+
+    // Reverse direct agent commission
+    const agentId = (pay as any).agentId as string | null;
+    const directCommissionNum = Number((pay as any).agentCommission || 0);
+    if (agentId && directCommissionNum > 0) {
+      await debitWallet(
+        agentId,
+        directCommissionNum,
+        "Refund reversal: subscription commission",
+        { externalReference: `SUB-REFUND-${paymentId}` }
+      );
+    }
+
+    // Reverse referral commissions associated with this payment
+    const commRows = await db
+      .select({
+        id: agentCommissions.id,
+        agentId: agentCommissions.agentId,
+        amount: agentCommissions.amount,
+      })
+      .from(agentCommissions)
+      .where(eq(agentCommissions.subscriptionPaymentId, paymentId));
+
+    for (const row of commRows as any[]) {
+      const amt = Number(row.amount || 0);
+      if (amt > 0) {
+        await debitWallet(
+          row.agentId,
+          amt,
+          "Refund reversal: referral commission",
+          { externalReference: `REF-REFUND-${row.id}` }
+        );
+      }
+    }
+
+    // Mark those commissions as cancelled
+    if (isMySQL) {
+      await db
+        .update(agentCommissions)
+        .set({ status: "cancelled" } as any)
+        .where(eq(agentCommissions.subscriptionPaymentId, paymentId))
+        .execute();
+    } else {
+      await db
+        .update(agentCommissions)
+        .set({ status: "cancelled" } as any)
+        .where(eq(agentCommissions.subscriptionPaymentId, paymentId))
+        .returning();
+    }
+
+    res.json({ ok: true, message: "Payment refunded and commissions reversed" });
+  } catch (e) {
+    console.error("refundSubscriptionPayment error:", e);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
+// Helper: distribute referral commissions to parent (L1) and grandparent (L2)
+async function distributeReferralCommissions(
+  directAgentId: string,
+  subscriptionPaymentId: string,
+  directAgentCommissionStr: string
+) {
+  try {
+    const directAgentCommission = Number(directAgentCommissionStr) || 0;
+    if (directAgentCommission <= 0) return;
+
+    // Fetch the direct agent's parent chain up to 2 levels
+    const [directAgent] = await db
+      .select({
+        id: usersTable.id,
+        referredBy: usersTable.referredBy,
+        isActive: usersTable.isActive,
+        role: usersTable.role,
+      })
+      .from(usersTable)
+      .where(eq(usersTable.id, directAgentId));
+
+    if (!directAgent) return;
+
+    // Level 1: parent of direct agent
+    let parent1: any = null;
+    if (directAgent.referredBy) {
+      const [p1] = await db
+        .select({
+          id: usersTable.id,
+          referredBy: usersTable.referredBy,
+          isActive: usersTable.isActive,
+          role: usersTable.role,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, directAgent.referredBy));
+      parent1 = p1 || null;
+    }
+
+    // Level 2: parent of parent1
+    let parent2: any = null;
+    if (parent1?.referredBy) {
+      const [p2] = await db
+        .select({
+          id: usersTable.id,
+          isActive: usersTable.isActive,
+          role: usersTable.role,
+        })
+        .from(usersTable)
+        .where(eq(usersTable.id, parent1.referredBy));
+      parent2 = p2 || null;
+    }
+
+    // Utility to insert commission row
+    // Load dynamic percentages in basis points (10000 = 100%) with defaults 10% and 5%
+    const l1bps = await getSettingAmount("agent_referral_l1_percent", 1000);
+    const l2bps = await getSettingAmount("agent_referral_l2_percent", 500);
+
+    const insertCommission = async (
+      agentId: string,
+      sourceAgentId: string,
+      level: 1 | 2
+    ) => {
+      const bps = level === 1 ? l1bps : l2bps;
+      const percent = Math.max(0, bps) / 10000; // convert to fraction
+      const amountNum = directAgentCommission * percent;
+      const amount = amountNum.toFixed(2);
+      const commissionId = randomUUID();
+      const vals = {
+        id: commissionId,
+        agentId,
+        sourceAgentId,
+        subscriptionPaymentId,
+        level,
+        amount,
+        status: "pending",
+      } as any;
+      if (isMySQL) {
+        await db.insert(agentCommissions).values(vals).execute();
+      } else {
+        await db.insert(agentCommissions).values(vals).returning();
+      }
+      // Auto-credit wallet for referral commission
+      await creditWallet(agentId, amountNum, `Referral commission L${level}`, {
+        externalReference: `REF-COM-${commissionId}`,
+      });
+    };
+
+    // Apply constraints: active-only and role agent
+    if (
+      parent1 &&
+      parent1.isActive !== false &&
+      String(parent1.role).toLowerCase() === "agent"
+    ) {
+      await insertCommission(parent1.id, directAgentId, 1);
+    }
+    if (
+      parent2 &&
+      parent2.isActive !== false &&
+      String(parent2.role).toLowerCase() === "agent"
+    ) {
+      await insertCommission(parent2.id, directAgentId, 2);
+    }
+  } catch (e) {
+    console.error(
+      "distributeReferralCommissions error:",
+      (e as any)?.message || e
+    );
+  }
+}
 
 // Get Agent Dashboard Stats
 export async function getAgentStats(req: Request, res: Response) {
@@ -459,8 +797,9 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
     }
 
     // Create payment record
-    await db.insert(subscriptionPayments).values({
-      id: randomUUID(),
+    const paymentId = randomUUID();
+    const payVals: any = {
+      id: paymentId,
       subscriptionId,
       agentId,
       amount, // string
@@ -468,7 +807,28 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
       paymentMethod, // required (not null)
       paymentReference: paymentReference ?? null,
       status: "completed",
-    });
+    };
+    if (isMySQL) {
+      await db.insert(subscriptionPayments).values(payVals).execute();
+    } else {
+      await db.insert(subscriptionPayments).values(payVals).returning();
+    }
+
+    // Auto-credit direct agent's wallet with their commission (40%)
+    const agentCommissionNum = Number(agentCommission) || 0;
+    if (agentCommissionNum > 0 && agentId) {
+      await creditWallet(
+        agentId,
+        agentCommissionNum,
+        "Subscription commission (40%)",
+        {
+          externalReference: `SUB-COM-${paymentId}`,
+        }
+      );
+    }
+
+    // Distribute referral commissions to L1 (10%) and L2 (5%) of the direct agent's commission
+    await distributeReferralCommissions(agentId, paymentId, agentCommission);
 
     res.json({
       message: "Subscription payment processed successfully",

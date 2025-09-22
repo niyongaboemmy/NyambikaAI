@@ -186,10 +186,19 @@ export default function AgentDashboard() {
             <h1 className="text-4xl font-bold text-white mb-2">Agent Dashboard</h1>
             <p className="text-gray-300">Manage your producer network and subscriptions</p>
           </div>
-          <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center">
-            <Plus className="h-5 w-5 mr-2" />
-            Add Producer
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => router.push("/agent/referrals")}
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center"
+            >
+              <Users className="h-5 w-5 mr-2" />
+              View Referrals
+            </button>
+            <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center">
+              <Plus className="h-5 w-5 mr-2" />
+              Add Producer
+            </button>
+          </div>
         </div>
 
         {/* Stats Cards */}

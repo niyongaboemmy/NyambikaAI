@@ -114,7 +114,6 @@ export default function RootLayout({
             __html: `
               html, body {
                 height: 100%;
-                overscroll-behavior: none;
                 -webkit-overflow-scrolling: touch;
                 touch-action: pan-y;
               }

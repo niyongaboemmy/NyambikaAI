@@ -31,6 +31,10 @@ export const users = table("users", {
   // Agent terms & conditions acceptance
   termsAccepted: boolean("terms_accepted").default(false),
   termsAcceptedAt: timestamp("terms_accepted_at"),
+  // Referral network fields (for agents)
+  referralCode: text("referral_code"),
+  referredBy: varchar("referred_by", { length: 36 }),
+  isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -196,6 +200,19 @@ export const subscriptionPayments = table("subscription_payments", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Agent referral commissions (level 1 and 2 passive earnings)
+export const agentCommissions = table("agent_commissions", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  agentId: varchar("agent_id", { length: 36 }).notNull().references(() => users.id),
+  sourceAgentId: varchar("source_agent_id", { length: 36 }).notNull().references(() => users.id),
+  subscriptionPaymentId: varchar("subscription_payment_id", { length: 36 }).notNull().references(() => subscriptionPayments.id),
+  level: int("level").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  status: text("status").notNull().default("pending"), // pending, approved, paid, cancelled
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 export const notifications = table("notifications", {
   id: varchar("id", { length: 36 }).primaryKey(),
   userId: varchar("user_id", { length: 36 }).references(() => users.id).notNull(),
@@ -263,6 +280,7 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({ createdAt: 
 export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({ createdAt: true });
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ createdAt: true });
 export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPayments).omit({ createdAt: true });
+export const insertAgentCommissionSchema = createInsertSchema(agentCommissions).omit({ createdAt: true });
 export const insertNotificationSchema = createInsertSchema(notifications).omit({ createdAt: true });
 export const insertUserWalletSchema = createInsertSchema(userWallets).omit({ createdAt: true, updatedAt: true });
 export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({ createdAt: true });
@@ -296,6 +314,8 @@ export type Subscription = typeof subscriptions.$inferSelect;
 export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type SubscriptionPayment = typeof subscriptionPayments.$inferSelect;
 export type InsertSubscriptionPayment = z.infer<typeof insertSubscriptionPaymentSchema>;
+export type AgentCommission = typeof agentCommissions.$inferSelect;
+export type InsertAgentCommission = z.infer<typeof insertAgentCommissionSchema>;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type UserWallet = typeof userWallets.$inferSelect;

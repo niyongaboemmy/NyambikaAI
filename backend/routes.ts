@@ -29,6 +29,7 @@ import {
   emailSubscriptions,
 } from "./shared/schema.dialect";
 import { and, eq, desc, sql, inArray } from "drizzle-orm";
+import { agentCommissions, users as usersTable } from "./shared/schema.dialect";
 import {
   createSubscription,
   renewSubscription,
@@ -68,12 +69,13 @@ import {
 } from "./orders";
 import {
   getAgentStats,
-  getAgentProducers,
   getAvailableProducers,
-  assignAgentToProducer,
+  getAgentProducers,
   getProducerDetails,
-  getAgentCommissions,
   processSubscriptionPayment,
+  refundSubscriptionPayment,
+  assignAgentToProducer,
+  getAgentCommissions,
 } from "./agent-routes";
 import {
   verifyProducer as adminVerifyProducer,
@@ -96,6 +98,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     );
   }
 
+  // Generate a unique 6-char uppercase referral code
+  async function generateUniqueReferralCode(): Promise<string> {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const gen = () =>
+      Array.from(
+        { length: 6 },
+        () => alphabet[Math.floor(Math.random() * alphabet.length)]
+      ).join("");
+    for (let i = 0; i < 10; i++) {
+      const code = gen();
+      const [exists] = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.referralCode, code))
+        .limit(1);
+      if (!exists) return code;
+    }
+    // Fallback with timestamp suffix
+    return `AG${Date.now().toString().slice(-6)}`;
+  }
+
   // Health and availability endpoints for cPanel/Monitors
   // Root path returns a stable Content-Type without charset to pass cPanel diff check
   app.get("/", (_req, res) => {
@@ -115,45 +138,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         site: "Nyambika",
       };
 
-      const tr = (
-        en: string,
-        rw: string,
-        fr: string
-      ) => (lang === "rw" ? rw : lang === "fr" ? fr : en);
-
-      // Generic: current user accepts terms (agent or producer)
-      app.post("/api/terms/accept", requireAuth, async (req: any, res) => {
-        try {
-          const user = await storage.getUserById(req.userId);
-          if (!user) return res.status(404).json({ message: "User not found" });
-
-          const now = new Date();
-          const updated = await storage.updateUser(user.id, {
-            // @ts-ignore columns exist in schema
-            termsAccepted: true as any,
-            // @ts-ignore
-            termsAcceptedAt: now as any,
-          } as any);
-
-          const {
-            password: _pw,
-            fullName,
-            ...userWithoutPassword
-          } = (updated || user) as any;
-          return res.json({
-            ok: true,
-            user: {
-              ...userWithoutPassword,
-              name: fullName || user.email.split("@")[0],
-              termsAccepted: true,
-              termsAcceptedAt: now,
-            },
-          });
-        } catch (e) {
-          console.error("Error in POST /api/terms/accept:", e);
-          return res.status(500).json({ message: "Failed to accept terms" });
-        }
-      });
+      const tr = (en: string, rw: string, fr: string) =>
+        lang === "rw" ? rw : lang === "fr" ? fr : en;
 
       // Agent-specific terms
       if (role === "agent") {
@@ -292,7 +278,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             {
               id: "pricing",
-              heading: tr("Pricing & Fees", "Ibiciro & Amafaranga", "Tarifs et Frais"),
+              heading: tr(
+                "Pricing & Fees",
+                "Ibiciro & Amafaranga",
+                "Tarifs et Frais"
+              ),
               content: tr(
                 "Subscription fees apply per selected plan. Additional optional services (e.g., product boost) may incur fees.",
                 "Amafaranga y'ubunyamuryango akurikizwa ku igenamigambi wahisemo. Serivisi z'inyongera z'ubushake (nko guteza imbere igicuruzwa) zishobora kugira ikiguzi.",
@@ -323,7 +313,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             },
             {
               id: "privacy",
-              heading: tr("Privacy & Data", "Ibanga & Amakuru", "Confidentialité et Données"),
+              heading: tr(
+                "Privacy & Data",
+                "Ibanga & Amakuru",
+                "Confidentialité et Données"
+              ),
               content: tr(
                 "Handle customer data responsibly and only for order processing and support purposes.",
                 "Cunga amakuru y'abakiriya neza kandi uyakoreshe gusa mu gutunganya amabwiriza no gutanga ubufasha.",
@@ -346,7 +340,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         sections: [
           {
             id: "use",
-            heading: tr("Acceptable Use", "Ukoresha Bikwiye", "Utilisation Acceptable"),
+            heading: tr(
+              "Acceptable Use",
+              "Ukoresha Bikwiye",
+              "Utilisation Acceptable"
+            ),
             content: tr(
               "Use the platform responsibly and in accordance with our policies and local laws.",
               "Koresha platiforme mu buryo bukwiriye ubyubahiriza politiki zacu n'amategeko y'igihugu.",
@@ -411,7 +409,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const ESICIA_STATIC = ESICIA_CONFIG;
 
   // Auth middleware with JWT
-
   const requireAuth = async (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -432,32 +429,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return res.status(401).json({ message: "Authentication required" });
           }
           req.userRole = user.role;
-        } catch (_e) {
+        } catch {
           return res.status(401).json({ message: "Authentication required" });
         }
       }
       // Populate req.user for handlers that expect it (e.g., agent-routes)
       req.user = { id: req.userId, role: req.userRole } as any;
       next();
-    } catch (error) {
+    } catch {
       return res.status(401).json({ message: "Invalid token" });
     }
   };
 
-  // Agent-only: accept terms (sets users.terms_accepted and timestamp)
-  app.post("/api/agent/terms/accept", requireAuth, async (req: any, res) => {
+  // Generic: current user accepts terms (agent or producer)
+  app.post("/api/terms/accept", requireAuth, async (req: any, res) => {
     try {
-      if ((req.userRole || "").toLowerCase() !== "agent") {
-        return res
-          .status(403)
-          .json({ message: "Only agents can accept agent terms" });
-      }
       const user = await storage.getUserById(req.userId);
       if (!user) return res.status(404).json({ message: "User not found" });
 
       const now = new Date();
       const updated = await storage.updateUser(user.id, {
-        // @ts-ignore drizzle insert schema includes these columns
+        // @ts-ignore columns exist in schema
         termsAccepted: true as any,
         // @ts-ignore
         termsAcceptedAt: now as any,
@@ -468,7 +460,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fullName,
         ...userWithoutPassword
       } = (updated || user) as any;
-      res.json({
+      return res.json({
+        ok: true,
+        user: {
+          ...userWithoutPassword,
+          name: fullName || user.email.split("@")[0],
+          termsAccepted: true,
+          termsAcceptedAt: now,
+        },
+      });
+    } catch (e) {
+      console.error("Error in POST /api/terms/accept:", e);
+      return res.status(500).json({ message: "Failed to accept terms" });
+    }
+  });
+
+  // Agent-specific terms accept endpoint
+  app.post("/api/agent/terms/accept", requireAuth, async (req: any, res) => {
+    try {
+      const user = await storage.getUserById(req.userId);
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      // Verify user is an agent
+      if (user.role !== "agent") {
+        return res.status(403).json({ message: "Access denied. Agent role required." });
+      }
+
+      const now = new Date();
+      const updated = await storage.updateUser(user.id, {
+        // @ts-ignore columns exist in schema
+        termsAccepted: true as any,
+        // @ts-ignore
+        termsAcceptedAt: now as any,
+      } as any);
+
+      const {
+        password: _pw,
+        fullName,
+        ...userWithoutPassword
+      } = (updated || user) as any;
+      return res.json({
         ok: true,
         user: {
           ...userWithoutPassword,
@@ -479,7 +510,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (e) {
       console.error("Error in POST /api/agent/terms/accept:", e);
-      return res.status(500).json({ message: "Failed to accept terms" });
+      return res.status(500).json({ message: "Failed to accept agent terms" });
     }
   });
 
@@ -1595,7 +1626,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
         params.set("cname", resolvedCname);
         params.set("cnumber", safeCnumber);
         params.set("pmethod", pmethod);
-        params.set("method", pmethod);
         if (esiciaRetailerId) params.set("retailerid", esiciaRetailerId);
         params.set("returl", returl);
         params.set("redirecturl", redirectUrl);
@@ -1613,7 +1643,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ? msisdnDigits
           : msisdnDigits.length === 9 && msisdnDigits.startsWith("7")
           ? "0" + msisdnDigits
-          : msisdn;
+          : String(phone);
 
         // Send payment request
         const timeoutMs = ESICIA_STATIC.TIMEOUT_MS;
@@ -1894,6 +1924,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await adminVerifyAgent(req as any, res as any);
       } catch (error) {
         console.error("Error in /api/admin/agents/:agentId/verify:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Admin: unified user verification by ID (agent/producer/other)
+  app.post(
+    "/api/admin/users/:userId/verify",
+    requireAuth,
+    requireRole(["admin"]),
+    async (req, res) => {
+      try {
+        const { userId } = req.params as { userId: string };
+        if (!userId) return res.status(400).json({ message: "userId is required" });
+
+        const user = await storage.getUserById(userId).catch(() => null as any);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        const role = String(user.role || "").toLowerCase();
+        if (role === "agent") {
+          // Delegate to existing admin verify agent handler
+          (req as any).params = { ...(req as any).params, agentId: userId };
+          return adminVerifyAgent(req as any, res as any);
+        }
+        if (role === "producer") {
+          // Delegate to existing admin verify producer handler
+          (req as any).params = { ...(req as any).params, producerId: userId };
+          return adminVerifyProducer(req as any, res as any);
+        }
+
+        // For other roles, just set isVerified = true
+        const updated = await storage.updateUser(userId, { isVerified: true } as any);
+        return res.json({ message: "User verified successfully", user: updated });
+      } catch (error) {
+        console.error("Error in /api/admin/users/:userId/verify:", error);
+        return res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Admin: refund a subscription payment and reverse all related commissions
+  app.post(
+    "/api/admin/subscription-payments/:id/refund",
+    requireAuth,
+    requireRole(["admin"]),
+    async (req: any, res) => {
+      try {
+        return refundSubscriptionPayment(req as any, res as any);
+      } catch (error) {
+        console.error(
+          "Error in POST /api/admin/subscription-payments/:id/refund:",
+          error
+        );
         res.status(500).json({ message: "Internal server error" });
       }
     }
@@ -2260,24 +2343,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "User already exists" });
         }
 
-        // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashed = await bcrypt.hash(password, 10);
 
-        // Create user record
-        const userData = {
-          username: email,
+        // Create user (generate referralCode for agents)
+        const userData: any = {
+          username: email, // Use email as username for now
           email,
-          password: hashedPassword,
+          password: hashed,
           fullName: name,
           role: normalizedRole,
           phone: phone || null,
-        } as any;
+        };
 
-        const created = await storage.createUser(userData);
+        const user = await storage.createUser(userData);
 
-        // Return sanitized user
-        const { password: _pw, ...safe } = created as any;
-        res.status(201).json(safe);
+        const { password: _pw, ...sanitized } = user as any;
+        res.status(201).json(sanitized);
       } catch (error) {
         console.error("Error in POST /api/admin/users:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -2520,6 +2601,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/auth/register", async (req, res) => {
     try {
       const { email, password, name, role, phone } = req.body;
+      const referrerId = (req.body?.ref || req.query?.ref || "")
+        .toString()
+        .trim();
 
       // Validate input
       if (!email || !password || !name || !role) {
@@ -2539,17 +2623,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Hash password
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      // Create user
-      const userData = {
+      // Resolve referral (agent onboarding only)
+      let referredBy: string | null = null;
+      if (referrerId && role === "agent") {
+        try {
+          const referrer = await db
+            .select({ id: usersTable.id, role: usersTable.role })
+            .from(usersTable)
+            .where(eq(usersTable.referralCode, referrerId))
+            .limit(1);
+          if (
+            referrer[0] &&
+            String(referrer[0].role).toLowerCase() === "agent"
+          ) {
+            referredBy = referrer[0].id;
+          }
+        } catch (_e) {
+          // ignore referral errors
+        }
+      }
+
+      // Create user (generate referralCode for agents)
+      const userData: any = {
         username: email, // Use email as username for now
         email,
         password: hashedPassword,
         fullName: name,
         role,
         phone: phone || null,
+        ...(role === "agent" && referredBy ? { referredBy } : {}),
+        ...(role === "agent"
+          ? { referralCode: await generateUniqueReferralCode() }
+          : {}),
       };
 
       const user = await storage.createUser(userData);
+
+      // Note: Referral signup bonus is not credited on direct registration.
+      // It will be credited after admin verifies the agent.
 
       // Generate JWT token
       const token = jwt.sign({ userId: user.id, role: user.role }, jwtSecret, {
@@ -2982,7 +3093,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Finalize OAuth registration by choosing a role
   app.post("/api/auth/register-oauth", async (req, res) => {
     try {
-      const { oauthToken, role, phone } = req.body || {};
+      const { oauthToken, role, phone, ref } = req.body || {};
       if (!oauthToken || !role) {
         return res
           .status(400)
@@ -2998,12 +3109,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let payload: any;
       try {
         payload = jwt.verify(String(oauthToken), jwtSecret);
-      } catch (e) {
+      } catch {
         return res
           .status(401)
           .json({ message: "Invalid or expired OAuth session" });
       }
-
       if (!payload || payload.kind !== "oauth_pending" || !payload.email) {
         return res.status(400).json({ message: "Invalid OAuth payload" });
       }
@@ -3011,19 +3121,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const email = String(payload.email).toLowerCase();
 
       // If already exists (e.g., race condition), log them in instead
-      let existing = await storage.getUserByEmail(email);
+      const existing = await storage.getUserByEmail(email);
       if (existing) {
         const token = jwt.sign(
           { userId: existing.id, role: existing.role || "customer" },
           jwtSecret,
           { expiresIn: "7d" }
         );
-        const { password: _pw, fullName, ...userWithoutPassword } = existing;
-        const mappedUser = {
+        const {
+          password: _pw,
+          fullName,
+          ...userWithoutPassword
+        } = existing as any;
+        const mappedExisting = {
           ...userWithoutPassword,
           name: fullName || existing.email.split("@")[0],
         } as any;
-        return res.json({ user: mappedUser, token });
+        return res.json({ user: mappedExisting, token });
+      }
+
+      // Resolve referral (agent onboarding only)
+      const refStr = typeof ref === "string" ? ref.trim() : "";
+      let referredBy: string | null = null;
+      if (role === "agent" && refStr) {
+        try {
+          // Try by referral code
+          const [byCode] = await db
+            .select({ id: usersTable.id, role: usersTable.role })
+            .from(usersTable)
+            .where(eq(usersTable.referralCode, refStr))
+            .limit(1);
+          if (byCode && String(byCode.role).toLowerCase() === "agent") {
+            referredBy = byCode.id;
+          } else {
+            // Fallback: direct user id
+            const [byId] = await db
+              .select({ id: usersTable.id, role: usersTable.role })
+              .from(usersTable)
+              .where(eq(usersTable.id, refStr))
+              .limit(1);
+            if (byId && String(byId.role).toLowerCase() === "agent") {
+              referredBy = byId.id;
+            }
+          }
+        } catch {}
       }
 
       // Create user with generated password; role chosen explicitly
@@ -3037,16 +3178,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         role,
         fullName: payload.name || email.split("@")[0],
         phone: phone || null,
+        ...(role === "agent" && referredBy ? { referredBy } : {}),
+        ...(role === "agent"
+          ? { referralCode: await generateUniqueReferralCode() }
+          : {}),
       });
-
-      // Return sanitized user
-      const { password: _pw, ...safe } = created as any;
+      const { password: _pwNew, fullName: fnNew, ...safe } = created as any;
       const mappedUser = {
         ...safe,
-        id: safe.id.toString(),
+        id: String(safe.id),
         role: safe.role as UserRole,
-        name: safe.fullName || safe.email.split("@")[0],
-      };
+        name: fnNew || safe.email.split("@")[0],
+      } as any;
 
       // Generate JWT token
       const token = jwt.sign(
@@ -3060,17 +3203,199 @@ export async function registerRoutes(app: Express): Promise<Server> {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        maxAge: 7 * 24 * 60 * 60 * 1000,
         path: "/",
       });
 
-      // Return JSON so frontend XHR can auto-login without a redirect
+      // Note: Referral signup bonus is credited only after admin verification, not during direct registration
       return res.json({ token, user: mappedUser });
     } catch (error) {
       console.error("register-oauth error:", error);
       return res.status(500).json({ message: "Internal server error" });
     }
   });
+
+  // Agent: referral summary
+  app.get(
+    "/api/agent/referrals/summary",
+    requireAuth,
+    requireRole(["agent"]),
+    async (req: any, res) => {
+      try {
+        const agentId = req.userId;
+        // Direct sub-agents
+        const direct = await db
+          .select({ id: usersTable.id })
+          .from(usersTable)
+          .where(
+            and(
+              eq(usersTable.role, "agent"),
+              eq(usersTable.referredBy, agentId)
+            )
+          );
+        const directIds = direct.map((d: { id: string }) => d.id);
+
+        // Indirect sub-agents (level 2)
+        let indirectCount = 0;
+        if (directIds.length > 0) {
+          const indirect = await db
+            .select({ id: usersTable.id })
+            .from(usersTable)
+            .where(
+              and(
+                eq(usersTable.role, "agent"),
+                inArray(usersTable.referredBy as any, directIds)
+              )
+            );
+          indirectCount = indirect.length;
+        }
+
+        // Earnings
+        const [lvl1] = await db
+          .select({ total: sql`COALESCE(SUM(${agentCommissions.amount}), 0)` })
+          .from(agentCommissions)
+          .where(
+            and(
+              eq(agentCommissions.agentId, agentId),
+              eq(agentCommissions.level, 1)
+            )
+          );
+        const [lvl2] = await db
+          .select({ total: sql`COALESCE(SUM(${agentCommissions.amount}), 0)` })
+          .from(agentCommissions)
+          .where(
+            and(
+              eq(agentCommissions.agentId, agentId),
+              eq(agentCommissions.level, 2)
+            )
+          );
+
+        const total = Number(lvl1?.total || 0) + Number(lvl2?.total || 0);
+        res.json({
+          directCount: direct.length,
+          indirectCount,
+          level1Earnings: Number(lvl1?.total || 0),
+          level2Earnings: Number(lvl2?.total || 0),
+          totalEarnings: total,
+          payoutThreshold: 5000,
+        });
+      } catch (e) {
+        console.error("/api/agent/referrals/summary error:", e);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Agent: referral network
+  app.get(
+    "/api/agent/referrals/network",
+    requireAuth,
+    requireRole(["agent"]),
+    async (req: any, res) => {
+      try {
+        const agentId = req.userId;
+        const direct = await db
+          .select({
+            id: usersTable.id,
+            email: usersTable.email,
+            fullName: usersTable.fullName,
+            createdAt: usersTable.createdAt,
+            isVerified: usersTable.isVerified,
+          })
+          .from(usersTable)
+          .where(
+            and(
+              eq(usersTable.role, "agent"),
+              eq(usersTable.referredBy, agentId)
+            )
+          );
+        const directIds = direct.map((d: { id: string }) => d.id);
+        let indirect: any[] = [];
+        if (directIds.length > 0) {
+          indirect = await db
+            .select({
+              id: usersTable.id,
+              email: usersTable.email,
+              fullName: usersTable.fullName,
+              createdAt: usersTable.createdAt,
+              parentId: usersTable.referredBy,
+              isVerified: usersTable.isVerified,
+            })
+            .from(usersTable)
+            .where(
+              and(
+                eq(usersTable.role, "agent"),
+                inArray(usersTable.referredBy as any, directIds)
+              )
+            );
+        }
+        res.json({ direct, indirect });
+      } catch (e) {
+        console.error("/api/agent/referrals/network error:", e);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
+
+  // Agent: referral commissions list
+  app.get(
+    "/api/agent/referrals/commissions",
+    requireAuth,
+    requireRole(["agent"]),
+    async (req: any, res) => {
+      try {
+        const agentId = req.userId;
+        // Referral commissions where this agent is parent (levels 1/2)
+        const referralRows = await db
+          .select({
+            id: agentCommissions.id,
+            amount: agentCommissions.amount,
+            level: agentCommissions.level,
+            status: agentCommissions.status,
+            createdAt: agentCommissions.createdAt,
+            sourceAgentId: agentCommissions.sourceAgentId,
+          })
+          .from(agentCommissions)
+          .where(eq(agentCommissions.agentId, agentId))
+          .orderBy(desc(agentCommissions.createdAt));
+
+        // Direct commissions from subscription payments processed by this agent
+        const directRows = await db
+          .select({
+            id: subscriptionPayments.id,
+            amount: subscriptionPayments.agentCommission,
+            status: subscriptionPayments.status,
+            createdAt: subscriptionPayments.createdAt,
+          })
+          .from(subscriptionPayments)
+          .where(
+            and(
+              eq(subscriptionPayments.agentId, agentId),
+              eq(subscriptionPayments.status, "completed")
+            )
+          )
+          .orderBy(desc(subscriptionPayments.createdAt));
+
+        const normalizedDirect = (directRows as any[]).map((r) => ({
+          id: r.id,
+          amount: r.amount, // already a string (decimal) per schema
+          level: 0 as 0, // denote direct commission
+          status: r.status,
+          createdAt: r.createdAt,
+          sourceAgentId: null as any,
+        }));
+
+        const combined = [...(referralRows as any[]), ...normalizedDirect].sort(
+          (a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime()
+        );
+
+        res.json(combined);
+      } catch (e) {
+        console.error("/api/agent/referrals/commissions error:", e);
+        res.status(500).json({ message: "Internal server error" });
+      }
+    }
+  );
 
   // Facebook OAuth 2.0
   app.get("/api/auth/oauth/facebook", async (req, res) => {
