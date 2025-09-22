@@ -47,7 +47,7 @@ export function SafeToast({
   React.useEffect(() => {
     // Show toast with animation
     const showTimer = setTimeout(() => setIsVisible(true), 10);
-    
+
     // Auto-hide after duration
     if (duration > 0) {
       timeoutRef.current = setTimeout(() => {
@@ -87,12 +87,8 @@ export function SafeToast({
       aria-atomic="true"
     >
       <div className="grid gap-1">
-        {title && (
-          <div className="text-sm font-semibold">{title}</div>
-        )}
-        {description && (
-          <div className="text-sm opacity-90">{description}</div>
-        )}
+        {title && <div className="text-sm font-semibold">{title}</div>}
+        {description && <div className="text-sm opacity-90">{description}</div>}
       </div>
       {action}
       <button
@@ -106,20 +102,22 @@ export function SafeToast({
   );
 }
 
-export function SafeToastContainer({ children }: { children: React.ReactNode }) {
+export function SafeToastContainer({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [mounted, setMounted] = React.useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || typeof window === 'undefined') return null;
+  if (!mounted || typeof window === "undefined") return null;
 
   return createPortal(
     <div className="fixed bottom-0 right-0 z-[40] flex max-h-screen p-4 sm:bottom-0 sm:right-0 sm:top-auto sm:flex-col md:max-w-[420px] pointer-events-none">
-      <div className="space-y-2 pointer-events-auto inline-flex flex-col w-auto">
-        {children}
-      </div>
+      <div className="inline-flex flex-col w-auto">{children}</div>
     </div>,
     document.body
   );

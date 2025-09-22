@@ -159,6 +159,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           ...(providedUser as any),
           isVerified: normalizeVerified((providedUser as any)?.isVerified),
         });
+        try {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('company:refresh'));
+          }
+        } catch {}
         return;
       }
       // Fetch current user from backend if not provided
@@ -176,6 +181,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
           ...userData,
           isVerified: normalizeVerified(userData?.isVerified),
         });
+        try {
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('company:refresh'));
+          }
+        } catch {}
       } catch (e) {
         console.error("Failed to fetch user in setSession:", e);
       }
@@ -206,6 +216,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         ...(userData as any),
         isVerified: normalizeVerified((userData as any)?.isVerified),
       });
+      try {
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('company:refresh'));
+        }
+      } catch {}
 
       // React-safe toast notification
       setTimeout(() => {

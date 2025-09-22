@@ -53,7 +53,9 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
   }, [user?.id]);
 
   const refresh = async () => {
-    if (!user || user.role !== 'producer' || !token) {
+    // Always read the latest token from localStorage to avoid stale state
+    const currentToken = typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null;
+    if (!user || user.role !== 'producer' || !currentToken) {
       setCompany(null);
       setIsMissing(false);
       setModalOpen(false);
@@ -127,6 +129,33 @@ export function CompanyProvider({ children }: { children: React.ReactNode }) {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
+
+  // Listen for global auth/session events and storage changes to trigger refresh ASAP
+  useEffect(() => {
+    const onCompanyRefresh = () => {
+      if (!user || user.role !== 'producer') return;
+      refresh();
+    };
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'auth_token') {
+        // Keep local token state in sync for other effects
+        setToken(typeof window !== 'undefined' ? localStorage.getItem('auth_token') : null);
+        if (!user || user.role !== 'producer') return;
+        refresh();
+      }
+    };
+    if (typeof window !== 'undefined') {
+      window.addEventListener('company:refresh', onCompanyRefresh as EventListener);
+      window.addEventListener('storage', onStorage);
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('company:refresh', onCompanyRefresh as EventListener);
+        window.removeEventListener('storage', onStorage);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, user?.role]);
 
   const value: CompanyContextType = {
     company,
