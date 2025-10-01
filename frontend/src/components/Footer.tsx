@@ -294,12 +294,12 @@ export default function Footer() {
 
         <Separator className="my-10 bg-white/10" />
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-gray-400">
-          <p>
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-3 text-gray-400">
+          <div className="text-center md:text-left">
             {t("footer.copyright").replace("{year}", String(year))}{" "}
             {t("footer.allRights")}
-          </p>
-          <div className="flex items-center gap-5">
+          </div>
+          <div className="w-full grid grid-cols-2 md:flex items-center justify-center gap-5">
             {legalLinks.map((l) => (
               <Link
                 key={l.href}

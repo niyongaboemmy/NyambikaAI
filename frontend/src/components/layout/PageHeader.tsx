@@ -16,7 +16,8 @@ const toneMap = {
       "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400",
   },
   purple: {
-    badge: "bg-purple-600/10 text-purple-700 dark:text-purple-300 ring-purple-600/20",
+    badge:
+      "bg-purple-600/10 text-purple-700 dark:text-purple-300 ring-purple-600/20",
     gradient:
       "bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-400 dark:via-pink-400 dark:to-blue-400",
   },
@@ -32,21 +33,32 @@ const toneMap = {
   },
 };
 
-export default function PageHeader({ badge, badgeTone = "blue", titleKey, subtitleKey }: PageHeaderProps) {
+export default function PageHeader({
+  badge,
+  badgeTone = "blue",
+  titleKey,
+  subtitleKey,
+}: PageHeaderProps) {
   const { t } = useLanguage();
   const tone = toneMap[badgeTone];
   return (
     <div className="mb-8">
       {badge && (
-        <div className={`inline-flex items-center gap-2 rounded-full ${tone.badge} ring-1 px-3 py-1 text-xs`}>
+        <div
+          className={`inline-flex items-center gap-2 rounded-full ${tone.badge} ring-1 px-3 py-1 text-xs`}
+        >
           {badge}
         </div>
       )}
-      <h1 className={`mt-3 text-2xl md:text-4xl font-bold ${tone.gradient} bg-clip-text text-transparent`}>
+      <h1
+        className={`mt-3 text-2xl md:text-4xl font-bold ${tone.gradient} bg-clip-text text-transparent`}
+      >
         {t(titleKey)}
       </h1>
       {subtitleKey && (
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 max-w-2xl">{t(subtitleKey)}</p>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-300 max-w-2xl">
+          {t(subtitleKey)}
+        </p>
       )}
     </div>
   );

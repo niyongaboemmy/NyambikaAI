@@ -193,7 +193,7 @@ export function RouteProtection({ children }: RouteProtectionProps) {
       default:
         // Unknown route, treat as protected
         if (!isAuthenticated) {
-          open();
+          // open();
           return;
         }
     }

@@ -469,6 +469,106 @@ const translations = {
     "footer.link.privacy": "Privacy",
     "footer.link.terms": "Terms",
     "footer.link.cookies": "Cookies",
+
+    // Help Page
+    "help.title": "Help Center",
+    "help.subtitle":
+      "Find answers to frequently asked questions and get support",
+    "help.faq.title": "Frequently Asked Questions",
+    "help.faq.trackOrder.question": "How do I track my order?",
+    "help.faq.trackOrder.answer":
+      "Once your order has been shipped, you'll receive a tracking number via email.",
+    "help.faq.paymentMethods.question": "What payment methods do you accept?",
+    "help.faq.paymentMethods.answer":
+      "We accept all major mobile money, credit cards, PayPal, and bank transfers. All transactions are secure and encrypted.",
+    "help.faq.returnItem.question": "How do I return an item?",
+    "help.faq.returnItem.answer": "You can initiate a return by visiting our",
+    "help.faq.returnItem.link": "returns page",
+    "help.contact.title": "Contact Support",
+    "help.contact.description":
+      "Can't find what you're looking for? Our customer service team is here to help.",
+    "help.contact.button": "Contact Us",
+    "help.sizeGuide.title": "Size Guide",
+    "help.sizeGuide.description":
+      "Not sure about your size? Check out our comprehensive",
+    "help.sizeGuide.link": "size guide",
+
+    // Size Guide Page
+    "sizeGuide.title": "Size Guide",
+    "sizeGuide.subtitle":
+      "Find your perfect fit with our comprehensive size guide",
+    "sizeGuide.howToMeasure.title": "How to Measure",
+    "sizeGuide.howToMeasure.bust.title": "Bust",
+    "sizeGuide.howToMeasure.bust.description":
+      "Measure around the fullest part of your bust, keeping the tape measure horizontal.",
+    "sizeGuide.howToMeasure.waist.title": "Waist",
+    "sizeGuide.howToMeasure.waist.description":
+      "Measure around your natural waistline, keeping the tape measure slightly loose.",
+    "sizeGuide.howToMeasure.hips.title": "Hips",
+    "sizeGuide.howToMeasure.hips.description":
+      "Stand with your feet together and measure around the fullest part of your hips.",
+    "sizeGuide.howToMeasure.inseam.title": "Inseam",
+    "sizeGuide.howToMeasure.inseam.description":
+      "Measure from the top of your inner thigh down to your ankle bone.",
+    "sizeGuide.womensSizeChart.title": "Women's Size Chart",
+    "sizeGuide.womensSizeChart.headers.size": "Size",
+    "sizeGuide.womensSizeChart.headers.bust": "Bust (in)",
+    "sizeGuide.womensSizeChart.headers.waist": "Waist (in)",
+    "sizeGuide.womensSizeChart.headers.hips": "Hips (in)",
+    "sizeGuide.womensSizeChart.sizes.XS.bust": "32-34",
+    "sizeGuide.womensSizeChart.sizes.XS.waist": "24-26",
+    "sizeGuide.womensSizeChart.sizes.XS.hips": "34-36",
+    "sizeGuide.womensSizeChart.sizes.S.bust": "34-36",
+    "sizeGuide.womensSizeChart.sizes.S.waist": "26-28",
+    "sizeGuide.womensSizeChart.sizes.S.hips": "36-38",
+    "sizeGuide.womensSizeChart.sizes.M.bust": "36-38",
+    "sizeGuide.womensSizeChart.sizes.M.waist": "28-30",
+    "sizeGuide.womensSizeChart.sizes.M.hips": "38-40",
+    "sizeGuide.womensSizeChart.sizes.L.bust": "38-40",
+    "sizeGuide.womensSizeChart.sizes.L.waist": "30-32",
+    "sizeGuide.womensSizeChart.sizes.L.hips": "40-42",
+    "sizeGuide.womensSizeChart.sizes.XL.bust": "40-42",
+    "sizeGuide.womensSizeChart.sizes.XL.waist": "32-34",
+    "sizeGuide.womensSizeChart.sizes.XL.hips": "42-44",
+    "sizeGuide.needHelp.title": "Need Help?",
+    "sizeGuide.needHelp.description":
+      "If you're unsure about your size or need assistance, our customer service team is happy to help.",
+    "sizeGuide.needHelp.button": "Contact Us",
+
+    // Returns Page
+    "returns.title": "Returns & Exchanges",
+    "returns.subtitle": "Our hassle-free return and exchange policy",
+    "returns.policy.title": "Our Return Policy",
+    "returns.policy.description":
+      "We want you to be completely satisfied with your purchase. If you're not happy with your order, we're here to help.",
+    "returns.policy.important": "Important",
+    "returns.policy.importantText":
+      "Returns must be initiated within 30 days of receiving your order. Items must be unworn, unwashed, and have all original tags attached.",
+    "returns.howTo.title": "How to Return an Item",
+    "returns.howTo.steps.1.title": "Log in to your account",
+    "returns.howTo.steps.1.description": "and go to your order history.",
+    "returns.howTo.steps.2.title": "Select the item(s) you wish to return",
+    "returns.howTo.steps.2.description": "and follow the prompts.",
+    "returns.howTo.steps.3.title": "Print your return label",
+    "returns.howTo.steps.3.description": "and packing slip.",
+    "returns.howTo.steps.4.title": "Package your return",
+    "returns.howTo.steps.4.description":
+      "securely with the original packaging if possible.",
+    "returns.howTo.steps.5.title": "Ship your return",
+    "returns.howTo.steps.5.description": "using the provided label.",
+    "returns.processing.title": "Return Processing",
+    "returns.processing.processingTime":
+      "Processing time: 3-5 business days after we receive your return",
+    "returns.processing.refunds":
+      "Refunds will be issued to the original payment method",
+    "returns.processing.confirmation":
+      "You will receive an email confirmation once your return is processed",
+    "returns.needHelp.title": "Need Help With Your Return?",
+    "returns.needHelp.description":
+      "Our customer service team is here to assist you with any questions about returns or exchanges.",
+    "returns.needHelp.contactButton": "Contact Us",
+    "returns.needHelp.helpButton": "Visit Help Center",
+
     // Profile
     "profile.title": "Profile Dashboard",
     "profile.subtitle": "Manage your fashion journey and preferences",
@@ -868,6 +968,105 @@ const translations = {
     "footer.link.privacy": "Politiki y'Ibanga",
     "footer.link.terms": "Amasezerano",
     "footer.link.cookies": "Cookies",
+
+    // Help Page
+    "help.title": "Ikigo cy'Ubufasha",
+    "help.subtitle":
+      "Shakisha ibisubizo by'ibibazo bikunze kubazwa kandi ubone ubufasha",
+    "help.faq.title": "Ibibazo Bikunze Kubazwa",
+    "help.faq.trackOrder.question": "Nigute nakurikirana itumye yanjye?",
+    "help.faq.trackOrder.answer":
+      "Nimara koherezwa uzabona nimero yo gukurikira kuri email yawe.",
+    "help.faq.paymentMethods.question": "Ni ubuhe buryo bwo kwishyura mwemera?",
+    "help.faq.paymentMethods.answer":
+      "Twemera MOMO, PayPal, na viremente. Ibikorwa byose birinzwe kandi byizewe.",
+    "help.faq.returnItem.question": "Nigute nasubiza igicuruzwa?",
+    "help.faq.returnItem.answer": "Ushobora gutangiza gusubiza unyuze kuri",
+    "help.faq.returnItem.link": "ipaji yo gusubiza",
+    "help.contact.title": "Serivisi y'Abakiriya",
+    "help.contact.description":
+      "Ntiwabonye icyo ushaka? Itsinda ryacu ry'ubufasha rirahari kugufasha.",
+    "help.contact.button": "Tuvugishe",
+    "help.sizeGuide.title": "Inyobora y'Ingano",
+    "help.sizeGuide.description": "Ntiwizeye ingano yawe? Reba",
+    "help.sizeGuide.link": "inyobora y'ingano",
+
+    // Size Guide Page
+    "sizeGuide.title": "Inyobora y'Ingano",
+    "sizeGuide.subtitle":
+      "Shakisha ingano ikubereye ukoresheje iyi nyobora yuzuye",
+    "sizeGuide.howToMeasure.title": "Uko Upima",
+    "sizeGuide.howToMeasure.bust.title": "Igituza",
+    "sizeGuide.howToMeasure.bust.description":
+      "Pima uzengurutse ahantu ha igituza hanini, umugozi ukagumana mu rwego.",
+    "sizeGuide.howToMeasure.waist.title": "Urukwavu",
+    "sizeGuide.howToMeasure.waist.description":
+      "Pima uzengurutse ku rukwavu rwawe, udakaza cyane umugozi.",
+    "sizeGuide.howToMeasure.hips.title": "Ibisenge",
+    "sizeGuide.howToMeasure.hips.description":
+      "Hagarara ibirenge bihuje, upime uzengurutse ku gice kinini cy'ibisenge.",
+    "sizeGuide.howToMeasure.inseam.title": "Uburebure bw'imbere",
+    "sizeGuide.howToMeasure.inseam.description":
+      "Pima uhereye hejuru y'imbere y'ukuguru ujya ku gutuza.",
+    "sizeGuide.womensSizeChart.title": "Urutonde rw'Ingano z'Abagore",
+    "sizeGuide.womensSizeChart.headers.size": "Ingano",
+    "sizeGuide.womensSizeChart.headers.bust": "Igituza (in)",
+    "sizeGuide.womensSizeChart.headers.waist": "Urukwavu (in)",
+    "sizeGuide.womensSizeChart.headers.hips": "Ibisenge (in)",
+    "sizeGuide.womensSizeChart.sizes.XS.bust": "32-34",
+    "sizeGuide.womensSizeChart.sizes.XS.waist": "24-26",
+    "sizeGuide.womensSizeChart.sizes.XS.hips": "34-36",
+    "sizeGuide.womensSizeChart.sizes.S.bust": "34-36",
+    "sizeGuide.womensSizeChart.sizes.S.waist": "26-28",
+    "sizeGuide.womensSizeChart.sizes.S.hips": "36-38",
+    "sizeGuide.womensSizeChart.sizes.M.bust": "36-38",
+    "sizeGuide.womensSizeChart.sizes.M.waist": "28-30",
+    "sizeGuide.womensSizeChart.sizes.M.hips": "38-40",
+    "sizeGuide.womensSizeChart.sizes.L.bust": "38-40",
+    "sizeGuide.womensSizeChart.sizes.L.waist": "30-32",
+    "sizeGuide.womensSizeChart.sizes.L.hips": "40-42",
+    "sizeGuide.womensSizeChart.sizes.XL.bust": "40-42",
+    "sizeGuide.womensSizeChart.sizes.XL.waist": "32-34",
+    "sizeGuide.womensSizeChart.sizes.XL.hips": "42-44",
+    "sizeGuide.needHelp.title": "Ukeneye Ubufasha?",
+    "sizeGuide.needHelp.description":
+      "Niba utizeye ingano yawe cyangwa ukeneye ubufasha, itsinda ryacu rirahari kugufasha.",
+    "sizeGuide.needHelp.button": "Tuvugishe",
+
+    // Returns Page
+    "returns.title": "Gusubiza & Guhinduranya",
+    "returns.subtitle": "Politiki yoroshye yo gusubiza no guhinduranya",
+    "returns.policy.title": "Politiki yo Gusubiza",
+    "returns.policy.description":
+      "Turifuza ko wanyuzwe n'ibyo waguze. Niba utishimiye ibyo wategetse, turi hano kugufasha.",
+    "returns.policy.important": "By'ingenzi",
+    "returns.policy.importantText":
+      "Gusubiza bigomba gutangizwa mu minsi 30 nyuma yo kwakira ibicuruzwa. Ibicuruzwa bigomba kuba bitambaye, bitameshe, kandi bifite utumenyetso twabyo.",
+    "returns.howTo.title": "Uko Wasubiza Igicuruzwa",
+    "returns.howTo.steps.1.title": "Injira kuri konti yawe",
+    "returns.howTo.steps.1.description": "ujye mu mateka y'ibyo wategetse.",
+    "returns.howTo.steps.2.title": "Hitamo ibicuruzwa ushaka gusubiza",
+    "returns.howTo.steps.2.description": "ukurikize amabwiriza.",
+    "returns.howTo.steps.3.title": "Icapiro label yo gusubiza",
+    "returns.howTo.steps.3.description": "n'impapuro zo gupakira.",
+    "returns.howTo.steps.4.title": "Pakira ibyo usubiza",
+    "returns.howTo.steps.4.description":
+      "ubishyire mu ipaki neza niba bishoboka.",
+    "returns.howTo.steps.5.title": "Ohereza ibyo usubije",
+    "returns.howTo.steps.5.description": "ukoresheje label wabonye.",
+    "returns.processing.title": "Gutunganya Gusubiza",
+    "returns.processing.processingTime":
+      "Igihe cyo gutunganya: iminsi 3-5 nyuma yo kwakira ibyo usubije",
+    "returns.processing.refunds":
+      "Amafaranga asubizwa ku buryo bwo kwishyura bwakozweho",
+    "returns.processing.confirmation":
+      "Uzahabwa email yo kwemeza nyuma yo gutunganya",
+    "returns.needHelp.title": "Ukeneye Ubufasha Kuri Gusubiza?",
+    "returns.needHelp.description":
+      "Itsinda ryacu riri hano kugufasha ku bibazo byose birebana no gusubiza cyangwa guhinduranya.",
+    "returns.needHelp.contactButton": "Tuvugishe",
+    "returns.needHelp.helpButton": "Sura Ikigo cy'Ubufasha",
+
     "footer.copyright": "© {year} Nyambika.",
     "footer.allRights": "Uburenganzira bwose burabitswe.",
   },
@@ -1119,6 +1318,109 @@ const translations = {
     "footer.link.privacy": "Confidentialité",
     "footer.link.terms": "Conditions",
     "footer.link.cookies": "Cookies",
+
+    // Help Page
+    "help.title": "Centre d'Aide",
+    "help.subtitle":
+      "Trouvez des réponses aux questions fréquentes et obtenez de l'assistance",
+    "help.faq.title": "Questions Fréquemment Posées",
+    "help.faq.trackOrder.question": "Comment suivre ma commande ?",
+    "help.faq.trackOrder.answer":
+      "Une fois votre commande expédiée, vous recevrez un numéro de suivi par e-mail.",
+    "help.faq.paymentMethods.question":
+      "Quels moyens de paiement acceptez-vous ?",
+    "help.faq.paymentMethods.answer":
+      "Nous acceptons toutes les cartes bancaires principales, MOMO, PayPal et virements bancaires. Toutes les transactions sont sécurisées.",
+    "help.faq.returnItem.question": "Comment retourner un article ?",
+    "help.faq.returnItem.answer":
+      "Vous pouvez initier un retour en visitant notre",
+    "help.faq.returnItem.link": "page de retours",
+    "help.contact.title": "Contacter le Support",
+    "help.contact.description":
+      "Vous ne trouvez pas ce que vous cherchez ? Notre équipe est là pour vous aider.",
+    "help.contact.button": "Nous Contacter",
+    "help.sizeGuide.title": "Guide des Tailles",
+    "help.sizeGuide.description":
+      "Vous n'êtes pas sûr de votre taille ? Consultez notre",
+    "help.sizeGuide.link": "guide des tailles",
+
+    // Size Guide Page
+    "sizeGuide.title": "Guide des Tailles",
+    "sizeGuide.subtitle":
+      "Trouvez votre taille parfaite avec notre guide complet",
+    "sizeGuide.howToMeasure.title": "Comment Mesurer",
+    "sizeGuide.howToMeasure.bust.title": "Poitrine",
+    "sizeGuide.howToMeasure.bust.description":
+      "Mesurez autour de la partie la plus large de votre poitrine, en gardant le mètre à l'horizontale.",
+    "sizeGuide.howToMeasure.waist.title": "Taille",
+    "sizeGuide.howToMeasure.waist.description":
+      "Mesurez autour de votre taille naturelle, en gardant le mètre légèrement lâche.",
+    "sizeGuide.howToMeasure.hips.title": "Hanches",
+    "sizeGuide.howToMeasure.hips.description":
+      "Tenez-vous debout pieds joints et mesurez autour de la partie la plus large de vos hanches.",
+    "sizeGuide.howToMeasure.inseam.title": "Entrejambe",
+    "sizeGuide.howToMeasure.inseam.description":
+      "Mesurez depuis le haut de l'intérieur de la cuisse jusqu'à la cheville.",
+    "sizeGuide.womensSizeChart.title": "Tableau des Tailles Femmes",
+    "sizeGuide.womensSizeChart.headers.size": "Taille",
+    "sizeGuide.womensSizeChart.headers.bust": "Poitrine (po)",
+    "sizeGuide.womensSizeChart.headers.waist": "Taille (po)",
+    "sizeGuide.womensSizeChart.headers.hips": "Hanches (po)",
+    "sizeGuide.womensSizeChart.sizes.XS.bust": "32-34",
+    "sizeGuide.womensSizeChart.sizes.XS.waist": "24-26",
+    "sizeGuide.womensSizeChart.sizes.XS.hips": "34-36",
+    "sizeGuide.womensSizeChart.sizes.S.bust": "34-36",
+    "sizeGuide.womensSizeChart.sizes.S.waist": "26-28",
+    "sizeGuide.womensSizeChart.sizes.S.hips": "36-38",
+    "sizeGuide.womensSizeChart.sizes.M.bust": "36-38",
+    "sizeGuide.womensSizeChart.sizes.M.waist": "28-30",
+    "sizeGuide.womensSizeChart.sizes.M.hips": "38-40",
+    "sizeGuide.womensSizeChart.sizes.L.bust": "38-40",
+    "sizeGuide.womensSizeChart.sizes.L.waist": "30-32",
+    "sizeGuide.womensSizeChart.sizes.L.hips": "40-42",
+    "sizeGuide.womensSizeChart.sizes.XL.bust": "40-42",
+    "sizeGuide.womensSizeChart.sizes.XL.waist": "32-34",
+    "sizeGuide.womensSizeChart.sizes.XL.hips": "42-44",
+    "sizeGuide.needHelp.title": "Besoin d'Aide ?",
+    "sizeGuide.needHelp.description":
+      "Si vous n'êtes pas sûr de votre taille ou avez besoin d'assistance, notre équipe est heureuse de vous aider.",
+    "sizeGuide.needHelp.button": "Nous Contacter",
+
+    // Returns Page
+    "returns.title": "Retours & Échanges",
+    "returns.subtitle": "Notre politique de retour et d'échange sans tracas",
+    "returns.policy.title": "Notre Politique de Retour",
+    "returns.policy.description":
+      "Nous voulons que vous soyez complètement satisfait de votre achat. Si vous n'êtes pas content de votre commande, nous sommes là pour vous aider.",
+    "returns.policy.important": "Important",
+    "returns.policy.importantText":
+      "Les retours doivent être initiés dans les 30 jours suivant la réception de votre commande. Les articles doivent être non portés, non lavés et avec toutes les étiquettes d'origine.",
+    "returns.howTo.title": "Comment Retourner un Article",
+    "returns.howTo.steps.1.title": "Connectez-vous à votre compte",
+    "returns.howTo.steps.1.description":
+      "et allez dans votre historique de commandes.",
+    "returns.howTo.steps.2.title": "Sélectionnez le(s) article(s) à retourner",
+    "returns.howTo.steps.2.description": "et suivez les instructions.",
+    "returns.howTo.steps.3.title": "Imprimez votre étiquette de retour",
+    "returns.howTo.steps.3.description": "et le bordereau d'emballage.",
+    "returns.howTo.steps.4.title": "Emballez votre retour",
+    "returns.howTo.steps.4.description":
+      "de manière sécurisée avec l'emballage d'origine si possible.",
+    "returns.howTo.steps.5.title": "Expédiez votre retour",
+    "returns.howTo.steps.5.description": "en utilisant l'étiquette fournie.",
+    "returns.processing.title": "Traitement des Retours",
+    "returns.processing.processingTime":
+      "Délai de traitement : 3-5 jours ouvrables après réception de votre retour",
+    "returns.processing.refunds":
+      "Les remboursements seront effectués sur le mode de paiement d'origine",
+    "returns.processing.confirmation":
+      "Vous recevrez une confirmation par e-mail une fois votre retour traité",
+    "returns.needHelp.title": "Besoin d'Aide pour Votre Retour ?",
+    "returns.needHelp.description":
+      "Notre équipe est là pour vous aider avec toutes les questions concernant les retours ou échanges.",
+    "returns.needHelp.contactButton": "Nous Contacter",
+    "returns.needHelp.helpButton": "Visiter le Centre d'Aide",
+
     "footer.copyright": "© {year} Nyambika.",
     "footer.allRights": "Tous droits réservés.",
   },
