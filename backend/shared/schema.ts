@@ -153,7 +153,59 @@ export const tryOnSessions = pgTable("try_on_sessions", {
   tryOnImageUrl: text("try_on_image_url"),
   fitRecommendation: text("fit_recommendation"), // JSON string
   status: text("status").notNull().default("processing"), // processing, completed, failed
+  isFavorite: boolean("is_favorite").default(false), // user can favorite try-ons
+  notes: text("notes"), // user notes about this try-on
+  rating: integer("rating"), // 1-5 rating for the try-on result
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Outfit Collections - Group try-ons into styled looks
+export const outfitCollections = pgTable("outfit_collections", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  occasion: text("occasion"), // casual, formal, party, work, etc.
+  season: text("season"), // spring, summer, fall, winter, all-season
+  coverImageUrl: text("cover_image_url"), // main image for the collection
+  isPublic: boolean("is_public").default(false), // share with community
+  likes: integer("likes").default(0),
+  views: integer("views").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Items in outfit collections
+export const outfitItems = pgTable("outfit_items", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  outfitId: varchar("outfit_id").references(() => outfitCollections.id).notNull(),
+  tryOnSessionId: varchar("try_on_session_id").references(() => tryOnSessions.id),
+  productId: varchar("product_id").references(() => products.id),
+  position: integer("position").default(0), // ordering within outfit
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User Style Profile - Track preferences and history
+export const userStyleProfiles = pgTable("user_style_profiles", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  favoriteColors: text("favorite_colors").array(), // tracked from try-on history
+  favoriteCategories: text("favorite_categories").array(),
+  preferredBrands: text("preferred_brands").array(),
+  stylePreferences: text("style_preferences"), // JSON: {casual: 0.8, formal: 0.3, etc}
+  bodyType: text("body_type"),
+  skinTone: text("skin_tone"),
+  aiInsights: text("ai_insights"), // JSON with AI-generated style insights
+  lastAnalyzedAt: timestamp("last_analyzed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const reviews = pgTable("reviews", {
@@ -357,6 +409,12 @@ export const insertFavoriteSchema = createInsertSchema(favorites).omit({ created
 
 export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({ createdAt: true });
 
+export const insertOutfitCollectionSchema = createInsertSchema(outfitCollections).omit({ createdAt: true, updatedAt: true });
+
+export const insertOutfitItemSchema = createInsertSchema(outfitItems).omit({ createdAt: true });
+
+export const insertUserStyleProfileSchema = createInsertSchema(userStyleProfiles).omit({ createdAt: true, updatedAt: true });
+
 export const insertReviewSchema = createInsertSchema(reviews).omit({ createdAt: true });
 
 export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({ createdAt: true });
@@ -402,6 +460,15 @@ export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 
 export type TryOnSession = typeof tryOnSessions.$inferSelect;
 export type InsertTryOnSession = z.infer<typeof insertTryOnSessionSchema>;
+
+export type OutfitCollection = typeof outfitCollections.$inferSelect;
+export type InsertOutfitCollection = z.infer<typeof insertOutfitCollectionSchema>;
+
+export type OutfitItem = typeof outfitItems.$inferSelect;
+export type InsertOutfitItem = z.infer<typeof insertOutfitItemSchema>;
+
+export type UserStyleProfile = typeof userStyleProfiles.$inferSelect;
+export type InsertUserStyleProfile = z.infer<typeof insertUserStyleProfileSchema>;
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;

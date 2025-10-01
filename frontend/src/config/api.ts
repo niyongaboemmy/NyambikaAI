@@ -170,6 +170,15 @@ export const API_ENDPOINTS = {
   TRY_ON_SESSION_BY_ID: (id: string) => `/api/try-on-sessions/${id}`,
   TRY_ON_SESSION_PROCESS: (id: string) => `/api/try-on-sessions/${id}/process`,
 
+  // Outfit Room
+  OUTFIT_COLLECTIONS: "/api/outfit-collections",
+  OUTFIT_COLLECTION_BY_ID: (id: string) => `/api/outfit-collections/${id}`,
+  OUTFIT_ITEMS: "/api/outfit-items",
+  OUTFIT_ITEM_BY_ID: (id: string) => `/api/outfit-items/${id}`,
+  STYLE_PROFILE: "/api/style-profile",
+  OUTFIT_RECOMMENDATIONS: "/api/outfit-recommendations",
+  STYLE_ANALYTICS: "/api/style-analytics",
+
   // Producers
   PRODUCERS: "/api/producers",
   PRODUCER_BY_ID: (id: string) => `/api/producers/${id}`,

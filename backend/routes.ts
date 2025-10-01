@@ -4852,6 +4852,251 @@ try {
     processSubscriptionPayment
   );
 
+  // ============= MY OUTFIT ROOM API ROUTES =============
+  
+  // Outfit Collections
+  app.get("/api/outfit-collections", requireAuth, async (req: any, res) => {
+    try {
+      const collections = await storage.getOutfitCollections(req.userId);
+      res.json(collections);
+    } catch (error) {
+      console.error("Error fetching outfit collections:", error);
+      res.status(500).json({ message: "Failed to fetch outfit collections" });
+    }
+  });
+
+  app.get("/api/outfit-collections/:id", requireAuth, async (req: any, res) => {
+    try {
+      const collection = await storage.getOutfitCollection(req.params.id);
+      if (!collection) {
+        return res.status(404).json({ message: "Outfit collection not found" });
+      }
+      // Verify ownership
+      if (collection.userId !== req.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+      res.json(collection);
+    } catch (error) {
+      console.error("Error fetching outfit collection:", error);
+      res.status(500).json({ message: "Failed to fetch outfit collection" });
+    }
+  });
+
+  app.post("/api/outfit-collections", requireAuth, async (req: any, res) => {
+    try {
+      const collectionData = {
+        ...req.body,
+        userId: req.userId,
+      };
+      const collection = await storage.createOutfitCollection(collectionData);
+      res.status(201).json(collection);
+    } catch (error) {
+      console.error("Error creating outfit collection:", error);
+      res.status(500).json({ message: "Failed to create outfit collection" });
+    }
+  });
+
+  app.put("/api/outfit-collections/:id", requireAuth, async (req: any, res) => {
+    try {
+      // Verify ownership
+      const existing = await storage.getOutfitCollection(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: "Outfit collection not found" });
+      }
+      if (existing.userId !== req.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const updated = await storage.updateOutfitCollection(req.params.id, req.body);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating outfit collection:", error);
+      res.status(500).json({ message: "Failed to update outfit collection" });
+    }
+  });
+
+  app.delete("/api/outfit-collections/:id", requireAuth, async (req: any, res) => {
+    try {
+      // Verify ownership
+      const existing = await storage.getOutfitCollection(req.params.id);
+      if (!existing) {
+        return res.status(404).json({ message: "Outfit collection not found" });
+      }
+      if (existing.userId !== req.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      await storage.deleteOutfitCollection(req.params.id);
+      res.json({ message: "Outfit collection deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting outfit collection:", error);
+      res.status(500).json({ message: "Failed to delete outfit collection" });
+    }
+  });
+
+  // Outfit Items
+  app.post("/api/outfit-items", requireAuth, async (req: any, res) => {
+    try {
+      // Verify outfit ownership
+      const outfit = await storage.getOutfitCollection(req.body.outfitId);
+      if (!outfit) {
+        return res.status(404).json({ message: "Outfit collection not found" });
+      }
+      if (outfit.userId !== req.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const item = await storage.addItemToOutfit(req.body);
+      res.status(201).json(item);
+    } catch (error) {
+      console.error("Error adding item to outfit:", error);
+      res.status(500).json({ message: "Failed to add item to outfit" });
+    }
+  });
+
+  app.delete("/api/outfit-items/:id", requireAuth, async (req: any, res) => {
+    try {
+      await storage.removeItemFromOutfit(req.params.id);
+      res.json({ message: "Item removed from outfit successfully" });
+    } catch (error) {
+      console.error("Error removing item from outfit:", error);
+      res.status(500).json({ message: "Failed to remove item from outfit" });
+    }
+  });
+
+  // User Style Profile
+  app.get("/api/style-profile", requireAuth, async (req: any, res) => {
+    try {
+      let profile = await storage.getUserStyleProfile(req.userId);
+      
+      // Create default profile if it doesn't exist
+      if (!profile) {
+        profile = await storage.createUserStyleProfile({
+          userId: req.userId,
+          favoriteColors: [],
+          favoriteCategories: [],
+          preferredBrands: [],
+          stylePreferences: JSON.stringify({}),
+          aiInsights: JSON.stringify({}),
+        });
+      }
+      
+      res.json(profile);
+    } catch (error) {
+      console.error("Error fetching style profile:", error);
+      res.status(500).json({ message: "Failed to fetch style profile" });
+    }
+  });
+
+  app.put("/api/style-profile", requireAuth, async (req: any, res) => {
+    try {
+      const updated = await storage.updateUserStyleProfile(req.userId, req.body);
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating style profile:", error);
+      res.status(500).json({ message: "Failed to update style profile" });
+    }
+  });
+
+  // AI-Powered Recommendations
+  app.get("/api/outfit-recommendations", requireAuth, async (req: any, res) => {
+    try {
+      // Get user's try-on history
+      const tryOnSessions = await storage.getTryOnSessions(req.userId);
+      const styleProfile = await storage.getUserStyleProfile(req.userId);
+      
+      // Analyze user preferences from history
+      const categoryFrequency: Record<string, number> = {};
+      const colorPreferences: Record<string, number> = {};
+      
+      for (const session of tryOnSessions) {
+        if (session.productId) {
+          const product = await storage.getProduct(String(session.productId));
+          if (product) {
+            // Track category preferences
+            if (product.categoryId) {
+              const catId = String(product.categoryId);
+              categoryFrequency[catId] = (categoryFrequency[catId] || 0) + 1;
+            }
+            // Track color preferences
+            if (product.colors && Array.isArray(product.colors)) {
+              product.colors.forEach((color: string) => {
+                colorPreferences[color] = (colorPreferences[color] || 0) + 1;
+              });
+            }
+          }
+        }
+      }
+
+      // Get top categories
+      const topCategories = Object.entries(categoryFrequency)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 3)
+        .map(([catId]) => catId);
+
+      // Get recommended products
+      const recommendations = await storage.getProducts({
+        limit: 20,
+        categoryId: topCategories[0],
+      });
+
+      res.json({
+        recommendations,
+        insights: {
+          topCategories: Object.entries(categoryFrequency)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5),
+          favoriteColors: Object.entries(colorPreferences)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5),
+          totalTryOns: tryOnSessions.length,
+        },
+      });
+    } catch (error) {
+      console.error("Error generating recommendations:", error);
+      res.status(500).json({ message: "Failed to generate recommendations" });
+    }
+  });
+
+  // Style Analytics
+  app.get("/api/style-analytics", requireAuth, async (req: any, res) => {
+    try {
+      const tryOnSessions = await storage.getTryOnSessions(req.userId);
+      const favorites = await storage.getFavorites(req.userId);
+      const outfitCollections = await storage.getOutfitCollections(req.userId);
+
+      // Calculate style metrics
+      const categoryBreakdown: Record<string, number> = {};
+      const monthlyActivity: Record<string, number> = {};
+
+      for (const session of tryOnSessions) {
+        if (session.productId) {
+          const product = await storage.getProduct(String(session.productId));
+          if (product && product.categoryId) {
+            const catId = String(product.categoryId);
+            categoryBreakdown[catId] = (categoryBreakdown[catId] || 0) + 1;
+          }
+        }
+
+        // Track monthly activity
+        const month = new Date(session.createdAt || Date.now()).toISOString().slice(0, 7);
+        monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
+      }
+
+      res.json({
+        totalTryOns: tryOnSessions.length,
+        totalFavorites: favorites.length,
+        totalOutfits: outfitCollections.length,
+        categoryBreakdown,
+        monthlyActivity,
+        recentActivity: tryOnSessions.slice(0, 10),
+      });
+    } catch (error) {
+      console.error("Error fetching style analytics:", error);
+      res.status(500).json({ message: "Failed to fetch style analytics" });
+    }
+  });
+
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     res.json({

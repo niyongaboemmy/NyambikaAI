@@ -41,6 +41,21 @@ interface ExtendedProduct extends Product {
   measurements?: Record<string, Record<string, string>>;
 }
 
+// Helper function to parse array fields that might be stringified
+function parseArrayField(field: any): string[] {
+  if (!field) return [];
+  if (Array.isArray(field)) return field;
+  if (typeof field === "string") {
+    try {
+      const parsed = JSON.parse(field);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export default function ProductDetail() {
   const { id } = useParams();
   const router = useRouter();
@@ -105,13 +120,19 @@ export default function ProductDetail() {
                 []
               )
                 .filter((p: any) => String(p.id) !== String(productIdStr))
-                .map((p: any) => ({
-                  ...p,
-                  images: [
-                    p.imageUrl,
-                    ...((p.additionalImages as string[]) || []),
-                  ].filter(Boolean),
-                }));
+                .map((p: any) => {
+                  const additionalImages = parseArrayField(p.additionalImages);
+                  return {
+                    ...p,
+                    additionalImages,
+                    sizes: parseArrayField(p.sizes),
+                    colors: parseArrayField(p.colors),
+                    images: [
+                      p.imageUrl,
+                      ...additionalImages,
+                    ].filter(Boolean),
+                  };
+                });
               return items;
             } catch {
               return undefined;
@@ -241,14 +262,22 @@ export default function ProductDetail() {
         const response = await apiClient.get(`/api/products/${productId}`);
         const data = response.data;
 
+        // Parse array fields that might be stringified
+        const additionalImages = parseArrayField(data.additionalImages);
+        const sizes = parseArrayField(data.sizes);
+        const colors = parseArrayField(data.colors);
+
         // Build images array from main image and any additional images from backend
         const images = [
           data.imageUrl,
-          ...((data.additionalImages as string[] | undefined) || []),
+          ...additionalImages,
         ].filter(Boolean);
 
         return {
           ...data,
+          additionalImages,
+          sizes,
+          colors,
           images,
           rating: data.rating ?? 0,
           reviewCount: data.reviewCount ?? 0,

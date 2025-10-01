@@ -114,43 +114,50 @@ export default function TryOnWidget({
   useEffect(() => {
     const checkDevice = () => {
       try {
-        const isClient = typeof window !== 'undefined' && typeof navigator !== 'undefined';
+        const isClient =
+          typeof window !== "undefined" && typeof navigator !== "undefined";
         let isMobileDevice = false;
-        
+
         if (isClient) {
           // Mobile detection
-          const userAgent = navigator.userAgent?.toLowerCase() || '';
-          isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-          
+          const userAgent = navigator.userAgent?.toLowerCase() || "";
+          isMobileDevice =
+            /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+              userAgent
+            );
+
           // Performance detection with fallbacks
-          const hardwareConcurrency = (navigator as any).hardwareConcurrency || 4; // Default to 4 if not available
+          const hardwareConcurrency =
+            (navigator as any).hardwareConcurrency || 4; // Default to 4 if not available
           const deviceMemory = (navigator as any).deviceMemory || 4; // Default to 4GB if not available
-          
-          const isLowEndDevice = 
-            (hardwareConcurrency <= 2) || // 2 or fewer CPU cores
-            (deviceMemory < 2); // Less than 2GB RAM
-            
+
+          const isLowEndDevice =
+            hardwareConcurrency <= 2 || // 2 or fewer CPU cores
+            deviceMemory < 2; // Less than 2GB RAM
+
           setIsLowPerformance(isLowEndDevice);
-          
-          console.log(`[Camera] Device: ${isMobileDevice ? 'Mobile' : 'Desktop'}, ` +
-                     `Cores: ${hardwareConcurrency}, RAM: ${deviceMemory}GB, ` +
-                     `Performance: ${isLowEndDevice ? 'Low' : 'Normal'}`);
+
+          console.log(
+            `[Camera] Device: ${isMobileDevice ? "Mobile" : "Desktop"}, ` +
+              `Cores: ${hardwareConcurrency}, RAM: ${deviceMemory}GB, ` +
+              `Performance: ${isLowEndDevice ? "Low" : "Normal"}`
+          );
         }
-        
+
         setIsMobile(isMobileDevice);
       } catch (error) {
-        console.error('[Camera] Error detecting device capabilities:', error);
+        console.error("[Camera] Error detecting device capabilities:", error);
         // Set safe defaults on error
         setIsMobile(false);
         setIsLowPerformance(false);
       }
     };
-    
+
     // Only run on client-side
-    if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
+    if (typeof window !== "undefined" && typeof navigator !== "undefined") {
       checkDevice();
-      window.addEventListener('resize', checkDevice);
-      return () => window.removeEventListener('resize', checkDevice);
+      window.addEventListener("resize", checkDevice);
+      return () => window.removeEventListener("resize", checkDevice);
     }
   }, []);
 
@@ -159,24 +166,24 @@ export default function TryOnWidget({
     return () => {
       // Cleanup camera if open
       if (stream) {
-        console.log('[Camera] Cleaning up camera stream');
-        stream.getTracks().forEach(track => {
+        console.log("[Camera] Cleaning up camera stream");
+        stream.getTracks().forEach((track) => {
           track.stop();
-          if (track.readyState === 'live') {
+          if (track.readyState === "live") {
             track.enabled = false;
           }
         });
         setStream(null);
       }
-      
+
       // Clean up any video element references
       if (videoRef.current) {
         videoRef.current.srcObject = null;
         videoRef.current.pause();
       }
-      
+
       // Force garbage collection on low-end devices
-      if (isLowPerformance && 'gc' in window) {
+      if (isLowPerformance && "gc" in window) {
         // @ts-ignore - gc is not in TypeScript's type definitions
         window.gc();
       }
@@ -244,108 +251,120 @@ export default function TryOnWidget({
       perfRef.current.frameCount = 0;
       perfRef.current.droppedFrames = 0;
       perfRef.current.lastFrameTime = 0;
-      
+
       // Clean up existing stream if any
       if (stream) {
-        console.log('[Camera] Cleaning up previous stream');
-        stream.getTracks().forEach(track => {
+        console.log("[Camera] Cleaning up previous stream");
+        stream.getTracks().forEach((track) => {
           track.stop();
-          if (track.readyState === 'live') {
+          if (track.readyState === "live") {
             track.enabled = false;
           }
         });
         setStream(null);
       }
-      
-      if (typeof navigator === 'undefined' || !navigator.mediaDevices?.getUserMedia) {
+
+      if (
+        typeof navigator === "undefined" ||
+        !navigator.mediaDevices?.getUserMedia
+      ) {
         throw new Error("Camera is not supported in this browser");
       }
-      
+
       // Check if we have camera permissions
       try {
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-        
+        const videoDevices = devices.filter(
+          (device) => device.kind === "videoinput"
+        );
+
         if (videoDevices.length === 0) {
-          throw new Error('No video input devices found');
+          throw new Error("No video input devices found");
         }
-        
+
         console.log(`[Camera] Found ${videoDevices.length} video devices`);
       } catch (err) {
-        console.error('[Camera] Error checking devices:', err);
+        console.error("[Camera] Error checking devices:", err);
       }
-      
+
       // Optimize constraints based on device capabilities
       const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-      
+      const isSafari = /^((?!chrome|android).)*safari/i.test(
+        navigator.userAgent
+      );
+
       // Start with minimal constraints
       const baseConstraints: MediaTrackConstraints = {
         width: { min: 640, ideal: 1280 },
         height: { min: 480, ideal: 720 },
         frameRate: { ideal: 24, max: 30 },
-        aspectRatio: { ideal: 16/9 }
+        aspectRatio: { ideal: 16 / 9 },
       };
-      
+
       // Apply more specific constraints for desktop
       if (!isMobile) {
         baseConstraints.width = { min: 1280, ideal: 1920 };
         baseConstraints.height = { min: 720, ideal: 1080 };
       }
-      
+
       // Create constraints object
       const constraints: MediaStreamConstraints = {
         video: {
           ...baseConstraints,
           facingMode: { ideal: cameraFacing },
         },
-        audio: false
+        audio: false,
       };
-      
-      console.log('[Camera] Using constraints:', constraints);
-      
+
+      console.log("[Camera] Using constraints:", constraints);
+
       // Special handling for iOS/Safari - use simpler constraints
       if (isIOS || isSafari) {
-        console.log('[Camera] iOS/Safari detected, using simplified constraints');
+        console.log(
+          "[Camera] iOS/Safari detected, using simplified constraints"
+        );
         constraints.video = {
           facingMode: { ideal: cameraFacing },
           width: { ideal: 1280 },
           height: { ideal: 720 },
-          frameRate: { ideal: 24 }
+          frameRate: { ideal: 24 },
         };
       }
-      
-      console.log('[Camera] Requesting camera with constraints:', constraints);
+
+      console.log("[Camera] Requesting camera with constraints:", constraints);
       const media = await navigator.mediaDevices.getUserMedia(constraints);
       // Set up performance monitoring
       const track = media.getVideoTracks()[0];
       if (track) {
         const settings = track.getSettings();
-        console.log('[Camera] Active camera settings:', {
+        console.log("[Camera] Active camera settings:", {
           width: settings.width,
           height: settings.height,
           frameRate: settings.frameRate,
-          deviceId: settings.deviceId
+          deviceId: settings.deviceId,
         });
-        
+
         // Monitor frame rate
-        if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && videoRef.current) {
+        if (
+          "requestVideoFrameCallback" in HTMLVideoElement.prototype &&
+          videoRef.current
+        ) {
           let lastTime = performance.now();
           let frames = 0;
-          
+
           const checkFramerate = (now: number) => {
             frames++;
             if (now - lastTime >= 1000) {
               const fps = Math.round((frames * 1000) / (now - lastTime));
               frames = 0;
               lastTime = now;
-              
+
               // Log if FPS drops below threshold
               if (fps < 15) {
                 console.warn(`[Camera] Low FPS detected: ${fps}`);
                 // Auto-adapt quality if FPS is too low
                 if (fps < 10 && !isLowPerformance) {
-                  console.log('[Camera] Enabling low performance mode');
+                  console.log("[Camera] Enabling low performance mode");
                   setIsLowPerformance(true);
                 }
               }
@@ -354,15 +373,15 @@ export default function TryOnWidget({
               videoRef.current.requestVideoFrameCallback(checkFramerate);
             }
           };
-          
+
           if (videoRef.current) {
             videoRef.current.requestVideoFrameCallback(checkFramerate);
           }
         }
       }
-      
+
       setStream(media);
-      
+
       // After permission granted, update camera availability from device list
       if (navigator.mediaDevices?.enumerateDevices) {
         try {
@@ -370,27 +389,27 @@ export default function TryOnWidget({
           const videos = devices.filter((d) => d.kind === "videoinput");
           let front = false;
           let back = false;
-          
+
           // Use a more reliable method to detect front/back cameras
           for (const d of videos) {
             const lbl = (d.label || "").toLowerCase();
-            const isFront = 
-              lbl.includes("front") || 
-              lbl.includes("user") || 
+            const isFront =
+              lbl.includes("front") ||
+              lbl.includes("user") ||
               lbl.includes("webcam") ||
               lbl.includes("face") ||
               d.deviceId.includes("facing:user");
-              
-            const isBack = 
-              lbl.includes("back") || 
-              lbl.includes("rear") || 
+
+            const isBack =
+              lbl.includes("back") ||
+              lbl.includes("rear") ||
               lbl.includes("environment") ||
               d.deviceId.includes("facing:environment");
-              
+
             if (isFront) front = true;
             if (isBack) back = true;
           }
-          
+
           // Fallback to device count if we couldn't determine from labels
           if (!front && !back) {
             if (videos.length >= 2) {
@@ -401,101 +420,131 @@ export default function TryOnWidget({
               back = false;
             }
           }
-          
-          console.log(`[Camera] Detected cameras - Front: ${front}, Back: ${back}`);
+
+          console.log(
+            `[Camera] Detected cameras - Front: ${front}, Back: ${back}`
+          );
           setHasFrontCamera(front);
           setHasBackCamera(back);
         } catch (error) {
-          console.error('[Camera] Error enumerating devices:', error);
+          console.error("[Camera] Error enumerating devices:", error);
         }
       }
       if (videoRef.current) {
         const v = videoRef.current;
-        
+
         // Clear any existing handlers and timeouts
         v.onloadedmetadata = null;
         v.oncanplay = null;
         v.onplay = null;
         v.onpause = null;
         v.onerror = null;
-        
+
         // Set source
         v.srcObject = media;
         v.playsInline = true;
         v.muted = true;
-        v.setAttribute('playsinline', '');
-        v.setAttribute('webkit-playsinline', '');
-        
+        v.setAttribute("playsinline", "");
+        v.setAttribute("webkit-playsinline", "");
+
         // Helper to mark ready safely with performance logging
         const markReady = () => {
           if (isVideoReady) return;
-          
+
           const now = performance.now();
           const timeToReady = now - perfRef.current.cameraStartTime;
-          
+
           if (v.videoWidth > 0 && v.videoHeight > 0) {
-            console.log(`[Camera] Video ready in ${timeToReady.toFixed(0)}ms, resolution: ${v.videoWidth}x${v.videoHeight}`);
+            console.log(
+              `[Camera] Video ready in ${timeToReady.toFixed(
+                0
+              )}ms, resolution: ${v.videoWidth}x${v.videoHeight}`
+            );
             setIsVideoReady(true);
-            
+
             // Log initial performance metrics
             if (perfRef.current.cameraStartTime > 0) {
-              console.log(`[Performance] Camera initialization took ${timeToReady.toFixed(0)}ms`);
+              console.log(
+                `[Performance] Camera initialization took ${timeToReady.toFixed(
+                  0
+                )}ms`
+              );
             }
           } else if (v.readyState >= 2) {
-            console.log(`[Camera] Video ready (fallback) in ${timeToReady.toFixed(0)}ms`);
+            console.log(
+              `[Camera] Video ready (fallback) in ${timeToReady.toFixed(0)}ms`
+            );
             setIsVideoReady(true);
           }
         };
-        
+
         // Set up event handlers with error handling
         const onError = (e: any) => {
-          console.error('[Camera] Video error:', e);
-          setCameraError('Failed to initialize camera stream');
+          console.error("[Camera] Video error:", e);
+          setCameraError("Failed to initialize camera stream");
         };
-        
+
         v.onloadedmetadata = () => {
-          console.log('[Camera] Metadata loaded, starting playback');
+          console.log("[Camera] Metadata loaded, starting playback");
           const playPromise = v.play();
-          
+
           if (playPromise !== undefined) {
             playPromise
               .then(() => {
-                console.log('[Camera] Playback started successfully');
+                console.log("[Camera] Playback started successfully");
                 markReady();
               })
               .catch((err) => {
-                console.error('[Camera] Playback error:', err);
-                
+                console.error("[Camera] Playback error:", err);
+
                 // Try again with user interaction fallback
-                if (err.name === 'NotAllowedError') {
-                  console.log('[Camera] Attempting to recover from autoplay restriction');
+                if (err.name === "NotAllowedError") {
+                  console.log(
+                    "[Camera] Attempting to recover from autoplay restriction"
+                  );
                   const playAfterInteraction = () => {
-                    document.removeEventListener('click', playAfterInteraction);
-                    document.removeEventListener('touchstart', playAfterInteraction);
-                    v.play().catch(e => console.error('[Camera] Recovery play failed:', e));
+                    document.removeEventListener("click", playAfterInteraction);
+                    document.removeEventListener(
+                      "touchstart",
+                      playAfterInteraction
+                    );
+                    v.play().catch((e) =>
+                      console.error("[Camera] Recovery play failed:", e)
+                    );
                   };
-                  document.addEventListener('click', playAfterInteraction, { once: true });
-                  document.addEventListener('touchstart', playAfterInteraction, { once: true });
+                  document.addEventListener("click", playAfterInteraction, {
+                    once: true,
+                  });
+                  document.addEventListener(
+                    "touchstart",
+                    playAfterInteraction,
+                    { once: true }
+                  );
                 }
-                
+
                 markReady(); // Still mark as ready to show something
               });
           }
         };
-        
+
         v.oncanplay = markReady;
-        v.onplay = () => console.log('[Camera] Video playback started');
-        v.onpause = () => console.log('[Camera] Video playback paused');
+        v.onplay = () => console.log("[Camera] Video playback started");
+        v.onpause = () => console.log("[Camera] Video playback paused");
         v.onerror = onError;
-        
+
         // Fallback: if neither event fires promptly
-        const readyTimeout = setTimeout(() => {
-          if (!isVideoReady) {
-            console.warn('[Camera] Using fallback ready detection after timeout');
-            markReady();
-          }
-        }, isMobile ? 3000 : 2000); // Longer timeout for mobile
-        
+        const readyTimeout = setTimeout(
+          () => {
+            if (!isVideoReady) {
+              console.warn(
+                "[Camera] Using fallback ready detection after timeout"
+              );
+              markReady();
+            }
+          },
+          isMobile ? 3000 : 2000
+        ); // Longer timeout for mobile
+
         // Cleanup timeout when component unmounts or stream changes
         return () => clearTimeout(readyTimeout);
       }
@@ -545,41 +594,48 @@ export default function TryOnWidget({
   }, [cameraFacing, isVideoReady, stream, toast]);
 
   const stopCamera = useCallback(() => {
-    console.log('[Camera] Stopping camera');
-    
+    console.log("[Camera] Stopping camera");
+
     if (stream) {
       // Log camera session duration
-      const sessionDuration = performance.now() - perfRef.current.cameraStartTime;
-      console.log(`[Camera] Session duration: ${(sessionDuration / 1000).toFixed(1)}s`);
-      
+      const sessionDuration =
+        performance.now() - perfRef.current.cameraStartTime;
+      console.log(
+        `[Camera] Session duration: ${(sessionDuration / 1000).toFixed(1)}s`
+      );
+
       // Stop all tracks and clean up
-      stream.getTracks().forEach(track => {
+      stream.getTracks().forEach((track) => {
         try {
-          console.log(`[Camera] Stopping track: ${track.kind} (${track.label || 'no label'})`);
+          console.log(
+            `[Camera] Stopping track: ${track.kind} (${
+              track.label || "no label"
+            })`
+          );
           track.stop();
-          if (track.readyState === 'live') {
+          if (track.readyState === "live") {
             track.enabled = false;
           }
         } catch (err) {
-          console.error('[Camera] Error stopping track:', err);
+          console.error("[Camera] Error stopping track:", err);
         }
       });
-      
+
       // Clean up video element
       if (videoRef.current) {
         videoRef.current.pause();
         videoRef.current.srcObject = null;
       }
-      
+
       setStream(null);
-      
+
       // Force garbage collection on low-end devices
-      if (isLowPerformance && 'gc' in window) {
+      if (isLowPerformance && "gc" in window) {
         // @ts-ignore - gc is not in TypeScript's type definitions
         window.gc();
       }
     }
-    
+
     setIsVideoReady(false);
   }, [stream, isLowPerformance]);
   // Persist camera facing preference
@@ -855,10 +911,11 @@ export default function TryOnWidget({
         </p>
         {/* Thumbnails selector */}
         <div className="mt-4 mb-3 flex flex-wrap gap-1 sm:gap-2 items-center justify-center">
-          {otherImages.length > 0 &&
+          {otherImages &&
+            JSON.parse(otherImages.toString()).length > 0 &&
             [
               ...(productImageUrl ? [productImageUrl] : []),
-              ...(otherImages || []),
+              ...(JSON.parse(otherImages.toString()) || []),
             ]
               .filter((v, i, arr) => v && arr.indexOf(v) === i)
               .map((img) => (
@@ -933,7 +990,11 @@ export default function TryOnWidget({
           onChange={handleImageUpload}
         />
         {stream ? (
-          <div className={`flex md:fixed items-center justify-center h-[500px] md:h-full inset-0 z-50 bg-black ${isVideoReady ? 'opacity-100' : 'opacity-0'} transition-opacity duration-300`}>
+          <div
+            className={`flex md:fixed items-center justify-center h-[500px] md:h-full inset-0 z-50 bg-black ${
+              isVideoReady ? "opacity-100" : "opacity-0"
+            } transition-opacity duration-300`}
+          >
             <motion.video
               ref={videoRef}
               autoPlay
@@ -942,24 +1003,24 @@ export default function TryOnWidget({
               disablePictureInPicture
               disableRemotePlayback
               className={`w-full h-full lg:w-[300px] object-cover bg-black rounded-xl ${
-                isLowPerformance ? 'transform scale-95' : ''
+                isLowPerformance ? "transform scale-95" : ""
               }`}
               style={{
                 // Optimize for GPU rendering
-                transform: 'translateZ(0)',
-                backfaceVisibility: 'hidden',
+                transform: "translateZ(0)",
+                backfaceVisibility: "hidden",
                 perspective: 1000,
                 // Apply will-change only when needed
-                willChange: isVideoReady ? 'transform, opacity' : 'auto'
+                willChange: isVideoReady ? "transform, opacity" : "auto",
               }}
               initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ 
+              animate={{
                 opacity: isVideoReady ? 1 : 0,
-                scale: isVideoReady ? 1 : 0.98
+                scale: isVideoReady ? 1 : 0.98,
               }}
-              transition={{ 
+              transition={{
                 duration: 0.3,
-                ease: [0.2, 0.8, 0.2, 1]
+                ease: [0.2, 0.8, 0.2, 1],
               }}
             />
             {!isVideoReady && !cameraError && (

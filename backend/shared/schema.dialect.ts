@@ -18,6 +18,9 @@ export const orders = s.orders;
 export const orderItems = s.orderItems;
 export const favorites = s.favorites;
 export const tryOnSessions = s.tryOnSessions;
+export const outfitCollections = s.outfitCollections;
+export const outfitItems = s.outfitItems;
+export const userStyleProfiles = s.userStyleProfiles;
 export const reviews = s.reviews;
 export const subscriptionPlans = s.subscriptionPlans;
 export const subscriptions = s.subscriptions;
@@ -39,6 +42,9 @@ export const insertOrderSchema = s.insertOrderSchema;
 export const insertOrderItemSchema = s.insertOrderItemSchema;
 export const insertFavoriteSchema = s.insertFavoriteSchema;
 export const insertTryOnSessionSchema = s.insertTryOnSessionSchema;
+export const insertOutfitCollectionSchema = s.insertOutfitCollectionSchema;
+export const insertOutfitItemSchema = s.insertOutfitItemSchema;
+export const insertUserStyleProfileSchema = s.insertUserStyleProfileSchema;
 export const insertReviewSchema = s.insertReviewSchema;
 export const insertSubscriptionPlanSchema = s.insertSubscriptionPlanSchema;
 export const insertSubscriptionSchema = s.insertSubscriptionSchema;
@@ -70,6 +76,12 @@ export type {
   InsertFavorite,
   TryOnSession,
   InsertTryOnSession,
+  OutfitCollection,
+  InsertOutfitCollection,
+  OutfitItem,
+  InsertOutfitItem,
+  UserStyleProfile,
+  InsertUserStyleProfile,
   Review,
   InsertReview,
   SubscriptionPlan,

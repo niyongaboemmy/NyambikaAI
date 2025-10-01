@@ -7,6 +7,9 @@ import {
   orderItems,
   favorites,
   tryOnSessions,
+  outfitCollections,
+  outfitItems,
+  userStyleProfiles,
   reviews,
   companies,
   subscriptions,
@@ -28,6 +31,12 @@ import {
   type InsertFavorite,
   type TryOnSession,
   type InsertTryOnSession,
+  type OutfitCollection,
+  type InsertOutfitCollection,
+  type OutfitItem,
+  type InsertOutfitItem,
+  type UserStyleProfile,
+  type InsertUserStyleProfile,
   type Review,
   type InsertReview,
 } from "./shared/schema.dialect";
@@ -108,6 +117,26 @@ export interface IStorage {
     id: string,
     updates: Partial<InsertTryOnSession>
   ): Promise<TryOnSession | undefined>;
+
+  // Outfit Collection operations
+  getOutfitCollections(userId: string): Promise<OutfitCollection[]>;
+  getOutfitCollection(id: string): Promise<(OutfitCollection & { items: (OutfitItem & { tryOnSession?: TryOnSession; product?: Product })[] }) | undefined>;
+  createOutfitCollection(collection: InsertOutfitCollection): Promise<OutfitCollection>;
+  updateOutfitCollection(
+    id: string,
+    updates: Partial<InsertOutfitCollection>
+  ): Promise<OutfitCollection | undefined>;
+  deleteOutfitCollection(id: string): Promise<void>;
+  addItemToOutfit(item: InsertOutfitItem): Promise<OutfitItem>;
+  removeItemFromOutfit(id: string): Promise<void>;
+
+  // User Style Profile operations
+  getUserStyleProfile(userId: string): Promise<UserStyleProfile | undefined>;
+  createUserStyleProfile(profile: InsertUserStyleProfile): Promise<UserStyleProfile>;
+  updateUserStyleProfile(
+    userId: string,
+    updates: Partial<InsertUserStyleProfile>
+  ): Promise<UserStyleProfile | undefined>;
 
   // Reviews operations
   getReviews(productId?: string): Promise<Review[]>;
@@ -730,6 +759,164 @@ export class DatabaseStorage implements IStorage {
         .where(eq(tryOnSessions.id, id))
         .returning();
       return session || undefined;
+    }
+  }
+
+  // Outfit Collection operations
+  async getOutfitCollections(userId: string): Promise<OutfitCollection[]> {
+    try {
+      return await db
+        .select()
+        .from(outfitCollections)
+        .where(eq(outfitCollections.userId, userId))
+        .orderBy(desc(outfitCollections.createdAt));
+    } catch (error) {
+      console.error("Database error in getOutfitCollections:", error);
+      return [];
+    }
+  }
+
+  async getOutfitCollection(id: string): Promise<(OutfitCollection & { items: (OutfitItem & { tryOnSession?: TryOnSession; product?: Product })[] }) | undefined> {
+    try {
+      const [collection] = await db
+        .select()
+        .from(outfitCollections)
+        .where(eq(outfitCollections.id, id));
+      
+      if (!collection) return undefined;
+
+      // Get outfit items with related try-on sessions and products
+      const items = await db
+        .select({
+          outfitItem: outfitItems,
+          tryOnSession: tryOnSessions,
+          product: products,
+        })
+        .from(outfitItems)
+        .leftJoin(tryOnSessions, eq(outfitItems.tryOnSessionId, tryOnSessions.id))
+        .leftJoin(products, eq(outfitItems.productId, products.id))
+        .where(eq(outfitItems.outfitId, id))
+        .orderBy(asc(outfitItems.position));
+
+      return {
+        ...collection,
+        items: items.map((item: any) => ({
+          ...item.outfitItem,
+          tryOnSession: item.tryOnSession || undefined,
+          product: item.product || undefined,
+        })),
+      };
+    } catch (error) {
+      console.error("Database error in getOutfitCollection:", error);
+      return undefined;
+    }
+  }
+
+  async createOutfitCollection(collection: InsertOutfitCollection): Promise<OutfitCollection> {
+    const id = crypto.randomUUID();
+    await db.insert(outfitCollections).values({ id, ...collection });
+    const [created] = await db
+      .select()
+      .from(outfitCollections)
+      .where(eq(outfitCollections.id, id));
+    if (!created) throw new Error("Failed to create outfit collection");
+    return created;
+  }
+
+  async updateOutfitCollection(
+    id: string,
+    updates: Partial<InsertOutfitCollection>
+  ): Promise<OutfitCollection | undefined> {
+    if (this.isMySQL) {
+      await db
+        .update(outfitCollections)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(outfitCollections.id, id))
+        .execute();
+      const [row] = await db
+        .select()
+        .from(outfitCollections)
+        .where(eq(outfitCollections.id, id));
+      return row || undefined;
+    } else {
+      const [collection] = await db
+        .update(outfitCollections)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(outfitCollections.id, id))
+        .returning();
+      return collection || undefined;
+    }
+  }
+
+  async deleteOutfitCollection(id: string): Promise<void> {
+    // First delete all outfit items
+    await db.delete(outfitItems).where(eq(outfitItems.outfitId, id));
+    // Then delete the collection
+    await db.delete(outfitCollections).where(eq(outfitCollections.id, id));
+  }
+
+  async addItemToOutfit(item: InsertOutfitItem): Promise<OutfitItem> {
+    const id = crypto.randomUUID();
+    await db.insert(outfitItems).values({ id, ...item });
+    const [created] = await db
+      .select()
+      .from(outfitItems)
+      .where(eq(outfitItems.id, id));
+    if (!created) throw new Error("Failed to add item to outfit");
+    return created;
+  }
+
+  async removeItemFromOutfit(id: string): Promise<void> {
+    await db.delete(outfitItems).where(eq(outfitItems.id, id));
+  }
+
+  // User Style Profile operations
+  async getUserStyleProfile(userId: string): Promise<UserStyleProfile | undefined> {
+    try {
+      const [profile] = await db
+        .select()
+        .from(userStyleProfiles)
+        .where(eq(userStyleProfiles.userId, userId));
+      return profile || undefined;
+    } catch (error) {
+      console.error("Database error in getUserStyleProfile:", error);
+      return undefined;
+    }
+  }
+
+  async createUserStyleProfile(profile: InsertUserStyleProfile): Promise<UserStyleProfile> {
+    const id = crypto.randomUUID();
+    await db.insert(userStyleProfiles).values({ id, ...profile });
+    const [created] = await db
+      .select()
+      .from(userStyleProfiles)
+      .where(eq(userStyleProfiles.id, id));
+    if (!created) throw new Error("Failed to create user style profile");
+    return created;
+  }
+
+  async updateUserStyleProfile(
+    userId: string,
+    updates: Partial<InsertUserStyleProfile>
+  ): Promise<UserStyleProfile | undefined> {
+    if (this.isMySQL) {
+      await db
+        .update(userStyleProfiles)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(userStyleProfiles.userId, userId))
+        .execute();
+      const [row] = await db
+        .select()
+        .from(userStyleProfiles)
+        .where(eq(userStyleProfiles.userId, userId));
+      return row || undefined;
+    } else {
+      const [profile] = await db
+        .update(userStyleProfiles)
+        .set({ ...updates, updatedAt: new Date() })
+        .where(eq(userStyleProfiles.userId, userId))
+        .returning();
+      return profile || undefined;
     }
   }
 

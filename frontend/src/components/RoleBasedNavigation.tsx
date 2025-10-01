@@ -36,6 +36,7 @@ import {
   Grid3X3,
   Lock,
   Wallet,
+  Sparkles,
 } from "lucide-react";
 import { Badge } from "@/components/custom-ui/badge";
 import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
@@ -94,7 +95,10 @@ export default function RoleBasedNavigation() {
   const ROLE_CONFIGS: Record<RoleKey, RoleConfig> = {
     customer: {
       links: publicLinks,
-      menu: [{ href: "/orders", label: "myOrders", icon: Package }],
+      menu: [
+        { href: "/outfit-room", label: "outfitRoom", icon: Sparkles },
+        { href: "/orders", label: "myOrders", icon: Package },
+      ],
     },
     producer: {
       links: publicLinks,
