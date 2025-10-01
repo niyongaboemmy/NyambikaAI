@@ -118,8 +118,16 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* PWA and Mobile App Meta Tags */}
         <link rel="manifest" href={`/manifest.json?v=${Date.now()}`} />
-        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#6366f1" />
-        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#3730a3" />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: light)"
+          content="#6366f1"
+        />
+        <meta
+          name="theme-color"
+          media="(prefers-color-scheme: dark)"
+          content="#3730a3"
+        />
         <meta name="msapplication-TileColor" content="#6366f1" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -128,7 +136,6 @@ export default function RootLayout({
 
         {/* Global mobile scroll and touch behavior hardening to avoid page disturbance while swiping */}
         <style
-           
           dangerouslySetInnerHTML={{
             __html: `
               html, body {
@@ -146,7 +153,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden">
+      <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden pb-4 sm:pb-0">
         <Providers>
           {children}
           <LoadingIndicatorStyles />
