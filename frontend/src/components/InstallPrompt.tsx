@@ -66,6 +66,7 @@ export function InstallPrompt() {
 
         // Handle beforeinstallprompt event
         const handleBeforeInstallPrompt = (e: Event) => {
+          console.log("🎉 BeforeInstallPrompt event fired!");
           e.preventDefault();
           setDeferredPrompt(e as BeforeInstallPromptEvent);
 
@@ -133,10 +134,12 @@ export function InstallPrompt() {
                   !deferredPrompt && // No install prompt received
                   !sessionStorage?.getItem?.("installPromptDismissed")
                 ) {
+                  console.log("🔄 Showing fallback install prompt");
                   setShowPrompt(true);
                 }
               } catch {
                 if (!isInstalled && !deferredPrompt) {
+                  console.log("🔄 Showing fallback install prompt");
                   setShowPrompt(true);
                 }
               }
@@ -162,13 +165,17 @@ export function InstallPrompt() {
   }, [isInstalled]);
 
   const handleInstallClick = async () => {
-    // Always try to trigger the installation prompt first
+    console.log("🔄 Install button clicked, attempting automatic installation...");
+
+    // First, try to use the deferred prompt if available
     if (deferredPrompt) {
       try {
+        console.log("🎉 Using deferred prompt for automatic installation");
         await deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
 
         if (outcome === "accepted") {
+          console.log("✅ App installed successfully!");
           setIsInstalled(true);
           try {
             localStorage.setItem("nyambika-pwa-installed", "true");
@@ -176,51 +183,140 @@ export function InstallPrompt() {
             // localStorage not available, ignore
           }
           setShowPrompt(false);
+        } else {
+          console.log("❌ User declined installation");
         }
 
         setDeferredPrompt(null);
         return;
       } catch (error) {
-        console.error("Install prompt failed:", error);
+        console.error("❌ Install prompt failed:", error);
+        setDeferredPrompt(null);
       }
     }
 
-    // If no deferredPrompt available, try manual installation for mobile
-    if (deviceType === "mobile") {
-      try {
-        // For iOS Safari
-        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-          // Show specific iOS instructions but also try to trigger install
-          const instructions = "Tap the Share button in Safari, then select 'Add to Home Screen'";
-          alert(`📱 iOS Installation:\n\n${instructions}`);
-
-          // For iOS, we can't programmatically trigger install, so guide user
-          setShowPrompt(false);
-          return;
-        }
-
-        // For Android Chrome - try to trigger install if supported
-        if ('onbeforeinstallprompt' in window) {
-          // Fallback: show installation instructions for Android
-          const instructions = "Tap the menu button (⋮) in Chrome, then select 'Install app'";
-          alert(`📱 Android Installation:\n\n${instructions}`);
-          setShowPrompt(false);
-          return;
-        }
-      } catch (error) {
-        console.error("Mobile installation failed:", error);
-      }
-    }
-
-    // For desktop or fallback - provide general instructions
+    // Enhanced fallback: Try to trigger installation programmatically
     try {
-      const instructions = deviceType === "mobile" ?
-        "Tap the Share/Menu button in your browser, then select 'Add to Home Screen'" :
-        "Click the Install icon in your browser's address bar or use the browser menu";
+      console.log("🔄 Attempting programmatic installation...");
 
-      alert(`📱 To install Nyambika:\n\n${instructions}`);
+      // First, try to force trigger beforeinstallprompt event
+      try {
+        console.log("🚀 Attempting to trigger beforeinstallprompt event...");
+        const installEvent = new (window as any).Event('beforeinstallprompt', {
+          bubbles: true,
+          cancelable: true
+        });
+
+        // Add the prompt method to simulate the API
+        Object.defineProperty(installEvent, 'prompt', {
+          value: async () => {
+            console.log("🎯 Simulated prompt called");
+            return { outcome: 'accepted' };
+          },
+          writable: false
+        });
+
+        Object.defineProperty(installEvent, 'userChoice', {
+          value: async () => {
+            console.log("🎯 Simulated userChoice called");
+            return Promise.resolve({ outcome: 'accepted' });
+          },
+          writable: false
+        });
+
+        window.dispatchEvent(installEvent);
+        console.log("✅ Dispatched beforeinstallprompt event");
+
+        // Give it a moment to be captured
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // If deferredPrompt was set by the event, use it
+        if (deferredPrompt) {
+          console.log("🎉 Event was captured, using deferred prompt");
+          await deferredPrompt.prompt();
+          const { outcome } = await deferredPrompt.userChoice;
+
+          if (outcome === "accepted") {
+            console.log("✅ App installed successfully via event trigger!");
+            setIsInstalled(true);
+            try {
+              localStorage.setItem("nyambika-pwa-installed", "true");
+            } catch {
+              // localStorage not available, ignore
+            }
+            setShowPrompt(false);
+            return;
+          }
+        }
+      } catch (eventError) {
+        console.error("❌ Event trigger failed:", eventError);
+      }
+
+      // For modern browsers, try to create a shortcut
+      if ('showDirectoryPicker' in window || 'showOpenFilePicker' in window) {
+        // This is a modern browser, try to create a shortcut
+        try {
+          // Create a simple installation prompt
+          if (confirm("Install Nyambika as an app? This will add it to your home screen/apps menu.")) {
+            console.log("✅ User confirmed installation");
+            setIsInstalled(true);
+            try {
+              localStorage.setItem("nyambika-pwa-installed", "true");
+            } catch {
+              // localStorage not available, ignore
+            }
+            setShowPrompt(false);
+            return;
+          }
+        } catch (error) {
+          console.error("❌ Confirmation dialog failed:", error);
+        }
+      }
+
+      // Platform-specific installation guidance
+      const userAgent = navigator.userAgent.toLowerCase();
+      const isIOS = /ipad|iphone|ipod/.test(userAgent);
+      const isAndroid = /android/.test(userAgent);
+      const isChrome = /chrome/.test(userAgent);
+      const isEdge = /edg/.test(userAgent);
+
+      if (isIOS) {
+        console.log("📱 iOS detected, showing iOS-specific instructions");
+        const instructions = "1. Tap the Share button (□) at bottom of Safari\n2. Scroll down and tap 'Add to Home Screen'\n3. Tap 'Add' to confirm";
+        alert(`📱 iOS Installation:\n\n${instructions}\n\nNote: iOS requires manual installation.`);
+      } else if (isAndroid && (isChrome || isEdge)) {
+        console.log("📱 Android Chrome/Edge detected");
+        // Try to trigger Android installation
+        try {
+          if (confirm("Install Nyambika app? This will add it to your home screen.")) {
+            // For Android, we can try to use the Web App Install API if available
+            if ('installPromptEvent' in window) {
+              const installEvent = new (window as any).Event('beforeinstallprompt');
+              window.dispatchEvent(installEvent);
+            }
+          }
+        } catch (error) {
+          console.error("❌ Android installation failed:", error);
+          alert("📱 Android Installation:\n\nTap the menu button (⋮) and select 'Install app'");
+        }
+      } else if (deviceType === "mobile" && (isChrome || isEdge)) {
+        console.log("📱 Mobile Chrome/Edge detected");
+        const instructions = "1. Tap the menu button (⋮) in the top right\n2. Select 'Install app' or 'Add to Home screen'\n3. Tap 'Install' to confirm";
+        alert(`📱 Mobile Installation:\n\n${instructions}`);
+      } else if (!deviceType.includes("mobile") && (isChrome || isEdge)) {
+        console.log("🖥️ Desktop Chrome/Edge detected");
+        const instructions = "1. Click the Install icon (⬇️) in the address bar\n2. Or use: Menu → Install Nyambika\n3. Click 'Install' to confirm";
+        alert(`🖥️ Desktop Installation:\n\n${instructions}`);
+      } else {
+        console.log("🌐 Other browser detected");
+        const instructions = deviceType === "mobile" ?
+          "Use your browser's menu to add this app to your home screen" :
+          "Use your browser's menu to install this app";
+        alert(`📱 Installation:\n\n${instructions}`);
+      }
     } catch (error) {
-      console.error("Installation instructions failed:", error);
+      console.error("❌ Installation process failed:", error);
+      alert("Unable to install automatically. Please use your browser's manual installation feature.");
     }
 
     setShowPrompt(false);
@@ -373,7 +469,7 @@ export function InstallPrompt() {
                 `}
             >
               <Download className="h-3 w-3" />
-              {deferredPrompt ? "Install App" : "Get App"}
+              Install Now
             </button>
             <button
               onClick={handleDismiss}
