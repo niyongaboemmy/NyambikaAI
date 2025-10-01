@@ -1,8 +1,8 @@
-import { v4 as uuidv4 } from 'uuid';
-import path from 'path';
-import fs from 'fs';
-import { Request } from 'express';
-import multer, { FileFilterCallback } from 'multer';
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
+import fs from "fs";
+import { Request } from "express";
+import multer, { FileFilterCallback } from "multer";
 
 type DestinationCallback = (error: Error | null, destination: string) => void;
 type FileNameCallback = (error: Error | null, filename: string) => void;
@@ -36,18 +36,20 @@ declare global {
 }
 
 // Extend the Express Request type to include our file types
-declare module 'express-serve-static-core' {
+declare module "express-serve-static-core" {
   interface Request {
     file?: Express.Multer.File;
-    files?: {
-      [fieldname: string]: Express.Multer.File[];
-    } | Express.Multer.File[];
+    files?:
+      | {
+          [fieldname: string]: Express.Multer.File[];
+        }
+      | Express.Multer.File[];
   }
 }
 
 // Use process.cwd() for more reliable path resolution in both dev and prod
 const rootDir = process.cwd();
-const uploadDir = path.join(rootDir, 'public', 'uploads');
+const uploadDir = path.join(rootDir, "public", "uploads");
 
 // Ensure upload directory exists
 if (!fs.existsSync(uploadDir)) {
@@ -81,11 +83,17 @@ const fileFilter = (
   file: Express.Multer.File,
   cb: FileFilterCallback
 ): void => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
+  const allowedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/gif",
+    "image/webp",
+    "application/pdf",
+  ];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only images and PDFs are allowed.'));
+    cb(new Error("Invalid file type. Only images and PDFs are allowed."));
   }
 };
 
@@ -110,7 +118,7 @@ export const deleteFile = (filename: string): Promise<void> => {
   return new Promise((resolve, reject) => {
     const filePath = path.join(uploadDir, filename);
     fs.unlink(filePath, (err) => {
-      if (err && err.code !== 'ENOENT') {
+      if (err && err.code !== "ENOENT") {
         // Ignore file not found errors
         return reject(err);
       }
