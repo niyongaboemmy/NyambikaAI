@@ -741,17 +741,46 @@ export default function TryOnWidget({
       // Convert base64 customer image to Blob
       const personResp = await fetch(customerImage);
       const personBlob = await personResp.blob();
+
       // Obtain garment image as Blob
       if (!selectedGarmentUrl) {
         throw new Error("Product image is required");
       }
       // Convert to API endpoint format for try-on
-      const garmentUrl = selectedGarmentUrl.replace('/uploads/', '/api/uploads/');
+      const garmentUrl = selectedGarmentUrl.replace(
+        "/uploads/",
+        "/api/uploads/"
+      );
       const garmentResp = await fetch(garmentUrl);
       const garmentBlob = await garmentResp.blob();
       const garmentFile = new File([garmentBlob], "garment.jpg", {
         type: garmentResp.headers.get("Content-Type") || "image/jpeg",
       });
+
+      // Create try-on session in database
+      const sessionResponse = await fetch("/api/try-on/sessions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${
+            localStorage.getItem("token") ||
+            localStorage.getItem("authToken") ||
+            localStorage.getItem("auth_token")
+          }`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          productId,
+          productName,
+          customerImageUrl: customerImage,
+          status: "processing",
+        }),
+      });
+
+      if (!sessionResponse.ok) {
+        throw new Error("Failed to create try-on session");
+      }
+
+      const { session } = await sessionResponse.json();
 
       // Build FormData for server route
       const formData = new FormData();
@@ -777,6 +806,25 @@ export default function TryOnWidget({
 
       const j = await res.json();
       if (!res.ok) {
+        // Update session status to failed
+        await fetch(`/api/try-on/sessions/${session.id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem("token") ||
+              localStorage.getItem("authToken") ||
+              localStorage.getItem("auth_token")
+            }`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "failed",
+            errorMessage:
+              j?.error ||
+              j?.details ||
+              `Try-on failed with status ${res.status}`,
+          }),
+        });
         throw new Error(
           j?.error || j?.details || `Try-on failed with status ${res.status}`
         );
@@ -791,6 +839,23 @@ export default function TryOnWidget({
       }
 
       if (image) {
+        // Update session with success
+        await fetch(`/api/try-on/sessions/${session.id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem("token") ||
+              localStorage.getItem("authToken") ||
+              localStorage.getItem("auth_token")
+            }`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            resultImageUrl: image,
+            status: "completed",
+          }),
+        });
+
         // Revoke old blob URL if any
         setTryOnResult((prev) => {
           if (prev && prev.startsWith("blob:")) URL.revokeObjectURL(prev);
@@ -800,9 +865,25 @@ export default function TryOnWidget({
         setTimeout(() => setCelebrate(false), 1200);
         toast({
           title: "Try-on complete!",
-          description: "Your virtual try-on is ready",
+          description: "Your virtual try-on is ready and saved to your history",
         });
       } else {
+        // Update session status to completed without image
+        await fetch(`/api/try-on/sessions/${session.id}`, {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${
+              localStorage.getItem("token") ||
+              localStorage.getItem("authToken") ||
+              localStorage.getItem("auth_token")
+            }`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "completed",
+          }),
+        });
+
         toast({
           title: "Completed without image",
           description: "No image payload returned by provider",
@@ -822,6 +903,7 @@ export default function TryOnWidget({
     customerImage,
     selectedGarmentUrl,
     productId,
+    productName,
     isAuthenticated,
     openLoginPrompt,
     toast,
@@ -916,6 +998,7 @@ export default function TryOnWidget({
         {/* Thumbnails selector */}
         <div className="mt-4 mb-3 flex flex-wrap gap-1 sm:gap-2 items-center justify-center">
           {otherImages &&
+            otherImages.length > 0 &&
             JSON.parse(otherImages.toString()).length > 0 &&
             [
               ...(productImageUrl ? [productImageUrl] : []),

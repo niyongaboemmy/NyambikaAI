@@ -24,6 +24,7 @@ import {
   Mail,
   Lock,
   Check,
+  EyeIcon,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Card, CardContent } from "@/components/custom-ui/card";
@@ -585,7 +586,9 @@ function Profile() {
                             <Edit3 className="h-3 w-3 sm:h-4 sm:w-4" />
                           )}
                           <span className="text-sm">
-                            {isEditing ? t("profile.btn.save") : t("profile.btn.edit")}
+                            {isEditing
+                              ? t("profile.btn.save")
+                              : t("profile.btn.edit")}
                           </span>
                         </div>
                       </Button>
@@ -759,6 +762,17 @@ function Profile() {
                     >
                       <Sparkles className="mr-3 h-4 w-4" />
                       {t("profile.action.tryOn")}
+                    </Button>
+                    <Button
+                      onClick={() => router.push("/try-on-history")}
+                      size="sm"
+                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                    >
+                      <div className="flex items-center">
+                        <EyeIcon className="mr-3 h-4 w-4" />
+                        Try-On History ({tryOnSessions.length})
+                      </div>
+                      <ChevronRight className="h-4 w-4" />
                     </Button>
                     <Button
                       onClick={() => router.push("/favorites")}

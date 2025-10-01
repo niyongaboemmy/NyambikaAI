@@ -84,6 +84,7 @@ import {
   activateProducerSubscription as adminActivateProducerSubscription,
   getProducerSubscriptionAdmin as adminGetProducerSubscription,
 } from "./admin-routes";
+import tryOnRoutes from "./routes/try-on";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   const isMySQL =
@@ -404,6 +405,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(500).json({ message: "Failed to subscribe" });
     }
   });
+
+  // Register try-on routes
+  app.use("/api/try-on", tryOnRoutes);
 
   // Esicia/Kpay configuration imported from centralized module
   const ESICIA_STATIC = ESICIA_CONFIG;
