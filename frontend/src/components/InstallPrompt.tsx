@@ -94,25 +94,21 @@ export function InstallPrompt({ delay = 3000, showAfterDismissalDays = 7 }: Inst
     } else if (isAndroid()) {
       setPlatform('android');
       console.log('📱 Platform detected: Android');
-      // Android: Wait for beforeinstallprompt event OR fallback timer
+      // Android: Wait for beforeinstallprompt event OR show prompt with instructions
       const fallbackTimer = setTimeout(() => {
-        if (!isInstallable) {
-          console.log('⏰ Android fallback timer - showing instructions');
-          setShowPrompt(true);
-          setShowInstructions(true);
-        }
+        console.log('⏰ Android fallback timer - showing prompt');
+        setShowPrompt(true);
+        // Don't auto-open instructions, let user click "Get App" button
       }, delay + 2000); // Show after delay + 2 seconds if no event
       return () => clearTimeout(fallbackTimer);
     } else {
       setPlatform('desktop');
       console.log('💻 Platform detected: Desktop');
-      // Desktop: Wait for beforeinstallprompt event OR fallback timer
+      // Desktop: Wait for beforeinstallprompt event OR show prompt
       const fallbackTimer = setTimeout(() => {
-        if (!isInstallable) {
-          console.log('⏰ Desktop fallback timer - showing instructions');
-          setShowPrompt(true);
-          setShowInstructions(true);
-        }
+        console.log('⏰ Desktop fallback timer - showing prompt');
+        setShowPrompt(true);
+        // Don't auto-open instructions, let user click "Get App" button
       }, delay + 2000); // Show after delay + 2 seconds if no event
       return () => clearTimeout(fallbackTimer);
     }
@@ -415,7 +411,8 @@ export function InstallPrompt({ delay = 3000, showAfterDismissalDays = 7 }: Inst
 
               {/* Actions - more compact layout */}
               <div className="flex gap-2 mt-3">
-                {(isInstallable && deferredPrompt) || platform === 'desktop' ? (
+                {(isInstallable && deferredPrompt) ? (
+                  // Native install available (Chrome/Edge)
                   <button
                     onClick={handleInstall}
                     disabled={isInstalling}
@@ -430,17 +427,18 @@ export function InstallPrompt({ delay = 3000, showAfterDismissalDays = 7 }: Inst
                     ) : (
                       <>
                         <Download className="h-3.5 w-3.5" />
-                        <span>Install</span>
+                        <span>Install Now</span>
                       </>
                     )}
                   </button>
                 ) : (
+                  // Manual instructions (iOS/Firefox/Safari)
                   <button
                     onClick={() => setShowInstructions(true)}
                     className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs sm:text-sm font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
                     <Download className="h-3.5 w-3.5" />
-                    <span>How to</span>
+                    <span>Get App</span>
                   </button>
                 )}
                 

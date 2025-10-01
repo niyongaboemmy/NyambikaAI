@@ -119,7 +119,15 @@ Complete documentation for the Progressive Web App (PWA) implementation in Nyamb
 
 ### 🐛 Bug Fixes & Updates
 
-#### 10. **[BUGFIX_DESKTOP_PROMPT_NOT_SHOWING.md](./BUGFIX_DESKTOP_PROMPT_NOT_SHOWING.md)**
+#### 10. **[PWA_INSTALL_FLOW_EXPLAINED.md](./PWA_INSTALL_FLOW_EXPLAINED.md)**
+**📖 Install Flow Guide** - Complete explanation of installation process
+- Banner purpose and design
+- Two installation paths (Native vs Manual)
+- Button behavior by platform
+- User flow diagrams
+- FAQ and best practices
+
+#### 11. **[BUGFIX_DESKTOP_PROMPT_NOT_SHOWING.md](./BUGFIX_DESKTOP_PROMPT_NOT_SHOWING.md)**
 **🔧 Desktop Prompt Reliability** - Fixed prompt not showing on some browsers
 - Root cause analysis
 - Fallback timer implementation
@@ -127,7 +135,7 @@ Complete documentation for the Progressive Web App (PWA) implementation in Nyamb
 - Browser compatibility matrix
 - Testing scenarios
 
-#### 11. **[BUGFIX_IOS_SAFARI_WARNING.md](./BUGFIX_IOS_SAFARI_WARNING.md)**
+#### 12. **[BUGFIX_IOS_SAFARI_WARNING.md](./BUGFIX_IOS_SAFARI_WARNING.md)**
 **🔧 iOS Safari Warning Fix** - Fixed redundant browser warning
 - Issue description
 - Solution implemented
@@ -208,19 +216,26 @@ frontend/
 
 ## 📊 Documentation Stats
 
-- **Total Documents**: 12 comprehensive guides
-- **Total Pages**: ~175 pages of documentation
-- **Code Examples**: 55+ code snippets
-- **Diagrams**: 15+ visual diagrams
+- **Total Documents**: 13 comprehensive guides
+- **Total Pages**: ~190 pages of documentation
+- **Code Examples**: 60+ code snippets
+- **Diagrams**: 20+ visual diagrams
 - **Checklists**: 100+ testing items
 - **Debug Tools**: PWA diagnostic utility
-- **Coverage**: Complete PWA lifecycle + bug fixes
+- **Coverage**: Complete PWA lifecycle + bug fixes + flow explanations
 
 ---
 
 ## 🔄 Documentation Updates
 
-### Latest Version: 2.2 (October 2025)
+### Latest Version: 2.3 (October 2025)
+- 🎯 Improved button clarity ("Install Now" vs "Get App")
+- 📱 Fixed iOS Safari showing nothing
+- 📖 Created comprehensive install flow guide
+- 🔄 Don't auto-open instructions modal
+- ✨ Better user experience across all platforms
+
+### Version 2.2 (October 2025)
 - 🐛 Fixed desktop prompt not showing reliably
 - ⏰ Added fallback timer for all browsers
 - 🔍 Created PWA debug utility (debugPWA())
