@@ -181,7 +181,7 @@ function ProductRegistration() {
 
   return (
     <ProtectedRoute>
-      <main className="pt-5 pb-16">
+      <main className="pt-8 md:pt-10 pb-16">
         <div className="max-w-4xl mx-auto">
           {/* Block UI while loading plan or products info */}
           {(subLoading || plansLoading || productsLoading) && (

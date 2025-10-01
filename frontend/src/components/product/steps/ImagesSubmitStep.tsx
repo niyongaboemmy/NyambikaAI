@@ -6,8 +6,6 @@ import {
   Camera,
   Sparkles,
   X,
-  Save,
-  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Label } from "@/components/custom-ui/label";

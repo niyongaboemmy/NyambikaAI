@@ -24,7 +24,7 @@ export interface Product extends Omit<SchemaProduct, 'createdAt'> {
 }
 
 // Type for the API response
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ 
 export interface ProductsResponse {
   products: Product[];
   hasMore: boolean;

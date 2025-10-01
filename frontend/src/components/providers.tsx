@@ -11,7 +11,6 @@ import { CartProvider } from "@/contexts/CartContext";
 import RoleBasedNavigation from "@/components/RoleBasedNavigation";
 import AnimatedAIBackground from "@/components/layout/AnimatedAIBackground";
 import Footer from "@/components/Footer";
-import AddProductFAB from "@/components/AddProductFAB";
 import CompanyModal from "@/components/CompanyModal";
 import { usePathname } from "next/navigation";
 import { queryClient } from "@/lib/queryClient";

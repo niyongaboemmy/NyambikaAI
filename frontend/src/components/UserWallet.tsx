@@ -10,7 +10,6 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Wallet,
   TrendingUp,
-  TrendingDown,
   Sparkles,
   Clock,
   CheckCircle,

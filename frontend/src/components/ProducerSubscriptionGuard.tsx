@@ -15,7 +15,6 @@ import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionSt
 import SubscriptionPlanSelector from "./SubscriptionPlanSelector";
 import { apiClient } from "@/config/api";
 import { useToast } from "@/hooks/use-toast";
-import { LoadingIndicatorStyles } from "./loading-indicator-styles";
 import Loading from "@/app/loading";
 
 interface ProducerSubscriptionGuardProps {

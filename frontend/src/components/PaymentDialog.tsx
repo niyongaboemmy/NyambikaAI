@@ -23,14 +23,11 @@ import {
   Wallet,
   Smartphone,
   AlertCircle,
-  CheckCircle,
   Zap,
-  CreditCard,
   ExternalLink,
   Copy,
   RefreshCw,
   Sparkles,
-  Brain,
   X,
 } from "lucide-react";
 import { useUserWalletDialog } from "@/contexts/UserWalletDialogContext";

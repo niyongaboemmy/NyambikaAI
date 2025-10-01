@@ -11,13 +11,10 @@ import {
   QrCode,
   RefreshCw,
   Users,
-  DollarSign,
   Brain,
   Network,
   Zap,
   TrendingUp,
-  Eye,
-  ChevronRight,
   NetworkIcon,
 } from "lucide-react";
 
@@ -124,7 +121,7 @@ export default function AgentReferralsPage() {
       setIndirect(n.data.indirect || []);
       setCommissions(c.data || []);
     } catch (e) {
-      // eslint-disable-next-line no-console
+       
       console.error("Failed to load referral data", e);
     } finally {
       setLoadingData(false);

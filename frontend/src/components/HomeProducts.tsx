@@ -12,7 +12,6 @@ import { useInfiniteProducts } from "@/hooks/useInfiniteProducts";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
 import SelectedCompanyBar from "./feed/SelectedCompanyBar";
-import ProducerEncouragementBanner from "@/components/ProducerEncouragementBanner";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HomeProductsProps {

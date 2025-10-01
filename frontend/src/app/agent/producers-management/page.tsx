@@ -48,7 +48,6 @@ import PaymentDialog, {
 } from "@/components/PaymentDialog";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
 import { apiClient, API_ENDPOINTS } from "@/config/api";
 
 interface Producer {

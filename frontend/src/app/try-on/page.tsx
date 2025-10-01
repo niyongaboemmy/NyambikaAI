@@ -10,7 +10,6 @@ import {
   Sparkles,
   Filter,
   ChevronDown,
-  Eye,
 } from "lucide-react";
 import { Skeleton } from "../../components/custom-ui/skeleton";
 import { Input } from "@/components/custom-ui/input";

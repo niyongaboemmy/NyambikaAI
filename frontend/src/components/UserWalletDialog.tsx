@@ -9,7 +9,7 @@ import {
 } from "@/components/custom-ui/dialog";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { useUserWalletDialog } from "@/contexts/UserWalletDialogContext";
-import { X, ChevronDown } from "lucide-react";
+import { X } from "lucide-react";
 import UserWallet from "@/components/UserWallet";
 
 // Custom CSS for mobile full-screen override

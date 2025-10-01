@@ -5,7 +5,6 @@ import {
   Plus,
   Minus,
   ShoppingBag,
-  CreditCard,
   Zap,
   Sparkles,
 } from "lucide-react";

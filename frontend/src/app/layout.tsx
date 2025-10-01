@@ -43,40 +43,19 @@ export const metadata: Metadata = {
   authors: [{ name: "Nyambika Team" }],
   icons: {
     icon: [
-      {
-        url: "/nyambika_dark_icon.png",
-        type: "image/png",
-        media: "(prefers-color-scheme: dark)",
-      },
-      {
-        url: "/nyambika_dark_icon.png",
-        type: "image/png",
-        media: "(prefers-color-scheme: light)",
-      },
+      { url: "/nyambika_dark_icon.png", media: "(prefers-color-scheme: light)" },
+      { url: "/nyambika_dark_icon.png", media: "(prefers-color-scheme: dark)" },
     ],
     apple: [
-      {
-        url: "/nyambika_dark_icon.png",
-        media: "(prefers-color-scheme: light)",
-      },
-      {
-        url: "/nyambika_dark_icon.png",
-        media: "(prefers-color-scheme: dark)",
-      },
+      { url: "/nyambika_dark_icon.png", media: "(prefers-color-scheme: light)" },
+      { url: "/nyambika_dark_icon.png", media: "(prefers-color-scheme: dark)" },
     ],
   },
   manifest: "/manifest.json",
-  colorScheme: "light dark",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Nyambika - AI Fashion",
-    startupImage: [
-      {
-        url: "/nyambika_dark_icon.png",
-        media: "(orientation: portrait)",
-      },
-    ],
   },
   openGraph: {
     title: "Nyambika - AI-Powered Fashion Platform",
@@ -88,7 +67,7 @@ export const metadata: Metadata = {
       {
         url: "/nyambika_dark_icon.png",
         type: "image/png",
-      } as any,
+      },
     ],
   },
   twitter: {
@@ -141,7 +120,7 @@ export default function RootLayout({
 
         {/* Global mobile scroll and touch behavior hardening to avoid page disturbance while swiping */}
         <style
-          // eslint-disable-next-line react/no-danger
+           
           dangerouslySetInnerHTML={{
             __html: `
               html, body {

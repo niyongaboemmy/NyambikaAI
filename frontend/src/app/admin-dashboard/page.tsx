@@ -15,8 +15,6 @@ import {
   AlertTriangle,
   Eye,
   UserCheck,
-  Ban,
-  MoreVertical,
   Search,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";

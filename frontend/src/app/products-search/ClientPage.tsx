@@ -19,7 +19,6 @@ import { apiClient, API_ENDPOINTS } from "@/config/api";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/custom-ui/button";
 import { Skeleton } from "@/components/custom-ui/skeleton";
-import { Badge } from "@/components/custom-ui/badge";
 import { Card, CardContent } from "@/components/custom-ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 

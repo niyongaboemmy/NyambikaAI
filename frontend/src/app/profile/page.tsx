@@ -15,7 +15,6 @@ import {
   Phone,
   Activity,
   Zap,
-  Brain,
   Target,
   Award,
   ChevronRight,
@@ -24,9 +23,6 @@ import {
   Sun,
   Mail,
   Lock,
-  Stars,
-  Cpu,
-  Atom,
   Check,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";

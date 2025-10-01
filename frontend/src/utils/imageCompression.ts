@@ -162,7 +162,7 @@ export async function compressImageFile(
 
     // If still too big and downscale allowed, reduce dimensions gradually
     if (encoded.size > maxBytes && allowDownscale) {
-      let scale = 0.9; // step down by 10% each iteration
+      const scale = 0.9; // step down by 10% each iteration
       let attempts = 0;
       while (encoded.size > maxBytes && attempts < 10) {
         attempts += 1;

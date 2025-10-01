@@ -1,4 +1,3 @@
-import { UserInterface } from "@/config/api";
 
 // declare module "@/lib/api-client" {
 //   import { AxiosInstance } from "axios";

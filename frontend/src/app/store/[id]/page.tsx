@@ -19,14 +19,12 @@ import BoostProductDialog from "@/components/BoostProductDialog";
 import {
   MapPin,
   Phone,
-  Share2,
   Package,
   Star,
   Heart,
   ShoppingCart,
   Search,
   Grid,
-  List,
   ExternalLink,
   Clock,
   CheckCircle,
@@ -712,7 +710,7 @@ export default function StorePage() {
       {storeJsonLd && (
         <script
           type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
+           
           dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
         />
       )}

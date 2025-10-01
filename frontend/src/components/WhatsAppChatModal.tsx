@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/custom-ui/button";
 import { Badge } from "@/components/custom-ui/badge";
 import { Textarea } from "@/components/custom-ui/textarea";
-import { MessageCircle, Phone, CheckCircle2, XCircle } from "lucide-react";
+import { MessageCircle, Phone } from "lucide-react";
 
 export interface WhatsAppChatModalProps {
   isOpen: boolean;

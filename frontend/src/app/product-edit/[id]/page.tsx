@@ -2,14 +2,12 @@
 
 import React, { useEffect, useMemo } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Button } from "@/components/custom-ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import ProductForm, { ProductFormData } from "@/components/product/ProductForm";
-import { ArrowLeft } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { apiClient, handleApiError } from "@/config/api";
 

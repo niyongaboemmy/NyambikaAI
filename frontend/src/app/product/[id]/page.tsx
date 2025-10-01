@@ -5,8 +5,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
-  Heart,
-  Share2,
   Star,
   ShoppingCart,
   Truck,
@@ -17,10 +15,6 @@ import {
   Edit3,
   Zap,
   MessageCircle,
-  ChevronDown,
-  Package,
-  Clock,
-  MapPin,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { Badge } from "@/components/custom-ui/badge";
@@ -28,13 +22,11 @@ import { Skeleton } from "@/components/custom-ui/skeleton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
-import TryOnWidget from "@/components/TryOnWidget";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { Product } from "@/shared/schema";
 import { useParams, useRouter } from "next/navigation";
-import { useCompany } from "@/contexts/CompanyContext";
 import BoostProductDialog from "@/components/BoostProductDialog";
 import Share from "@/components/Share";
 import WhatsAppChatModal from "@/components/WhatsAppChatModal";

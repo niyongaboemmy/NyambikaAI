@@ -32,7 +32,6 @@ import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { useRouter } from "next/navigation";
 import { apiClient, handleApiError, API_ENDPOINTS } from "@/config/api";
 import { PexelsImageModal } from "@/components/PexelsImageModal";
-import { cn } from "@/lib/utils";
 
 interface Category {
   id: string;
