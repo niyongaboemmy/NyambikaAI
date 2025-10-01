@@ -108,6 +108,15 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  // Improves behavior of on-screen keyboards on mobile
+  interactiveWidget: "resizes-content",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -128,7 +137,6 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Nyambika" />
         <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
         {/* Global mobile scroll and touch behavior hardening to avoid page disturbance while swiping */}
         <style
@@ -136,52 +144,15 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               html, body {
-                height: 100%;
                 -webkit-overflow-scrolling: touch;
                 touch-action: pan-y;
               }
               body {
-                overflow-x: hidden;
                 overscroll-behavior-y: none;
               }
               /* Prevent pull-to-refresh on supported browsers */
               @supports (-webkit-touch-callout: none) {
                 body { overscroll-behavior: none; }
-              }
-
-              /* Handle safe areas for devices with notches */
-              @supports (padding: max(0px)) {
-                body {
-                  padding-top: env(safe-area-inset-top);
-                  padding-bottom: env(safe-area-inset-bottom);
-                  padding-left: env(safe-area-inset-left);
-                  padding-right: env(safe-area-inset-right);
-                }
-              }
-
-              /* Force mobile browser to use full viewport */
-              html {
-                height: 100vh;
-                width: 100vw;
-                margin: 0;
-                padding: 0;
-              }
-
-              /* Hide browser UI for PWA experience */
-              body {
-                margin: 0;
-                padding: 0;
-                height: 100vh;
-                width: 100vw;
-                overflow: hidden;
-              }
-
-              /* Ensure content fits properly */
-              #__next {
-                height: 100vh;
-                width: 100vw;
-                overflow-x: hidden;
-                overscroll-behavior-y: none;
               }
             `,
           }}
