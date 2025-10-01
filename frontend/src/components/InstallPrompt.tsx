@@ -65,32 +65,24 @@ export function InstallPrompt() {
         };
 
         // Handle beforeinstallprompt event
-        const handleBeforeInstallPrompt = (e: Event) => {
+        const handleBeforeInstallPrompt = (e: any) => {
           console.log("🎉 BeforeInstallPrompt event fired!");
           e.preventDefault();
-          setDeferredPrompt(e as BeforeInstallPromptEvent);
+          setDeferredPrompt(e);
 
           // Show prompt after a delay if not installed
           setTimeout(() => {
-            try {
-              if (
-                !isInstalled &&
-                !sessionStorage?.getItem?.("installPromptDismissed")
-              ) {
-                setShowPrompt(true);
-              }
-            } catch {
-              // SessionStorage not available, show prompt anyway
-              if (!isInstalled) setShowPrompt(true);
+            if (!isInstalled) {
+              console.log("🔄 Showing install prompt after beforeinstallprompt");
+              setShowPrompt(true);
             }
-          }, 3000);
+          }, 1000);
         };
 
-        // Handle app installed event
         const handleAppInstalled = () => {
+          console.log("✅ App was installed successfully");
           setIsInstalled(true);
           setShowPrompt(false);
-          setDeferredPrompt(null);
           try {
             localStorage.setItem("nyambika-pwa-installed", "true");
           } catch {
@@ -98,53 +90,60 @@ export function InstallPrompt() {
           }
         };
 
-        // Only proceed if not already installed
-        if (!checkInstalled()) {
-          detectDevice();
+        // Add event listeners
+        window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+        window.addEventListener("appinstalled", handleAppInstalled);
 
-          // Add event listeners
-          window.addEventListener?.(
-            "beforeinstallprompt",
-            handleBeforeInstallPrompt
-          );
-          window.addEventListener?.("appinstalled", handleAppInstalled);
+        // Enhanced detection for desktop browsers
+        if (deviceType === "desktop") {
+          console.log("🖥️ Desktop detected, checking installability...");
 
-          // For development - show prompt for testing
-          if (process.env.NODE_ENV === "development") {
-            setTimeout(() => {
+          // Check if we can trigger install manually after user interaction
+          setTimeout(() => {
+            if (!deferredPrompt && !isInstalled) {
+              console.log("🔄 No beforeinstallprompt fired, attempting manual trigger...");
+
+              // Try to trigger the event manually for desktop browsers
               try {
-                if (
-                  !isInstalled &&
-                  !sessionStorage?.getItem?.("installPromptDismissed")
-                ) {
-                  setShowPrompt(true);
-                }
-              } catch {
-                if (!isInstalled) setShowPrompt(true);
-              }
-            }, 3000);
-          }
+                const installEvent = new (window as any).Event('beforeinstallprompt', {
+                  bubbles: true,
+                  cancelable: true
+                });
 
-          // For production - show prompt after longer delay if beforeinstallprompt doesn't fire
-          if (process.env.NODE_ENV === "production") {
-            setTimeout(() => {
-              try {
-                if (
-                  !isInstalled &&
-                  !deferredPrompt && // No install prompt received
-                  !sessionStorage?.getItem?.("installPromptDismissed")
-                ) {
-                  console.log("🔄 Showing fallback install prompt");
-                  setShowPrompt(true);
-                }
-              } catch {
-                if (!isInstalled && !deferredPrompt) {
-                  console.log("🔄 Showing fallback install prompt");
-                  setShowPrompt(true);
-                }
+                // Add proper PWA API methods
+                Object.defineProperty(installEvent, 'prompt', {
+                  value: async function() {
+                    console.log("🎯 Manual prompt triggered");
+                    return Promise.resolve();
+                  },
+                  writable: false
+                });
+
+                Object.defineProperty(installEvent, 'userChoice', {
+                  value: async function() {
+                    console.log("🎯 Manual user choice");
+                    return Promise.resolve({ outcome: 'accepted' });
+                  },
+                  writable: false
+                });
+
+                window.dispatchEvent(installEvent);
+                console.log("✅ Manual beforeinstallprompt event dispatched");
+              } catch (error) {
+                console.error("❌ Manual event trigger failed:", error);
               }
-            }, 5000); // Longer delay for production
-          }
+            }
+          }, 3000); // Wait 3 seconds for natural event
+        }
+
+        // For development/testing - show prompt after longer delay if no event fired
+        if (process.env.NODE_ENV === 'development') {
+          setTimeout(() => {
+            if (!isInstalled && !deferredPrompt) {
+              console.log("🔄 Development mode: showing fallback install prompt");
+              setShowPrompt(true);
+            }
+          }, 5000); // Longer delay for production
         }
 
         return () => {
