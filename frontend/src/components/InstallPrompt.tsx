@@ -35,7 +35,7 @@ interface InstallPromptProps {
   showAfterDismissalDays?: number;
 }
 
-export function InstallPrompt({ delay = 5000, showAfterDismissalDays = 7 }: InstallPromptProps) {
+export function InstallPrompt({ delay = 3000, showAfterDismissalDays = 7 }: InstallPromptProps) {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -43,6 +43,7 @@ export function InstallPrompt({ delay = 5000, showAfterDismissalDays = 7 }: Inst
   const [isInstalling, setIsInstalling] = useState(false);
   const [platform, setPlatform] = useState<Platform>('desktop');
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [manualTrigger, setManualTrigger] = useState(false);
 
   // Check if user has dismissed the prompt recently
   const checkDismissalStatus = (): boolean => {
@@ -88,6 +89,26 @@ export function InstallPrompt({ delay = 5000, showAfterDismissalDays = 7 }: Inst
       setPlatform('desktop');
     }
   }, [delay, showAfterDismissalDays]);
+
+  // Listen for manual trigger from InstallAppButton
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const handleManualTrigger = () => {
+      console.log('🎯 Manual install trigger activated');
+      setManualTrigger(true);
+      setShowPrompt(true);
+      if (!deferredPrompt) {
+        setShowInstructions(true);
+      }
+    };
+
+    window.addEventListener('show-install-prompt', handleManualTrigger);
+
+    return () => {
+      window.removeEventListener('show-install-prompt', handleManualTrigger);
+    };
+  }, [deferredPrompt]);
 
   // Listen for beforeinstallprompt event (Chrome, Edge, Samsung Internet)
   useEffect(() => {
@@ -217,99 +238,99 @@ export function InstallPrompt({ delay = 5000, showAfterDismissalDays = 7 }: Inst
     }
   };
 
-  // Get platform-specific instructions
+  // Get platform-specific instructions - More compact and modern
   const getPlatformInstructions = () => {
     switch (platform) {
       case 'ios':
         return (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Install Nyambika on your iPhone or iPad:
+          <div className="space-y-2.5 sm:space-y-3">
+            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+              📱 iPhone/iPad Installation:
             </p>
-            <ol className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+            <ol className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-[10px] font-bold">
                   1
                 </span>
-                <span>
-                  Tap the <Share2 className="inline h-4 w-4 mx-1" /> <strong>Share</strong> button below
+                <span className="flex-1">
+                  Tap <Share2 className="inline h-3.5 w-3.5 mx-0.5" /> <strong>Share</strong> button
                 </span>
               </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-white text-[10px] font-bold">
                   2
                 </span>
-                <span>
-                  Scroll down and tap <strong>"Add to Home Screen"</strong> <Plus className="inline h-4 w-4 mx-1" />
+                <span className="flex-1">
+                  Tap <Plus className="inline h-3.5 w-3.5 mx-0.5" /> <strong>"Add to Home Screen"</strong>
                 </span>
               </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-pink-600 text-white text-[10px] font-bold">
                   3
                 </span>
-                <span>Tap <strong>"Add"</strong> in the top right corner</span>
+                <span className="flex-1">Tap <strong>"Add"</strong> to confirm</span>
               </li>
             </ol>
           </div>
         );
       case 'android':
         return (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Install Nyambika on your Android device:
+          <div className="space-y-2.5 sm:space-y-3">
+            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+              📱 Android Installation:
             </p>
-            <ol className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+            <ol className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-[10px] font-bold">
                   1
                 </span>
-                <span>
-                  Tap the <MoreVertical className="inline h-4 w-4 mx-1" /> menu (three dots) in the top right
+                <span className="flex-1">
+                  Tap <MoreVertical className="inline h-3.5 w-3.5 mx-0.5" /> <strong>menu</strong> (⋮)
                 </span>
               </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-white text-[10px] font-bold">
                   2
                 </span>
-                <span>
-                  Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>
+                <span className="flex-1">
+                  Select <strong>"Install app"</strong>
                 </span>
               </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-pink-600 text-white text-[10px] font-bold">
                   3
                 </span>
-                <span>Tap <strong>"Install"</strong> to confirm</span>
+                <span className="flex-1">Confirm installation</span>
               </li>
             </ol>
           </div>
         );
       default:
         return (
-          <div className="space-y-4">
-            <p className="text-sm text-gray-600 dark:text-gray-300">
-              Install Nyambika on your computer:
+          <div className="space-y-2.5 sm:space-y-3">
+            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
+              💻 Desktop Installation:
             </p>
-            <ol className="space-y-3 text-sm text-gray-700 dark:text-gray-300">
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+            <ol className="space-y-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-[10px] font-bold">
                   1
                 </span>
-                <span>
-                  Look for the install icon <Download className="inline h-4 w-4 mx-1" /> in your browser's address bar
+                <span className="flex-1">
+                  Find <Download className="inline h-3.5 w-3.5 mx-0.5" /> icon in address bar
                 </span>
               </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-purple-600 text-white text-[10px] font-bold">
                   2
                 </span>
-                <span>Click it and select <strong>"Install"</strong></span>
+                <span className="flex-1">Click <strong>"Install"</strong></span>
               </li>
-              <li className="flex gap-3">
-                <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-blue-500 text-white text-xs font-medium">
+              <li className="flex gap-2 items-start p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <span className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-pink-600 text-white text-[10px] font-bold">
                   3
                 </span>
-                <span>The app will be added to your desktop</span>
+                <span className="flex-1">App added to desktop!</span>
               </li>
             </ol>
           </div>
@@ -317,152 +338,189 @@ export function InstallPrompt({ delay = 5000, showAfterDismissalDays = 7 }: Inst
     }
   };
 
-  // Don't show if not ready
-  if (!showPrompt || isStandalone()) {
+  // Don't show if not ready (unless manually triggered)
+  if ((!showPrompt && !manualTrigger) || (isStandalone() && !manualTrigger)) {
     return null;
   }
 
   return (
     <>
-      {/* Install Prompt Banner */}
+      {/* Modern Compact Install Banner */}
       {!showInstructions && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 sm:bottom-4 sm:left-4 sm:right-auto sm:max-w-sm animate-in slide-in-from-bottom duration-300">
-          <div className="relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-2xl border border-gray-200 dark:border-gray-700">
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 pointer-events-none" />
+        <div className="fixed bottom-4 right-4 z-50 max-w-[calc(100vw-2rem)] sm:max-w-sm animate-in slide-in-from-bottom-5 fade-in duration-500">
+          <div className="group relative overflow-hidden rounded-2xl backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 shadow-2xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-blue-500/20 transition-all duration-300">
+            {/* Animated gradient background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 blur-xl opacity-0 group-hover:opacity-50 transition-opacity duration-300 -z-10" />
             
-            {/* Content */}
-            <div className="relative p-5">
-              <button
-                onClick={handleDismiss}
-                className="absolute top-3 right-3 p-1 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                aria-label="Dismiss"
-              >
-                <X className="h-4 w-4" />
-              </button>
+            {/* Close button */}
+            <button
+              onClick={handleDismiss}
+              className="absolute top-2 right-2 p-1.5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-800/80 backdrop-blur-sm transition-all duration-200 z-10"
+              aria-label="Dismiss"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
 
-              <div className="flex items-start gap-4 pr-6">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+            {/* Compact Content */}
+            <div className="relative p-3 sm:p-4">
+              <div className="flex items-center gap-3">
+                {/* Icon - smaller and more modern */}
+                <div className="flex-shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
                   {platform === 'ios' || platform === 'android' ? (
-                    <Smartphone className="h-6 w-6 text-white" />
+                    <Smartphone className="h-5 w-5 sm:h-5.5 sm:w-5.5 text-white" />
                   ) : (
-                    <Monitor className="h-6 w-6 text-white" />
+                    <Monitor className="h-5 w-5 sm:h-5.5 sm:w-5.5 text-white" />
                   )}
                 </div>
 
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-gray-900 dark:text-white mb-1">
+                {/* Text - more compact */}
+                <div className="flex-1 min-w-0 pr-6">
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white truncate">
                     Install Nyambika
                   </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300 mb-3">
-                    Get quick access, work offline, and enjoy a native app experience
+                  <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 line-clamp-1">
+                    Quick access • Offline mode
                   </p>
-
-                  <div className="flex flex-wrap gap-2">
-                    {(isInstallable && deferredPrompt) || platform === 'desktop' ? (
-                      <button
-                        onClick={handleInstall}
-                        disabled={isInstalling}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
-                      >
-                        <Download className="h-4 w-4" />
-                        {isInstalling ? 'Installing...' : 'Install Now'}
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setShowInstructions(true)}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-md hover:shadow-lg"
-                      >
-                        <Download className="h-4 w-4" />
-                        How to Install
-                      </button>
-                    )}
-                    
-                    <button
-                      onClick={handleDismiss}
-                      className="px-4 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors"
-                    >
-                      Not Now
-                    </button>
-                  </div>
                 </div>
               </div>
+
+              {/* Actions - more compact layout */}
+              <div className="flex gap-2 mt-3">
+                {(isInstallable && deferredPrompt) || platform === 'desktop' ? (
+                  <button
+                    onClick={handleInstall}
+                    disabled={isInstalling}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs sm:text-sm font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg active:scale-95"
+                  >
+                    {isInstalling ? (
+                      <>
+                        <div className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        <span className="hidden sm:inline">Installing...</span>
+                        <span className="sm:hidden">Wait...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="h-3.5 w-3.5" />
+                        <span>Install</span>
+                      </>
+                    )}
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setShowInstructions(true)}
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs sm:text-sm font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all shadow-md hover:shadow-lg active:scale-95"
+                  >
+                    <Download className="h-3.5 w-3.5" />
+                    <span>How to</span>
+                  </button>
+                )}
+                
+                <button
+                  onClick={handleDismiss}
+                  className="px-3 py-2 rounded-lg bg-gray-100/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium hover:bg-gray-200/80 dark:hover:bg-gray-700/80 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all active:scale-95"
+                >
+                  Later
+                </button>
+              </div>
             </div>
+
+            {/* Loading progress bar */}
+            {isInstalling && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gray-200 dark:bg-gray-800 overflow-hidden">
+                <div className="h-full bg-gradient-to-r from-blue-500 to-purple-600 animate-[shimmer_1.5s_ease-in-out_infinite]" 
+                     style={{ width: '40%' }} />
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      {/* Installation Instructions Modal */}
+      {/* Modern Installation Instructions Modal */}
       {showInstructions && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4 animate-in fade-in duration-300">
           <div
-            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
             onClick={() => setShowInstructions(false)}
           />
           
-          <div className="relative bg-white dark:bg-gray-900 rounded-2xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 p-6 text-white">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-xl font-bold">Install Nyambika</h3>
+          <div className="relative bg-white dark:bg-gray-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden animate-in zoom-in-95 slide-in-from-bottom-5 duration-300">
+            {/* Compact Header with Gradient */}
+            <div className="relative bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 p-4 sm:p-5 text-white overflow-hidden">
+              {/* Animated background pattern */}
+              <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iMC41IiBvcGFjaXR5PSIwLjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20" />
+              
+              <div className="relative flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                    {platform === 'ios' || platform === 'android' ? (
+                      <Smartphone className="h-5 w-5 sm:h-6 sm:w-6" />
+                    ) : (
+                      <Monitor className="h-5 w-5 sm:h-6 sm:w-6" />
+                    )}
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold">Install Nyambika</h3>
+                    <p className="text-xs sm:text-sm opacity-90">Get the full experience</p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowInstructions(false)}
-                  className="p-1 rounded-full hover:bg-white/20 transition-colors"
+                  className="p-2 rounded-full hover:bg-white/20 backdrop-blur-sm transition-all active:scale-90"
                   aria-label="Close"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </div>
-              <p className="text-sm opacity-90">
-                Follow these steps to install the app on your device
-              </p>
             </div>
 
-            {/* Body */}
-            <div className="p-6">
-              {/* Benefits */}
-              <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <h4 className="text-sm font-semibold text-gray-900 dark:text-white mb-2">
+            {/* Compact Body */}
+            <div className="p-4 sm:p-5 max-h-[60vh] overflow-y-auto">
+              {/* Benefits - More compact */}
+              <div className="mb-4 p-3 sm:p-4 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl border border-blue-100 dark:border-blue-800/30">
+                <h4 className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
+                  <Download className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500" />
                   Why install?
                 </h4>
-                <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Access directly from your home screen</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Works offline after first visit</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Faster loading and better performance</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                    <span>Native app-like experience</span>
-                  </li>
-                </ul>
+                <div className="grid grid-cols-2 gap-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-blue-500" />
+                    <span>Home screen</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-purple-500" />
+                    <span>Works offline</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-pink-500" />
+                    <span>Faster loading</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-1 h-1 rounded-full bg-indigo-500" />
+                    <span>Native feel</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Platform Instructions */}
+              {/* Platform Instructions - More compact */}
               {getPlatformInstructions()}
 
-              {/* Browser Compatibility Note */}
+              {/* Browser Note - More compact */}
               {platform === 'ios' && (
-                <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg">
-                  <p className="text-xs text-amber-800 dark:text-amber-200">
-                    <strong>Note:</strong> Installation requires Safari browser on iOS devices.
+                <div className="mt-3 p-2.5 sm:p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800/30">
+                  <p className="text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
+                    <span className="text-amber-500 text-sm">ℹ️</span>
+                    <span><strong>Safari only:</strong> iOS installation requires Safari browser.</span>
                   </p>
                 </div>
               )}
             </div>
 
-            {/* Footer */}
-            <div className="px-6 py-4 bg-gray-50 dark:bg-gray-800/50 flex justify-end gap-3">
+            {/* Compact Footer */}
+            <div className="px-4 sm:px-5 py-3 sm:py-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700/50 flex gap-2 sm:gap-3">
               <button
                 onClick={() => setShowInstructions(false)}
-                className="px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors border border-gray-300 dark:border-gray-600"
+                className="flex-1 px-3 sm:px-4 py-2 rounded-lg bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 transition-all border border-gray-300 dark:border-gray-600 active:scale-95"
               >
                 Close
               </button>
@@ -470,9 +528,19 @@ export function InstallPrompt({ delay = 5000, showAfterDismissalDays = 7 }: Inst
                 <button
                   onClick={handleInstall}
                   disabled={isInstalling}
-                  className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md"
+                  className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs sm:text-sm font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md active:scale-95"
                 >
-                  {isInstalling ? 'Installing...' : 'Install Now'}
+                  {isInstalling ? (
+                    <>
+                      <div className="h-3.5 w-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Wait...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-3.5 w-3.5" />
+                      <span>Install Now</span>
+                    </>
+                  )}
                 </button>
               )}
             </div>

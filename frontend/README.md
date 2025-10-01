@@ -1,4 +1,15 @@
+# NyambikaAI Frontend
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## 📚 Documentation
+
+For comprehensive PWA (Progressive Web App) documentation, see the **[/documentations](./documentations/)** folder:
+
+- **Quick Start**: [Install Button Guide](./documentations/INSTALL_BUTTON_QUICK_START.md)
+- **Complete Guide**: [PWA Implementation](./documentations/PWA_IMPLEMENTATION.md)
+- **Testing**: [Test Checklist](./documentations/PWA_TEST_CHECKLIST.md)
+- **More**: See [Documentation Index](./documentations/README.md)
 
 ## Getting Started
 
