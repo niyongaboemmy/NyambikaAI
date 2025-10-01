@@ -117,6 +117,26 @@ Complete documentation for the Progressive Web App (PWA) implementation in Nyamb
 
 ---
 
+### 🐛 Bug Fixes & Updates
+
+#### 10. **[BUGFIX_DESKTOP_PROMPT_NOT_SHOWING.md](./BUGFIX_DESKTOP_PROMPT_NOT_SHOWING.md)**
+**🔧 Desktop Prompt Reliability** - Fixed prompt not showing on some browsers
+- Root cause analysis
+- Fallback timer implementation
+- PWA debug utility
+- Browser compatibility matrix
+- Testing scenarios
+
+#### 11. **[BUGFIX_IOS_SAFARI_WARNING.md](./BUGFIX_IOS_SAFARI_WARNING.md)**
+**🔧 iOS Safari Warning Fix** - Fixed redundant browser warning
+- Issue description
+- Solution implemented
+- Browser detection logic
+- User experience improvements
+- Testing scenarios
+
+---
+
 ## 📂 File Organization
 
 ```
@@ -188,18 +208,31 @@ frontend/
 
 ## 📊 Documentation Stats
 
-- **Total Documents**: 9 comprehensive guides
-- **Total Pages**: ~150 pages of documentation
-- **Code Examples**: 50+ code snippets
+- **Total Documents**: 12 comprehensive guides
+- **Total Pages**: ~175 pages of documentation
+- **Code Examples**: 55+ code snippets
 - **Diagrams**: 15+ visual diagrams
 - **Checklists**: 100+ testing items
-- **Coverage**: Complete PWA lifecycle
+- **Debug Tools**: PWA diagnostic utility
+- **Coverage**: Complete PWA lifecycle + bug fixes
 
 ---
 
 ## 🔄 Documentation Updates
 
-### Latest Version: 2.0 (October 2025)
+### Latest Version: 2.2 (October 2025)
+- 🐛 Fixed desktop prompt not showing reliably
+- ⏰ Added fallback timer for all browsers
+- 🔍 Created PWA debug utility (debugPWA())
+- 📊 Enhanced console logging
+- ✅ 100% browser compatibility
+
+### Version 2.1 (October 2025)
+- 🐛 Fixed iOS Safari redundant warning
+- ✅ Added Safari browser detection
+- 📝 Improved warning message clarity
+
+### Version 2.0 (October 2025)
 - ✨ Added modern glassmorphism design
 - 📏 Implemented compact responsive layout
 - 🎨 Enhanced animations and micro-interactions

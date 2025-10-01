@@ -5,6 +5,7 @@ import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
 import ServiceWorkerCleanup from "@/components/service-worker-cleanup";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import "@/utils/pwa-debug"; // Load PWA debug utility
 
 // Theme script to be injected into the document head
 const themeScript = `

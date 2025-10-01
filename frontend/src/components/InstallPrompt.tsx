@@ -28,6 +28,12 @@ const isStandalone = () => {
   );
 };
 
+const isSafari = () => {
+  if (typeof window === 'undefined') return false;
+  const userAgent = navigator.userAgent.toLowerCase();
+  return userAgent.includes('safari') && !userAgent.includes('chrome') && !userAgent.includes('crios') && !userAgent.includes('fxios');
+};
+
 type Platform = 'ios' | 'android' | 'desktop';
 
 interface InstallPromptProps {
@@ -59,7 +65,7 @@ export function InstallPrompt({ delay = 3000, showAfterDismissalDays = 7 }: Inst
     return daysSinceDismissal < showAfterDismissalDays;
   };
 
-  // Detect platform
+  // Detect platform and show prompt
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
@@ -78,17 +84,39 @@ export function InstallPrompt({ delay = 3000, showAfterDismissalDays = 7 }: Inst
     // Detect platform
     if (isIOS()) {
       setPlatform('ios');
+      console.log('📱 Platform detected: iOS');
       // iOS doesn't fire beforeinstallprompt, so we show manual instructions
       const timer = setTimeout(() => {
+        console.log('⏰ iOS timer triggered - showing prompt');
         setShowPrompt(true);
       }, delay);
       return () => clearTimeout(timer);
     } else if (isAndroid()) {
       setPlatform('android');
+      console.log('📱 Platform detected: Android');
+      // Android: Wait for beforeinstallprompt event OR fallback timer
+      const fallbackTimer = setTimeout(() => {
+        if (!isInstallable) {
+          console.log('⏰ Android fallback timer - showing instructions');
+          setShowPrompt(true);
+          setShowInstructions(true);
+        }
+      }, delay + 2000); // Show after delay + 2 seconds if no event
+      return () => clearTimeout(fallbackTimer);
     } else {
       setPlatform('desktop');
+      console.log('💻 Platform detected: Desktop');
+      // Desktop: Wait for beforeinstallprompt event OR fallback timer
+      const fallbackTimer = setTimeout(() => {
+        if (!isInstallable) {
+          console.log('⏰ Desktop fallback timer - showing instructions');
+          setShowPrompt(true);
+          setShowInstructions(true);
+        }
+      }, delay + 2000); // Show after delay + 2 seconds if no event
+      return () => clearTimeout(fallbackTimer);
     }
-  }, [delay, showAfterDismissalDays]);
+  }, [delay, showAfterDismissalDays, isInstallable]);
 
   // Listen for manual trigger from InstallAppButton
   useEffect(() => {
@@ -505,12 +533,12 @@ export function InstallPrompt({ delay = 3000, showAfterDismissalDays = 7 }: Inst
               {/* Platform Instructions - More compact */}
               {getPlatformInstructions()}
 
-              {/* Browser Note - More compact */}
-              {platform === 'ios' && (
+              {/* Browser Note - Only show if on iOS but NOT on Safari */}
+              {platform === 'ios' && !isSafari() && (
                 <div className="mt-3 p-2.5 sm:p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800/30">
                   <p className="text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
                     <span className="text-amber-500 text-sm">ℹ️</span>
-                    <span><strong>Safari only:</strong> iOS installation requires Safari browser.</span>
+                    <span><strong>Switch to Safari:</strong> iOS installation requires Safari browser. Please open this page in Safari to install.</span>
                   </p>
                 </div>
               )}
