@@ -4,12 +4,7 @@ import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/custom-ui/dialog";
 import { Input } from "@/components/custom-ui/input";
 import { Button } from "@/components/custom-ui/button";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/custom-ui/tabs";
+import { Tabs, TabsContent } from "@/components/custom-ui/tabs";
 import {
   Search,
   Image as ImageIcon,
@@ -18,7 +13,6 @@ import {
   Upload,
   FileImage,
   Sparkles,
-  Brain,
 } from "lucide-react";
 import { searchImages, getPopularImages, PexelsPhoto } from "@/services/pexels";
 import { uploadFile } from "@/services/file-upload";
@@ -52,7 +46,7 @@ export function PexelsImageModal({
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [activeTab, setActiveTab] = useState<"search" | "upload">("search");
+  const [activeTab, setActiveTab] = useState<"search" | "upload">("upload");
   const [selectedSize, setSelectedSize] = useState<
     "original" | "large2x" | "large" | "medium" | "small"
   >(fixedSize ?? "medium");
@@ -308,13 +302,13 @@ export function PexelsImageModal({
           <div className="flex-shrink-0 backdrop-blur-xl bg-white/95 dark:bg-slate-900/95 border-b border-slate-200/50 dark:border-slate-700/50 shadow-sm">
             {/* Mobile Header */}
             <div className="block sm:hidden px-3 xs:px-4 py-2 xs:py-3">
-              <div className="flex items-center justify-between mb-8 md:mb-3">
+              <div className="flex items-center justify-between mb-1 md:mb-3 pt-12 md:pt-0">
                 {/* Mobile Logo */}
                 <div className="flex items-center gap-1.5 xs:gap-2">
                   <div className="relative">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-1 xs:p-1.5 rounded-md xs:rounded-lg shadow-sm">
-                      <Brain className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-white" />
-                    </div>
+                    {/* <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-md shadow-sm"> */}
+                    <FileImage className="h-5 w-5 xs:h-5 xs:w-5 text-blue-600 dark:text-blue-500" />
+                    {/* </div> */}
                     <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 xs:w-2 xs:h-2 bg-green-400 rounded-full animate-pulse" />
                   </div>
                   <h1 className="text-sm xs:text-base font-semibold text-slate-900 dark:text-white">
@@ -328,7 +322,7 @@ export function PexelsImageModal({
                   onClick={onClose}
                   className="p-1.5 xs:p-2 rounded-md xs:rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                 >
-                  <X className="h-3.5 w-3.5 xs:h-4 xs:w-4 text-slate-600 dark:text-slate-400" />
+                  <X className="h-5 w-5 xs:h-5 xs:w-5 text-slate-600 dark:text-slate-400" />
                 </button>
               </div>
 
@@ -379,17 +373,17 @@ export function PexelsImageModal({
                 <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
                   <div className="relative">
                     <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-1.5 md:p-2 rounded-lg md:rounded-xl shadow-sm">
-                      <Brain className="h-4 w-4 md:h-5 md:w-5 text-white" />
+                      <FileImage className="h-4 w-4 md:h-5 md:w-5 text-white" />
                     </div>
                     <div className="absolute -top-0.5 md:-top-1 -right-0.5 md:-right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-green-400 rounded-full animate-pulse" />
                   </div>
                   <div>
                     <h1 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white">
-                      <span className="hidden lg:inline">AI Image Studio</span>
-                      <span className="lg:hidden">AI Studio</span>
+                      <span className="hidden lg:inline">Image Studio</span>
+                      <span className="lg:hidden">Studio</span>
                     </h1>
                     <p className="text-xs text-slate-500 dark:text-slate-400 hidden md:block">
-                      Powered by AI
+                      Powered by Pexels
                     </p>
                   </div>
                 </div>
@@ -850,7 +844,7 @@ export function PexelsImageModal({
                 value="upload"
                 className="h-full m-0 data-[state=active]:flex data-[state=active]:flex-col"
               >
-                <div className="flex-1 flex items-center justify-center p-8">
+                <div className="flex-1 flex items-start sm:items-center justify-center sm:pt-0 p-8">
                   <div className="w-full max-w-2xl">
                     <div className="relative rounded-2xl border-2 border-dashed border-purple-300/50 dark:border-purple-500/30 bg-gradient-to-br from-purple-50/30 to-pink-50/20 dark:from-purple-950/20 dark:to-pink-950/10 p-12 text-center transition-all duration-300 hover:border-purple-400/70">
                       <div className="relative mb-6">
@@ -860,7 +854,7 @@ export function PexelsImageModal({
                       </div>
 
                       <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
-                        AI-Enhanced Upload
+                        Image Upload
                       </h3>
                       <p className="text-slate-600 dark:text-slate-400 mb-6">
                         Upload and let AI optimize your image
