@@ -132,7 +132,50 @@ export const tryOnSessions = table("try_on_sessions", {
   tryOnImageUrl: text("try_on_image_url"),
   fitRecommendation: text("fit_recommendation"),
   status: text("status").notNull().default("processing"),
+  isFavorite: boolean("is_favorite").default(false),
+  notes: text("notes"),
+  rating: int("rating"),
   createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const outfitCollections = table("outfit_collections", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).references(() => users.id).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  occasion: text("occasion"),
+  season: text("season"),
+  coverImageUrl: text("cover_image_url"),
+  isPublic: boolean("is_public").default(false),
+  likes: int("likes").default(0),
+  views: int("views").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export const outfitItems = table("outfit_items", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  outfitId: varchar("outfit_id", { length: 36 }).references(() => outfitCollections.id).notNull(),
+  tryOnSessionId: varchar("try_on_session_id", { length: 36 }).references(() => tryOnSessions.id),
+  productId: varchar("product_id", { length: 36 }).references(() => products.id),
+  position: int("position").default(0),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const userStyleProfiles = table("user_style_profiles", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  userId: varchar("user_id", { length: 36 }).references(() => users.id).notNull().unique(),
+  favoriteColors: text("favorite_colors"),
+  favoriteCategories: text("favorite_categories"),
+  preferredBrands: text("preferred_brands"),
+  stylePreferences: text("style_preferences"),
+  bodyType: text("body_type"),
+  skinTone: text("skin_tone"),
+  aiInsights: text("ai_insights"),
+  lastAnalyzedAt: timestamp("last_analyzed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const reviews = table("reviews", {
@@ -276,6 +319,9 @@ export const insertOrderSchema = createInsertSchema(orders).omit({ createdAt: tr
 export const insertOrderItemSchema = createInsertSchema(orderItems);
 export const insertFavoriteSchema = createInsertSchema(favorites).omit({ createdAt: true });
 export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({ createdAt: true });
+export const insertOutfitCollectionSchema = createInsertSchema(outfitCollections).omit({ createdAt: true, updatedAt: true });
+export const insertOutfitItemSchema = createInsertSchema(outfitItems).omit({ createdAt: true });
+export const insertUserStyleProfileSchema = createInsertSchema(userStyleProfiles).omit({ createdAt: true, updatedAt: true });
 export const insertReviewSchema = createInsertSchema(reviews).omit({ createdAt: true });
 export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({ createdAt: true });
 export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ createdAt: true });
@@ -306,6 +352,12 @@ export type Favorite = typeof favorites.$inferSelect;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
 export type TryOnSession = typeof tryOnSessions.$inferSelect;
 export type InsertTryOnSession = z.infer<typeof insertTryOnSessionSchema>;
+export type OutfitCollection = typeof outfitCollections.$inferSelect;
+export type InsertOutfitCollection = z.infer<typeof insertOutfitCollectionSchema>;
+export type OutfitItem = typeof outfitItems.$inferSelect;
+export type InsertOutfitItem = z.infer<typeof insertOutfitItemSchema>;
+export type UserStyleProfile = typeof userStyleProfiles.$inferSelect;
+export type InsertUserStyleProfile = z.infer<typeof insertUserStyleProfileSchema>;
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
 export type SubscriptionPlan = typeof subscriptionPlans.$inferSelect;

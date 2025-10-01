@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Sparkles,
@@ -21,6 +21,15 @@ import {
   ShoppingBag,
   Star,
   Settings,
+  Sliders,
+  Save,
+  RotateCcw,
+  Check,
+  X,
+  Shirt,
+  User,
+  Ruler,
+  Tag,
 } from "lucide-react";
 import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,11 +73,59 @@ interface StyleAnalytics {
   recentActivity: TryOnSession[];
 }
 
-type ViewMode = "grid" | "collections" | "analytics" | "recommendations";
+interface UserStyleProfile {
+  id: string;
+  userId: string;
+  favoriteColors: string[];
+  favoriteCategories: string[];
+  preferredBrands: string[];
+  stylePreferences: Record<string, number>;
+  bodyType?: string;
+  skinTone?: string;
+  aiInsights: Record<string, any>;
+  lastAnalyzedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  nameRw?: string;
+  icon?: string;
+}
+
+interface ColorOption {
+  id: string;
+  name: string;
+  hex: string;
+}
+
+interface StyleOption {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+}
+
+interface BodyTypeOption {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface SkinToneOption {
+  id: string;
+  name: string;
+  description: string;
+}
+
+type ViewMode = "grid" | "collections" | "analytics" | "recommendations" | "preferences";
 
 export default function OutfitRoom() {
   const { user } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [selectedSeason, setSelectedSeason] = useState<string | null>(null);
 
@@ -94,6 +151,39 @@ export default function OutfitRoom() {
       return response.data;
     },
     enabled: !!user,
+  });
+
+  // Fetch style profile
+  const { data: styleProfile, isLoading: loadingProfile } = useQuery<
+    UserStyleProfile | null
+  >({
+    queryKey: [API_ENDPOINTS.STYLE_PROFILE],
+    queryFn: async () => {
+      const response = await apiClient.get(API_ENDPOINTS.STYLE_PROFILE);
+      return response.data;
+    },
+    enabled: !!user,
+  });
+
+  // Fetch categories for preferences
+  const { data: categories = [] } = useQuery<Category[]>({
+    queryKey: [API_ENDPOINTS.CATEGORIES],
+    queryFn: async () => {
+      const response = await apiClient.get(API_ENDPOINTS.CATEGORIES);
+      return response.data;
+    },
+  });
+
+  // Update style profile mutation
+  const updateProfileMutation = useMutation({
+    mutationFn: async (updates: Partial<UserStyleProfile>) => {
+      const response = await apiClient.put(API_ENDPOINTS.STYLE_PROFILE, updates);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STYLE_PROFILE] });
+      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.OUTFIT_RECOMMENDATIONS] });
+    },
   });
 
   // Fetch style analytics
@@ -131,6 +221,61 @@ export default function OutfitRoom() {
   const completedTryOns = tryOnSessions.filter(
     (session) => session.status === "completed" && session.tryOnImageUrl
   );
+
+  // Preferences data
+  const colors: ColorOption[] = [
+    { id: "black", name: "Black", hex: "#000000" },
+    { id: "white", name: "White", hex: "#FFFFFF" },
+    { id: "red", name: "Red", hex: "#FF0000" },
+    { id: "blue", name: "Blue", hex: "#0000FF" },
+    { id: "green", name: "Green", hex: "#00FF00" },
+    { id: "yellow", name: "Yellow", hex: "#FFFF00" },
+    { id: "purple", name: "Purple", hex: "#800080" },
+    { id: "pink", name: "Pink", hex: "#FFC0CB" },
+    { id: "orange", name: "Orange", hex: "#FFA500" },
+    { id: "brown", name: "Brown", hex: "#A52A2A" },
+    { id: "gray", name: "Gray", hex: "#808080" },
+    { id: "beige", name: "Beige", hex: "#F5F5DC" },
+  ];
+
+  const styleOptions: StyleOption[] = [
+    { id: "casual", name: "Casual", description: "Everyday wear, relaxed outfits", icon: "👕" },
+    { id: "formal", name: "Formal", description: "Business and professional attire", icon: "🤵" },
+    { id: "party", name: "Party", description: "Special occasions and celebrations", icon: "🎉" },
+    { id: "work", name: "Work", description: "Professional work environment", icon: "💼" },
+    { id: "sport", name: "Sport", description: "Athletic and active wear", icon: "⚽" },
+    { id: "beach", name: "Beach", description: "Vacation and seaside outfits", icon: "🏖️" },
+    { id: "vintage", name: "Vintage", description: "Classic and retro styles", icon: "📻" },
+    { id: "bohemian", name: "Bohemian", description: "Free-spirited and artistic", icon: "🌸" },
+  ];
+
+  const bodyTypes: BodyTypeOption[] = [
+    { id: "slim", name: "Slim", description: "Petite and slender build" },
+    { id: "athletic", name: "Athletic", description: "Fit and toned physique" },
+    { id: "average", name: "Average", description: "Balanced proportions" },
+    { id: "curvy", name: "Curvy", description: "Fuller figure with curves" },
+    { id: "plus", name: "Plus Size", description: "Extended size range" },
+  ];
+
+  const skinTones: SkinToneOption[] = [
+    { id: "fair", name: "Fair", description: "Light skin tone" },
+    { id: "light", name: "Light", description: "Light to medium skin tone" },
+    { id: "medium", name: "Medium", description: "Medium skin tone" },
+    { id: "olive", name: "Olive", description: "Warm medium skin tone" },
+    { id: "tan", name: "Tan", description: "Bronzed skin tone" },
+    { id: "dark", name: "Dark", description: "Deep skin tone" },
+  ];
+
+  const occasions = [
+    "Everyday",
+    "Work",
+    "Party",
+    "Wedding",
+    "Date",
+    "Beach",
+    "Sport",
+    "Formal Event",
+  ];
 
   if (!user) {
     return (
@@ -243,6 +388,7 @@ export default function OutfitRoom() {
           {[
             { mode: "grid" as ViewMode, icon: <Grid3x3 className="h-4 w-4" />, label: "My Try-Ons" },
             { mode: "collections" as ViewMode, icon: <ShoppingBag className="h-4 w-4" />, label: "Collections" },
+            { mode: "preferences" as ViewMode, icon: <Sliders className="h-4 w-4" />, label: "Preferences" },
             { mode: "analytics" as ViewMode, icon: <BarChart3 className="h-4 w-4" />, label: "Analytics" },
             { mode: "recommendations" as ViewMode, icon: <Star className="h-4 w-4" />, label: "For You" },
           ].map(({ mode, icon, label }) => (
@@ -495,88 +641,287 @@ export default function OutfitRoom() {
             </motion.div>
           )}
 
-          {viewMode === "recommendations" && (
+          {viewMode === "preferences" && (
             <motion.div
-              key="recommendations"
+              key="preferences"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
+              className="space-y-8"
             >
-              {loadingRecommendations ? (
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                  {[...Array(8)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="aspect-[3/4] bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
-                    />
-                  ))}
+              <div className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-purple-200/30">
+                <div className="flex items-center gap-3 mb-6">
+                  <Sliders className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <h3 className="text-xl font-bold">Style Preferences</h3>
                 </div>
-              ) : (
-                <div>
-                  {recommendations?.insights && (
-                    <div className="mb-6 bg-gradient-to-r from-purple-600/10 to-pink-600/10 rounded-2xl p-6 border border-purple-200/30">
-                      <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                        <Sparkles className="h-5 w-5 text-purple-600" />
-                        AI Style Insights
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="text-gray-600 dark:text-gray-400 mb-2">
-                            Top Categories:
-                          </p>
-                          {recommendations.insights.topCategories
-                            .slice(0, 3)
-                            .map(([category, count]: [string, number]) => (
-                              <p key={category} className="text-gray-900 dark:text-white">
-                                • {category} ({count} try-ons)
-                              </p>
-                            ))}
+
+                {loadingProfile ? (
+                  <div className="space-y-6">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {/* Favorite Categories */}
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Tag className="h-5 w-5 text-purple-600" />
+                        Favorite Categories
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                        {categories.map((category) => {
+                          const isSelected = styleProfile?.favoriteCategories?.includes(category.id);
+                          return (
+                            <motion.button
+                              key={category.id}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => {
+                                const current = styleProfile?.favoriteCategories || [];
+                                const updated = isSelected
+                                  ? current.filter(id => id !== category.id)
+                                  : [...current, category.id];
+                                updateProfileMutation.mutate({ favoriteCategories: updated });
+                              }}
+                              className={`p-4 rounded-xl border-2 transition-all ${
+                                isSelected
+                                  ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                              }`}
+                            >
+                              <div className="text-center">
+                                <div className="text-2xl mb-2">{category.icon || "👗"}</div>
+                                <div className="font-medium text-sm">{category.name}</div>
+                                {isSelected && (
+                                  <Check className="h-4 w-4 text-purple-600 mx-auto mt-1" />
+                                )}
+                              </div>
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Favorite Colors */}
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Palette className="h-5 w-5 text-pink-600" />
+                        Favorite Colors
+                      </h4>
+                      <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2">
+                        {colors.map((color) => {
+                          const isSelected = styleProfile?.favoriteColors?.includes(color.id);
+                          return (
+                            <motion.button
+                              key={color.id}
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => {
+                                const current = styleProfile?.favoriteColors || [];
+                                const updated = isSelected
+                                  ? current.filter(c => c !== color.id)
+                                  : [...current, color.id];
+                                updateProfileMutation.mutate({ favoriteColors: updated });
+                              }}
+                              className={`relative h-12 rounded-xl border-2 transition-all ${
+                                isSelected
+                                  ? "border-gray-800 dark:border-gray-200 scale-110"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-gray-400"
+                              }`}
+                              style={{ backgroundColor: color.hex }}
+                              title={color.name}
+                            >
+                              {isSelected && (
+                                <Check className="h-4 w-4 text-white absolute inset-0 m-auto drop-shadow-lg" />
+                              )}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Style Preferences */}
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Shirt className="h-5 w-5 text-blue-600" />
+                        Style Preferences
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {styleOptions.map((style) => {
+                          const currentPrefs = styleProfile?.stylePreferences || {};
+                          const isSelected = currentPrefs[style.id] > 0;
+                          return (
+                            <motion.div
+                              key={style.id}
+                              whileHover={{ scale: 1.02 }}
+                              className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                                isSelected
+                                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
+                              }`}
+                              onClick={() => {
+                                const current = styleProfile?.stylePreferences || {};
+                                const updated = {
+                                  ...current,
+                                  [style.id]: isSelected ? 0 : 1,
+                                };
+                                updateProfileMutation.mutate({ stylePreferences: updated });
+                              }}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="text-2xl">{style.icon}</span>
+                                <div className="flex-1">
+                                  <div className="font-medium">{style.name}</div>
+                                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                                    {style.description}
+                                  </div>
+                                </div>
+                                {isSelected && (
+                                  <Check className="h-5 w-5 text-blue-600" />
+                                )}
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Body Type & Skin Tone */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div>
+                        <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                          <User className="h-5 w-5 text-green-600" />
+                          Body Type
+                        </h4>
+                        <div className="space-y-3">
+                          {bodyTypes.map((bodyType) => {
+                            const isSelected = styleProfile?.bodyType === bodyType.id;
+                            return (
+                              <motion.button
+                                key={bodyType.id}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => updateProfileMutation.mutate({ bodyType: bodyType.id })}
+                                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                                  isSelected
+                                    ? "border-green-500 bg-green-50 dark:bg-green-900/20"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-green-300"
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-3 h-3 rounded-full ${isSelected ? "bg-green-500" : "bg-gray-300"}`} />
+                                  <div>
+                                    <div className="font-medium">{bodyType.name}</div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                      {bodyType.description}
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.button>
+                            );
+                          })}
                         </div>
-                        <div>
-                          <p className="text-gray-600 dark:text-gray-400 mb-2">
-                            Favorite Colors:
-                          </p>
-                          {recommendations.insights.favoriteColors
-                            .slice(0, 3)
-                            .map(([color, count]: [string, number]) => (
-                              <p key={color} className="text-gray-900 dark:text-white">
-                                • {color} ({count} items)
-                              </p>
-                            ))}
+                      </div>
+
+                      <div>
+                        <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                          <Ruler className="h-5 w-5 text-orange-600" />
+                          Skin Tone
+                        </h4>
+                        <div className="space-y-3">
+                          {skinTones.map((skinTone) => {
+                            const isSelected = styleProfile?.skinTone === skinTone.id;
+                            return (
+                              <motion.button
+                                key={skinTone.id}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => updateProfileMutation.mutate({ skinTone: skinTone.id })}
+                                className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
+                                  isSelected
+                                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-orange-300"
+                                }`}
+                              >
+                                <div className="flex items-center gap-3">
+                                  <div className={`w-3 h-3 rounded-full ${isSelected ? "bg-orange-500" : "bg-gray-300"}`} />
+                                  <div>
+                                    <div className="font-medium">{skinTone.name}</div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-400">
+                                      {skinTone.description}
+                                    </div>
+                                  </div>
+                                </div>
+                              </motion.button>
+                            );
+                          })}
                         </div>
                       </div>
                     </div>
-                  )}
 
-                  <h3 className="text-xl font-bold mb-4">Recommended for You</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                    {recommendations?.recommendations?.map((product: any) => (
-                      <motion.div
-                        key={product.id}
-                        whileHover={{ scale: 1.05, y: -5 }}
-                        onClick={() => router.push(`/product/${product.id}`)}
-                        className="group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer shadow-lg"
+                    {/* Occasions */}
+                    <div>
+                      <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                        <Calendar className="h-5 w-5 text-indigo-600" />
+                        Shopping Occasions
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {occasions.map((occasion) => {
+                          const currentPrefs = styleProfile?.stylePreferences || {};
+                          const isSelected = currentPrefs[`occasion_${occasion.toLowerCase().replace(" ", "_")}`] > 0;
+                          return (
+                            <motion.button
+                              key={occasion}
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => {
+                                const current = styleProfile?.stylePreferences || {};
+                                const key = `occasion_${occasion.toLowerCase().replace(" ", "_")}`;
+                                const updated = {
+                                  ...current,
+                                  [key]: isSelected ? 0 : 1,
+                                };
+                                updateProfileMutation.mutate({ stylePreferences: updated });
+                              }}
+                              className={`px-4 py-2 rounded-full border-2 transition-all ${
+                                isSelected
+                                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-indigo-300"
+                              }`}
+                            >
+                              {occasion}
+                            </motion.button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Save Button */}
+                    <div className="flex justify-center pt-6">
+                      <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => {
+                          // Trigger AI re-analysis
+                          updateProfileMutation.mutate({
+                            aiInsights: {
+                              ...styleProfile?.aiInsights,
+                              lastUpdated: new Date().toISOString(),
+                              preferencesSetByUser: true,
+                            },
+                          });
+                        }}
+                        disabled={updateProfileMutation.isPending}
+                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
                       >
-                        <img
-                          src={product.imageUrl || "/placeholder.jpg"}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="absolute bottom-0 left-0 right-0 p-4">
-                            <p className="text-white font-medium text-sm mb-1">
-                              {product.name}
-                            </p>
-                            <p className="text-white/80 text-xs">
-                              {product.price} RWF
-                            </p>
-                          </div>
-                        </div>
-                      </motion.div>
-                    ))}
+                        <Save className="h-5 w-5" />
+                        {updateProfileMutation.isPending ? "Saving..." : "Save Preferences"}
+                      </motion.button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
