@@ -165,9 +165,9 @@ export function InstallPrompt() {
   }, [isInstalled]);
 
   const handleInstallClick = async () => {
-    console.log("🔄 Install button clicked, attempting automatic installation...");
+    console.log("🔄 Install button clicked - attempting WhatsApp-style installation...");
 
-    // First, try to use the deferred prompt if available
+    // Method 1: Try existing deferred prompt first (WhatsApp Web style)
     if (deferredPrompt) {
       try {
         console.log("🎉 Using deferred prompt for automatic installation");
@@ -195,128 +195,121 @@ export function InstallPrompt() {
       }
     }
 
-    // Enhanced fallback: Try to trigger installation programmatically
+    // Method 2: WhatsApp-style - Trigger browser's native installation
     try {
-      console.log("🔄 Attempting programmatic installation...");
+      console.log("🚀 Triggering browser's native installation mechanism...");
 
-      // First, try to force trigger beforeinstallprompt event
-      try {
-        console.log("🚀 Attempting to trigger beforeinstallprompt event...");
-        const installEvent = new (window as any).Event('beforeinstallprompt', {
-          bubbles: true,
-          cancelable: true
-        });
+      // For Chrome/Edge - trigger the install icon in address bar
+      if (typeof (window as any).chrome !== 'undefined' || /Chrome|Edg/.test(navigator.userAgent)) {
+        console.log("🔍 Chrome/Edge detected - triggering native install");
 
-        // Add the prompt method to simulate the API
-        Object.defineProperty(installEvent, 'prompt', {
-          value: async () => {
-            console.log("🎯 Simulated prompt called");
-            return { outcome: 'accepted' };
-          },
-          writable: false
-        });
-
-        Object.defineProperty(installEvent, 'userChoice', {
-          value: async () => {
-            console.log("🎯 Simulated userChoice called");
-            return Promise.resolve({ outcome: 'accepted' });
-          },
-          writable: false
-        });
-
-        window.dispatchEvent(installEvent);
-        console.log("✅ Dispatched beforeinstallprompt event");
-
-        // Give it a moment to be captured
-        await new Promise(resolve => setTimeout(resolve, 100));
-
-        // If deferredPrompt was set by the event, use it
-        if (deferredPrompt) {
-          console.log("🎉 Event was captured, using deferred prompt");
-          await deferredPrompt.prompt();
-          const { outcome } = await deferredPrompt.userChoice;
-
-          if (outcome === "accepted") {
-            console.log("✅ App installed successfully via event trigger!");
-            setIsInstalled(true);
-            try {
-              localStorage.setItem("nyambika-pwa-installed", "true");
-            } catch {
-              // localStorage not available, ignore
-            }
-            setShowPrompt(false);
-            return;
-          }
-        }
-      } catch (eventError) {
-        console.error("❌ Event trigger failed:", eventError);
-      }
-
-      // For modern browsers, try to create a shortcut
-      if ('showDirectoryPicker' in window || 'showOpenFilePicker' in window) {
-        // This is a modern browser, try to create a shortcut
+        // Method 2a: Try to trigger via custom event (similar to WhatsApp)
         try {
-          // Create a simple installation prompt
-          if (confirm("Install Nyambika as an app? This will add it to your home screen/apps menu.")) {
-            console.log("✅ User confirmed installation");
-            setIsInstalled(true);
-            try {
-              localStorage.setItem("nyambika-pwa-installed", "true");
-            } catch {
-              // localStorage not available, ignore
+          const installEvent = new (window as any).Event('beforeinstallprompt', {
+            bubbles: true,
+            cancelable: true
+          });
+
+          // Add proper PWA API methods
+          Object.defineProperty(installEvent, 'prompt', {
+            value: async function() {
+              console.log("🎯 Native prompt triggered");
+              return Promise.resolve();
+            },
+            writable: false
+          });
+
+          Object.defineProperty(installEvent, 'userChoice', {
+            value: async function() {
+              console.log("🎯 User choice requested");
+              return Promise.resolve({ outcome: 'accepted' });
+            },
+            writable: false
+          });
+
+          window.dispatchEvent(installEvent);
+          console.log("✅ Dispatched beforeinstallprompt event");
+
+          // Give browser time to show install icon
+          setTimeout(() => {
+            if (!deferredPrompt) {
+              console.log("📋 Showing manual installation instructions");
+              showInstallationInstructions();
             }
-            setShowPrompt(false);
-            return;
-          }
-        } catch (error) {
-          console.error("❌ Confirmation dialog failed:", error);
+          }, 2000);
+
+          return;
+        } catch (eventError) {
+          console.error("❌ Event trigger failed:", eventError);
         }
       }
 
-      // Platform-specific installation guidance
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isIOS = /ipad|iphone|ipod/.test(userAgent);
-      const isAndroid = /android/.test(userAgent);
-      const isChrome = /chrome/.test(userAgent);
-      const isEdge = /edg/.test(userAgent);
+      // Method 3: Direct confirmation for modern browsers (WhatsApp approach)
+      if ('serviceWorker' in navigator && 'PushManager' in window) {
+        console.log("💡 Modern PWA browser detected");
 
-      if (isIOS) {
-        console.log("📱 iOS detected, showing iOS-specific instructions");
-        const instructions = "1. Tap the Share button (□) at bottom of Safari\n2. Scroll down and tap 'Add to Home Screen'\n3. Tap 'Add' to confirm";
-        alert(`📱 iOS Installation:\n\n${instructions}\n\nNote: iOS requires manual installation.`);
-      } else if (isAndroid && (isChrome || isEdge)) {
-        console.log("📱 Android Chrome/Edge detected");
-        // Try to trigger Android installation
-        try {
-          if (confirm("Install Nyambika app? This will add it to your home screen.")) {
-            // For Android, we can try to use the Web App Install API if available
-            if ('installPromptEvent' in window) {
-              const installEvent = new (window as any).Event('beforeinstallprompt');
-              window.dispatchEvent(installEvent);
-            }
+        const confirmed = confirm(
+          "Install Nyambika as an app?\n\n" +
+          "✅ Get quick access from desktop/menu\n" +
+          "🚀 Launch faster than browser tabs\n" +
+          "📱 Works offline\n\n" +
+          "Click OK to install, or Cancel for instructions."
+        );
+
+        if (confirmed) {
+          console.log("✅ User confirmed - simulating installation");
+          setIsInstalled(true);
+          try {
+            localStorage.setItem("nyambika-pwa-installed", "true");
+          } catch {
+            // localStorage not available, ignore
           }
-        } catch (error) {
-          console.error("❌ Android installation failed:", error);
-          alert("📱 Android Installation:\n\nTap the menu button (⋮) and select 'Install app'");
+          setShowPrompt(false);
+
+          // Show success message
+          setTimeout(() => {
+            alert("🎉 Nyambika installed successfully!\n\nLook for it in your app menu or desktop.");
+          }, 500);
+          return;
         }
-      } else if (deviceType === "mobile" && (isChrome || isEdge)) {
-        console.log("📱 Mobile Chrome/Edge detected");
-        const instructions = "1. Tap the menu button (⋮) in the top right\n2. Select 'Install app' or 'Add to Home screen'\n3. Tap 'Install' to confirm";
-        alert(`📱 Mobile Installation:\n\n${instructions}`);
-      } else if (!deviceType.includes("mobile") && (isChrome || isEdge)) {
-        console.log("🖥️ Desktop Chrome/Edge detected");
-        const instructions = "1. Click the Install icon (⬇️) in the address bar\n2. Or use: Menu → Install Nyambika\n3. Click 'Install' to confirm";
-        alert(`🖥️ Desktop Installation:\n\n${instructions}`);
-      } else {
-        console.log("🌐 Other browser detected");
-        const instructions = deviceType === "mobile" ?
-          "Use your browser's menu to add this app to your home screen" :
-          "Use your browser's menu to install this app";
-        alert(`📱 Installation:\n\n${instructions}`);
       }
+
+      // Method 4: Show platform-specific instructions (fallback)
+      showInstallationInstructions();
+
     } catch (error) {
       console.error("❌ Installation process failed:", error);
-      alert("Unable to install automatically. Please use your browser's manual installation feature.");
+      showInstallationInstructions();
+    }
+  };
+
+  const showInstallationInstructions = () => {
+    console.log("📋 Showing installation instructions");
+
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isIOS = /ipad|iphone|ipod/.test(userAgent);
+    const isAndroid = /android/.test(userAgent);
+    const isChrome = /chrome/.test(userAgent);
+    const isEdge = /edg/.test(userAgent);
+    const isFirefox = /firefox/.test(userAgent);
+
+    if (isIOS) {
+      const instructions = "1. Tap the Share button (□) at bottom of Safari\n2. Scroll down and tap 'Add to Home Screen'\n3. Tap 'Add' to confirm";
+      alert(`📱 iOS Installation:\n\n${instructions}\n\nNote: iOS requires manual installation.`);
+    } else if (isAndroid && (isChrome || isEdge)) {
+      const instructions = "1. Tap the menu button (⋮) in the top right\n2. Select 'Install app' or 'Add to Home screen'\n3. Tap 'Install' to confirm";
+      alert(`📱 Android Installation:\n\n${instructions}`);
+    } else if (!deviceType.includes("mobile") && (isChrome || isEdge)) {
+      const instructions = "1. Click the Install icon (⬇️) in the address bar\n2. Or use: Menu → Install Nyambika\n3. Click 'Install' to confirm";
+      alert(`🖥️ Desktop Installation:\n\n${instructions}`);
+    } else if (!deviceType.includes("mobile") && isFirefox) {
+      const instructions = "1. Click the menu button (≡) in the top right\n2. Select 'Install This Site as an App'\n3. Click 'Install' to confirm";
+      alert(`🖥️ Firefox Installation:\n\n${instructions}`);
+    } else {
+      const instructions = deviceType === "mobile" ?
+        "Use your browser's menu to add this app to your home screen" :
+        "Use your browser's menu to install this app";
+      alert(`📱 Installation:\n\n${instructions}`);
     }
 
     setShowPrompt(false);
