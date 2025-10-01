@@ -162,51 +162,68 @@ export function InstallPrompt() {
   }, [isInstalled]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) {
-      // For development/testing - simulate install
-      if (process.env.NODE_ENV === "development") {
-        alert(
-          "🎉 App would be installed in production! This is a development preview."
-        );
-        setShowPrompt(false);
-        return;
-      }
+    // Always try to trigger the installation prompt first
+    if (deferredPrompt) {
+      try {
+        await deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
 
-      // For production - provide manual installation instructions
-      if (process.env.NODE_ENV === "production") {
-        const instructions = deviceType === "mobile" ?
-          "Tap the Share/Menu button in your browser, then select 'Add to Home Screen'" :
-          "Click the Install icon in your browser's address bar or use the browser menu";
-
-        alert(`📱 To install Nyambika:\n\n${instructions}`);
-        setShowPrompt(false);
-        return;
-      }
-
-      // Fallback for browsers that don't support beforeinstallprompt
-      setShowPrompt(false);
-      return;
-    }
-
-    try {
-      await deferredPrompt.prompt();
-      const { outcome } = await deferredPrompt.userChoice;
-
-      if (outcome === "accepted") {
-        setIsInstalled(true);
-        try {
-          localStorage.setItem("nyambika-pwa-installed", "true");
-        } catch {
-          // localStorage not available, ignore
+        if (outcome === "accepted") {
+          setIsInstalled(true);
+          try {
+            localStorage.setItem("nyambika-pwa-installed", "true");
+          } catch {
+            // localStorage not available, ignore
+          }
+          setShowPrompt(false);
         }
-      }
 
-      setDeferredPrompt(null);
-      setShowPrompt(false);
-    } catch (error) {
-      console.error("Install prompt failed:", error);
-      setShowPrompt(false);
+        setDeferredPrompt(null);
+        return;
+      } catch (error) {
+        console.error("Install prompt failed:", error);
+      }
     }
+
+    // If no deferredPrompt available, try manual installation for mobile
+    if (deviceType === "mobile") {
+      try {
+        // For iOS Safari
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          // Show specific iOS instructions but also try to trigger install
+          const instructions = "Tap the Share button in Safari, then select 'Add to Home Screen'";
+          alert(`📱 iOS Installation:\n\n${instructions}`);
+
+          // For iOS, we can't programmatically trigger install, so guide user
+          setShowPrompt(false);
+          return;
+        }
+
+        // For Android Chrome - try to trigger install if supported
+        if ('onbeforeinstallprompt' in window) {
+          // Fallback: show installation instructions for Android
+          const instructions = "Tap the menu button (⋮) in Chrome, then select 'Install app'";
+          alert(`📱 Android Installation:\n\n${instructions}`);
+          setShowPrompt(false);
+          return;
+        }
+      } catch (error) {
+        console.error("Mobile installation failed:", error);
+      }
+    }
+
+    // For desktop or fallback - provide general instructions
+    try {
+      const instructions = deviceType === "mobile" ?
+        "Tap the Share/Menu button in your browser, then select 'Add to Home Screen'" :
+        "Click the Install icon in your browser's address bar or use the browser menu";
+
+      alert(`📱 To install Nyambika:\n\n${instructions}`);
+    } catch (error) {
+      console.error("Installation instructions failed:", error);
+    }
+
+    setShowPrompt(false);
   };
 
   const handleDismiss = () => {
@@ -356,7 +373,7 @@ export function InstallPrompt() {
                 `}
             >
               <Download className="h-3 w-3" />
-              Install
+              {deferredPrompt ? "Install App" : "Get App"}
             </button>
             <button
               onClick={handleDismiss}
