@@ -88,14 +88,17 @@ function ProductRegistration() {
   const { data: subStatus, isLoading: subLoading } = useQuery({
     queryKey: [API_ENDPOINTS.PRODUCER_SUBSCRIPTION_STATUS],
     queryFn: async () => {
-      const resp = await apiClient.get(API_ENDPOINTS.PRODUCER_SUBSCRIPTION_STATUS);
+      const resp = await apiClient.get(
+        API_ENDPOINTS.PRODUCER_SUBSCRIPTION_STATUS
+      );
       return resp.data as {
         hasActiveSubscription: boolean;
         planId?: string;
         status?: string;
       };
     },
-    enabled: isAuthenticated && (user?.role === "producer" || user?.role === "admin"),
+    enabled:
+      isAuthenticated && (user?.role === "producer" || user?.role === "admin"),
   });
 
   // Fetch all plans so we can read maxProducts
@@ -103,7 +106,11 @@ function ProductRegistration() {
     queryKey: [API_ENDPOINTS.SUBSCRIPTION_PLANS],
     queryFn: async () => {
       const resp = await apiClient.get(API_ENDPOINTS.SUBSCRIPTION_PLANS);
-      return resp.data as Array<{ id: string; name: string; maxProducts: number }>;
+      return resp.data as Array<{
+        id: string;
+        name: string;
+        maxProducts: number;
+      }>;
     },
   });
 
@@ -112,7 +119,8 @@ function ProductRegistration() {
     const plan = (plans as any[]).find((p) => p.id === subStatus.planId);
     if (!plan) return 0;
     const mp = (plan as any).maxProducts;
-    const val = typeof mp === "number" ? mp : parseInt(String(mp || 0), 10) || 0;
+    const val =
+      typeof mp === "number" ? mp : parseInt(String(mp || 0), 10) || 0;
     return val;
   }, [subStatus, plans]);
 
@@ -126,7 +134,10 @@ function ProductRegistration() {
       });
       return resp.data as any[];
     },
-    enabled: isAuthenticated && Boolean(user?.id) && (user?.role === "producer" || user?.role === "admin"),
+    enabled:
+      isAuthenticated &&
+      Boolean(user?.id) &&
+      (user?.role === "producer" || user?.role === "admin"),
   });
 
   // Product creation mutation
@@ -145,7 +156,9 @@ function ProductRegistration() {
     onSuccess: (product) => {
       toast({
         title: t("productCreatedTitle"),
-        description: `${t("productCreatedDesc_prefix")}${product.name}${t("productCreatedDesc_suffix")}`,
+        description: `${t("productCreatedDesc_prefix")}${product.name}${t(
+          "productCreatedDesc_suffix"
+        )}`,
       });
       // Instead of navigating away, clear the form by remounting it
       setFormKey((k) => k + 1);
@@ -168,7 +181,7 @@ function ProductRegistration() {
 
   return (
     <ProtectedRoute>
-      <main className="pt-12 pb-16">
+      <main className="pt-5 pb-16">
         <div className="max-w-4xl mx-auto">
           {/* Block UI while loading plan or products info */}
           {(subLoading || plansLoading || productsLoading) && (
@@ -177,25 +190,35 @@ function ProductRegistration() {
             </div>
           )}
           {/* Enforce: active subscription required for producers (admins can bypass form) */}
-          {user?.role === "producer" && !subLoading && subStatus && !subStatus.hasActiveSubscription && (
-            <div className="rounded-2xl border border-amber-200/20 bg-amber-500/10 p-6 text-amber-100 mb-6">
-              <p className="font-semibold mb-1">{t("activeSubscriptionRequired")}</p>
-              <p className="opacity-90">{t("needActiveSubscription")}</p>
-              <button
-                onClick={() => router.push("/producer-subscription")}
-                className="mt-4 inline-flex items-center rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-white hover:opacity-90"
-              >
-                {t("manageSubscription")}
-              </button>
-            </div>
-          )}
+          {user?.role === "producer" &&
+            !subLoading &&
+            subStatus &&
+            !subStatus.hasActiveSubscription && (
+              <div className="rounded-2xl border border-amber-200/20 bg-amber-500/10 p-6 text-amber-100 mb-6">
+                <p className="font-semibold mb-1">
+                  {t("activeSubscriptionRequired")}
+                </p>
+                <p className="opacity-90">{t("needActiveSubscription")}</p>
+                <button
+                  onClick={() => router.push("/producer-subscription")}
+                  className="mt-4 inline-flex items-center rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-white hover:opacity-90"
+                >
+                  {t("manageSubscription")}
+                </button>
+              </div>
+            )}
 
           {/* Enforce: max products limit for producers only (0 means unlimited) */}
-          {user?.role === "producer" && !subLoading && !productsLoading && currentPlanMaxProducts > 0 && (myProducts as any[]).length >= currentPlanMaxProducts ? (
+          {user?.role === "producer" &&
+          !subLoading &&
+          !productsLoading &&
+          currentPlanMaxProducts > 0 &&
+          (myProducts as any[]).length >= currentPlanMaxProducts ? (
             <div className="rounded-2xl border border-red-200/20 bg-red-500/10 p-6 text-red-100">
               <p className="font-semibold mb-1">{t("productLimitReached")}</p>
               <p className="opacity-90">
-                {t("planAllowsUpTo_prefix")} {currentPlanMaxProducts} {t("planAllowsUpTo_suffix")}
+                {t("planAllowsUpTo_prefix")} {currentPlanMaxProducts}{" "}
+                {t("planAllowsUpTo_suffix")}
               </p>
               <div className="mt-4 flex gap-3">
                 <button
@@ -213,21 +236,21 @@ function ProductRegistration() {
               </div>
             </div>
           ) : (
-          <ProductForm
-            key={formKey}
-            title={t("newProduct")}
-            submitLabel={t("createProduct")}
-            initialValues={initialFormData}
-            categories={(categories as any[]).map((c: any) => ({
-              id: c.id,
-              name: c.name,
-            }))}
-            loading={createProductMutation.isPending}
-            onCancel={() => router.push("/producer-orders")}
-            onSubmit={async (data) => {
-              await createProductMutation.mutateAsync(data);
-            }}
-          />
+            <ProductForm
+              key={formKey}
+              title={t("newProduct")}
+              submitLabel={t("createProduct")}
+              initialValues={initialFormData}
+              categories={(categories as any[]).map((c: any) => ({
+                id: c.id,
+                name: c.name,
+              }))}
+              loading={createProductMutation.isPending}
+              onCancel={() => router.push("/producer-orders")}
+              onSubmit={async (data) => {
+                await createProductMutation.mutateAsync(data);
+              }}
+            />
           )}
         </div>
       </main>

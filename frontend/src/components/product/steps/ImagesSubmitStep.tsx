@@ -158,7 +158,7 @@ export function ImagesSubmitStep({
                     className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium shadow-lg transition-all duration-200 hover:scale-105"
                   >
                     <Search className="h-4 w-4 mr-2" />
-                    Browse Images
+                    Add Main Image
                   </Button>
                 </div>
               </div>
