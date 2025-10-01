@@ -1,7 +1,49 @@
 const path = require("path");
 
+const withPWA = require("next-pwa")({
+  dest: "public",
+  disable: process.env.NODE_ENV === "development",
+  register: true,
+  skipWaiting: true,
+  runtimeCaching: [
+    {
+      urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "unsplash-images",
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+    {
+      urlPattern: /^https:\/\/images\.pexels\.com\/.*/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "pexels-images",
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+    {
+      urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "cloudinary-images",
+        expiration: {
+          maxEntries: 100,
+          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+        },
+      },
+    },
+  ],
+});
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const nextConfig = withPWA({
   // ✅ Environment variables
   env: {
     NEXT_PUBLIC_API_BASE_URL:
@@ -60,6 +102,6 @@ const nextConfig = {
     };
     return config;
   },
-};
+});
 
 module.exports = nextConfig;

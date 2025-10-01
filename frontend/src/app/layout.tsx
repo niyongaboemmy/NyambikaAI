@@ -64,6 +64,20 @@ export const metadata: Metadata = {
       },
     ],
   },
+  manifest: "/manifest.json",
+  themeColor: "#6366f1",
+  colorScheme: "light dark",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Nyambika - AI Fashion",
+    startupImage: [
+      {
+        url: "/nyambika_dark_icon.png",
+        media: "(orientation: portrait)",
+      },
+    ],
+  },
   openGraph: {
     title: "Nyambika - AI-Powered Fashion Platform",
     description:
@@ -83,6 +97,14 @@ export const metadata: Metadata = {
     description:
       "Experience the future of fashion with AI-powered virtual try-ons and personalized recommendations.",
     images: ["/nyambika_dark_icon.png"],
+  },
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "default",
+    "apple-mobile-web-app-title": "Nyambika",
+    "msapplication-TileColor": "#6366f1",
+    "msapplication-config": "/browserconfig.xml",
   },
 };
 
