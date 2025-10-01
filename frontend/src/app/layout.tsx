@@ -56,7 +56,7 @@ export const metadata: Metadata = {
       { url: "/nyambika_dark_icon.png", media: "(prefers-color-scheme: dark)" },
     ],
   },
-  manifest: "/manifest.json?v=2",
+  manifest: "/manifest.json?v=3",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -114,7 +114,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* PWA and Mobile App Meta Tags */}
-        <link rel="manifest" href="/manifest.json?v=2" />
+        <link rel="manifest" href="/manifest.json?v=3" />
         <meta name="theme-color" media="(prefers-color-scheme: light)" content="#6366f1" />
         <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#3730a3" />
         <meta name="msapplication-TileColor" content="#6366f1" />
