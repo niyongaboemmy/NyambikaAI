@@ -2,9 +2,9 @@ const path = require("path");
 
 const withPWA = require("next-pwa")({
   dest: "public",
-  disable: true, // Temporarily disable PWA to test basic functionality
-  register: false,
-  skipWaiting: false,
+  disable: false, // Re-enable PWA for proper service worker generation
+  register: true,
+  skipWaiting: true,
   runtimeCaching: [
     {
       urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
