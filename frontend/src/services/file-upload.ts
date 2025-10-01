@@ -164,6 +164,6 @@ export const revokePreviewUrl = (url: string): void => {
 // Helper function to get the full URL for an uploaded file
 export const getFileUrl = (filename: string): string => {
   // Use the base domain without /api for direct file access
-  const baseUrl = API_BASE_URL.replace('/api', '');
+  const baseUrl = API_BASE_URL.replace("/api", "");
   return `${baseUrl}/uploads/${filename}`;
 };

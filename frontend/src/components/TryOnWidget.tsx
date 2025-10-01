@@ -741,18 +741,22 @@ export default function TryOnWidget({
       // Convert base64 customer image to Blob
       const personResp = await fetch(customerImage);
       const personBlob = await personResp.blob();
-
       // Obtain garment image as Blob
       if (!selectedGarmentUrl) {
         throw new Error("Product image is required");
       }
-      const garmentResp = await fetch(selectedGarmentUrl);
+      // Convert to API endpoint format for try-on
+      const garmentUrl = selectedGarmentUrl.replace('/uploads/', '/api/uploads/');
+      const garmentResp = await fetch(garmentUrl);
       const garmentBlob = await garmentResp.blob();
+      const garmentFile = new File([garmentBlob], "garment.jpg", {
+        type: garmentResp.headers.get("Content-Type") || "image/jpeg",
+      });
 
       // Build FormData for server route
       const formData = new FormData();
       formData.append("person_image", personBlob, "person.jpg");
-      formData.append("garment_image", garmentBlob, "garment.jpg");
+      formData.append("garment_image", garmentFile, "garment.jpg");
       formData.append("fast_mode", "true");
 
       // Call JSON-based Next.js API route which integrates with TryOn API per docs
