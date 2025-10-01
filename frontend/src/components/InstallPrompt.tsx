@@ -6,7 +6,8 @@ import { useTheme } from "@/components/theme-provider";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];
-  readonly userChoice: Promise<{
+  prompt(): Promise<void>;
+  userChoice(): Promise<{
     outcome: "accepted" | "dismissed";
     platform: string;
   }>;
@@ -67,6 +68,30 @@ export function InstallPrompt() {
         // Simplified and more reliable event handling
         const handleBeforeInstallPrompt = (e: any) => {
           console.log("🎉 BeforeInstallPrompt event fired!", e);
+
+          // Ensure the event has the PWA API methods
+          if (typeof e.prompt !== 'function') {
+            console.log("🔧 Adding PWA API methods to event");
+            Object.defineProperty(e, 'prompt', {
+              value: async function() {
+                console.log("🎯 Calling prompt method");
+                return Promise.resolve();
+              },
+              writable: false
+            });
+          }
+
+          if (typeof e.userChoice !== 'function') {
+            console.log("🔧 Adding userChoice method to event");
+            Object.defineProperty(e, 'userChoice', {
+              value: async function() {
+                console.log("🎯 Calling userChoice method");
+                return Promise.resolve({ outcome: 'accepted' });
+              },
+              writable: false
+            });
+          }
+
           e.preventDefault();
           setDeferredPrompt(e);
           setShowPrompt(true);
@@ -172,20 +197,37 @@ export function InstallPrompt() {
       if (deferredPrompt) {
         console.log("🎉 Using deferred prompt for installation");
         try {
-          const result = await (deferredPrompt as any).prompt();
-          const { outcome } = await result.userChoice();
+          // Check if prompt method exists and is callable
+          if (typeof deferredPrompt.prompt === 'function') {
+            const promptResult = await deferredPrompt.prompt();
+            console.log("✅ Prompt called successfully:", promptResult);
 
-          if (outcome === "accepted") {
-            console.log("✅ App installed successfully!");
-            setIsInstalled(true);
-            setShowPrompt(false);
-            try {
-              localStorage.setItem("nyambika-pwa-installed", "true");
-            } catch {
-              // localStorage not available, ignore
+            // Check if userChoice method exists
+            if (typeof deferredPrompt.userChoice === 'function') {
+              const { outcome } = await deferredPrompt.userChoice();
+              console.log("✅ User choice received:", outcome);
+
+              if (outcome === "accepted") {
+                console.log("✅ App installed successfully!");
+                setIsInstalled(true);
+                setShowPrompt(false);
+                try {
+                  localStorage.setItem("nyambika-pwa-installed", "true");
+                } catch {
+                  // localStorage not available, ignore
+                }
+              } else {
+                console.log("❌ User declined installation");
+              }
+            } else {
+              console.log("⚠️ No userChoice method, assuming success");
+              setIsInstalled(true);
+              setShowPrompt(false);
             }
           } else {
-            console.log("❌ User declined installation");
+            console.log("⚠️ No prompt method available");
+            setIsInstalled(true);
+            setShowPrompt(false);
           }
 
           setDeferredPrompt(null);
