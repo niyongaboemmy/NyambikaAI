@@ -9,8 +9,17 @@ export function InstallPrompt() {
   const [showPromptModal, setShowPromptModal] = useState(false);
 
   useEffect(() => {
+    console.log("🔍 InstallPrompt: Setting up event listeners...");
+
     const handleBeforeInstallPrompt = (e: any) => {
-      console.log("🎉 Browser fired beforeinstallprompt event naturally!");
+      console.log("🎉 Browser fired beforeinstallprompt event naturally!", e);
+      console.log("🔍 Event details:", {
+        type: e.type,
+        platform: e.platform,
+        platforms: e.platforms,
+        userChoice: typeof e.userChoice,
+        prompt: typeof e.prompt
+      });
 
       // Prevent the mini-infobar from appearing on mobile
       e.preventDefault();
@@ -29,6 +38,30 @@ export function InstallPrompt() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
+
+    // Debug: Check manifest and PWA requirements
+    console.log("🔍 Checking PWA requirements...");
+    console.log("🔍 HTTPS:", window.location.protocol === "https:");
+    console.log("🔍 Service Worker support:", 'serviceWorker' in navigator);
+    console.log("🔍 Manifest link present:", !!document.querySelector('link[rel="manifest"]'));
+
+    // Check manifest validity
+    const manifestLink = document.querySelector('link[rel="manifest"]');
+    if (manifestLink) {
+      console.log("🔍 Manifest URL:", manifestLink.getAttribute('href'));
+    }
+
+    // Manual PWA criteria check
+    setTimeout(() => {
+      console.log("🔍 Manual PWA check after 3 seconds...");
+      if (!deferredPrompt) {
+        console.log("⚠️ No beforeinstallprompt event fired yet. Possible issues:");
+        console.log("   - Manifest may have errors");
+        console.log("   - Service worker may not be registered");
+        console.log("   - Icons may be missing or invalid");
+        console.log("   - Running on HTTP instead of HTTPS");
+      }
+    }, 3000);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
