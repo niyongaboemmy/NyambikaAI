@@ -22,10 +22,11 @@ async function getCompany(id: string) {
   }
 }
 
-export async function GET(req: NextRequest, ctx: { params: { id: string } }) {
-  const idRaw = ctx.params.id || "";
-  const id = decodeURIComponent(idRaw.trim());
-  const company = await getCompany(id);
+export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+  const { id } = await ctx.params;
+  const idRaw = id || "";
+  const idDecoded = decodeURIComponent(idRaw.trim());
+  const company = await getCompany(idDecoded);
 
   // Resolve an absolute HTTPS URL for the logo
   const toAbsolute = (u?: string | null) => {
