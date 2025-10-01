@@ -334,7 +334,7 @@ export function ProductFormWizard({
         {/* Current Step Content */}
         <div className="mb-3 mt-2 md:mt-4">{renderCurrentStep()}</div>
         {/* Navigation */}
-        <div className="fixed bottom-4 md:bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
+        <div className="fixed bottom-0 pb-6 sm:pb-3 md:pb-1 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
           <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3">
             <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
               {/* Back Button */}
