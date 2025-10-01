@@ -6,7 +6,7 @@ export const ESICIA_CONFIG = {
   BANK_ID: "192", // Equity Bank
   RETAILER_ID: "01",
   REDIRECT_URL: "https://nyambika.com/profile",
-  CALLBACK_BASE: "https://nyambika.vms.rw",
+  CALLBACK_BASE: "https://nyambikav2.vms.rw",
   USERNAME: "universal",
   PASSWORD: "5Cew9n",
   AUTH_KEY: "95klh4tsvabduv1mahs09ueg75",

@@ -25,6 +25,8 @@ app.use(
       "http://nyambika.com",
       "https://www.nyambika.com",
       "http://www.nyambika.com",
+      "https://nyambikav2.vms.rw", // Production server
+      "https://www.nyambikav2.vms.rw", // Production server
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
