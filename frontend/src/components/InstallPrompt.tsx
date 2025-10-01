@@ -10,14 +10,14 @@ interface BeforeInstallPromptEvent extends Event {
     outcome: "accepted" | "dismissed";
     platform: string;
   }>;
-  prompt(): Promise<void>;
 }
 
 export function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
-  const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [showPrompt, setShowPrompt] = useState(false);
   const [deviceType, setDeviceType] = useState<"mobile" | "desktop">("desktop");
   const { actualTheme } = useTheme();
 
@@ -64,19 +64,12 @@ export function InstallPrompt() {
           setDeviceType(isMobile ? "mobile" : "desktop");
         };
 
-        // Handle beforeinstallprompt event
+        // Simplified and more reliable event handling
         const handleBeforeInstallPrompt = (e: any) => {
-          console.log("🎉 BeforeInstallPrompt event fired!");
+          console.log("🎉 BeforeInstallPrompt event fired!", e);
           e.preventDefault();
           setDeferredPrompt(e);
-
-          // Show prompt after a delay if not installed
-          setTimeout(() => {
-            if (!isInstalled) {
-              console.log("🔄 Showing install prompt after beforeinstallprompt");
-              setShowPrompt(true);
-            }
-          }, 1000);
+          setShowPrompt(true);
         };
 
         const handleAppInstalled = () => {
@@ -90,103 +83,51 @@ export function InstallPrompt() {
           }
         };
 
-        // Add event listeners
-        window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-        window.addEventListener("appinstalled", handleAppInstalled);
+        // Add event listeners with error handling
+        try {
+          window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+          window.addEventListener("appinstalled", handleAppInstalled);
+          console.log("✅ Event listeners added successfully");
+        } catch (error) {
+          console.error("❌ Failed to add event listeners:", error);
+        }
 
-        // Enhanced desktop install icon triggering
+        // Simplified desktop triggering - single reliable method
         if (deviceType === "desktop") {
-          console.log("🖥️ Desktop detected, setting up enhanced install triggering...");
+          console.log("🖥️ Desktop detected, setting up install trigger...");
 
-          // Track user engagement for install icon
-          let userEngaged = false;
-          const trackEngagement = () => { userEngaged = true; };
+          // Single trigger after user engagement
+          const triggerInstallPrompt = () => {
+            if (!deferredPrompt && !isInstalled) {
+              console.log("🔄 Triggering install prompt for desktop...");
 
-          // Add engagement tracking
-          ['click', 'scroll', 'keydown', 'touchstart'].forEach(event => {
-            window.addEventListener(event, trackEngagement, { once: true, passive: true });
-          });
+              try {
+                // Simple event dispatch
+                const installEvent = new (window as any).Event('beforeinstallprompt', {
+                  bubbles: true,
+                  cancelable: true
+                });
 
-          // Multiple attempts to trigger install icon
-          const triggerInstallIcon = (attempt: number = 1) => {
-            console.log(`🔄 Attempting to trigger install icon (attempt ${attempt})`);
+                window.dispatchEvent(installEvent);
+                console.log("✅ Install event dispatched");
 
-            try {
-              // Method 1: Dispatch beforeinstallprompt event
-              const installEvent = new (window as any).Event('beforeinstallprompt', {
-                bubbles: true,
-                cancelable: true
-              });
+                // Show our custom prompt as backup
+                setTimeout(() => {
+                  if (!deferredPrompt) {
+                    console.log("📋 No browser prompt, showing custom prompt");
+                    setShowPrompt(true);
+                  }
+                }, 1000);
 
-              // Add proper PWA API methods
-              Object.defineProperty(installEvent, 'prompt', {
-                value: async function() {
-                  console.log("🎯 Install prompt triggered from icon");
-                  return Promise.resolve();
-                },
-                writable: false
-              });
-
-              Object.defineProperty(installEvent, 'userChoice', {
-                value: async function() {
-                  console.log("🎯 User choice requested from icon");
-                  return Promise.resolve({ outcome: 'accepted' });
-                },
-                writable: false
-              });
-
-              window.dispatchEvent(installEvent);
-              console.log(`✅ Dispatched beforeinstallprompt event (attempt ${attempt})`);
-
-              // Method 2: Try to force install icon visibility
-              if ((window as any).chrome && (window as any).chrome.runtime) {
-                console.log("🔍 Chrome detected, attempting to show install button");
-                // For Chrome, we can try to trigger the omnibox install button
-                try {
-                  (window as any).chrome.runtime.sendMessage(
-                    'install-button-show',
-                    { action: 'show_install_button' }
-                  );
-                } catch (e) {
-                  console.log("ℹ️ Chrome install button trigger not available");
-                }
+              } catch (error) {
+                console.error("❌ Failed to trigger install:", error);
+                setShowPrompt(true);
               }
-
-            } catch (error) {
-              console.error(`❌ Install icon trigger failed (attempt ${attempt}):`, error);
             }
           };
 
-          // Initial trigger after user engagement
-          setTimeout(() => {
-            if (userEngaged && !deferredPrompt) {
-              triggerInstallIcon(1);
-            }
-          }, 2000);
-
-          // Retry mechanism for stubborn browsers
-          setTimeout(() => {
-            if (!deferredPrompt && !isInstalled) {
-              console.log("🔄 Retrying install icon trigger...");
-              triggerInstallIcon(2);
-            }
-          }, 5000);
-
-          // Final fallback attempt
-          setTimeout(() => {
-            if (!deferredPrompt && !isInstalled) {
-              console.log("🔄 Final attempt to trigger install icon...");
-              triggerInstallIcon(3);
-
-              // Show manual instructions if all automatic attempts fail
-              setTimeout(() => {
-                if (!deferredPrompt) {
-                  console.log("📋 All automatic attempts failed, showing fallback prompt");
-                  setShowPrompt(true);
-                }
-              }, 1000);
-            }
-          }, 8000);
+          // Trigger after brief delay
+          setTimeout(triggerInstallPrompt, 2000);
         }
 
         // For development/testing - show prompt after longer delay if no event fired
@@ -217,131 +158,81 @@ export function InstallPrompt() {
   }, [isInstalled]);
 
   const handleInstallClick = async () => {
-    console.log("🔄 Install button clicked - attempting WhatsApp-style installation...");
+    console.log("🔄 Install button clicked");
 
-    // Method 1: Try existing deferred prompt first (WhatsApp Web style)
-    if (deferredPrompt) {
-      try {
-        console.log("🎉 Using deferred prompt for automatic installation");
-        await deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-
-        if (outcome === "accepted") {
-          console.log("✅ App installed successfully!");
-          setIsInstalled(true);
-          try {
-            localStorage.setItem("nyambika-pwa-installed", "true");
-          } catch {
-            // localStorage not available, ignore
-          }
-          setShowPrompt(false);
-        } else {
-          console.log("❌ User declined installation");
-        }
-
-        setDeferredPrompt(null);
-        return;
-      } catch (error) {
-        console.error("❌ Install prompt failed:", error);
-        setDeferredPrompt(null);
-      }
+    // Prevent double-clicks
+    if (isInstalling) {
+      console.log("⏳ Installation already in progress");
+      return;
     }
 
-    // Method 2: WhatsApp-style - Trigger browser's native installation
+    setIsInstalling(true);
     try {
-      console.log("🚀 Triggering browser's native installation mechanism...");
-
-      // For Chrome/Edge - trigger the install icon in address bar
-      if (typeof (window as any).chrome !== 'undefined' || /Chrome|Edg/.test(navigator.userAgent)) {
-        console.log("🔍 Chrome/Edge detected - triggering native install");
-
-        // Force trigger the install icon in address bar
+      // Method 1: Use existing deferred prompt first
+      if (deferredPrompt) {
+        console.log("🎉 Using deferred prompt for installation");
         try {
-          console.log("📍 Forcing install icon visibility in address bar...");
+          const result = await (deferredPrompt as any).prompt();
+          const { outcome } = await result.userChoice();
 
-          // Dispatch multiple events to ensure the icon appears
-          const triggerInstallIcon = () => {
-            const installEvent = new (window as any).Event('beforeinstallprompt', {
-              bubbles: true,
-              cancelable: true
-            });
+          if (outcome === "accepted") {
+            console.log("✅ App installed successfully!");
+            setIsInstalled(true);
+            setShowPrompt(false);
+            try {
+              localStorage.setItem("nyambika-pwa-installed", "true");
+            } catch {
+              // localStorage not available, ignore
+            }
+          } else {
+            console.log("❌ User declined installation");
+          }
 
-            Object.defineProperty(installEvent, 'prompt', {
-              value: async function() {
-                console.log("🎯 Address bar install icon clicked");
-                return Promise.resolve();
-              },
-              writable: false
-            });
+          setDeferredPrompt(null);
+          return;
+        } catch (error) {
+          console.error("❌ Install prompt failed:", error);
+          setDeferredPrompt(null);
+        }
+      }
 
-            Object.defineProperty(installEvent, 'userChoice', {
-              value: async function() {
-                console.log("🎯 Address bar user choice");
-                return Promise.resolve({ outcome: 'accepted' });
-              },
-              writable: false
-            });
+      // Method 2: Try to trigger address bar icon for desktop
+      if (deviceType === "desktop") {
+        console.log("🖥️ Desktop detected, triggering address bar icon...");
 
-            window.dispatchEvent(installEvent);
-            console.log("✅ Address bar install event dispatched");
-          };
+        try {
+          // Force trigger the install icon in address bar
+          const installEvent = new (window as any).Event('beforeinstallprompt', {
+            bubbles: true,
+            cancelable: true
+          });
 
-          // Trigger immediately
-          triggerInstallIcon();
+          window.dispatchEvent(installEvent);
+          console.log("✅ Address bar install event dispatched");
 
-          // Trigger again after a short delay
-          setTimeout(triggerInstallIcon, 500);
-
-          // Show instructions for address bar icon
+          // Give it a moment and show instructions
           setTimeout(() => {
             if (!deferredPrompt) {
-              console.log("📋 Showing address bar installation instructions");
+              console.log("📋 Showing desktop installation instructions");
               showAddressBarInstructions();
             }
-          }, 1500);
+          }, 1000);
 
           return;
-        } catch (eventError) {
-          console.error("❌ Address bar icon trigger failed:", eventError);
+        } catch (error) {
+          console.error("❌ Desktop install trigger failed:", error);
         }
       }
 
-      // Method 3: Direct confirmation for modern browsers (WhatsApp approach)
-      if ('serviceWorker' in navigator && 'PushManager' in window) {
-        console.log("💡 Modern PWA browser detected");
-
-        const confirmed = confirm(
-          "Install Nyambika as an app?\n\n" +
-          "✅ Get quick access from desktop/menu\n" +
-          "🚀 Launch faster than browser tabs\n" +
-          "📱 Works offline\n\n" +
-          "Click OK to install, or Cancel for instructions."
-        );
-
-        if (confirmed) {
-          console.log("✅ User confirmed - simulating installation");
-          setIsInstalled(true);
-          try {
-            localStorage.setItem("nyambika-pwa-installed", "true");
-          } catch {
-            // localStorage not available, ignore
-          }
-          setShowPrompt(false);
-
-          // Show success message
-          setTimeout(() => {
-            alert("🎉 Nyambika installed successfully!\n\nLook for it in your app menu or desktop.");
-          }, 500);
-          return;
-        }
-      }
-
-      // Method 4: Show platform-specific instructions (fallback)
+      // Method 3: Show platform-specific instructions
+      console.log("📋 Showing installation instructions");
       showInstallationInstructions();
 
     } catch (error) {
       console.error("❌ Installation process failed:", error);
       showInstallationInstructions();
+    } finally {
+      setIsInstalling(false);
     }
   };
 
