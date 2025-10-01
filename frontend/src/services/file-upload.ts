@@ -2,7 +2,7 @@ import axios, { AxiosProgressEvent } from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "https://nyambika.vms.rw/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://nyambikav2.vms.rw/api";
 
 interface UploadResponse {
   success: boolean;
