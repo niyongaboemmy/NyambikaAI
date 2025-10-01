@@ -30,16 +30,29 @@ export function InstallPrompt() {
       try {
         // Check if app is already installed
         const checkInstalled = () => {
+          // Check if running as PWA (standalone mode)
           if (window.matchMedia?.("(display-mode: standalone)")?.matches) {
             setIsInstalled(true);
-            return;
+            return true;
           }
 
           // Check if running as PWA (iOS Safari)
           if ((window.navigator as any)?.standalone === true) {
             setIsInstalled(true);
-            return;
+            return true;
           }
+
+          // Check localStorage for installation flag
+          try {
+            if (localStorage.getItem("nyambika-pwa-installed") === "true") {
+              setIsInstalled(true);
+              return true;
+            }
+          } catch {
+            // localStorage not available, continue
+          }
+
+          return false;
         };
 
         // Detect device type
@@ -77,32 +90,58 @@ export function InstallPrompt() {
           setIsInstalled(true);
           setShowPrompt(false);
           setDeferredPrompt(null);
+          try {
+            localStorage.setItem("nyambika-pwa-installed", "true");
+          } catch {
+            // localStorage not available, ignore
+          }
         };
 
-        checkInstalled();
-        detectDevice();
+        // Only proceed if not already installed
+        if (!checkInstalled()) {
+          detectDevice();
 
-        // Add event listeners
-        window.addEventListener?.(
-          "beforeinstallprompt",
-          handleBeforeInstallPrompt
-        );
-        window.addEventListener?.("appinstalled", handleAppInstalled);
+          // Add event listeners
+          window.addEventListener?.(
+            "beforeinstallprompt",
+            handleBeforeInstallPrompt
+          );
+          window.addEventListener?.("appinstalled", handleAppInstalled);
 
-        // For development - show prompt for testing
-        if (process.env.NODE_ENV === "development") {
-          setTimeout(() => {
-            try {
-              if (
-                !isInstalled &&
-                !sessionStorage?.getItem?.("installPromptDismissed")
-              ) {
-                setShowPrompt(true);
+          // For development - show prompt for testing
+          if (process.env.NODE_ENV === "development") {
+            setTimeout(() => {
+              try {
+                if (
+                  !isInstalled &&
+                  !sessionStorage?.getItem?.("installPromptDismissed")
+                ) {
+                  setShowPrompt(true);
+                }
+              } catch {
+                if (!isInstalled) setShowPrompt(true);
               }
-            } catch {
-              if (!isInstalled) setShowPrompt(true);
-            }
-          }, 3000);
+            }, 3000);
+          }
+
+          // For production - show prompt after longer delay if beforeinstallprompt doesn't fire
+          if (process.env.NODE_ENV === "production") {
+            setTimeout(() => {
+              try {
+                if (
+                  !isInstalled &&
+                  !deferredPrompt && // No install prompt received
+                  !sessionStorage?.getItem?.("installPromptDismissed")
+                ) {
+                  setShowPrompt(true);
+                }
+              } catch {
+                if (!isInstalled && !deferredPrompt) {
+                  setShowPrompt(true);
+                }
+              }
+            }, 5000); // Longer delay for production
+          }
         }
 
         return () => {
@@ -133,6 +172,17 @@ export function InstallPrompt() {
         return;
       }
 
+      // For production - provide manual installation instructions
+      if (process.env.NODE_ENV === "production") {
+        const instructions = deviceType === "mobile" ?
+          "Tap the Share/Menu button in your browser, then select 'Add to Home Screen'" :
+          "Click the Install icon in your browser's address bar or use the browser menu";
+
+        alert(`📱 To install Nyambika:\n\n${instructions}`);
+        setShowPrompt(false);
+        return;
+      }
+
       // Fallback for browsers that don't support beforeinstallprompt
       setShowPrompt(false);
       return;
@@ -144,6 +194,11 @@ export function InstallPrompt() {
 
       if (outcome === "accepted") {
         setIsInstalled(true);
+        try {
+          localStorage.setItem("nyambika-pwa-installed", "true");
+        } catch {
+          // localStorage not available, ignore
+        }
       }
 
       setDeferredPrompt(null);
