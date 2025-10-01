@@ -2,39 +2,51 @@
   "name": "Nyambika - AI Fashion Try-On",
   "short_name": "Nyambika",
   "description": "AI-powered fashion try-on platform for virtual clothing experiences",
-  "start_url": "https://nyambika.com/",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f23",
   "theme_color": "#6366f1",
   "orientation": "portrait-primary",
-  "scope": "https://nyambika.com/",
+  "scope": "/",
   "categories": ["shopping", "fashion", "lifestyle"],
   "lang": "en",
   "dir": "ltr",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
   "icons": [
     {
-      "src": "https://nyambika.com/nyambika_dark_icon.png",
+      "src": "/nyambika_dark_icon.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "https://nyambika.com/nyambika_light_icon.png",
+      "src": "/nyambika_light_icon.png",
       "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/nyambika_dark_icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/nyambika_dark_icon.png",
+      "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     }
   ],
   "screenshots": [
     {
-      "src": "https://nyambika.com/nyambika_dark_icon.png",
+      "src": "/nyambika_dark_icon.png",
       "sizes": "540x720",
       "type": "image/png",
       "form_factor": "wide"
     },
     {
-      "src": "https://nyambika.com/nyambika_dark_icon.png",
+      "src": "/nyambika_dark_icon.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow"
@@ -45,10 +57,10 @@
       "name": "AI Try-On",
       "short_name": "Try-On",
       "description": "Start AI fashion try-on experience",
-      "url": "https://nyambika.com/try-on",
+      "url": "/try-on",
       "icons": [
         {
-          "src": "https://nyambika.com/nyambika_dark_icon.png",
+          "src": "/nyambika_dark_icon.png",
           "sizes": "96x96"
         }
       ]
@@ -57,10 +69,10 @@
       "name": "Browse Stores",
       "short_name": "Stores",
       "description": "Browse fashion stores and products",
-      "url": "https://nyambika.com/",
+      "url": "/",
       "icons": [
         {
-          "src": "https://nyambika.com/nyambika_dark_icon.png",
+          "src": "/nyambika_dark_icon.png",
           "sizes": "96x96"
         }
       ]
@@ -69,10 +81,10 @@
       "name": "My Profile",
       "short_name": "Profile",
       "description": "View your profile and orders",
-      "url": "https://nyambika.com/profile",
+      "url": "/profile",
       "icons": [
         {
-          "src": "https://nyambika.com/nyambika_dark_icon.png",
+          "src": "/nyambika_dark_icon.png",
           "sizes": "96x96"
         }
       ]

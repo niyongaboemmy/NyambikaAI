@@ -94,46 +94,99 @@ export function InstallPrompt() {
         window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
         window.addEventListener("appinstalled", handleAppInstalled);
 
-        // Enhanced detection for desktop browsers
+        // Enhanced desktop install icon triggering
         if (deviceType === "desktop") {
-          console.log("🖥️ Desktop detected, checking installability...");
+          console.log("🖥️ Desktop detected, setting up enhanced install triggering...");
 
-          // Check if we can trigger install manually after user interaction
+          // Track user engagement for install icon
+          let userEngaged = false;
+          const trackEngagement = () => { userEngaged = true; };
+
+          // Add engagement tracking
+          ['click', 'scroll', 'keydown', 'touchstart'].forEach(event => {
+            window.addEventListener(event, trackEngagement, { once: true, passive: true });
+          });
+
+          // Multiple attempts to trigger install icon
+          const triggerInstallIcon = (attempt: number = 1) => {
+            console.log(`🔄 Attempting to trigger install icon (attempt ${attempt})`);
+
+            try {
+              // Method 1: Dispatch beforeinstallprompt event
+              const installEvent = new (window as any).Event('beforeinstallprompt', {
+                bubbles: true,
+                cancelable: true
+              });
+
+              // Add proper PWA API methods
+              Object.defineProperty(installEvent, 'prompt', {
+                value: async function() {
+                  console.log("🎯 Install prompt triggered from icon");
+                  return Promise.resolve();
+                },
+                writable: false
+              });
+
+              Object.defineProperty(installEvent, 'userChoice', {
+                value: async function() {
+                  console.log("🎯 User choice requested from icon");
+                  return Promise.resolve({ outcome: 'accepted' });
+                },
+                writable: false
+              });
+
+              window.dispatchEvent(installEvent);
+              console.log(`✅ Dispatched beforeinstallprompt event (attempt ${attempt})`);
+
+              // Method 2: Try to force install icon visibility
+              if ((window as any).chrome && (window as any).chrome.runtime) {
+                console.log("🔍 Chrome detected, attempting to show install button");
+                // For Chrome, we can try to trigger the omnibox install button
+                try {
+                  (window as any).chrome.runtime.sendMessage(
+                    'install-button-show',
+                    { action: 'show_install_button' }
+                  );
+                } catch (e) {
+                  console.log("ℹ️ Chrome install button trigger not available");
+                }
+              }
+
+            } catch (error) {
+              console.error(`❌ Install icon trigger failed (attempt ${attempt}):`, error);
+            }
+          };
+
+          // Initial trigger after user engagement
+          setTimeout(() => {
+            if (userEngaged && !deferredPrompt) {
+              triggerInstallIcon(1);
+            }
+          }, 2000);
+
+          // Retry mechanism for stubborn browsers
           setTimeout(() => {
             if (!deferredPrompt && !isInstalled) {
-              console.log("🔄 No beforeinstallprompt fired, attempting manual trigger...");
-
-              // Try to trigger the event manually for desktop browsers
-              try {
-                const installEvent = new (window as any).Event('beforeinstallprompt', {
-                  bubbles: true,
-                  cancelable: true
-                });
-
-                // Add proper PWA API methods
-                Object.defineProperty(installEvent, 'prompt', {
-                  value: async function() {
-                    console.log("🎯 Manual prompt triggered");
-                    return Promise.resolve();
-                  },
-                  writable: false
-                });
-
-                Object.defineProperty(installEvent, 'userChoice', {
-                  value: async function() {
-                    console.log("🎯 Manual user choice");
-                    return Promise.resolve({ outcome: 'accepted' });
-                  },
-                  writable: false
-                });
-
-                window.dispatchEvent(installEvent);
-                console.log("✅ Manual beforeinstallprompt event dispatched");
-              } catch (error) {
-                console.error("❌ Manual event trigger failed:", error);
-              }
+              console.log("🔄 Retrying install icon trigger...");
+              triggerInstallIcon(2);
             }
-          }, 3000); // Wait 3 seconds for natural event
+          }, 5000);
+
+          // Final fallback attempt
+          setTimeout(() => {
+            if (!deferredPrompt && !isInstalled) {
+              console.log("🔄 Final attempt to trigger install icon...");
+              triggerInstallIcon(3);
+
+              // Show manual instructions if all automatic attempts fail
+              setTimeout(() => {
+                if (!deferredPrompt) {
+                  console.log("📋 All automatic attempts failed, showing fallback prompt");
+                  setShowPrompt(true);
+                }
+              }, 1000);
+            }
+          }, 8000);
         }
 
         // For development/testing - show prompt after longer delay if no event fired
@@ -202,44 +255,54 @@ export function InstallPrompt() {
       if (typeof (window as any).chrome !== 'undefined' || /Chrome|Edg/.test(navigator.userAgent)) {
         console.log("🔍 Chrome/Edge detected - triggering native install");
 
-        // Method 2a: Try to trigger via custom event (similar to WhatsApp)
+        // Force trigger the install icon in address bar
         try {
-          const installEvent = new (window as any).Event('beforeinstallprompt', {
-            bubbles: true,
-            cancelable: true
-          });
+          console.log("📍 Forcing install icon visibility in address bar...");
 
-          // Add proper PWA API methods
-          Object.defineProperty(installEvent, 'prompt', {
-            value: async function() {
-              console.log("🎯 Native prompt triggered");
-              return Promise.resolve();
-            },
-            writable: false
-          });
+          // Dispatch multiple events to ensure the icon appears
+          const triggerInstallIcon = () => {
+            const installEvent = new (window as any).Event('beforeinstallprompt', {
+              bubbles: true,
+              cancelable: true
+            });
 
-          Object.defineProperty(installEvent, 'userChoice', {
-            value: async function() {
-              console.log("🎯 User choice requested");
-              return Promise.resolve({ outcome: 'accepted' });
-            },
-            writable: false
-          });
+            Object.defineProperty(installEvent, 'prompt', {
+              value: async function() {
+                console.log("🎯 Address bar install icon clicked");
+                return Promise.resolve();
+              },
+              writable: false
+            });
 
-          window.dispatchEvent(installEvent);
-          console.log("✅ Dispatched beforeinstallprompt event");
+            Object.defineProperty(installEvent, 'userChoice', {
+              value: async function() {
+                console.log("🎯 Address bar user choice");
+                return Promise.resolve({ outcome: 'accepted' });
+              },
+              writable: false
+            });
 
-          // Give browser time to show install icon
+            window.dispatchEvent(installEvent);
+            console.log("✅ Address bar install event dispatched");
+          };
+
+          // Trigger immediately
+          triggerInstallIcon();
+
+          // Trigger again after a short delay
+          setTimeout(triggerInstallIcon, 500);
+
+          // Show instructions for address bar icon
           setTimeout(() => {
             if (!deferredPrompt) {
-              console.log("📋 Showing manual installation instructions");
-              showInstallationInstructions();
+              console.log("📋 Showing address bar installation instructions");
+              showAddressBarInstructions();
             }
-          }, 2000);
+          }, 1500);
 
           return;
         } catch (eventError) {
-          console.error("❌ Event trigger failed:", eventError);
+          console.error("❌ Address bar icon trigger failed:", eventError);
         }
       }
 
@@ -280,6 +343,11 @@ export function InstallPrompt() {
       console.error("❌ Installation process failed:", error);
       showInstallationInstructions();
     }
+  };
+
+  const showAddressBarInstructions = () => {
+    alert("🖥️ Desktop Installation:\n\nLook for the Install icon (⬇️) in the address bar at the top of your browser, or use:\n\nMenu → Install Nyambika\n\nClick 'Install' to add Nyambika to your desktop!");
+    setShowPrompt(false);
   };
 
   const showInstallationInstructions = () => {
@@ -482,3 +550,5 @@ export function InstallPrompt() {
     </div>
   );
 }
+
+export default InstallPrompt;
