@@ -153,7 +153,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden pb-4 sm:pb-0">
+      <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden">
         <Providers>
           {children}
           <LoadingIndicatorStyles />
