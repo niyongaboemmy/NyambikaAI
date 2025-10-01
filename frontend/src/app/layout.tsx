@@ -35,6 +35,11 @@ declare global {
 // Removed next/font/google to prevent network fetch during build in restricted environments
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NODE_ENV === "production"
+      ? "https://nyambika.com"
+      : "http://localhost:3000"
+  ),
   title: "Nyambika - AI-Powered Fashion Platform",
   description:
     "Experience the future of fashion with AI-powered virtual try-ons, personalized recommendations, and seamless shopping in Rwanda.",

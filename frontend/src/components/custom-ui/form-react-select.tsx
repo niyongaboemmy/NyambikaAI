@@ -22,20 +22,22 @@ export interface FormReactSelectProps {
 const useIsDark = () => {
   const [isDark, setIsDark] = React.useState<boolean>(() =>
     typeof document !== "undefined"
-      ? document.documentElement.classList.contains("dark")
+      ? document.documentElement?.classList?.contains("dark") ?? false
       : false
   );
 
   React.useEffect(() => {
-    if (typeof document === "undefined") return;
-    
+    if (typeof document === "undefined" || !document.documentElement) return;
+
     const observer = new MutationObserver(() => {
       setIsDark(document.documentElement.classList.contains("dark"));
     });
-    
-    if (document.documentElement) {
-      observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] });
-    }
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"]
+    });
+
     return () => observer.disconnect();
   }, []);
 
