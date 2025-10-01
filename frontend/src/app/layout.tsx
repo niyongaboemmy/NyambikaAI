@@ -65,7 +65,6 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/manifest.json",
-  themeColor: "#6366f1",
   colorScheme: "light dark",
   appleWebApp: {
     capable: true,
@@ -131,7 +130,8 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* PWA and Mobile App Meta Tags */}
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#6366f1" />
+        <meta name="theme-color" media="(prefers-color-scheme: light)" content="#6366f1" />
+        <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#3730a3" />
         <meta name="msapplication-TileColor" content="#6366f1" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
