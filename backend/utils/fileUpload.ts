@@ -110,7 +110,7 @@ export { upload };
 
 // Function to generate public URL
 export function getPublicUrl(filename: string): string {
-  return `/uploads/${filename}`;
+  return `/api/uploads/${filename}`;
 }
 
 // Function to delete a file
