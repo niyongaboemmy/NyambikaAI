@@ -4,6 +4,7 @@ import { Providers } from "@/components/providers";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
 import ServiceWorkerCleanup from "@/components/service-worker-cleanup";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 // Theme script to be injected into the document head
 const themeScript = `
@@ -163,6 +164,7 @@ export default function RootLayout({
           {children}
           <LoadingIndicatorStyles />
           <ServiceWorkerCleanup />
+          <InstallPrompt />
           {GA_MEASUREMENT_ID && (
             <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />
           )}
