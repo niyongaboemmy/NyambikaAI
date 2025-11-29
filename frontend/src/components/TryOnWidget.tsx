@@ -17,6 +17,8 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { useSafeToast as useToast } from "@/hooks/use-safe-toast";
+import { apiClient, API_ENDPOINTS } from "@/config/api";
+import { v4 as uuidv4 } from "uuid";
 
 interface TryOnWidgetProps {
   productId: string;
@@ -735,6 +737,7 @@ export default function TryOnWidget({
       });
       return;
     }
+    
     try {
       setIsProcessingTryOn(true);
 
@@ -746,6 +749,7 @@ export default function TryOnWidget({
       if (!selectedGarmentUrl) {
         throw new Error("Product image is required");
       }
+      
       // Convert to API endpoint format for try-on
       const garmentUrl = selectedGarmentUrl.replace(
         "/uploads/",
@@ -757,73 +761,74 @@ export default function TryOnWidget({
         type: garmentResp.headers.get("Content-Type") || "image/jpeg",
       });
 
+      // Upload the customer image to get a URL
+      const formData = new FormData();
+      formData.append('image', personBlob, 'customer.jpg');
+      
+      const uploadResponse = await apiClient.post(
+        '/api/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+      
+      if (!uploadResponse.data || !uploadResponse.data.url) {
+        console.error('Upload response:', uploadResponse);
+        throw new Error('Failed to upload image: Invalid response from server');
+      }
+      
+      const customerImageUrl = uploadResponse.data.url;
+
       // Create try-on session in database
-      const sessionResponse = await fetch("/api/try-on/sessions", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${
-            localStorage.getItem("token") ||
-            localStorage.getItem("authToken") ||
-            localStorage.getItem("auth_token")
-          }`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const sessionResponse = await apiClient.post(
+        '/api/try-on/sessions',
+        {
           productId,
           productName,
-          customerImageUrl: customerImage,
-          status: "processing",
-        }),
-      });
+          customerImageUrl,
+          status: "processing"
+        }
+      );
 
-      if (!sessionResponse.ok) {
+      if (sessionResponse.status !== 201) {
+        console.error('Session creation failed:', sessionResponse);
         throw new Error("Failed to create try-on session");
       }
 
-      const { session } = await sessionResponse.json();
+      const session = sessionResponse.data.session;
 
       // Build FormData for server route
-      const formData = new FormData();
-      formData.append("person_image", personBlob, "person.jpg");
-      formData.append("garment_image", garmentFile, "garment.jpg");
-      formData.append("fast_mode", "true");
+      const tryOnFormData = new FormData();
+      tryOnFormData.append("person_image", personBlob, "person.jpg");
+      tryOnFormData.append("garment_image", garmentFile, "garment.jpg");
+      tryOnFormData.append("fast_mode", "true");
 
       // Call JSON-based Next.js API route which integrates with TryOn API per docs
-      const res = await fetch("/api/tryon", {
-        method: "POST",
-        body: formData,
+      const res = await apiClient.post(API_ENDPOINTS.TRY_ON, tryOnFormData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       // 202 => still processing (rare due to server-side polling)
       if (res.status === 202) {
-        const j = await res.json();
         toast({
           title: "Still processing",
-          description: j.message || "Please wait a bit and retry",
+          description: res.data.message || "Please wait a bit and retry",
         });
         return;
       }
 
-      const j = await res.json();
-      if (!res.ok) {
+      const j = res.data;
+      if (res.status !== 200) {
         // Update session status to failed
-        await fetch(`/api/try-on/sessions/${session.id}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${
-              localStorage.getItem("token") ||
-              localStorage.getItem("authToken") ||
-              localStorage.getItem("auth_token")
-            }`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: "failed",
-            errorMessage:
-              j?.error ||
-              j?.details ||
-              `Try-on failed with status ${res.status}`,
-          }),
+        await apiClient.put(API_ENDPOINTS.TRY_ON_SESSION_BY_ID(session.id), {
+          status: "failed",
+          errorMessage:
+            j?.error || j?.details || `Try-on failed with status ${res.status}`,
         });
         throw new Error(
           j?.error || j?.details || `Try-on failed with status ${res.status}`
@@ -840,20 +845,9 @@ export default function TryOnWidget({
 
       if (image) {
         // Update session with success
-        await fetch(`/api/try-on/sessions/${session.id}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${
-              localStorage.getItem("token") ||
-              localStorage.getItem("authToken") ||
-              localStorage.getItem("auth_token")
-            }`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            resultImageUrl: image,
-            status: "completed",
-          }),
+        await apiClient.put(API_ENDPOINTS.TRY_ON_SESSION_BY_ID(session.id), {
+          resultImageUrl: image,
+          status: "completed",
         });
 
         // Revoke old blob URL if any
@@ -869,19 +863,8 @@ export default function TryOnWidget({
         });
       } else {
         // Update session status to completed without image
-        await fetch(`/api/try-on/sessions/${session.id}`, {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${
-              localStorage.getItem("token") ||
-              localStorage.getItem("authToken") ||
-              localStorage.getItem("auth_token")
-            }`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            status: "completed",
-          }),
+        await apiClient.put(API_ENDPOINTS.TRY_ON_SESSION_BY_ID(session.id), {
+          status: "completed",
         });
 
         toast({

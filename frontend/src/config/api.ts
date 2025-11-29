@@ -39,7 +39,7 @@ export interface UserInterface {
 const createAxiosInstance = (): AxiosInstance => {
   const instance = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 30000, // Increased to 30 seconds for better reliability
+    timeout: 0, // No timeout for better reliability with long-running operations
     headers: {
       "Content-Type": "application/json",
     },
@@ -255,7 +255,7 @@ export const API_ENDPOINTS = {
   SUBSCRIPTION_PLANS: "/api/subscription-plans",
   SUBSCRIPTION_PLANS_BY_ID: (id: string) => `/api/subscription-plans/${id}`,
   SUBSCRIPTIONS: "/api/subscriptions",
-  
+
   // Newsletter
   NEWSLETTER_SUBSCRIBE: "/api/newsletter/subscribe",
 
