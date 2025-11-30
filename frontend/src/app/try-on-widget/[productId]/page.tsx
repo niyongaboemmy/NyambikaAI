@@ -170,61 +170,6 @@ export default function TryOnWidgetPage() {
 
       <main className="relative z-10 pt-10 sm:pt-10 pb-4 sm:pb-6 px-2 sm:px-0">
         <div className="">
-          {/* Product Header Section */}
-          <div className="mb-6 sm:mb-8">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
-              {/* Product Image */}
-              <div className="space-y-2 sm:space-y-4">
-                <div className="aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border border-blue-200/30 dark:border-indigo-700/30 relative group shadow-2xl shadow-blue-500/10 dark:shadow-indigo-500/20">
-                  <Image
-                    src={product.imageUrl}
-                    alt={product.name}
-                    fill
-                    sizes="(min-width: 1024px) 50vw, 100vw"
-                    quality={70}
-                    priority
-                    fetchPriority="high"
-                    placeholder="empty"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  {/* AI Badge */}
-                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium flex items-center gap-1 shadow-lg shadow-purple-500/30 backdrop-blur-sm border border-white/20">
-                    <Wand2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                    AI Ready
-                  </div>
-                </div>
-              </div>
-
-              {/* Product Info */}
-              <div className="space-y-2 sm:space-y-2">
-                <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200/60 dark:border-gray-700/60 dark:border-none shadow-gray-500/10 dark:shadow-black/30">
-                  <div className="flex flex-row items-center justify-between gap-2">
-                    <div>
-                      <h1 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-1">
-                        {product.name}
-                      </h1>
-                      {product.nameRw && (
-                        <p className="text-sm text-gray-500 dark:text-gray-500 mb-2">
-                          {product.nameRw}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                    <p className="text-lg sm:text-xl md:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1 sm:mb-2">
-                      RF {parseFloat(String(product.price)).toLocaleString()}
-                    </p>
-                  </div>
-
-                  <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    {product.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Try-On Widget */}
           <TryOnWidget
             productId={productId}

@@ -76,12 +76,35 @@ app.use(
       if (ext && mimeTypes[ext]) {
         res.setHeader("Content-Type", mimeTypes[ext]);
       }
+
+      // Add CORS headers for static files
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+      );
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
     },
   })
 );
 
 // Also keep the API endpoint for backward compatibility
-app.use("/api/uploads", express.static(uploadsDir));
+app.use(
+  "/api/uploads",
+  express.static(uploadsDir, {
+    setHeaders: (res, _path) => {
+      // Add CORS headers for static files
+      res.setHeader("Access-Control-Allow-Origin", "*");
+      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+      );
+      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
