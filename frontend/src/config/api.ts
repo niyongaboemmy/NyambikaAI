@@ -5,7 +5,7 @@ export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
   (process.env.NODE_ENV === "development"
     ? "http://localhost:3003"
-    : "https://Nyambika.onrender.com");
+    : "https://nyambikav2.vms.rw");
 export enum RoleEnum {
   ADMIN = "admin",
   AGENT = "agent",
@@ -60,6 +60,11 @@ const createAxiosInstance = (): AxiosInstance => {
             : token;
         if (normalizedToken) {
           config.headers.Authorization = `Bearer ${normalizedToken}`;
+        }
+
+        // Remove Content-Type for FormData requests to let browser set it with boundary
+        if (config.data instanceof FormData) {
+          delete config.headers["Content-Type"];
         }
       }
       return config;
@@ -166,9 +171,13 @@ export const API_ENDPOINTS = {
   // Try-on
   TRY_ON: "/api/try-on",
   TRY_ON_UPLOAD: "/api/try-on/upload",
-  TRY_ON_SESSIONS: "/api/try-on-sessions",
+  TRY_ON_SESSIONS: "/api/tryon-room",
   TRY_ON_SESSION_BY_ID: (id: string) => `/api/try-on-sessions/${id}`,
   TRY_ON_SESSION_PROCESS: (id: string) => `/api/try-on-sessions/${id}/process`,
+  TRY_ON_SESSIONS_BY_PRODUCT: (productId: string) =>
+    `/api/try-on/sessions?productId=${productId}`,
+  TRY_ON_SESSION_DOWNLOAD_IMAGES: (id: string) =>
+    `/api/try-on/sessions/${id}/download-images`,
 
   // Outfit Room
   OUTFIT_COLLECTIONS: "/api/outfit-collections",
@@ -258,6 +267,9 @@ export const API_ENDPOINTS = {
 
   // Newsletter
   NEWSLETTER_SUBSCRIBE: "/api/newsletter/subscribe",
+
+  // File Upload
+  UPLOAD: "/api/upload",
 
   // Terms
   TERMS_BY_ROLE: (role: string) => `/api/terms?role=${role}`,

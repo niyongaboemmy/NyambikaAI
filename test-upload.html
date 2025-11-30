@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Upload Test</title>
+  </head>
+  <body>
+    <h1>Upload Test</h1>
+    <input type="file" id="fileInput" accept="image/*" />
+    <button onclick="testUpload()">Upload File</button>
+    <div id="result"></div>
+
+    <script>
+      // Set the auth token (same as frontend)
+      localStorage.setItem(
+        "auth_token",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3ZGVjZDI0Ny0wYmFlLTQ4ZWQtYjRhMy1lMjcyOTQ1YjQxMmMiLCJyb2xlIjoicHJvZHVjZXIiLCJpYXQiOjE3NjQ0MzU5NjEsImV4cCI6MTc2NTA0MDc2MX0.ew9Q1LPoo2-HEaX_S8La3muI6VLLcYhq8drN-onfTII"
+      );
+
+      async function testUpload() {
+        const fileInput = document.getElementById("fileInput");
+        const result = document.getElementById("result");
+
+        if (!fileInput.files[0]) {
+          result.innerHTML = "Please select a file first";
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const formData = new FormData();
+        formData.append("image", file);
+
+        // Get auth token (same as frontend apiClient)
+        const token = localStorage.getItem("auth_token");
+        const normalizedToken =
+          token && token[0] === '"' ? token.slice(1, -1) : token;
+
+        console.log("Uploading file:", file.name);
+        console.log("Token:", normalizedToken);
+
+        try {
+          const response = await fetch("http://localhost:3003/api/upload", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${normalizedToken}`,
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+          console.log("Response:", data);
+          result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        } catch (error) {
+          console.error("Error:", error);
+          result.innerHTML = `Error: ${error.message}`;
+        }
+      }
+    </script>
+  </body>
+</html>

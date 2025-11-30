@@ -5,9 +5,9 @@ const TRYON_PROVIDER = (
 ).toLowerCase();
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
 const TRYON_MODEL = process.env.TRYON_MODEL || "xiong-pku/tryondiffusion"; // configurable
-// Prefer VIRTUAL_TRYON_URL if provided, else fall back to CLOTHFLOW_URL for backward compatibility
+// Prefer VIRTUAL_TRYON_URL if provided, backward compatibility
 const VIRTUAL_TRYON_URL =
-  process.env.VIRTUAL_TRYON_URL || process.env.CLOTHFLOW_URL || "http://localhost:8000";
+  process.env.VIRTUAL_TRYON_URL || "https://tryon-api.com";
 
 function removeDataUrlPrefix(data: string): string {
   const match = data.match(/^data:image\/(png|jpg|jpeg|webp);base64,(.+)$/i);
@@ -34,8 +34,7 @@ async function toClothFlowInput(val: string): Promise<string> {
 // Python virtual_tryon service integration (supports engines: viton_hd, stable_viton)
 async function generateWithVirtualTryOnService(
   customerImageBase64OrUrl: string,
-  productImageBase64OrUrl: string,
-  engine: "viton_hd" | "stable_viton" = "viton_hd"
+  productImageBase64OrUrl: string
 ): Promise<VirtualTryOnResult> {
   try {
     const person = await toClothFlowInput(customerImageBase64OrUrl);
@@ -44,49 +43,262 @@ async function generateWithVirtualTryOnService(
     if (!person || !cloth) {
       return {
         success: false,
-        error: `Missing inputs for virtual_tryon: person=${Boolean(person)}, cloth=${Boolean(cloth)}`,
+        error: `Missing inputs for virtual_tryon: person=${Boolean(
+          person
+        )}, cloth=${Boolean(cloth)}`,
       };
     }
 
     const baseUrl = VIRTUAL_TRYON_URL.replace(/\/$/, "");
-    const resp = await fetch(`${baseUrl}/api/try-on`, {
+    const TRYON_API_KEY =
+      process.env.TRYON_API_KEY || "ta_d753ea369e7b465986cc26bc5e8620ab";
+
+    // Create FormData for tryon-api.com
+    const formData = new FormData();
+
+    // Convert data URLs to Blobs for FormData
+    const personBlob = dataURLtoBlob(person);
+    const clothBlob = dataURLtoBlob(cloth);
+
+    formData.append("person_images", personBlob, "person.jpg");
+    formData.append("garment_images", clothBlob, "garment.jpg");
+    formData.append("fast_mode", "true");
+
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${TRYON_API_KEY}`,
+      "x-api-key": TRYON_API_KEY,
+    };
+
+    const resp = await fetch(`${baseUrl}/api/v1/tryon`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        person_image: person,
-        cloth_image: cloth,
-        category: "upper",
-        engine,
-        use_preset: true,
-        seed: 42,
-      }),
+      headers,
+      body: formData,
     });
+
+    console.log("TryOn API Response Status:", resp.status);
+    console.log(
+      "TryOn API Response Headers:",
+      Object.fromEntries(resp.headers.entries())
+    );
 
     if (!resp.ok) {
       const text = await resp.text();
-      return { success: false, error: `virtual_tryon error (${resp.status}): ${text || resp.statusText}` };
+      console.error("TryOn API Error Response:", text);
+      return {
+        success: false,
+        error: `virtual_tryon error (${resp.status}): ${
+          text || resp.statusText
+        }`,
+      };
     }
 
-    const data = (await resp.json()) as {
-      success: boolean;
-      message?: string;
-      result_path?: string;
-      error?: string;
-    };
+    const data = await resp.json();
+    console.log("TryOn API Response Data:", data);
 
-    if (!data.success) {
-      return { success: false, error: data.error || data.message || "virtual_tryon failed" };
+    // Parse the submit response (202 accepted)
+    const submitResponse = parseTryOnSubmitResponse(data);
+
+    // Ensure absolute status URL
+    const absoluteStatusUrl = /^https?:\/\//i.test(submitResponse.statusUrl)
+      ? `${baseUrl}${submitResponse.statusUrl}`
+      : `${baseUrl}${submitResponse.statusUrl.startsWith("/") ? "" : "/"}${
+          submitResponse.statusUrl
+        }`;
+
+    console.log("Polling status URL:", absoluteStatusUrl);
+
+    // Poll for completion
+    const totalTimeoutMs = Number(process.env.TRYON_POLL_TIMEOUT_MS || 120000); // Increased to 2 minutes
+    const status = await pollTryOnStatus(
+      absoluteStatusUrl,
+      headers,
+      totalTimeoutMs
+    );
+
+    console.log("Final status:", status);
+
+    // Handle the final status
+    if (status.status === "completed") {
+      return {
+        success: true,
+        tryOnImageUrl: status.imageUrl || status.imageBase64,
+        recommendations: {
+          fit: "perfect" as const,
+          confidence: 0.9,
+          notes: "AI-generated virtual try-on completed successfully",
+        },
+      };
+    } else if (status.status === "failed") {
+      return {
+        success: false,
+        error: status.error || status.message || "Try-on generation failed",
+      };
+    } else {
+      // Still processing or timeout - return processing status for frontend to handle
+      return {
+        success: false,
+        error: `Try-on status: ${status.status}`,
+        processingStatus: status.status,
+        jobId: status.jobId,
+        requiresPolling: true,
+      };
     }
-
-    const path = data.result_path || "";
-    const url = /^https?:\/\//i.test(path)
-      ? path
-      : `${baseUrl}${path.startsWith("/") ? "" : "/"}${path}`;
-
-    return { success: true, tryOnImageUrl: url };
   } catch (e: any) {
-    return { success: false, error: e?.message || "virtual_tryon request failed" };
+    console.error("Virtual try-on request failed:", e);
+    console.error("Error details:", {
+      message: e?.message,
+      cause: e?.cause,
+      code: e?.code,
+      stack: e?.stack,
+    });
+    return {
+      success: false,
+      error: e?.message || "virtual_tryon request failed",
+    };
   }
+}
+
+// Helper function to convert data URL to Blob
+function dataURLtoBlob(dataURL: string): Blob {
+  const arr = dataURL.split(",");
+  const mime = arr[0].match(/:(.*?);/)![1];
+  const bstr = atob(arr[1]);
+  let n = bstr.length;
+  const u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+}
+
+// Helper for parsing JSON response from TryOn API call
+interface TryOnApiResponse {
+  status:
+    | "completed"
+    | "failed"
+    | "processing"
+    | "queued"
+    | "processing_from_queue"
+    | "timeout";
+  imageUrl?: string;
+  imageBase64?: string;
+  provider?: string;
+  jobId?: string;
+  error?: string;
+  message?: string;
+  errorCode?: string;
+  result?: any;
+}
+
+interface TryOnSubmitResponse {
+  jobId: string;
+  statusUrl: string;
+  perfSessionId?: string;
+}
+
+function parseTryOnApiResponse(data: unknown): TryOnApiResponse {
+  const response = data as TryOnApiResponse;
+
+  // Validate required fields
+  if (!response.status) {
+    throw new Error("Invalid TryOn API response: missing status field");
+  }
+
+  // Validate status is one of the expected values
+  const validStatuses = [
+    "completed",
+    "failed",
+    "processing",
+    "queued",
+    "processing_from_queue",
+    "timeout",
+  ];
+  if (!validStatuses.includes(response.status)) {
+    throw new Error(
+      `Invalid TryOn API response: unknown status '${response.status}'`
+    );
+  }
+
+  return response;
+}
+
+function parseTryOnSubmitResponse(data: unknown): TryOnSubmitResponse {
+  const response = data as TryOnSubmitResponse;
+
+  if (!response.jobId || !response.statusUrl) {
+    throw new Error(
+      "Invalid TryOn API submit response: missing jobId or statusUrl"
+    );
+  }
+
+  return response;
+}
+
+// Poll status function similar to frontend implementation
+async function pollTryOnStatus(
+  statusUrl: string,
+  headers: Record<string, string>,
+  timeoutMs = 60000,
+  intervalMs = 2000,
+  maxIntervalMs = 5000,
+  backoffFactor = 1.5
+): Promise<TryOnApiResponse> {
+  const start = Date.now();
+  let last: any = null;
+  let currentInterval = intervalMs;
+
+  while (Date.now() - start < timeoutMs) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      Math.min(8000, currentInterval + 3000)
+    );
+
+    try {
+      const r = await fetch(statusUrl, {
+        headers,
+        // @ts-ignore - cache option is valid but not in RequestInit type
+        cache: "no-store",
+        signal: controller.signal,
+      });
+      const j = await r.json();
+      last = j;
+
+      // Parse and validate the response
+      const parsedResponse = parseTryOnApiResponse(j);
+
+      if (
+        parsedResponse.status &&
+        parsedResponse.status !== "processing" &&
+        parsedResponse.status !== "queued" &&
+        parsedResponse.status !== "processing_from_queue"
+      ) {
+        return parsedResponse;
+      }
+    } catch (err: any) {
+      // Swallow fetch aborts/timeouts and keep last known state
+      last = last || {
+        status: "processing",
+        message: String(err?.message || err),
+      };
+    } finally {
+      clearTimeout(timeoutId);
+    }
+
+    await new Promise((res) => setTimeout(res, currentInterval));
+    currentInterval = Math.min(
+      maxIntervalMs,
+      Math.floor(currentInterval * backoffFactor)
+    );
+  }
+
+  return (
+    last ||
+    ({
+      status: "timeout",
+      message: "Timed out waiting for result",
+    } as TryOnApiResponse)
+  );
 }
 
 async function generateWithReplicate(
@@ -194,15 +406,16 @@ export async function generateVirtualTryOn(
   customerImageBase64OrUrl: string,
   productImageBase64OrUrl: string,
   productType: string,
-  customerMeasurements?: any,
-  options?: { engine?: "viton_hd" | "stable_viton" }
+  customerMeasurements?: any
 ): Promise<VirtualTryOnResult> {
   // Python virtual_tryon microservice provider (new path)
-  if ((TRYON_PROVIDER === "clothflow" || TRYON_PROVIDER === "virtual_tryon") && VIRTUAL_TRYON_URL) {
+  if (
+    (TRYON_PROVIDER === "clothflow" || TRYON_PROVIDER === "virtual_tryon") &&
+    VIRTUAL_TRYON_URL
+  ) {
     return generateWithVirtualTryOnService(
       customerImageBase64OrUrl,
-      productImageBase64OrUrl,
-      options?.engine || "viton_hd"
+      productImageBase64OrUrl
     );
   }
 

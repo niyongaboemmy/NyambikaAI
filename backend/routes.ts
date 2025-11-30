@@ -55,7 +55,6 @@ import {
   insertCategorySchema,
   insertCartItemSchema,
   insertFavoriteSchema,
-  insertTryOnSessionSchema,
 } from "./shared/schema.dialect";
 import {
   getUserOrders,
@@ -408,6 +407,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Register try-on routes
   app.use("/api/try-on", tryOnRoutes);
+  app.use("/api/try-on-sessions", tryOnRoutes);
 
   // Esicia/Kpay configuration imported from centralized module
   const ESICIA_STATIC = ESICIA_CONFIG;
@@ -487,7 +487,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Verify user is an agent
       if (user.role !== "agent") {
-        return res.status(403).json({ message: "Access denied. Agent role required." });
+        return res
+          .status(403)
+          .json({ message: "Access denied. Agent role required." });
       }
 
       const now = new Date();
@@ -1941,7 +1943,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     async (req, res) => {
       try {
         const { userId } = req.params as { userId: string };
-        if (!userId) return res.status(400).json({ message: "userId is required" });
+        if (!userId)
+          return res.status(400).json({ message: "userId is required" });
 
         const user = await storage.getUserById(userId).catch(() => null as any);
         if (!user) return res.status(404).json({ message: "User not found" });
@@ -1959,8 +1962,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // For other roles, just set isVerified = true
-        const updated = await storage.updateUser(userId, { isVerified: true } as any);
-        return res.json({ message: "User verified successfully", user: updated });
+        const updated = await storage.updateUser(userId, {
+          isVerified: true,
+        } as any);
+        return res.json({
+          message: "User verified successfully",
+          user: updated,
+        });
       } catch (error) {
         console.error("Error in /api/admin/users/:userId/verify:", error);
         return res.status(500).json({ message: "Internal server error" });
@@ -3390,7 +3398,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }));
 
         const combined = [...(referralRows as any[]), ...normalizedDirect].sort(
-          (a, b) => new Date(b.createdAt as any).getTime() - new Date(a.createdAt as any).getTime()
+          (a, b) =>
+            new Date(b.createdAt as any).getTime() -
+            new Date(a.createdAt as any).getTime()
         );
 
         res.json(combined);
@@ -4571,87 +4581,7 @@ try {
     }
   );
 
-  // Try-on sessions routes
-  app.get("/api/try-on-sessions", requireAuth, async (req: any, res) => {
-    try {
-      // Set a timeout for the database query
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Database query timeout")), 8000);
-      });
-
-      const sessionsPromise = storage.getTryOnSessions(req.userId);
-
-      const sessions = await Promise.race([sessionsPromise, timeoutPromise]);
-      res.json(sessions || []);
-    } catch (error) {
-      console.error("Error fetching try-on sessions:", error);
-      // Return empty array instead of error to prevent frontend crashes
-      res.json([]);
-    }
-  });
-
-  app.get("/api/try-on-sessions/:id", requireAuth, async (req, res) => {
-    try {
-      const session = await storage.getTryOnSession(req.params.id);
-      if (!session) {
-        return res.status(404).json({ message: "Try-on session not found" });
-      }
-      res.json(session);
-    } catch (error) {
-      console.error("Error fetching try-on session:", error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.post("/api/try-on-sessions", requireAuth, async (req: any, res) => {
-    try {
-      // If productId provided but doesn't exist, drop it to avoid FK violation
-      let body = { ...req.body } as any;
-      if (body.productId) {
-        const product = await storage.getProduct(body.productId);
-        if (!product) {
-          delete body.productId;
-        }
-      }
-
-      const validatedData = insertTryOnSessionSchema.parse({
-        ...body,
-        userId: req.userId,
-      });
-      const session = await storage.createTryOnSession(validatedData);
-      res.status(201).json(session);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Error creating try-on session:", error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
-
-  app.put("/api/try-on-sessions/:id", requireAuth, async (req: any, res) => {
-    try {
-      const validatedData = insertTryOnSessionSchema.partial().parse(req.body);
-      const session = await storage.updateTryOnSession(
-        req.params.id,
-        validatedData
-      );
-      if (!session) {
-        return res.status(404).json({ message: "Try-on session not found" });
-      }
-      res.json(session);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
-      }
-      console.error("Error updating try-on session:", error);
-      res.status(500).json({ message: "Internal server error" });
-    }
-  });
+  // Try-on sessions routes are now handled by /routes/try-on.ts
 
   // AI Try-on processing endpoint
   app.post(
@@ -4695,8 +4625,7 @@ try {
           session.customerImageUrl,
           productImageToUse,
           product.name,
-          measurements,
-          { engine: (req.body?.engine as any) || undefined }
+          measurements
         );
 
         if (result.success) {
@@ -4857,7 +4786,7 @@ try {
   );
 
   // ============= MY OUTFIT ROOM API ROUTES =============
-  
+
   // Outfit Collections
   app.get("/api/outfit-collections", requireAuth, async (req: any, res) => {
     try {
@@ -4911,7 +4840,10 @@ try {
         return res.status(403).json({ message: "Access denied" });
       }
 
-      const updated = await storage.updateOutfitCollection(req.params.id, req.body);
+      const updated = await storage.updateOutfitCollection(
+        req.params.id,
+        req.body
+      );
       res.json(updated);
     } catch (error) {
       console.error("Error updating outfit collection:", error);
@@ -4919,24 +4851,30 @@ try {
     }
   });
 
-  app.delete("/api/outfit-collections/:id", requireAuth, async (req: any, res) => {
-    try {
-      // Verify ownership
-      const existing = await storage.getOutfitCollection(req.params.id);
-      if (!existing) {
-        return res.status(404).json({ message: "Outfit collection not found" });
-      }
-      if (existing.userId !== req.userId) {
-        return res.status(403).json({ message: "Access denied" });
-      }
+  app.delete(
+    "/api/outfit-collections/:id",
+    requireAuth,
+    async (req: any, res) => {
+      try {
+        // Verify ownership
+        const existing = await storage.getOutfitCollection(req.params.id);
+        if (!existing) {
+          return res
+            .status(404)
+            .json({ message: "Outfit collection not found" });
+        }
+        if (existing.userId !== req.userId) {
+          return res.status(403).json({ message: "Access denied" });
+        }
 
-      await storage.deleteOutfitCollection(req.params.id);
-      res.json({ message: "Outfit collection deleted successfully" });
-    } catch (error) {
-      console.error("Error deleting outfit collection:", error);
-      res.status(500).json({ message: "Failed to delete outfit collection" });
+        await storage.deleteOutfitCollection(req.params.id);
+        res.json({ message: "Outfit collection deleted successfully" });
+      } catch (error) {
+        console.error("Error deleting outfit collection:", error);
+        res.status(500).json({ message: "Failed to delete outfit collection" });
+      }
     }
-  });
+  );
 
   // Outfit Items
   app.post("/api/outfit-items", requireAuth, async (req: any, res) => {
@@ -4972,7 +4910,7 @@ try {
   app.get("/api/style-profile", requireAuth, async (req: any, res) => {
     try {
       let profile = await storage.getUserStyleProfile(req.userId);
-      
+
       // Create default profile if it doesn't exist
       if (!profile) {
         profile = await storage.createUserStyleProfile({
@@ -4984,7 +4922,7 @@ try {
           aiInsights: JSON.stringify({}),
         });
       }
-      
+
       res.json(profile);
     } catch (error) {
       console.error("Error fetching style profile:", error);
@@ -4994,7 +4932,10 @@ try {
 
   app.put("/api/style-profile", requireAuth, async (req: any, res) => {
     try {
-      const updated = await storage.updateUserStyleProfile(req.userId, req.body);
+      const updated = await storage.updateUserStyleProfile(
+        req.userId,
+        req.body
+      );
       res.json(updated);
     } catch (error) {
       console.error("Error updating style profile:", error);
@@ -5008,11 +4949,11 @@ try {
       // Get user's try-on history
       const tryOnSessions = await storage.getTryOnSessions(req.userId);
       const styleProfile = await storage.getUserStyleProfile(req.userId);
-      
+
       // Analyze user preferences from history
       const categoryFrequency: Record<string, number> = {};
       const colorPreferences: Record<string, number> = {};
-      
+
       for (const session of tryOnSessions) {
         if (session.productId) {
           const product = await storage.getProduct(String(session.productId));
@@ -5029,6 +4970,26 @@ try {
               });
             }
           }
+        }
+      }
+
+      // Boost categories and colors from style profile
+      if (styleProfile) {
+        if (
+          styleProfile.favoriteCategories &&
+          Array.isArray(styleProfile.favoriteCategories)
+        ) {
+          styleProfile.favoriteCategories.forEach((catId: string) => {
+            categoryFrequency[catId] = (categoryFrequency[catId] || 0) + 5; // Weight boost for explicit preferences
+          });
+        }
+        if (
+          styleProfile.favoriteColors &&
+          Array.isArray(styleProfile.favoriteColors)
+        ) {
+          styleProfile.favoriteColors.forEach((color: string) => {
+            colorPreferences[color] = (colorPreferences[color] || 0) + 5; // Weight boost for explicit preferences
+          });
         }
       }
 
@@ -5083,7 +5044,9 @@ try {
         }
 
         // Track monthly activity
-        const month = new Date(session.createdAt || Date.now()).toISOString().slice(0, 7);
+        const month = new Date(session.createdAt || Date.now())
+          .toISOString()
+          .slice(0, 7);
         monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
       }
 

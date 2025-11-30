@@ -1,12 +1,12 @@
 // Dialect-aware re-exports with ESM named exports
 // Supported dialects: 'postgres' (default) and 'mysql'
 
-const dialect = (process.env.DB_DIALECT || 'postgres').toLowerCase();
+const dialect = (process.env.DB_DIALECT || "postgres").toLowerCase();
 
-import * as pgSchema from './schema';
-import * as mysqlSchema from './schema.mysql';
+import * as pgSchema from "./schema";
+import * as mysqlSchema from "./schema.mysql";
 
-const s: any = dialect === 'mysql' ? (mysqlSchema as any) : (pgSchema as any);
+const s: any = dialect === "mysql" ? (mysqlSchema as any) : (pgSchema as any);
 
 // Tables
 export const users = s.users;
@@ -48,7 +48,8 @@ export const insertUserStyleProfileSchema = s.insertUserStyleProfileSchema;
 export const insertReviewSchema = s.insertReviewSchema;
 export const insertSubscriptionPlanSchema = s.insertSubscriptionPlanSchema;
 export const insertSubscriptionSchema = s.insertSubscriptionSchema;
-export const insertSubscriptionPaymentSchema = s.insertSubscriptionPaymentSchema;
+export const insertSubscriptionPaymentSchema =
+  s.insertSubscriptionPaymentSchema;
 export const insertAgentCommissionSchema = s.insertAgentCommissionSchema;
 export const insertNotificationSchema = s.insertNotificationSchema;
 export const insertUserWalletSchema = s.insertUserWalletSchema;
@@ -102,4 +103,4 @@ export type {
   InsertPaymentSetting,
   EmailSubscription,
   InsertEmailSubscription,
-} from './schema';
+} from "./schema";

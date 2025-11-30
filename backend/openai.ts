@@ -2,18 +2,22 @@ import OpenAI from "openai";
 
 // the newest OpenAI model is "gpt-4o" which was released May 13, 2024. do not change this unless explicitly requested by the user
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const DEMO_TRYON_FALLBACK = (process.env.DEMO_TRYON_FALLBACK || "").toLowerCase() === "true";
+const DEMO_TRYON_FALLBACK =
+  (process.env.DEMO_TRYON_FALLBACK || "").toLowerCase() === "true";
 
 export interface VirtualTryOnResult {
   success: boolean;
   tryOnImageUrl?: string;
   recommendations?: {
-    fit: 'perfect' | 'loose' | 'tight';
+    fit: "perfect" | "loose" | "tight";
     confidence: number;
     suggestedSize?: string;
     notes: string;
   };
   error?: string;
+  processingStatus?: string;
+  jobId?: string;
+  requiresPolling?: boolean;
 }
 
 function removeDataUrlPrefix(data: string): string {
@@ -66,11 +70,11 @@ export async function generateVirtualTryOn(
         success: true,
         tryOnImageUrl: `data:image/jpeg;base64,${customerBase64}`,
         recommendations: {
-          fit: 'perfect',
+          fit: "perfect",
           confidence: 0.75,
-          suggestedSize: 'M',
-          notes: `Demo mode: estimated fit for ${productType}.`
-        }
+          suggestedSize: "M",
+          notes: `Demo mode: estimated fit for ${productType}.`,
+        },
       };
     }
 
@@ -98,7 +102,7 @@ export async function generateVirtualTryOn(
               "notes": "detailed explanation"
             },
             "virtualTryOnDescription": "detailed description of how the clothing would look on this person"
-          }`
+          }`,
         },
         {
           role: "user",
@@ -107,29 +111,40 @@ export async function generateVirtualTryOn(
               type: "text",
               text: `Please analyze this customer photo and clothing item for virtual try-on. 
               Product type: ${productType}
-              ${customerMeasurements ? `Customer measurements: ${JSON.stringify(customerMeasurements)}` : ''}
-              Provide fit analysis and size recommendations.`
+              ${
+                customerMeasurements
+                  ? `Customer measurements: ${JSON.stringify(
+                      customerMeasurements
+                    )}`
+                  : ""
+              }
+              Provide fit analysis and size recommendations.`,
             },
             {
               type: "image_url",
-              image_url: { url: `data:image/jpeg;base64,${customerBase64}` }
+              image_url: { url: `data:image/jpeg;base64,${customerBase64}` },
             },
             {
-              type: "image_url", 
-              image_url: { url: `data:image/jpeg;base64,${productBase64}` }
-            }
-          ]
-        }
+              type: "image_url",
+              image_url: { url: `data:image/jpeg;base64,${productBase64}` },
+            },
+          ],
+        },
       ],
       response_format: { type: "json_object" },
-      max_tokens: 1000
+      max_tokens: 1000,
     });
 
-    const analysis = JSON.parse(analysisResponse.choices[0].message.content || '{}');
+    const analysis = JSON.parse(
+      analysisResponse.choices[0].message.content || "{}"
+    );
 
     // Generate virtual try-on image description for DALL-E
     const imagePrompt = `Create a realistic virtual try-on image showing a person wearing ${productType}. 
-    ${analysis.virtualTryOnDescription || 'Show the clothing fitted appropriately on the person.'}
+    ${
+      analysis.virtualTryOnDescription ||
+      "Show the clothing fitted appropriately on the person."
+    }
     Style: Professional fashion photography, clean background, focus on fit and appearance.
     Make it look natural and realistic.`;
 
@@ -138,23 +153,24 @@ export async function generateVirtualTryOn(
       prompt: imagePrompt,
       n: 1,
       size: "1024x1024",
-      quality: "standard"
+      quality: "standard",
     });
 
     return {
       success: true,
-      tryOnImageUrl: imageResponse.data?.[0]?.url || '',
+      tryOnImageUrl: imageResponse.data?.[0]?.url || "",
       recommendations: {
-        fit: analysis.fitRecommendation?.fit || 'perfect',
+        fit: analysis.fitRecommendation?.fit || "perfect",
         confidence: analysis.fitRecommendation?.confidence || 0.8,
-        suggestedSize: analysis.fitRecommendation?.suggestedSize || 'M',
-        notes: analysis.fitRecommendation?.notes || 'AI-generated size recommendation'
-      }
+        suggestedSize: analysis.fitRecommendation?.suggestedSize || "M",
+        notes:
+          analysis.fitRecommendation?.notes ||
+          "AI-generated size recommendation",
+      },
     };
-
   } catch (error: any) {
     const msg = error?.message || String(error);
-    console.error('Virtual try-on error:', msg);
+    console.error("Virtual try-on error:", msg);
 
     // Fallback on common quota/rate errors for demo friendliness
     if (DEMO_TRYON_FALLBACK || /429|quota|insufficient/i.test(msg)) {
@@ -164,18 +180,22 @@ export async function generateVirtualTryOn(
         success: true,
         tryOnImageUrl: undefined,
         recommendations: {
-          fit: 'perfect',
+          fit: "perfect",
           confidence: 0.7,
-          suggestedSize: 'M',
-          notes: 'Demo fallback used due to AI quota limits. Visual uses your uploaded image as-is.'
+          suggestedSize: "M",
+          notes:
+            "Demo fallback used due to AI quota limits. Visual uses your uploaded image as-is.",
         },
-        error: 'AI quota exceeded; returned demo fallback'
+        error: "AI quota exceeded; returned demo fallback",
       };
     }
 
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Failed to generate virtual try-on'
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to generate virtual try-on",
     };
   }
 }
@@ -201,28 +221,28 @@ export async function analyzeFashionImage(imageBase64: string): Promise<{
             "style": "casual|formal|business|athletic|trendy|etc",
             "description": "detailed description",
             "tags": ["tag1", "tag2", "tag3"]
-          }`
+          }`,
         },
         {
           role: "user",
           content: [
             {
               type: "text",
-              text: "Analyze this fashion item and provide categorization details."
+              text: "Analyze this fashion item and provide categorization details.",
             },
             {
               type: "image_url",
-              image_url: { url: `data:image/jpeg;base64,${imageBase64}` }
-            }
-          ]
-        }
+              image_url: { url: `data:image/jpeg;base64,${imageBase64}` },
+            },
+          ],
+        },
       ],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
     });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+    return JSON.parse(response.choices[0].message.content || "{}");
   } catch (error) {
-    throw new Error('Failed to analyze fashion image');
+    throw new Error("Failed to analyze fashion image");
   }
 }
 
@@ -256,22 +276,22 @@ export async function generateSizeRecommendation(
             "confidence": number,
             "alternatives": ["size1", "size2"],
             "notes": "explanation of recommendation"
-          }`
+          }`,
         },
         {
           role: "user",
           content: `Customer measurements: ${JSON.stringify(measurements)}
           Product type: ${productType}
-          Available sizes: ${productSizes.join(', ')}
-          Recommend the best size and provide alternatives.`
-        }
+          Available sizes: ${productSizes.join(", ")}
+          Recommend the best size and provide alternatives.`,
+        },
       ],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
     });
 
-    return JSON.parse(response.choices[0].message.content || '{}');
+    return JSON.parse(response.choices[0].message.content || "{}");
   } catch (error) {
-    throw new Error('Failed to generate size recommendation');
+    throw new Error("Failed to generate size recommendation");
   }
 }
 
@@ -287,28 +307,28 @@ export async function suggestProductTitles(
   alternativesRw?: string[];
   rationale?: string;
 }> {
-  if (!imageUrl || typeof imageUrl !== 'string') {
-    throw new Error('imageUrl is required');
+  if (!imageUrl || typeof imageUrl !== "string") {
+    throw new Error("imageUrl is required");
   }
 
   // If demo mode or no key, return a safe, generic fallback
   if (DEMO_TRYON_FALLBACK || !process.env.OPENAI_API_KEY) {
-    const base = opts?.categoryHint?.toLowerCase().includes('dress')
-      ? 'Elegant Traditional Dress'
-      : opts?.categoryHint?.toLowerCase().includes('shirt')
-      ? 'Classic Casual Shirt'
-      : 'Stylish Fashion Item';
-    const baseRw = opts?.categoryHint?.toLowerCase().includes('dress')
-      ? 'Ikanzu Nyarwanda Nziza'
-      : opts?.categoryHint?.toLowerCase().includes('shirt')
-      ? 'Ishati Yoroheje'
-      : 'Igikoresho cya Moda';
+    const base = opts?.categoryHint?.toLowerCase().includes("dress")
+      ? "Elegant Traditional Dress"
+      : opts?.categoryHint?.toLowerCase().includes("shirt")
+      ? "Classic Casual Shirt"
+      : "Stylish Fashion Item";
+    const baseRw = opts?.categoryHint?.toLowerCase().includes("dress")
+      ? "Ikanzu Nyarwanda Nziza"
+      : opts?.categoryHint?.toLowerCase().includes("shirt")
+      ? "Ishati Yoroheje"
+      : "Igikoresho cya Moda";
     return {
       nameEn: base,
       nameRw: baseRw,
-      alternativesEn: [base + ' Pro', 'Modern ' + base.split(' ')[0]],
-      alternativesRw: [baseRw + ' Y’Ubukwe', 'Igishushanyo Gishya'],
-      rationale: 'Demo mode: generic suggestion without AI vision.',
+      alternativesEn: [base + " Pro", "Modern " + base.split(" ")[0]],
+      alternativesRw: [baseRw + " Y’Ubukwe", "Igishushanyo Gishya"],
+      rationale: "Demo mode: generic suggestion without AI vision.",
     };
   }
 
@@ -330,7 +350,7 @@ JSON format:
 }`;
 
   const userText = `Suggest concise titles from this image.
-${opts?.categoryHint ? `Category hint: ${opts.categoryHint}` : ''}`.trim();
+${opts?.categoryHint ? `Category hint: ${opts.categoryHint}` : ""}`.trim();
 
   // Normalize image: convert external URLs to base64 data URL so OpenAI can always access it
   let imageForModel = imageUrl;
@@ -349,15 +369,15 @@ ${opts?.categoryHint ? `Category hint: ${opts.categoryHint}` : ''}`.trim();
 
   try {
     const resp = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      response_format: { type: 'json_object' },
+      model: "gpt-4o",
+      response_format: { type: "json_object" },
       messages: [
-        { role: 'system', content: system },
+        { role: "system", content: system },
         {
-          role: 'user',
+          role: "user",
           content: [
-            { type: 'text', text: userText },
-            { type: 'image_url', image_url: { url: imageForModel } },
+            { type: "text", text: userText },
+            { type: "image_url", image_url: { url: imageForModel } },
           ],
         },
       ],
@@ -365,55 +385,60 @@ ${opts?.categoryHint ? `Category hint: ${opts.categoryHint}` : ''}`.trim();
     });
 
     try {
-      const json = JSON.parse(resp.choices[0].message.content || '{}');
+      const json = JSON.parse(resp.choices[0].message.content || "{}");
       // Minimal validation with sensible defaults
       return {
-        nameEn: String(json.nameEn || 'Stylish Fashion Item'),
-        nameRw: String(json.nameRw || 'Igikoresho cya Moda'),
-        alternativesEn: Array.isArray(json.alternativesEn) ? json.alternativesEn : [],
-        alternativesRw: Array.isArray(json.alternativesRw) ? json.alternativesRw : [],
-        rationale: typeof json.rationale === 'string' ? json.rationale : undefined,
+        nameEn: String(json.nameEn || "Stylish Fashion Item"),
+        nameRw: String(json.nameRw || "Igikoresho cya Moda"),
+        alternativesEn: Array.isArray(json.alternativesEn)
+          ? json.alternativesEn
+          : [],
+        alternativesRw: Array.isArray(json.alternativesRw)
+          ? json.alternativesRw
+          : [],
+        rationale:
+          typeof json.rationale === "string" ? json.rationale : undefined,
       };
     } catch (e) {
       // If the model failed to return JSON, provide a graceful fallback
       return {
-        nameEn: 'Stylish Fashion Item',
-        nameRw: 'Igikoresho cya Moda',
+        nameEn: "Stylish Fashion Item",
+        nameRw: "Igikoresho cya Moda",
         alternativesEn: [],
         alternativesRw: [],
-        rationale: 'Fallback used due to JSON parse error',
+        rationale: "Fallback used due to JSON parse error",
       };
     }
   } catch (err: any) {
     const msg = err?.message || String(err);
     // Friendly fallbacks on common API failures
     if (/429|quota|insufficient|rate/i.test(msg)) {
-      const category = opts?.categoryHint || '';
-      const base = category.toLowerCase().includes('dress')
-        ? 'Elegant Traditional Dress'
-        : category.toLowerCase().includes('shirt')
-        ? 'Classic Casual Shirt'
-        : 'Stylish Fashion Item';
-      const baseRw = category.toLowerCase().includes('dress')
-        ? 'Ikanzu Nyarwanda Nziza'
-        : category.toLowerCase().includes('shirt')
-        ? 'Ishati Yoroheje'
-        : 'Igikoresho cya Moda';
+      const category = opts?.categoryHint || "";
+      const base = category.toLowerCase().includes("dress")
+        ? "Elegant Traditional Dress"
+        : category.toLowerCase().includes("shirt")
+        ? "Classic Casual Shirt"
+        : "Stylish Fashion Item";
+      const baseRw = category.toLowerCase().includes("dress")
+        ? "Ikanzu Nyarwanda Nziza"
+        : category.toLowerCase().includes("shirt")
+        ? "Ishati Yoroheje"
+        : "Igikoresho cya Moda";
       return {
         nameEn: base,
         nameRw: baseRw,
-        alternativesEn: [base + ' Pro', 'Modern ' + base.split(' ')[0]],
-        alternativesRw: [baseRw + ' Y’Ubukwe', 'Igishushanyo Gishya'],
-        rationale: 'AI quota/rate limit fallback used',
+        alternativesEn: [base + " Pro", "Modern " + base.split(" ")[0]],
+        alternativesRw: [baseRw + " Y’Ubukwe", "Igishushanyo Gishya"],
+        rationale: "AI quota/rate limit fallback used",
       };
     }
     // Generic fallback
     return {
-      nameEn: 'Stylish Fashion Item',
-      nameRw: 'Igikoresho cya Moda',
+      nameEn: "Stylish Fashion Item",
+      nameRw: "Igikoresho cya Moda",
       alternativesEn: [],
       alternativesRw: [],
-      rationale: 'AI service unavailable; generic fallback used',
+      rationale: "AI service unavailable; generic fallback used",
     };
   }
 }

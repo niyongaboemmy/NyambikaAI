@@ -41,6 +41,8 @@ interface TryOnSession {
   personImageUrl?: string;
   garmentImageUrl?: string;
   resultImageUrl?: string;
+  customerImageLocalPath?: string;
+  tryOnImageLocalPath?: string;
   status: "processing" | "completed" | "failed";
   errorMessage?: string;
   createdAt: string;
@@ -239,7 +241,9 @@ export default function TryOnHistoryPage() {
                   {session.resultImageUrl && (
                     <div className="relative aspect-square bg-gray-50 rounded-lg overflow-hidden">
                       <Image
-                        src={session.resultImageUrl}
+                        src={
+                          session.tryOnImageLocalPath || session.resultImageUrl
+                        }
                         alt="Try-on result"
                         fill
                         className="object-cover"
@@ -264,7 +268,10 @@ export default function TryOnHistoryPage() {
                     {session.customerImageUrl && (
                       <div className="relative aspect-square bg-gray-50 rounded-lg overflow-hidden">
                         <Image
-                          src={session.customerImageUrl}
+                          src={
+                            session.customerImageLocalPath ||
+                            session.customerImageUrl
+                          }
                           alt="Your photo"
                           fill
                           className="object-cover"
@@ -301,7 +308,11 @@ export default function TryOnHistoryPage() {
                             </DialogHeader>
                             <div className="relative aspect-[4/3] bg-gray-50 rounded-lg overflow-hidden">
                               <Image
-                                src={session.tryOnImageUrl || session.resultImageUrl || ""}
+                                src={
+                                  session.tryOnImageUrl ||
+                                  session.resultImageUrl ||
+                                  ""
+                                }
                                 alt="Try-on result"
                                 fill
                                 className="object-contain"
@@ -315,8 +326,12 @@ export default function TryOnHistoryPage() {
                           size="sm"
                           onClick={() =>
                             downloadImage(
-                              session.tryOnImageUrl || session.resultImageUrl || "",
-                              `${session.productName || "try-on"}-${session.id}.jpg`
+                              session.tryOnImageUrl ||
+                                session.resultImageUrl ||
+                                "",
+                              `${session.productName || "try-on"}-${
+                                session.id
+                              }.jpg`
                             )
                           }
                         >

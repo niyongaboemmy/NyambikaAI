@@ -23,9 +23,10 @@ async function getProduct(id: string) {
 export async function generateMetadata({
   params,
 }: {
-  params: { productId: string };
+  params: Promise<{ productId: string }>;
 }): Promise<Metadata> {
-  const safeId = encodeURIComponent((params.productId || "").trim());
+  const { productId } = await params;
+  const safeId = encodeURIComponent((productId || "").trim());
   const product = await getProduct(safeId);
 
   const baseName = product?.name?.trim() || "Product";

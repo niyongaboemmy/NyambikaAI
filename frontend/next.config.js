@@ -66,6 +66,8 @@ const nextConfig = withPWA({
       "marketplace.canva.com",
       "vms.rw",
       "nyambikav2.vms.rw",
+      "picsum.photos",
+      "view.tryon-api.com",
     ],
     formats: ["image/webp", "image/avif"],
     // Explicit qualities used in the app (required in Next.js 16+)

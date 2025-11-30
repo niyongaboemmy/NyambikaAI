@@ -3,6 +3,7 @@ import path from "path";
 import fs from "fs";
 import { upload, getPublicUrl, deleteFile } from "./utils/fileUpload";
 import { authMiddleware } from "./middleware/auth";
+import multer from "multer";
 
 const router = Router();
 
@@ -10,7 +11,39 @@ const router = Router();
 router.post(
   "/upload",
   authMiddleware,
+  (req: Request, _res: Response, next: any) => {
+    console.log("=== Before Multer ===");
+    console.log("Headers:", req.headers);
+    console.log("Content-Type:", req.headers["content-type"]);
+    console.log("Authorization:", req.headers.authorization);
+    next();
+  },
   upload.single("image"),
+  (err: any, _req: Request, res: Response, next: any) => {
+    console.log("=== Multer Error ===");
+    console.log("Error:", err);
+    if (err instanceof multer.MulterError) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res
+          .status(400)
+          .json({ success: false, error: "File too large" });
+      }
+      if (err.code === "LIMIT_FILE_COUNT") {
+        return res
+          .status(400)
+          .json({ success: false, error: "Too many files" });
+      }
+      if (err.code === "LIMIT_UNEXPECTED_FILE") {
+        return res
+          .status(400)
+          .json({ success: false, error: "Unexpected file field" });
+      }
+      return res
+        .status(400)
+        .json({ success: false, error: "File upload error: " + err.message });
+    }
+    next(err);
+  },
   async (req: Request, res: Response) => {
     try {
       if (!req.file) {
@@ -107,7 +140,7 @@ router.delete(
 // Serve uploaded files (public route)
 router.get("/uploads/:filename", (req: Request, res: Response) => {
   const { filename } = req.params;
-  const filePath = path.join(process.cwd(), 'public', 'uploads', filename);
+  const filePath = path.join(process.cwd(), "public", "uploads", filename);
 
   // Check if file exists
   if (!fs.existsSync(filePath)) {
@@ -117,18 +150,18 @@ router.get("/uploads/:filename", (req: Request, res: Response) => {
   // Get file extension to set correct content type
   const ext = path.extname(filename).toLowerCase();
   const mimeTypes: Record<string, string> = {
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.png': 'image/png',
-    '.gif': 'image/gif',
-    '.webp': 'image/webp',
-    '.pdf': 'application/pdf'
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".png": "image/png",
+    ".gif": "image/gif",
+    ".webp": "image/webp",
+    ".pdf": "application/pdf",
   };
 
   // Set appropriate content type based on file extension
-  const contentType = mimeTypes[ext] || 'application/octet-stream';
-  res.setHeader('Content-Type', contentType);
-  
+  const contentType = mimeTypes[ext] || "application/octet-stream";
+  res.setHeader("Content-Type", contentType);
+
   // Stream the file
   const fileStream = fs.createReadStream(filePath);
   fileStream.pipe(res);

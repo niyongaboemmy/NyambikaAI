@@ -13,11 +13,16 @@ import {
   Wand2,
   X,
   RefreshCw,
+  Grid3X3,
+  Share2,
+  Download,
+  Heart,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 import { useSafeToast as useToast } from "@/hooks/use-safe-toast";
-import { apiClient, API_ENDPOINTS } from "@/config/api";
+import { apiClient, API_ENDPOINTS, API_BASE_URL } from "@/config/api";
 import { v4 as uuidv4 } from "uuid";
 
 interface TryOnWidgetProps {
@@ -34,6 +39,51 @@ interface TryOnWidgetProps {
   }) => void;
   onBack?: () => void;
 }
+
+// Social sharing utility
+const shareToSocial = (
+  platform: string,
+  imageUrl: string,
+  productName: string
+) => {
+  const text = `Check out my virtual try-on with ${productName} from Nyambika! 🛍️ #VirtualTryOn #Fashion`;
+  const url = window.location.href;
+
+  const shareUrls: Record<string, string> = {
+    twitter: `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      text
+    )}&url=${encodeURIComponent(url)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+      url
+    )}`,
+    instagram: `https://www.instagram.com/`,
+    whatsapp: `https://wa.me/?text=${encodeURIComponent(text + " " + url)}`,
+    pinterest: `https://pinterest.com/pin/create/button/?url=${encodeURIComponent(
+      url
+    )}&description=${encodeURIComponent(text)}`,
+  };
+
+  if (shareUrls[platform]) {
+    window.open(shareUrls[platform], "_blank", "width=600,height=400");
+  }
+};
+
+const downloadImage = async (imageUrl: string, filename: string) => {
+  try {
+    const response = await fetch(imageUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+  } catch (error) {
+    console.error("Download failed:", error);
+  }
+};
 
 export default function TryOnWidget({
   productId,
@@ -85,6 +135,12 @@ export default function TryOnWidget({
   const [hasBackCamera, setHasBackCamera] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [isLowPerformance, setIsLowPerformance] = useState(false);
+
+  // Session tracking state
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [sessionStatus, setSessionStatus] = useState<any>(null);
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false);
 
   // Persist selected garment in localStorage
   const getStorageKey = useCallback(
@@ -202,7 +258,83 @@ export default function TryOnWidget({
     onRegisterControls?.({ open: openFullscreen, close: closeFullscreen });
   }, [onRegisterControls, openFullscreen, closeFullscreen]);
 
-  // Handlers
+  // Function to check session status
+  const checkSessionStatus = useCallback(
+    async (sessionId: string) => {
+      if (!sessionId) return;
+
+      setIsCheckingStatus(true);
+      try {
+        const response = await apiClient.get(
+          `/api/try-on/sessions/${sessionId}`
+        );
+        setSessionStatus(response.data.session);
+
+        // If session is completed, update the UI
+        if (
+          response.data.session?.status === "completed" &&
+          response.data.session?.resultImageUrl
+        ) {
+          setTryOnResult(response.data.session.resultImageUrl);
+          setCelebrate(true);
+          setTimeout(() => setCelebrate(false), 1200);
+          setShowTrackingModal(false);
+          toast({
+            title: "Try-on complete!",
+            description: "Your virtual try-on is ready!",
+          });
+
+          // Download and save images to server in background
+          try {
+            apiClient
+              .post(API_ENDPOINTS.TRY_ON_SESSION_DOWNLOAD_IMAGES(sessionId), {
+                customerImageUrl: response.data.session.customerImageUrl,
+                tryOnImageUrl: response.data.session.resultImageUrl,
+              })
+              .catch((err) => {
+                console.warn(
+                  "Background image download/save failed (non-critical):",
+                  err
+                );
+              });
+          } catch (err) {
+            console.warn("Failed to trigger image download:", err);
+          }
+        } else if (response.data.session?.status === "failed") {
+          toast({
+            title: "Try-on failed",
+            description:
+              response.data.session.errorMessage || "Please try again.",
+          });
+        }
+      } catch (error) {
+        console.error("Error checking session status:", error);
+        toast({
+          title: "Error checking status",
+          description: "Unable to check session status.",
+        });
+      } finally {
+        setIsCheckingStatus(false);
+      }
+    },
+    [toast]
+  );
+
+  // Auto-refresh session status when tracking modal is open
+  useEffect(() => {
+    if (showTrackingModal && currentSessionId) {
+      // Check immediately
+      checkSessionStatus(currentSessionId);
+
+      // Set up interval to check every 10 seconds
+      const interval = setInterval(() => {
+        checkSessionStatus(currentSessionId);
+      }, 10000);
+
+      return () => clearInterval(interval);
+    }
+  }, [showTrackingModal, currentSessionId, checkSessionStatus]);
+
   const clearAll = useCallback(() => {
     // Revoke any previous blob URL
     setTryOnResult((prev) => {
@@ -737,7 +869,7 @@ export default function TryOnWidget({
       });
       return;
     }
-    
+
     try {
       setIsProcessingTryOn(true);
 
@@ -749,12 +881,11 @@ export default function TryOnWidget({
       if (!selectedGarmentUrl) {
         throw new Error("Product image is required");
       }
-      
-      // Convert to API endpoint format for try-on
-      const garmentUrl = selectedGarmentUrl.replace(
-        "/uploads/",
-        "/api/uploads/"
-      );
+
+      // Get garment image from the correct backend URL
+      const garmentUrl = selectedGarmentUrl.startsWith("http")
+        ? selectedGarmentUrl
+        : `${API_BASE_URL}${selectedGarmentUrl}`;
       const garmentResp = await fetch(garmentUrl);
       const garmentBlob = await garmentResp.blob();
       const garmentFile = new File([garmentBlob], "garment.jpg", {
@@ -763,42 +894,36 @@ export default function TryOnWidget({
 
       // Upload the customer image to get a URL
       const formData = new FormData();
-      formData.append('image', personBlob, 'customer.jpg');
-      
-      const uploadResponse = await apiClient.post(
-        '/api/upload',
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
+      formData.append("image", personBlob, "customer.jpg");
+
+      const uploadResponse = await apiClient.post("/api/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
       if (!uploadResponse.data || !uploadResponse.data.url) {
-        console.error('Upload response:', uploadResponse);
-        throw new Error('Failed to upload image: Invalid response from server');
+        console.error("Upload response:", uploadResponse);
+        throw new Error("Failed to upload image: Invalid response from server");
       }
-      
+
       const customerImageUrl = uploadResponse.data.url;
 
       // Create try-on session in database
-      const sessionResponse = await apiClient.post(
-        '/api/try-on/sessions',
-        {
-          productId,
-          productName,
-          customerImageUrl,
-          status: "processing"
-        }
-      );
+      const sessionResponse = await apiClient.post("/api/try-on/sessions", {
+        productId,
+        productName,
+        customerImageUrl,
+        status: "processing",
+      });
 
       if (sessionResponse.status !== 201) {
-        console.error('Session creation failed:', sessionResponse);
+        console.error("Session creation failed:", sessionResponse);
         throw new Error("Failed to create try-on session");
       }
 
       const session = sessionResponse.data.session;
+      setCurrentSessionId(session.id); // Store session ID for tracking
 
       // Build FormData for server route
       const tryOnFormData = new FormData();
@@ -807,11 +932,64 @@ export default function TryOnWidget({
       tryOnFormData.append("fast_mode", "true");
 
       // Call JSON-based Next.js API route which integrates with TryOn API per docs
-      const res = await apiClient.post(API_ENDPOINTS.TRY_ON, tryOnFormData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await apiClient
+        .post(API_ENDPOINTS.TRY_ON, tryOnFormData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .catch((error) => {
+          // Handle network errors and 500 responses
+          console.error("Try-on API request failed:", error);
+
+          // Update session status to failed
+          if (session?.id) {
+            apiClient
+              .put(API_ENDPOINTS.TRY_ON_SESSION_BY_ID(session.id), {
+                status: "failed",
+                errorMessage:
+                  error.response?.data?.error ||
+                  error.message ||
+                  "Network error occurred",
+              })
+              .catch((e) =>
+                console.error("Failed to update session status:", e)
+              );
+          }
+
+          // Show appropriate error message
+          const errorMessage =
+            error.response?.data?.error ||
+            error.message ||
+            "Failed to process try-on request";
+
+          if (
+            error.code === "ECONNABORTED" ||
+            error.message?.includes("timeout")
+          ) {
+            toast({
+              title: "Request Timeout",
+              description: "The try-on request timed out. Please try again.",
+              variant: "destructive",
+            });
+          } else if (error.response?.status === 500) {
+            toast({
+              title: "Server Error",
+              description:
+                "The try-on service is temporarily unavailable. Please try again in a few minutes.",
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "Try-on Failed",
+              description: errorMessage,
+              variant: "destructive",
+            });
+          }
+
+          // Re-throw to be caught by outer try-catch
+          throw new Error(errorMessage);
+        });
 
       // 202 => still processing (rare due to server-side polling)
       if (res.status === 202) {
@@ -835,10 +1013,39 @@ export default function TryOnWidget({
         );
       }
 
-      // Success path: imageUrl or imageBase64
+      // Handle processing status - job may still be running
+      if (j.requiresPolling && j.processingStatus && j.jobId) {
+        toast({
+          title: "Processing your try-on",
+          description: `Job ${j.jobId} is ${j.processingStatus}. This may take a few minutes...`,
+        });
+
+        // Update session to show it's still processing
+        await apiClient.put(API_ENDPOINTS.TRY_ON_SESSION_BY_ID(session.id), {
+          status: "processing",
+          jobId: j.jobId,
+          processingStatus: j.processingStatus,
+        });
+
+        // Show tracking modal
+        setShowTrackingModal(true);
+
+        // Set timeout to check back later (frontend could implement polling here)
+        setTimeout(() => {
+          toast({
+            title: "Try-on taking longer",
+            description:
+              "Your try-on is still processing. You can check back in a few minutes.",
+          });
+        }, 30000); // 30 seconds
+
+        return; // Don't set tryOnResult yet
+      }
+
+      // Success path: tryOnImageUrl or imageBase64
       let image: string | null = null;
-      if (j.imageUrl) {
-        image = j.imageUrl as string;
+      if (j.tryOnImageUrl) {
+        image = j.tryOnImageUrl as string;
       } else if (j.imageBase64) {
         image = `data:image/png;base64,${j.imageBase64}`;
       }
@@ -846,9 +1053,27 @@ export default function TryOnWidget({
       if (image) {
         // Update session with success
         await apiClient.put(API_ENDPOINTS.TRY_ON_SESSION_BY_ID(session.id), {
-          resultImageUrl: image,
+          tryOnImageUrl: image,
           status: "completed",
         });
+
+        // Download and save images to server in background (non-blocking)
+        try {
+          apiClient
+            .post(API_ENDPOINTS.TRY_ON_SESSION_DOWNLOAD_IMAGES(session.id), {
+              customerImageUrl: customerImageUrl,
+              tryOnImageUrl: image,
+            })
+            .catch((err) => {
+              console.warn(
+                "Background image download/save failed (non-critical):",
+                err
+              );
+              // Don't block user experience if image download fails
+            });
+        } catch (err) {
+          console.warn("Failed to trigger image download:", err);
+        }
 
         // Revoke old blob URL if any
         setTryOnResult((prev) => {
@@ -874,11 +1099,34 @@ export default function TryOnWidget({
       }
     } catch (e) {
       console.error("Try-on error:", e);
-      toast({
-        title: "Try-on failed",
-        description: e instanceof Error ? e.message : "Please try again.",
-        variant: "destructive",
-      });
+
+      // Don't show duplicate toast if error was already handled in the catch block above
+      const errorMessage = e instanceof Error ? e.message : "Please try again.";
+
+      // Only show toast if it's not a network error that was already handled
+      if (
+        !errorMessage.includes("Request Timeout") &&
+        !errorMessage.includes("Server Error") &&
+        !errorMessage.includes("Network error occurred")
+      ) {
+        toast({
+          title: "Try-on failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+
+      // Update session status to failed if we have a session ID
+      if (currentSessionId) {
+        apiClient
+          .put(API_ENDPOINTS.TRY_ON_SESSION_BY_ID(currentSessionId), {
+            status: "failed",
+            errorMessage: errorMessage,
+          })
+          .catch((err) =>
+            console.error("Failed to update session status:", err)
+          );
+      }
     } finally {
       setIsProcessingTryOn(false);
     }
@@ -890,6 +1138,7 @@ export default function TryOnWidget({
     isAuthenticated,
     openLoginPrompt,
     toast,
+    currentSessionId,
   ]);
 
   // UI pieces
@@ -922,6 +1171,24 @@ export default function TryOnWidget({
           onClick={() => (onBack ? onBack() : router.back())}
         >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-800 bg-gray-100 dark:bg-gray-800"
+          onClick={() => {
+            const params = new URLSearchParams();
+            if (productId) params.append("product-id", productId);
+            if (productName) params.append("product-name", productName);
+            if (productImageUrl)
+              params.append("product-image-url", productImageUrl);
+            router.push(
+              `/tryon-room${params.toString() ? `?${params.toString()}` : ""}`
+            );
+          }}
+          title="View Try-On Room"
+        >
+          <Grid3X3 className="h-4 w-4" />
         </Button>
       </div>
 
@@ -2076,5 +2343,175 @@ export default function TryOnWidget({
     </div>
   );
 
-  return widgetContent;
+  // Session Tracking Modal
+  const SessionTrackingModal = () => (
+    <AnimatePresence>
+      {showTrackingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowTrackingModal(false)}
+          />
+
+          {/* Modal Content */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative bg-white dark:bg-slate-900 rounded-2xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-slate-200/50 dark:border-slate-700/50"
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+                    Processing Your Try-On
+                  </h3>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Session ID: {currentSessionId?.slice(0, 8)}...
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowTrackingModal(false)}
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-500" />
+              </button>
+            </div>
+
+            {/* Status Display */}
+            <div className="space-y-4">
+              {sessionStatus ? (
+                <>
+                  <div className="bg-slate-50 dark:bg-slate-800 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Status
+                      </span>
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          sessionStatus.status === "completed"
+                            ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                            : sessionStatus.status === "failed"
+                            ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                            : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                        }`}
+                      >
+                        {sessionStatus.status}
+                      </span>
+                    </div>
+
+                    {sessionStatus.jobId && (
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          Job ID
+                        </span>
+                        <span className="text-xs text-slate-600 dark:text-slate-400 font-mono">
+                          {sessionStatus.jobId.slice(0, 12)}...
+                        </span>
+                      </div>
+                    )}
+
+                    {sessionStatus.processingStatus && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                          Processing
+                        </span>
+                        <span className="text-xs text-slate-600 dark:text-slate-400">
+                          {sessionStatus.processingStatus}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {sessionStatus.status === "processing" && (
+                    <div className="text-center py-4">
+                      <div className="w-12 h-12 mx-auto mb-3 bg-blue-500/20 rounded-full flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                      </div>
+                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                        Your try-on is being generated. This usually takes 1-2
+                        minutes.
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-500 mt-1">
+                        We'll check for updates every 10 seconds.
+                      </p>
+                    </div>
+                  )}
+
+                  {sessionStatus.status === "completed" &&
+                    sessionStatus.resultImageUrl && (
+                      <div className="text-center py-4">
+                        <div className="w-12 h-12 mx-auto mb-3 bg-green-500/20 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 bg-green-500 rounded-full" />
+                        </div>
+                        <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
+                          Try-On Complete!
+                        </p>
+                        <p className="text-xs text-slate-600 dark:text-slate-400">
+                          Your virtual try-on is ready to view.
+                        </p>
+                      </div>
+                    )}
+                </>
+              ) : (
+                <div className="text-center py-8">
+                  <div className="w-12 h-12 mx-auto mb-3 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+                    <Loader2 className="w-6 h-6 text-slate-400 animate-spin" />
+                  </div>
+                  <p className="text-sm text-slate-600 dark:text-slate-400">
+                    Checking session status...
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 mt-6">
+              <Button
+                onClick={() => checkSessionStatus(currentSessionId!)}
+                disabled={isCheckingStatus}
+                variant="outline"
+                className="flex-1"
+              >
+                {isCheckingStatus ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Checking...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Check Status
+                  </>
+                )}
+              </Button>
+
+              <Button
+                onClick={() => setShowTrackingModal(false)}
+                className="flex-1"
+              >
+                Close
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+  );
+
+  return (
+    <>
+      {widgetContent}
+      <SessionTrackingModal />
+    </>
+  );
 }

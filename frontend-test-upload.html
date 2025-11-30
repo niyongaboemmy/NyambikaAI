@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Frontend Upload Test</title>
+  </head>
+  <body>
+    <h1>Frontend Upload Test</h1>
+    <input type="file" id="fileInput" accept="image/*" />
+    <button onclick="testUpload()">Test Upload</button>
+    <button onclick="testDirectUpload()">Test Direct Upload</button>
+    <div id="result"></div>
+
+    <script>
+      // Set the auth token
+      localStorage.setItem(
+        "auth_token",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI3ZGVjZDI0Ny0wYmFlLTQ4ZWQtYjRhMy1lMjcyOTQ1YjQxMmMiLCJyb2xlIjoicHJvZHVjZXIiLCJpYXQiOjE3NjQ0MzU5NjEsImV4cCI6MTc2NTA0MDc2MX0.ew9Q1LPoo2-HEaX_S8La3muI6VLLcYhq8drN-onfTII"
+      );
+
+      // Import the upload functions (this would normally be done in a React component)
+      async function testUpload() {
+        const fileInput = document.getElementById("fileInput");
+        const result = document.getElementById("result");
+
+        if (!fileInput.files[0]) {
+          result.innerHTML = "Please select a file first";
+          return;
+        }
+
+        const file = fileInput.files[0];
+
+        // Simulate the frontend upload process
+        const formData = new FormData();
+        formData.append("image", file);
+
+        // Get auth token
+        const token = localStorage.getItem("auth_token");
+        const normalizedToken =
+          token && token[0] === '"' ? token.slice(1, -1) : token;
+
+        console.log("=== Frontend Upload Test ===");
+        console.log("File:", file);
+        console.log("Token:", normalizedToken);
+
+        try {
+          const response = await fetch("http://localhost:3003/api/upload", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${normalizedToken}`,
+            },
+            body: formData,
+          });
+
+          const data = await response.json();
+          console.log("Response:", data);
+          result.innerHTML = `<h3>Upload Result:</h3><pre>${JSON.stringify(
+            data,
+            null,
+            2
+          )}</pre>`;
+        } catch (error) {
+          console.error("Error:", error);
+          result.innerHTML = `<h3>Error:</h3><pre>${error.message}</pre>`;
+        }
+      }
+
+      async function testDirectUpload() {
+        // This would test the direct upload function
+        console.log("Direct upload test - same as testUpload for now");
+        testUpload();
+      }
+    </script>
+  </body>
+</html>

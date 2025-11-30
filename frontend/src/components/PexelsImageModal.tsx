@@ -16,10 +16,8 @@ import {
 } from "lucide-react";
 import { searchImages, getPopularImages, PexelsPhoto } from "@/services/pexels";
 import { uploadFile } from "@/services/file-upload";
-import {
-  compressImageFile,
-  downloadAndCompressImage,
-} from "@/utils/imageCompression";
+import { downloadAndCompressImage } from "@/utils/imageCompression";
+import { compressImage, CompressionResult } from "@/utils/imageCompressor";
 
 interface PexelsImageModalProps {
   isOpen: boolean;
@@ -43,7 +41,23 @@ export function PexelsImageModal({
   const [isLoading, setIsLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  // Define type for selected image
+  type SelectedImage =
+    | string
+    | {
+        id: string;
+        url: string;
+        previewUrl: string;
+        originalName: string;
+        fileSize: string | number;
+        fileType: string;
+        message: string;
+        isUploaded: boolean;
+      };
+
+  const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
+    null
+  );
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [activeTab, setActiveTab] = useState<"search" | "upload">("upload");
@@ -164,18 +178,38 @@ export function PexelsImageModal({
     setUploadProgress(0);
 
     try {
-      // 1) Compress client-side to <= 700 KB before uploading
-      const compressed = (await compressImageFile(file, {
-        maxSizeKB: 100,
-        mimeType: "image/jpeg",
-        maxWidth: 2000,
-        maxHeight: 2000,
-        returnType: "file",
-        outputFilename: `${file.name.replace(/\.[^.]+$/, "")}-compressed.jpg`,
-      })) as File;
+      // Compress the image with our robust compression utility
+      console.log("=== Compressing Image ===");
+      const compressionResult: CompressionResult = await compressImage(file, {
+        maxSizeKB: 300, // Target 300KB for good balance
+        quality: 0.8,
+        maxWidth: 1920,
+        maxHeight: 1920,
+        outputFormat: "jpeg",
+      });
 
-      // 2) Upload with progress reporting
-      const result = await uploadFile(compressed, {
+      console.log("Compression result:", compressionResult);
+
+      if (!compressionResult.success) {
+        console.warn(
+          "Compression failed, using original file:",
+          compressionResult.error
+        );
+      }
+
+      // Use compressed file if successful, otherwise use original
+      const fileToUpload = compressionResult.success
+        ? compressionResult.file
+        : file;
+
+      console.log("=== Uploading File ===");
+      console.log(
+        `File: ${fileToUpload.name}, Size: ${(fileToUpload.size / 1024).toFixed(
+          2
+        )}KB`
+      );
+
+      const result = await uploadFile(fileToUpload, {
         renameFile: true,
         preview: true,
         onUploadProgress: (evt) => {
@@ -188,9 +222,32 @@ export function PexelsImageModal({
         },
       });
 
+      console.log("Upload success:", result);
+      if (result.url) {
+        // Create a preview object for the uploaded image
+        const uploadedImagePreview = {
+          id: `uploaded-${Date.now()}`,
+          url: result.url,
+          previewUrl: result.previewUrl || result.url,
+          originalName: result.originalName || "uploaded-image",
+          fileSize: result.fileSize || "0",
+          fileType: result.fileType || "image/jpeg",
+          message: result.message || "Upload successful",
+          isUploaded: true,
+        };
+
+        // Set the uploaded image as selected
+        setSelectedImage(uploadedImagePreview);
+
+        // Call the original onSelect callback
+        onSelect(result.url);
+      } else {
+        console.error("Upload succeeded but no URL returned");
+      }
+
       setUploadProgress(100);
-      onSelect(result?.url || "");
-      onClose();
+      // Don't close modal automatically - let user see the uploaded image
+      // onClose();
     } catch (error) {
       console.error("Upload failed:", error);
       // Reset progress on error
@@ -540,7 +597,11 @@ export function PexelsImageModal({
 
                     {/* Actual image */}
                     <img
-                      src={selectedImage}
+                      src={
+                        typeof selectedImage === "string"
+                          ? selectedImage
+                          : selectedImage.url
+                      }
                       alt="Selected image preview"
                       className="w-full h-auto max-h-[70vh] object-contain opacity-0 transition-opacity duration-500"
                       onLoad={(e) => {
@@ -586,89 +647,136 @@ export function PexelsImageModal({
                 {/* Action buttons */}
                 <div className="flex items-center justify-between p-4 xs:p-6 bg-slate-50 dark:bg-slate-800 border-t border-slate-200 dark:border-slate-700">
                   <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-sm text-slate-600 dark:text-slate-400">
-                      AI-curated image
-                    </span>
+                    {typeof selectedImage === "object" &&
+                    selectedImage.isUploaded ? (
+                      <>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          ✨ Your uploaded image
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          AI-curated image
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <Button
-                      onClick={() => setSelectedImage(null)}
-                      variant="outline"
-                      className="px-4 xs:px-6 py-2 text-sm xs:text-base border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      disabled={uploading}
-                      onClick={async () => {
-                        if (!selectedImage) return;
-                        try {
-                          setUploading(true);
-                          setUploadProgress(0);
-
-                          // 1) Download and compress the Pexels image to <= 700 KB
-                          const compressed = (await downloadAndCompressImage(
-                            selectedImage,
-                            {
-                              maxSizeKB: 700,
-                              mimeType: "image/jpeg",
-                              maxWidth: 2000,
-                              maxHeight: 2000,
-                              returnType: "file",
-                              outputFilename: "pexels-image-compressed.jpg",
-                            }
-                          )) as File;
-
-                          // 2) Upload it to our server to save locally
-                          const result = await uploadFile(compressed, {
-                            renameFile: true,
-                            preview: true,
-                            onUploadProgress: (evt) => {
-                              if (!evt.total) return;
-                              const percent = Math.min(
-                                99,
-                                Math.round((evt.loaded / evt.total) * 100)
-                              );
-                              setUploadProgress(percent);
-                            },
-                          });
-
-                          setUploadProgress(100);
-                          onSelect(result?.url || "");
-                          setSelectedImage(null);
+                    {typeof selectedImage === "object" &&
+                    selectedImage.isUploaded ? (
+                      <Button
+                        onClick={() => {
+                          onSelect(selectedImage.url);
                           onClose();
-                        } catch (err) {
-                          console.error("Failed to process Pexels image:", err);
-                        } finally {
-                          setUploading(false);
-                        }
-                      }}
-                      className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 xs:px-6 py-2 text-sm xs:text-base font-medium shadow-lg shadow-blue-500/25"
-                    >
-                      {uploading ? (
-                        <div className="flex items-center">
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Processing...
-                        </div>
-                      ) : (
-                        <>
-                          <svg
-                            className="mr-1.5 xs:mr-2 h-3.5 w-3.5 xs:h-4 xs:w-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                          Confirm Selection
-                        </>
-                      )}
-                    </Button>
+                        }}
+                        className="px-4 xs:px-6 py-2 text-sm xs:text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg"
+                      >
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Use This Image
+                      </Button>
+                    ) : (
+                      <>
+                        <Button
+                          onClick={() => setSelectedImage(null)}
+                          variant="outline"
+                          className="px-4 xs:px-6 py-2 text-sm xs:text-base border-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700"
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          disabled={uploading}
+                          onClick={async () => {
+                            if (!selectedImage) return;
+
+                            // Only Pexels images need download and compression
+                            // Uploaded images are already on our server
+                            if (
+                              typeof selectedImage === "object" &&
+                              selectedImage.isUploaded
+                            ) {
+                              // For uploaded images, just use them directly
+                              onSelect(selectedImage.url);
+                              onClose();
+                              return;
+                            }
+
+                            const imageUrl =
+                              typeof selectedImage === "string"
+                                ? selectedImage
+                                : selectedImage.url;
+
+                            try {
+                              setUploading(true);
+                              setUploadProgress(0);
+
+                              // 1) Download and compress the Pexels image to <= 700 KB
+                              const compressed =
+                                (await downloadAndCompressImage(imageUrl, {
+                                  maxSizeKB: 700,
+                                  mimeType: "image/jpeg",
+                                  maxWidth: 2000,
+                                  maxHeight: 2000,
+                                  returnType: "file",
+                                  outputFilename: "pexels-image-compressed.jpg",
+                                })) as File;
+
+                              // 2) Upload it to our server to save locally
+                              const result = await uploadFile(compressed, {
+                                renameFile: true,
+                                preview: true,
+                                onUploadProgress: (evt) => {
+                                  if (!evt.total) return;
+                                  const percent = Math.min(
+                                    99,
+                                    Math.round((evt.loaded / evt.total) * 100)
+                                  );
+                                  setUploadProgress(percent);
+                                },
+                              });
+
+                              setUploadProgress(100);
+                              onSelect(result?.url || "");
+                              setSelectedImage(null);
+                              onClose();
+                            } catch (err) {
+                              console.error(
+                                "Failed to process Pexels image:",
+                                err
+                              );
+                            } finally {
+                              setUploading(false);
+                            }
+                          }}
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 xs:px-6 py-2 text-sm xs:text-base font-medium shadow-lg shadow-blue-500/25"
+                        >
+                          {uploading ? (
+                            <div className="flex items-center">
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Processing...
+                            </div>
+                          ) : (
+                            <>
+                              <svg
+                                className="mr-1.5 xs:mr-2 h-3.5 w-3.5 xs:h-4 xs:w-4"
+                                fill="currentColor"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  fillRule="evenodd"
+                                  d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                  clipRule="evenodd"
+                                />
+                              </svg>
+                              Confirm Selection
+                            </>
+                          )}
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
