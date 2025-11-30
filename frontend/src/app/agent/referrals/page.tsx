@@ -121,7 +121,6 @@ export default function AgentReferralsPage() {
       setIndirect(n.data.indirect || []);
       setCommissions(c.data || []);
     } catch (e) {
-       
       console.error("Failed to load referral data", e);
     } finally {
       setLoadingData(false);
@@ -295,7 +294,7 @@ export default function AgentReferralsPage() {
             </div>
           </div>
 
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20 hover:from-purple-500/15 hover:to-pink-500/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/20 hover:from-purple-500/15 hover:to-blue-500/15 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
               <Network className="w-4 h-4 text-purple-600 dark:text-purple-400" />
               <span className="text-xs font-medium text-muted-foreground">

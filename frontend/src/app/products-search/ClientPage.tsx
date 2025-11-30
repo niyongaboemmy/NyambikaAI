@@ -431,7 +431,7 @@ export default function ClientProductsSearchPage() {
           </Button>
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative">
-              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500 flex items-center justify-center shadow-lg animate-pulse">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 via-purple-600 to-blue-500 flex items-center justify-center shadow-lg animate-pulse">
                 <ShoppingBag className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-white" />
               </div>
               <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full border border-white dark:border-gray-900 animate-bounce">
@@ -439,7 +439,7 @@ export default function ClientProductsSearchPage() {
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent truncate">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent truncate">
                 {t("search.title")}
               </h1>
               <div className="hidden md:inline-block text-xs sm:text-sm text-gray-600 dark:text-gray-400 w-full">
@@ -493,7 +493,7 @@ export default function ClientProductsSearchPage() {
                   onClick={() => handleCategoryChange("all")}
                 >
                   {/* Background with gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-600 to-pink-500">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-500">
                     <div className="absolute inset-0 bg-black/20" />
                   </div>
 
@@ -536,7 +536,7 @@ export default function ClientProductsSearchPage() {
                     <div
                       className={`relative rounded-2xl transition-all duration-300 ${
                         selectedCategoryId === category.id
-                          ? "p-1 bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 shadow-2xl"
+                          ? "p-1 bg-gradient-to-r from-blue-500 via-purple-600 to-blue-500 shadow-2xl"
                           : "p-0"
                       }`}
                     >

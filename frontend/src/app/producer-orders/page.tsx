@@ -526,7 +526,7 @@ export default function ProducerOrders() {
                 className="relative flex-shrink-0"
               >
                 <Package className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-blue-600" />
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-cyan-500/20 rounded-lg blur-lg animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-lg blur-lg animate-pulse"></div>
               </motion.div>
               <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold truncate">
                 Order Management
@@ -624,7 +624,7 @@ export default function ProducerOrders() {
             >
               <Button
                 size="sm"
-                className="w-full sm:w-auto bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 hover:from-pink-600 hover:via-purple-600 hover:to-blue-600 text-white shadow-lg transition-all duration-200 text-xs sm:text-sm"
+                className="w-full sm:w-auto bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 text-white shadow-lg transition-all duration-200 text-xs sm:text-sm"
                 onClick={() => router.push("/product-registration")}
               >
                 <Package className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />

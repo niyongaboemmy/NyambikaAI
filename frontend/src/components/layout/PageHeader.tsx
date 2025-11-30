@@ -13,18 +13,18 @@ const toneMap = {
   blue: {
     badge: "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
     gradient:
-      "bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400",
+      "bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400",
   },
   purple: {
     badge:
       "bg-purple-600/10 text-purple-700 dark:text-purple-300 ring-purple-600/20",
     gradient:
-      "bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-400 dark:via-pink-400 dark:to-blue-400",
+      "bg-gradient-to-r from-purple-600 via-blue-600 to-blue-600 dark:from-purple-400 dark:via-blue-400 dark:to-blue-400",
   },
   pink: {
-    badge: "bg-pink-600/10 text-pink-700 dark:text-pink-300 ring-pink-600/20",
+    badge: "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
     gradient:
-      "bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 dark:from-pink-400 dark:via-purple-400 dark:to-blue-400",
+      "bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400",
   },
   cyan: {
     badge: "bg-cyan-600/10 text-cyan-700 dark:text-cyan-300 ring-cyan-600/20",

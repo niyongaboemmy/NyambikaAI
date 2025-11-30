@@ -34,8 +34,21 @@ interface SizesColorsDescriptionStepProps {
 
 const commonSizes = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
 const commonColors = [
-  "Red", "Blue", "Green", "Yellow", "Black", "White", "Gray", "Brown",
-  "Pink", "Purple", "Orange", "Navy", "Maroon", "Beige", "Cream",
+  "Red",
+  "Blue",
+  "Green",
+  "Yellow",
+  "Black",
+  "White",
+  "Gray",
+  "Brown",
+  "Pink",
+  "Purple",
+  "Orange",
+  "Navy",
+  "Maroon",
+  "Beige",
+  "Cream",
 ];
 
 export function SizesColorsDescriptionStep({
@@ -61,16 +74,16 @@ export function SizesColorsDescriptionStep({
     setGeneratingDescription(true);
     try {
       // Simulate AI generation - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       const aiDescription = `Discover the elegance of ${formData.name}, a premium fashion piece that combines traditional craftsmanship with modern style. This carefully designed product offers exceptional quality and comfort, perfect for those who appreciate authentic fashion. Made with attention to detail and using high-quality materials, this item is ideal for both casual and formal occasions. Experience the perfect blend of style, comfort, and durability.`;
-      
+
       const aiDescriptionRw = `Menya ubwiza bwa ${formData.name}, igikoresho cy'imyambaro y'igihe kizaza gihuriza ubuhanga gakondo n'uburyo bugezweho. Iki gicuruzwa cyateguwe n'ubwenge gitanga ubuziranenge n'ibyishimo bidasanzwe, bikwiye abo baha imyambaro y'ukuri. Cyakozwe mu kwita ku buryo bwose no gukoresha ibikoresho by'ubwiza, iki gicuruzwa ni cyo kuri ibihe byose. Menya guhuza neza ubwiza, ibyishimo, n'igihe kirekire.`;
-      
-      onInputChange('description', aiDescription);
-      onInputChange('descriptionRw', aiDescriptionRw);
+
+      onInputChange("description", aiDescription);
+      onInputChange("descriptionRw", aiDescriptionRw);
     } catch (error) {
-      console.error('Failed to generate description');
+      console.error("Failed to generate description");
     } finally {
       setGeneratingDescription(false);
     }
@@ -78,13 +91,12 @@ export function SizesColorsDescriptionStep({
 
   return (
     <div className="space-y-4">
-
       {/* Sizes & Colors - Progressive Disclosure */}
       <Card className="glassmorphism border-0 shadow-xl backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-2xl overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-purple-500/5 to-pink-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
+        <CardHeader className="bg-gradient-to-r from-purple-500/5 to-blue-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
           <CardTitle className="text-lg sm:text-xl flex items-center justify-between text-gray-800 dark:text-gray-100">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 text-white">
                 <Palette className="h-5 w-5" />
               </div>
               Sizes & Colors
@@ -122,13 +134,16 @@ export function SizesColorsDescriptionStep({
                       variant={selected ? "default" : "outline"}
                       size="sm"
                       className={`h-10 sm:h-12 text-sm sm:text-base transition-all duration-200 ${
-                        selected 
-                          ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg scale-105" 
+                        selected
+                          ? "bg-gradient-to-r from-purple-500 to-blue-500 text-white shadow-lg scale-105"
                           : "hover:scale-105 hover:shadow-md"
                       }`}
                       onClick={() => {
                         if (selected) {
-                          removeArrayItem("sizes", formData.sizes.indexOf(size));
+                          removeArrayItem(
+                            "sizes",
+                            formData.sizes.indexOf(size)
+                          );
                         } else {
                           addArrayItem("sizes", size);
                         }
@@ -172,9 +187,11 @@ export function SizesColorsDescriptionStep({
                   {formData.sizes.map((s, idx) => (
                     <div
                       key={`${s}-${idx}`}
-                      className="px-2 py-1.5 rounded-full bg-gradient-to-r from-purple-100 to-pink-100 dark:from-purple-900/30 dark:to-pink-900/30 border border-purple-200 dark:border-purple-700 flex items-center gap-2 transition-all duration-200 hover:scale-105"
+                      className="px-2 py-1.5 rounded-full bg-gradient-to-r from-purple-100 to-blue-100 dark:from-purple-900/30 dark:to-blue-900/30 border border-purple-200 dark:border-purple-700 flex items-center gap-2 transition-all duration-200 hover:scale-105"
                     >
-                      <span className="text-sm font-medium text-purple-700 dark:text-purple-300">{s}</span>
+                      <span className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                        {s}
+                      </span>
                       <button
                         type="button"
                         className="text-red-500 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30"
@@ -192,7 +209,7 @@ export function SizesColorsDescriptionStep({
             {/* Colors */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Palette className="h-4 w-4 text-pink-500" />
+                <Palette className="h-4 w-4 text-blue-500" />
                 <Label className="text-sm font-medium">Available Colors</Label>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
@@ -205,8 +222,8 @@ export function SizesColorsDescriptionStep({
                       variant={selected ? "default" : "outline"}
                       size="sm"
                       className={`h-10 sm:h-12 text-sm sm:text-base transition-all duration-200 ${
-                        selected 
-                          ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg scale-105" 
+                        selected
+                          ? "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg scale-105"
                           : "hover:scale-105 hover:shadow-md"
                       }`}
                       onClick={() => {
@@ -258,9 +275,11 @@ export function SizesColorsDescriptionStep({
                   {formData.colors.map((c, idx) => (
                     <div
                       key={`${c}-${idx}`}
-                      className="px-3 py-2 rounded-full bg-gradient-to-r from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30 border border-pink-200 dark:border-pink-700 flex items-center gap-2 transition-all duration-200 hover:scale-105"
+                      className="px-3 py-2 rounded-full bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200 dark:border-blue-700 flex items-center gap-2 transition-all duration-200 hover:scale-105"
                     >
-                      <span className="text-sm font-medium text-pink-700 dark:text-pink-300">{c}</span>
+                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                        {c}
+                      </span>
                       <button
                         type="button"
                         className="text-red-500 hover:text-red-600 transition-colors p-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30"
@@ -323,7 +342,7 @@ export function SizesColorsDescriptionStep({
               }
               placeholder="Describe your product in detail... or use AI to generate"
               className="min-h-[120px] sm:min-h-[140px] text-base sm:text-sm resize-none"
-              error={getFieldError('description')}
+              error={getFieldError("description")}
             />
             <FormTextarea
               id="descriptionRw"

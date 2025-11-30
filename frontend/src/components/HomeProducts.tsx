@@ -636,7 +636,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               💕 {t("home.brands")}
             </h2>
             <div className="flex gap-1">
-              <div className="w-2 h-2 bg-pink-400 rounded-full animate-ping" />
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-ping" />
               <div
                 className="w-2 h-2 bg-purple-400 rounded-full animate-ping"
                 style={{ animationDelay: "0.5s" }}
@@ -764,7 +764,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   : `🔥 ${t("home.trending")}`}
               </h2>
               <div className="flex items-center gap-3">
-                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-orange-400 via-red-500 to-pink-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse shadow-xl">
+                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse shadow-xl">
                   {t("home.hot")} 🔥
                 </span>
                 <div className="flex gap-2">

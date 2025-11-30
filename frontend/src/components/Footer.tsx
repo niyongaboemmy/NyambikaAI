@@ -71,7 +71,7 @@ export default function Footer() {
       icon: Instagram,
       href: "https://www.instagram.com/nyambika_official/",
       label: "Instagram",
-      color: "hover:text-pink-500",
+      color: "hover:text-blue-500",
     },
     {
       icon: Linkedin,

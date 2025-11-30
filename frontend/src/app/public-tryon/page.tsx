@@ -30,10 +30,12 @@ import {
   Sparkles,
   Zap,
   Star,
+  Wand2,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
+import { Product } from "@/shared/schema";
 
 // API call using apiClient for authentication
 const fetchTryOnSessionsWithAuth = async (params: URLSearchParams) => {
@@ -160,6 +162,8 @@ export default function PublicTryOn() {
   const [commentText, setCommentText] = useState("");
   const [postingComment, setPostingComment] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loadingProduct, setLoadingProduct] = useState(false);
 
   // Group sessions by product (for bottom gallery)
   const productsWithSessions = Array.from(
@@ -220,6 +224,102 @@ export default function PublicTryOn() {
     // Reset to page 1 when filters change
     fetchSessions(1);
   }, [productId, sortBy, sortOrder, searchQuery]);
+
+  // Fetch product details when productId is present
+  useEffect(() => {
+    const fetchProduct = async () => {
+      if (!productId) {
+        setProduct(null);
+        return;
+      }
+
+      try {
+        setLoadingProduct(true);
+        const response = await apiClient.get<Product>(
+          `/api/products/${productId}`
+        );
+        setProduct(response.data);
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        setProduct(null);
+      } finally {
+        setLoadingProduct(false);
+      }
+    };
+
+    fetchProduct();
+  }, [productId]);
+
+  // Update browser title and meta tags based on product or general gallery
+  useEffect(() => {
+    if (productId && product) {
+      // When specific product is loaded
+      document.title = `${product.name} - Try-On Gallery | Nyambika`;
+      updateMetaTags(
+        `${product.name} - Try-On Gallery | Nyambika`,
+        `Explore amazing virtual try-ons with ${product.name}. See how this fashion item looks on different people using AI technology.`,
+        product.imageUrl
+      );
+    } else if (!productId) {
+      // When viewing general gallery
+      document.title =
+        "AI Try-On Gallery - Discover Amazing Fashion | Nyambika";
+      updateMetaTags(
+        "AI Try-On Gallery - Discover Amazing Fashion | Nyambika",
+        "Explore our collection of AI-powered virtual try-on results. See fashion transformations and discover your perfect style with cutting-edge technology.",
+        "/products-grid.png"
+      );
+    }
+
+    // Cleanup function to reset title when component unmounts
+    return () => {
+      document.title = "Nyambika - AI Fashion Try-On";
+    };
+  }, [productId, product]);
+
+  // Helper function to update meta tags
+  const updateMetaTags = (
+    title: string,
+    description: string,
+    imageUrl: string
+  ) => {
+    if (typeof document === "undefined") return;
+
+    // Update existing meta tags or create new ones
+    const updateOrCreateMeta = (property: string, content: string) => {
+      let meta = document.querySelector(
+        `meta[property="${property}"]`
+      ) as HTMLMetaElement;
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute("property", property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", content);
+    };
+
+    // Open Graph tags
+    updateOrCreateMeta("og:title", title);
+    updateOrCreateMeta("og:description", description);
+    updateOrCreateMeta(
+      "og:image",
+      imageUrl.startsWith("http")
+        ? imageUrl
+        : `${window.location.origin}${imageUrl}`
+    );
+    updateOrCreateMeta("og:url", window.location.href);
+
+    // Twitter Card tags
+    updateOrCreateMeta("twitter:title", title);
+    updateOrCreateMeta("twitter:description", description);
+    updateOrCreateMeta(
+      "twitter:image",
+      imageUrl.startsWith("http")
+        ? imageUrl
+        : `${window.location.origin}${imageUrl}`
+    );
+    updateOrCreateMeta("twitter:card", "summary_large_image");
+  };
 
   // Track view when session is selected
   useEffect(() => {
@@ -475,7 +575,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute top-4 left-4 w-20 h-24 bg-gradient-to-br from-pink-200/20 via-rose-200/20 to-purple-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
+            className="absolute top-4 left-4 w-20 h-24 bg-gradient-to-br from-blue-200/20 via-rose-200/20 to-purple-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
           />
           <motion.div
             animate={{
@@ -530,7 +630,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute top-1/2 right-4 w-24 h-24 bg-gradient-to-br from-violet-200/20 via-purple-200/20 to-pink-200/20 rounded-full shadow-xl backdrop-blur-sm border-2 border-white/10"
+            className="absolute top-1/2 right-4 w-24 h-24 bg-gradient-to-br from-violet-200/20 via-purple-200/20 to-blue-200/20 rounded-full shadow-xl backdrop-blur-sm border-2 border-white/10"
           />
         </div>
 
@@ -716,6 +816,81 @@ export default function PublicTryOn() {
           </motion.div>
         </div>
       </motion.div>
+      {/* Product Header Section - Show when product is specified */}
+      {productId && (product || loadingProduct) && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+          className="relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-blue-800/20"
+        >
+          <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
+            {loadingProduct ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                <span className="ml-2 text-slate-600 dark:text-slate-400">
+                  Loading product...
+                </span>
+              </div>
+            ) : product ? (
+              <>
+                {/* <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+        
+                  <div className="">
+                    <div className="relative w-full max-w-sm mx-auto lg:mx-0">
+                      <div className="aspect-square rounded-xl h-[130px] overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border border-blue-200/30 dark:border-indigo-700/30 relative group shadow-xl">
+                        <Image
+                          src={product.imageUrl}
+                          alt={product.name}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, 100vw"
+                          quality={70}
+                          priority
+                          placeholder="empty"
+                          className="object-cover"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                        {product.name}
+                      </h2>
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                          RF{" "}
+                          {parseFloat(String(product.price)).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        onClick={() => router.push(`/product/${product.id}`)}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-600 hover:to-green-700 text-white px-4 py-2 rounded-full transition-all duration-300"
+                      >
+                        <ShoppingBag className="w-4 h-4" />
+                        View Product
+                      </Button>
+                      <Button
+                        onClick={() =>
+                          router.push(`/try-on-widget/${product.id}`)
+                        }
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-full transition-all duration-300"
+                      >
+                        <Wand2 className="w-4 h-4" />
+                        Try On
+                      </Button>
+                    </div>
+                  </div>
+                </div> */}
+              </>
+            ) : null}
+          </div>
+        </motion.div>
+      )}
 
       {/* Header */}
       <motion.div
@@ -941,7 +1116,7 @@ export default function PublicTryOn() {
                 className="relative"
               >
                 {/* Background decoration */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl blur-2xl opacity-50" />
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 rounded-3xl blur-2xl opacity-50" />
 
                 <div className="relative bg-white/80 dark:bg-gray-900/50 backdrop-blur-xl rounded-3xl p-2 sm:p-4 md:p-10 border border-white/20 dark:border-slate-700/50">
                   {/* Product Header with enhanced design */}
@@ -1098,7 +1273,7 @@ export default function PublicTryOn() {
                         }}
                         className="break-inside-avoid bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-2xl overflow-hidden border border-white/30 dark:border-slate-700/50 transition-all duration-500 cursor-pointer group"
                         onClick={() =>
-                          router.push(`/session-details?id=${session.id}`)
+                          router.push(`/session-details/${session.id}`)
                         }
                       >
                         {/* Enhanced Image Container */}
@@ -1165,7 +1340,7 @@ export default function PublicTryOn() {
                           </motion.div>
 
                           {/* Hover glow effect */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
                         </div>
                       </motion.div>
                     ))}
@@ -1185,7 +1360,7 @@ export default function PublicTryOn() {
             className="relative text-center py-16 sm:py-20"
           >
             {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 rounded-3xl blur-3xl" />
 
             <div className="relative">
               {/* Animated illustration */}
@@ -1200,7 +1375,7 @@ export default function PublicTryOn() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="w-24 h-24 bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-pink-900/40 rounded-3xl flex items-center justify-center mx-auto"
+                  className="w-24 h-24 bg-gradient-to-br from-blue-100 via-purple-100 to-blue-100 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-blue-900/40 rounded-3xl flex items-center justify-center mx-auto"
                 >
                   <Sparkles className="w-12 h-12 text-blue-600 dark:text-blue-400" />
                 </motion.div>
@@ -1229,7 +1404,7 @@ export default function PublicTryOn() {
                     ease: "easeInOut",
                     delay: 0.5,
                   }}
-                  className="absolute bottom-2 left-6 w-4 h-4 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full opacity-70"
+                  className="absolute bottom-2 left-6 w-4 h-4 bg-gradient-to-r from-purple-400 to-blue-500 rounded-full opacity-70"
                 />
               </div>
 
@@ -1288,7 +1463,7 @@ export default function PublicTryOn() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link href="/try-on">
-                  <Button className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white px-6 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20">
+                  <Button className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 text-white px-6 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20">
                     <Zap className="w-6 h-6 mr-3" />
                     Start Your First Try-On
                     <motion.div
@@ -1317,7 +1492,7 @@ export default function PublicTryOn() {
               <Button
                 onClick={loadMore}
                 disabled={loading}
-                className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white px-8 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <motion.div

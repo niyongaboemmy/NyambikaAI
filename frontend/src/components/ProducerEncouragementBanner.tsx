@@ -32,7 +32,7 @@ const ProducerEncouragementBanner: React.FC<
       icon: Store,
       title: "Your Own Store",
       description: "Get a dedicated store page to showcase your products",
-      color: "from-purple-500 to-pink-500",
+      color: "from-purple-500 to-blue-500",
     },
     {
       icon: BarChart3,
@@ -81,7 +81,7 @@ const ProducerEncouragementBanner: React.FC<
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating Orbs */}
-        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-purple-400/30 to-blue-400/30 rounded-full blur-xl animate-pulse"></div>
         <div
           className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-2xl animate-pulse"
           style={{ animationDelay: "1s" }}
@@ -110,7 +110,7 @@ const ProducerEncouragementBanner: React.FC<
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full blur-lg opacity-75 animate-pulse"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-lg opacity-75 animate-pulse"></div>
               <div className="relative bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/20">
                 <Store className="h-8 w-8 text-white" />
               </div>
@@ -118,7 +118,7 @@ const ProducerEncouragementBanner: React.FC<
           </div>
 
           <div className="text-2xl md:text-3xl font-bold">
-            <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
               Join Nyambika
             </span>
           </div>
@@ -196,7 +196,7 @@ const ProducerEncouragementBanner: React.FC<
           <div className="text-center">
             <button
               onClick={() => router.push("/register")}
-              className="group bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3 mx-auto"
+              className="group bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3 mx-auto"
             >
               <Store className="h-5 w-5" />
               Start Selling Today

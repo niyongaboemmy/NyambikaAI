@@ -44,7 +44,7 @@ export default function SelectedCompanyBar({ company, onClear }: Props) {
               )}
             </div>
             {/* Active indicator dot */}
-            <div className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center group-hover:from-purple-500 group-hover:to-pink-500 group-hover:scale-110 transition-all duration-500">
+            <div className="absolute -top-1 -right-1 h-4 w-4 bg-gradient-to-r from-blue-500 to-purple-500 border-2 border-white dark:border-slate-900 rounded-full flex items-center justify-center group-hover:from-purple-500 group-hover:to-blue-500 group-hover:scale-110 transition-all duration-500">
               <div className="h-1.5 w-1.5 bg-white rounded-full animate-pulse group-hover:animate-bounce"></div>
             </div>
           </div>

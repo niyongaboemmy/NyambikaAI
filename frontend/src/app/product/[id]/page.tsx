@@ -127,10 +127,7 @@ export default function ProductDetail() {
                     additionalImages,
                     sizes: parseArrayField(p.sizes),
                     colors: parseArrayField(p.colors),
-                    images: [
-                      p.imageUrl,
-                      ...additionalImages,
-                    ].filter(Boolean),
+                    images: [p.imageUrl, ...additionalImages].filter(Boolean),
                   };
                 });
               return items;
@@ -221,7 +218,10 @@ export default function ProductDetail() {
       await apiClient.delete(API_ENDPOINTS.PRODUCT_BY_ID(productIdStr));
     },
     onSuccess: () => {
-      toast({ title: t("product.deleted"), description: t("product.deletedDesc") });
+      toast({
+        title: t("product.deleted"),
+        description: t("product.deletedDesc"),
+      });
       // Invalidate related queries
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["infinite-products"] });
@@ -268,10 +268,7 @@ export default function ProductDetail() {
         const colors = parseArrayField(data.colors);
 
         // Build images array from main image and any additional images from backend
-        const images = [
-          data.imageUrl,
-          ...additionalImages,
-        ].filter(Boolean);
+        const images = [data.imageUrl, ...additionalImages].filter(Boolean);
 
         return {
           ...data,
@@ -475,7 +472,7 @@ export default function ProductDetail() {
       <div className="">
         {/* AI-Motivated Animated Background */}
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/25 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
           <div
             className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-slate-400/15 via-gray-400/10 to-slate-400/15 dark:from-slate-600/20 dark:via-gray-600/15 dark:to-slate-600/20 rounded-full blur-3xl animate-bounce"
             style={{ animationDuration: "6s" }}
@@ -604,7 +601,7 @@ export default function ProductDetail() {
     <div className="">
       {/* AI-Motivated Animated Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/25 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
         <div
           className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-slate-400/15 via-gray-400/10 to-slate-400/15 dark:from-slate-600/20 dark:via-gray-600/15 dark:to-slate-600/20 rounded-full blur-3xl animate-bounce"
           style={{ animationDuration: "6s" }}
@@ -748,7 +745,7 @@ export default function ProductDetail() {
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {/* AI Badge */}
-                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium flex items-center gap-1 shadow-lg shadow-purple-500/30 backdrop-blur-sm border border-white/20">
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium flex items-center gap-1 shadow-lg shadow-purple-500/30 backdrop-blur-sm border border-white/20">
                   <Wand2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   {t("product.aiReady")}
                 </div>
@@ -820,7 +817,9 @@ export default function ProductDetail() {
                     variant={product.inStock ? "default" : "secondary"}
                     className="text-xs"
                   >
-                    {product.inStock ? t("product.inStock") : t("product.outOfStock")}
+                    {product.inStock
+                      ? t("product.inStock")
+                      : t("product.outOfStock")}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-2 mb-1">
@@ -914,7 +913,7 @@ export default function ProductDetail() {
                       onClick={() => setSelectedColor(color)}
                       className={`px-1.5 sm:px-2 py-1 sm:py-1.5 border-3 rounded-full transition-all duration-300 font-bold text-xs min-h-[28px] sm:min-h-auto flex items-center justify-center relative ${
                         selectedColor === color
-                          ? "border-purple-500 bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 text-white scale-110 dark:shadow-xl dark:shadow-purple-500/40 ring-4 ring-purple-200 dark:ring-purple-800 z-10"
+                          ? "border-purple-500 bg-gradient-to-r from-purple-600 via-blue-600 to-rose-600 text-white scale-110 dark:shadow-xl dark:shadow-purple-500/40 ring-4 ring-purple-200 dark:ring-purple-800 z-10"
                           : "border-gray-400 dark:border-gray-600 hover:border-purple-400 hover:scale-105 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:hover:shadow-md"
                       }`}
                     >

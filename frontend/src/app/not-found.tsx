@@ -28,7 +28,7 @@ export default function NotFound() {
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-gradient-to-r from-pink-400/20 to-indigo-400/20 rounded-full blur-xl"
+          className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-full blur-xl"
           animate={{
             scale: [1, 0.8, 1],
             opacity: [0.4, 0.7, 0.4],
@@ -58,7 +58,7 @@ export default function NotFound() {
                 transition={{ delay: 0.2, duration: 0.5 }}
                 className="mb-8"
               >
-                <div className="text-8xl md:text-9xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-4">
+                <div className="text-8xl md:text-9xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-4">
                   404
                 </div>
                 <motion.div
@@ -111,7 +111,7 @@ export default function NotFound() {
                 </Button>
 
                 <Link href="/" className="w-full sm:w-auto">
-                  <Button className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300">
+                  <Button className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 text-white shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300">
                     <Home className="mr-2 h-4 w-4" />
                     Back to Home
                   </Button>

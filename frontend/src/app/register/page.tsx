@@ -374,7 +374,7 @@ export default function Register() {
           }}
         />
         <motion.div
-          className="absolute top-3/4 right-1/4 w-3 h-3 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full shadow-lg shadow-purple-400/50"
+          className="absolute top-3/4 right-1/4 w-3 h-3 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full shadow-lg shadow-purple-400/50"
           animate={{
             y: [0, 25, 0],
             x: [0, -15, 0],
@@ -433,7 +433,7 @@ export default function Register() {
 
         {/* Large ambient orbs */}
         <motion.div
-          className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-full blur-3xl"
+          className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-full blur-3xl"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -474,7 +474,7 @@ export default function Register() {
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2, duration: 0.5 }}
                   >
-                    <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+                    <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
                       ✨ Join Nyambika
                     </CardTitle>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">
@@ -490,7 +490,7 @@ export default function Register() {
                   >
                     {/* Enhanced Step indicator */}
                     <motion.div
-                      className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-pink-50/50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-pink-900/20 rounded-xl border dark:border-none border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm"
+                      className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50/50 via-purple-50/50 to-blue-50/50 dark:from-blue-900/20 dark:via-purple-900/20 dark:to-blue-900/20 rounded-xl border dark:border-none border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 }}
@@ -674,7 +674,7 @@ export default function Register() {
                           >
                             <Button
                               type="button"
-                              className="w-full text-white py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 relative overflow-hidden"
+                              className="w-full text-white py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 relative overflow-hidden"
                               onClick={() => setStep(2)}
                             >
                               <span className="relative z-10 flex items-center justify-center gap-2">
@@ -1011,7 +1011,7 @@ export default function Register() {
                                         formData.confirmPassword) ||
                                   !termsAccepted
                                 }
-                                className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                                className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
                               >
                                 {isLoading ? (
                                   <>

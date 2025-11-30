@@ -279,7 +279,7 @@ export function PexelsImageModal({
               }}
             />
             <div
-              className="absolute bottom-32 right-32 w-64 h-64 bg-gradient-to-r from-purple-400/15 via-pink-400/10 to-rose-400/15 rounded-full blur-2xl"
+              className="absolute bottom-32 right-32 w-64 h-64 bg-gradient-to-r from-purple-400/15 via-blue-400/10 to-rose-400/15 rounded-full blur-2xl"
               style={{
                 animationName: "pulse",
                 animationDuration: "6s",
@@ -297,7 +297,7 @@ export function PexelsImageModal({
               }}
             />
             <div
-              className="absolute top-1/4 right-1/4 w-56 h-56 bg-gradient-to-r from-indigo-400/10 via-purple-400/15 to-pink-400/10 rounded-full blur-2xl"
+              className="absolute top-1/4 right-1/4 w-56 h-56 bg-gradient-to-r from-indigo-400/10 via-purple-400/15 to-blue-400/10 rounded-full blur-2xl"
               style={{
                 animationName: "pulse",
                 animationDuration: "7s",
@@ -954,14 +954,14 @@ export function PexelsImageModal({
               >
                 <div className="flex-1 flex items-start sm:items-center justify-center sm:pt-0 p-8">
                   <div className="w-full max-w-2xl">
-                    <div className="relative rounded-2xl border-2 border-dashed border-purple-300/50 dark:border-purple-500/30 bg-gradient-to-br from-purple-50/30 to-pink-50/20 dark:from-purple-950/20 dark:to-pink-950/10 p-12 text-center transition-all duration-300 hover:border-purple-400/70">
+                    <div className="relative rounded-2xl border-2 border-dashed border-purple-300/50 dark:border-purple-500/30 bg-gradient-to-br from-purple-50/30 to-blue-50/20 dark:from-purple-950/20 dark:to-blue-950/10 p-12 text-center transition-all duration-300 hover:border-purple-400/70">
                       <div className="relative mb-6">
-                        <div className="bg-gradient-to-r from-purple-500 to-pink-500 p-4 rounded-xl mx-auto w-fit shadow-lg">
+                        <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-4 rounded-xl mx-auto w-fit shadow-lg">
                           <FileImage className="h-8 w-8 text-white" />
                         </div>
                       </div>
 
-                      <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
+                      <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
                         Image Upload
                       </h3>
                       <p className="text-slate-600 dark:text-slate-400 mb-6">
@@ -970,7 +970,7 @@ export function PexelsImageModal({
 
                       <label
                         htmlFor="file-upload"
-                        className="inline-flex items-center gap-2 cursor-pointer rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-3 font-medium text-white hover:from-purple-600 hover:to-pink-600 transition-all duration-300 hover:scale-105 shadow-lg"
+                        className="inline-flex items-center gap-2 cursor-pointer rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 font-medium text-white hover:from-purple-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 shadow-lg"
                       >
                         <Upload className="h-4 w-4" />
                         Choose File
@@ -993,7 +993,7 @@ export function PexelsImageModal({
                         <div className="mt-6">
                           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                             <div
-                              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
                               style={{ width: `${uploadProgress}%` }}
                             />
                           </div>

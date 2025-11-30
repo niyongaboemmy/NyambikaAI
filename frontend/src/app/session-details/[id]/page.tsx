@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useEffect, useRef, use } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -75,11 +75,15 @@ interface RelatedProduct {
   categoryId: string;
 }
 
-export default function SessionDetailsPage() {
-  const searchParams = useSearchParams();
+export default function SessionDetailsPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const router = useRouter();
   const { user } = useAuth();
-  const sessionId = searchParams.get("id");
+  const resolvedParams = use(params);
+  const sessionId = resolvedParams.id;
 
   const [session, setSession] = useState<SessionDetails | null>(null);
   const [loading, setLoading] = useState(true);
@@ -133,6 +137,12 @@ export default function SessionDetailsPage() {
         sessionData.customerImageUrl = customerImageUrl;
         sessionData.tryOnImageUrl = tryOnImageUrl;
         setSession(sessionData);
+
+        // Update browser title
+        const title = `${sessionData.productName} Try-On by ${
+          sessionData.userFullName || sessionData.userName || "User"
+        } - Nyambika`;
+        document.title = title;
 
         // Initialize like/save state from session data
         if (sessionData.isLiked) {
@@ -419,7 +429,7 @@ export default function SessionDetailsPage() {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <Button
                     onClick={() =>
-                      router.push(`/tryon-widget?product=${session.productId}`)
+                      router.push(`/try-on-widget/${session.productId}`)
                     }
                     variant="default"
                     size="sm"

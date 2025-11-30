@@ -49,7 +49,7 @@ const AnimatedAIBackground: React.FC<AnimatedAIBackgroundProps> = ({
       {decorations && (
         <div className="fixed inset-0 pointer-events-none">
           {/* Gradient orbs */}
-          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" />
           <div
             className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-bounce"
             style={{ animationDuration: "3s" }}
@@ -59,7 +59,7 @@ const AnimatedAIBackground: React.FC<AnimatedAIBackgroundProps> = ({
             style={{ animationDuration: "4s" }}
           />
           <div
-            className="absolute bottom-1/3 left-1/4 w-28 h-28 bg-gradient-to-r from-purple-400/15 via-pink-400/15 to-rose-400/15 rounded-full blur-2xl animate-pulse"
+            className="absolute bottom-1/3 left-1/4 w-28 h-28 bg-gradient-to-r from-purple-400/15 via-blue-400/15 to-rose-400/15 rounded-full blur-2xl animate-pulse"
             style={{ animationDuration: "2s" }}
           />
 

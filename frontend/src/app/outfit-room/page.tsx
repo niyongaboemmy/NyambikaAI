@@ -120,7 +120,12 @@ interface SkinToneOption {
   description: string;
 }
 
-type ViewMode = "grid" | "collections" | "analytics" | "recommendations" | "preferences";
+type ViewMode =
+  | "grid"
+  | "collections"
+  | "analytics"
+  | "recommendations"
+  | "preferences";
 
 export default function OutfitRoom() {
   const { user } = useAuth();
@@ -154,16 +159,15 @@ export default function OutfitRoom() {
   });
 
   // Fetch style profile
-  const { data: styleProfile, isLoading: loadingProfile } = useQuery<
-    UserStyleProfile | null
-  >({
-    queryKey: [API_ENDPOINTS.STYLE_PROFILE],
-    queryFn: async () => {
-      const response = await apiClient.get(API_ENDPOINTS.STYLE_PROFILE);
-      return response.data;
-    },
-    enabled: !!user,
-  });
+  const { data: styleProfile, isLoading: loadingProfile } =
+    useQuery<UserStyleProfile | null>({
+      queryKey: [API_ENDPOINTS.STYLE_PROFILE],
+      queryFn: async () => {
+        const response = await apiClient.get(API_ENDPOINTS.STYLE_PROFILE);
+        return response.data;
+      },
+      enabled: !!user,
+    });
 
   // Fetch categories for preferences
   const { data: categories = [] } = useQuery<Category[]>({
@@ -177,12 +181,19 @@ export default function OutfitRoom() {
   // Update style profile mutation
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: Partial<UserStyleProfile>) => {
-      const response = await apiClient.put(API_ENDPOINTS.STYLE_PROFILE, updates);
+      const response = await apiClient.put(
+        API_ENDPOINTS.STYLE_PROFILE,
+        updates
+      );
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.STYLE_PROFILE] });
-      queryClient.invalidateQueries({ queryKey: [API_ENDPOINTS.OUTFIT_RECOMMENDATIONS] });
+      queryClient.invalidateQueries({
+        queryKey: [API_ENDPOINTS.STYLE_PROFILE],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [API_ENDPOINTS.OUTFIT_RECOMMENDATIONS],
+      });
     },
   });
 
@@ -239,14 +250,54 @@ export default function OutfitRoom() {
   ];
 
   const styleOptions: StyleOption[] = [
-    { id: "casual", name: "Casual", description: "Everyday wear, relaxed outfits", icon: "👕" },
-    { id: "formal", name: "Formal", description: "Business and professional attire", icon: "🤵" },
-    { id: "party", name: "Party", description: "Special occasions and celebrations", icon: "🎉" },
-    { id: "work", name: "Work", description: "Professional work environment", icon: "💼" },
-    { id: "sport", name: "Sport", description: "Athletic and active wear", icon: "⚽" },
-    { id: "beach", name: "Beach", description: "Vacation and seaside outfits", icon: "🏖️" },
-    { id: "vintage", name: "Vintage", description: "Classic and retro styles", icon: "📻" },
-    { id: "bohemian", name: "Bohemian", description: "Free-spirited and artistic", icon: "🌸" },
+    {
+      id: "casual",
+      name: "Casual",
+      description: "Everyday wear, relaxed outfits",
+      icon: "👕",
+    },
+    {
+      id: "formal",
+      name: "Formal",
+      description: "Business and professional attire",
+      icon: "🤵",
+    },
+    {
+      id: "party",
+      name: "Party",
+      description: "Special occasions and celebrations",
+      icon: "🎉",
+    },
+    {
+      id: "work",
+      name: "Work",
+      description: "Professional work environment",
+      icon: "💼",
+    },
+    {
+      id: "sport",
+      name: "Sport",
+      description: "Athletic and active wear",
+      icon: "⚽",
+    },
+    {
+      id: "beach",
+      name: "Beach",
+      description: "Vacation and seaside outfits",
+      icon: "🏖️",
+    },
+    {
+      id: "vintage",
+      name: "Vintage",
+      description: "Classic and retro styles",
+      icon: "📻",
+    },
+    {
+      id: "bohemian",
+      name: "Bohemian",
+      description: "Free-spirited and artistic",
+      icon: "🌸",
+    },
   ];
 
   const bodyTypes: BodyTypeOption[] = [
@@ -282,13 +333,16 @@ export default function OutfitRoom() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <Sparkles className="h-12 w-12 text-purple-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Sign in to access your Outfit Room</h2>
+          <h2 className="text-2xl font-bold mb-2">
+            Sign in to access your Outfit Room
+          </h2>
           <p className="text-gray-600 dark:text-gray-400 mb-4">
-            Create collections, track your style, and get personalized recommendations
+            Create collections, track your style, and get personalized
+            recommendations
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all"
           >
             Sign In
           </button>
@@ -306,10 +360,10 @@ export default function OutfitRoom() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="relative bg-gradient-to-r from-purple-600/10 via-pink-600/10 to-blue-600/10 dark:from-purple-600/20 dark:via-pink-600/20 dark:to-blue-600/20 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-purple-200/30 dark:border-purple-500/30 overflow-hidden">
+          <div className="relative bg-gradient-to-r from-purple-600/10 via-blue-600/10 to-blue-600/10 dark:from-purple-600/20 dark:via-blue-600/20 dark:to-blue-600/20 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-purple-200/30 dark:border-purple-500/30 overflow-hidden">
             {/* Animated background orbs */}
             <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-            <div className="absolute bottom-0 right-0 w-64 h-64 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-75" />
+            <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-75" />
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-2">
@@ -317,7 +371,7 @@ export default function OutfitRoom() {
                   <Sparkles className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                   <div className="absolute inset-0 bg-purple-500/30 rounded-full blur animate-ping" />
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 dark:from-purple-400 dark:via-pink-400 dark:to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-blue-600 dark:from-purple-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent">
                   My Outfit Room
                 </h1>
               </div>
@@ -333,7 +387,9 @@ export default function OutfitRoom() {
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Grid3x3 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Try-Ons</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      Try-Ons
+                    </span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {completedTryOns.length}
@@ -342,11 +398,13 @@ export default function OutfitRoom() {
 
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-4 border border-pink-200/30"
+                  className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-4 border border-blue-200/30"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Heart className="h-4 w-4 text-pink-600 dark:text-pink-400" />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Favorites</span>
+                    <Heart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      Favorites
+                    </span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {favoriteTryOns.length}
@@ -359,7 +417,9 @@ export default function OutfitRoom() {
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <ShoppingBag className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Collections</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      Collections
+                    </span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {collections.length}
@@ -372,7 +432,9 @@ export default function OutfitRoom() {
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    <span className="text-xs text-gray-600 dark:text-gray-400">Style Score</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      Style Score
+                    </span>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">
                     {analytics ? Math.min(100, analytics.totalTryOns * 5) : 0}
@@ -386,11 +448,31 @@ export default function OutfitRoom() {
         {/* View Mode Selector */}
         <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
           {[
-            { mode: "grid" as ViewMode, icon: <Grid3x3 className="h-4 w-4" />, label: "My Try-Ons" },
-            { mode: "collections" as ViewMode, icon: <ShoppingBag className="h-4 w-4" />, label: "Collections" },
-            { mode: "preferences" as ViewMode, icon: <Sliders className="h-4 w-4" />, label: "Preferences" },
-            { mode: "analytics" as ViewMode, icon: <BarChart3 className="h-4 w-4" />, label: "Analytics" },
-            { mode: "recommendations" as ViewMode, icon: <Star className="h-4 w-4" />, label: "For You" },
+            {
+              mode: "grid" as ViewMode,
+              icon: <Grid3x3 className="h-4 w-4" />,
+              label: "My Try-Ons",
+            },
+            {
+              mode: "collections" as ViewMode,
+              icon: <ShoppingBag className="h-4 w-4" />,
+              label: "Collections",
+            },
+            {
+              mode: "preferences" as ViewMode,
+              icon: <Sliders className="h-4 w-4" />,
+              label: "Preferences",
+            },
+            {
+              mode: "analytics" as ViewMode,
+              icon: <BarChart3 className="h-4 w-4" />,
+              label: "Analytics",
+            },
+            {
+              mode: "recommendations" as ViewMode,
+              icon: <Star className="h-4 w-4" />,
+              label: "For You",
+            },
           ].map(({ mode, icon, label }) => (
             <motion.button
               key={mode}
@@ -399,7 +481,7 @@ export default function OutfitRoom() {
               onClick={() => setViewMode(mode)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
                 viewMode === mode
-                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg"
+                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
                   : "bg-white/50 dark:bg-black/30 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
               }`}
             >
@@ -436,7 +518,7 @@ export default function OutfitRoom() {
                   </p>
                   <button
                     onClick={() => router.push("/try-on")}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all"
+                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all"
                   >
                     Start Try-On
                   </button>
@@ -464,7 +546,9 @@ export default function OutfitRoom() {
                               {session.rating && (
                                 <div className="flex items-center gap-1">
                                   <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
-                                  <span className="text-white text-sm">{session.rating}</span>
+                                  <span className="text-white text-sm">
+                                    {session.rating}
+                                  </span>
                                 </div>
                               )}
                             </div>
@@ -493,7 +577,7 @@ export default function OutfitRoom() {
                   onClick={() => {
                     /* TODO: Open create collection modal */
                   }}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all"
                 >
                   <Plus className="h-5 w-5" />
                   <span>Create Collection</span>
@@ -516,7 +600,7 @@ export default function OutfitRoom() {
                       whileHover={{ scale: 1.03, y: -5 }}
                       className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700"
                     >
-                      <div className="aspect-[16/9] bg-gradient-to-br from-purple-400 to-pink-400 relative">
+                      <div className="aspect-[16/9] bg-gradient-to-br from-purple-400 to-blue-400 relative">
                         {collection.coverImageUrl && (
                           <img
                             src={collection.coverImageUrl}
@@ -526,7 +610,9 @@ export default function OutfitRoom() {
                         )}
                       </div>
                       <div className="p-4">
-                        <h3 className="font-bold text-lg mb-1">{collection.name}</h3>
+                        <h3 className="font-bold text-lg mb-1">
+                          {collection.name}
+                        </h3>
                         {collection.description && (
                           <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                             {collection.description}
@@ -541,7 +627,11 @@ export default function OutfitRoom() {
                           )}
                           {collection.season && (
                             <span className="flex items-center gap-1">
-                              {seasonIcons[collection.season as keyof typeof seasonIcons]}
+                              {
+                                seasonIcons[
+                                  collection.season as keyof typeof seasonIcons
+                                ]
+                              }
                               {collection.season}
                             </span>
                           )}
@@ -589,13 +679,17 @@ export default function OutfitRoom() {
                                 <span className="text-sm font-medium">
                                   {category}
                                 </span>
-                                <span className="text-sm text-gray-500">{count} try-ons</span>
+                                <span className="text-sm text-gray-500">
+                                  {count} try-ons
+                                </span>
                               </div>
                               <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-gradient-to-r from-purple-600 to-pink-600"
+                                  className="h-full bg-gradient-to-r from-purple-600 to-blue-600"
                                   style={{
-                                    width: `${(count / analytics.totalTryOns) * 100}%`,
+                                    width: `${
+                                      (count / analytics.totalTryOns) * 100
+                                    }%`,
                                   }}
                                 />
                               </div>
@@ -620,9 +714,12 @@ export default function OutfitRoom() {
                               ...Object.values(analytics.monthlyActivity)
                             );
                             return (
-                              <div key={month} className="flex-1 flex flex-col items-center gap-2">
+                              <div
+                                key={month}
+                                className="flex-1 flex flex-col items-center gap-2"
+                              >
                                 <div
-                                  className="w-full bg-gradient-to-t from-purple-600 to-pink-600 rounded-t-lg"
+                                  className="w-full bg-gradient-to-t from-purple-600 to-blue-600 rounded-t-lg"
                                   style={{
                                     height: `${(count / maxCount) * 100}%`,
                                     minHeight: count > 0 ? "10%" : "0%",
@@ -658,7 +755,10 @@ export default function OutfitRoom() {
                 {loadingProfile ? (
                   <div className="space-y-6">
                     {[...Array(4)].map((_, i) => (
-                      <div key={i} className="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse" />
+                      <div
+                        key={i}
+                        className="h-32 bg-gray-200 dark:bg-gray-700 rounded-xl animate-pulse"
+                      />
                     ))}
                   </div>
                 ) : (
@@ -671,18 +771,24 @@ export default function OutfitRoom() {
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                         {categories.map((category) => {
-                          const isSelected = styleProfile?.favoriteCategories?.includes(category.id);
+                          const isSelected =
+                            styleProfile?.favoriteCategories?.includes(
+                              category.id
+                            );
                           return (
                             <motion.button
                               key={category.id}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => {
-                                const current = styleProfile?.favoriteCategories || [];
+                                const current =
+                                  styleProfile?.favoriteCategories || [];
                                 const updated = isSelected
-                                  ? current.filter(id => id !== category.id)
+                                  ? current.filter((id) => id !== category.id)
                                   : [...current, category.id];
-                                updateProfileMutation.mutate({ favoriteCategories: updated });
+                                updateProfileMutation.mutate({
+                                  favoriteCategories: updated,
+                                });
                               }}
                               className={`p-4 rounded-xl border-2 transition-all ${
                                 isSelected
@@ -691,8 +797,12 @@ export default function OutfitRoom() {
                               }`}
                             >
                               <div className="text-center">
-                                <div className="text-2xl mb-2">{category.icon || "👗"}</div>
-                                <div className="font-medium text-sm">{category.name}</div>
+                                <div className="text-2xl mb-2">
+                                  {category.icon || "👗"}
+                                </div>
+                                <div className="font-medium text-sm">
+                                  {category.name}
+                                </div>
                                 {isSelected && (
                                   <Check className="h-4 w-4 text-purple-600 mx-auto mt-1" />
                                 )}
@@ -706,23 +816,27 @@ export default function OutfitRoom() {
                     {/* Favorite Colors */}
                     <div>
                       <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Palette className="h-5 w-5 text-pink-600" />
+                        <Palette className="h-5 w-5 text-blue-600" />
                         Favorite Colors
                       </h4>
                       <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-12 gap-2">
                         {colors.map((color) => {
-                          const isSelected = styleProfile?.favoriteColors?.includes(color.id);
+                          const isSelected =
+                            styleProfile?.favoriteColors?.includes(color.id);
                           return (
                             <motion.button
                               key={color.id}
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => {
-                                const current = styleProfile?.favoriteColors || [];
+                                const current =
+                                  styleProfile?.favoriteColors || [];
                                 const updated = isSelected
-                                  ? current.filter(c => c !== color.id)
+                                  ? current.filter((c) => c !== color.id)
                                   : [...current, color.id];
-                                updateProfileMutation.mutate({ favoriteColors: updated });
+                                updateProfileMutation.mutate({
+                                  favoriteColors: updated,
+                                });
                               }}
                               className={`relative h-12 rounded-xl border-2 transition-all ${
                                 isSelected
@@ -749,7 +863,8 @@ export default function OutfitRoom() {
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {styleOptions.map((style) => {
-                          const currentPrefs = styleProfile?.stylePreferences || {};
+                          const currentPrefs =
+                            styleProfile?.stylePreferences || {};
                           const isSelected = currentPrefs[style.id] > 0;
                           return (
                             <motion.div
@@ -761,18 +876,23 @@ export default function OutfitRoom() {
                                   : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
                               }`}
                               onClick={() => {
-                                const current = styleProfile?.stylePreferences || {};
+                                const current =
+                                  styleProfile?.stylePreferences || {};
                                 const updated = {
                                   ...current,
                                   [style.id]: isSelected ? 0 : 1,
                                 };
-                                updateProfileMutation.mutate({ stylePreferences: updated });
+                                updateProfileMutation.mutate({
+                                  stylePreferences: updated,
+                                });
                               }}
                             >
                               <div className="flex items-center gap-3">
                                 <span className="text-2xl">{style.icon}</span>
                                 <div className="flex-1">
-                                  <div className="font-medium">{style.name}</div>
+                                  <div className="font-medium">
+                                    {style.name}
+                                  </div>
                                   <div className="text-sm text-gray-600 dark:text-gray-400">
                                     {style.description}
                                   </div>
@@ -796,13 +916,18 @@ export default function OutfitRoom() {
                         </h4>
                         <div className="space-y-3">
                           {bodyTypes.map((bodyType) => {
-                            const isSelected = styleProfile?.bodyType === bodyType.id;
+                            const isSelected =
+                              styleProfile?.bodyType === bodyType.id;
                             return (
                               <motion.button
                                 key={bodyType.id}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                onClick={() => updateProfileMutation.mutate({ bodyType: bodyType.id })}
+                                onClick={() =>
+                                  updateProfileMutation.mutate({
+                                    bodyType: bodyType.id,
+                                  })
+                                }
                                 className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                                   isSelected
                                     ? "border-green-500 bg-green-50 dark:bg-green-900/20"
@@ -810,9 +935,17 @@ export default function OutfitRoom() {
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className={`w-3 h-3 rounded-full ${isSelected ? "bg-green-500" : "bg-gray-300"}`} />
+                                  <div
+                                    className={`w-3 h-3 rounded-full ${
+                                      isSelected
+                                        ? "bg-green-500"
+                                        : "bg-gray-300"
+                                    }`}
+                                  />
                                   <div>
-                                    <div className="font-medium">{bodyType.name}</div>
+                                    <div className="font-medium">
+                                      {bodyType.name}
+                                    </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
                                       {bodyType.description}
                                     </div>
@@ -831,13 +964,18 @@ export default function OutfitRoom() {
                         </h4>
                         <div className="space-y-3">
                           {skinTones.map((skinTone) => {
-                            const isSelected = styleProfile?.skinTone === skinTone.id;
+                            const isSelected =
+                              styleProfile?.skinTone === skinTone.id;
                             return (
                               <motion.button
                                 key={skinTone.id}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.98 }}
-                                onClick={() => updateProfileMutation.mutate({ skinTone: skinTone.id })}
+                                onClick={() =>
+                                  updateProfileMutation.mutate({
+                                    skinTone: skinTone.id,
+                                  })
+                                }
                                 className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                                   isSelected
                                     ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
@@ -845,9 +983,17 @@ export default function OutfitRoom() {
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
-                                  <div className={`w-3 h-3 rounded-full ${isSelected ? "bg-orange-500" : "bg-gray-300"}`} />
+                                  <div
+                                    className={`w-3 h-3 rounded-full ${
+                                      isSelected
+                                        ? "bg-orange-500"
+                                        : "bg-gray-300"
+                                    }`}
+                                  />
                                   <div>
-                                    <div className="font-medium">{skinTone.name}</div>
+                                    <div className="font-medium">
+                                      {skinTone.name}
+                                    </div>
                                     <div className="text-sm text-gray-600 dark:text-gray-400">
                                       {skinTone.description}
                                     </div>
@@ -868,21 +1014,32 @@ export default function OutfitRoom() {
                       </h4>
                       <div className="flex flex-wrap gap-2">
                         {occasions.map((occasion) => {
-                          const currentPrefs = styleProfile?.stylePreferences || {};
-                          const isSelected = currentPrefs[`occasion_${occasion.toLowerCase().replace(" ", "_")}`] > 0;
+                          const currentPrefs =
+                            styleProfile?.stylePreferences || {};
+                          const isSelected =
+                            currentPrefs[
+                              `occasion_${occasion
+                                .toLowerCase()
+                                .replace(" ", "_")}`
+                            ] > 0;
                           return (
                             <motion.button
                               key={occasion}
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => {
-                                const current = styleProfile?.stylePreferences || {};
-                                const key = `occasion_${occasion.toLowerCase().replace(" ", "_")}`;
+                                const current =
+                                  styleProfile?.stylePreferences || {};
+                                const key = `occasion_${occasion
+                                  .toLowerCase()
+                                  .replace(" ", "_")}`;
                                 const updated = {
                                   ...current,
                                   [key]: isSelected ? 0 : 1,
                                 };
-                                updateProfileMutation.mutate({ stylePreferences: updated });
+                                updateProfileMutation.mutate({
+                                  stylePreferences: updated,
+                                });
                               }}
                               className={`px-4 py-2 rounded-full border-2 transition-all ${
                                 isSelected
@@ -913,10 +1070,12 @@ export default function OutfitRoom() {
                           });
                         }}
                         disabled={updateProfileMutation.isPending}
-                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
                       >
                         <Save className="h-5 w-5" />
-                        {updateProfileMutation.isPending ? "Saving..." : "Save Preferences"}
+                        {updateProfileMutation.isPending
+                          ? "Saving..."
+                          : "Save Preferences"}
                       </motion.button>
                     </div>
                   </div>

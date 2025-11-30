@@ -71,7 +71,11 @@ export default function BoostProductDialog({
   });
 
   // Load wallet balance
-  const { data: wallet, refetch: refetchWallet, isFetching: walletFetching } = useQuery<{ id: string; balance: string } | null>({
+  const {
+    data: wallet,
+    refetch: refetchWallet,
+    isFetching: walletFetching,
+  } = useQuery<{ id: string; balance: string } | null>({
     queryKey: ["wallet"],
     queryFn: async () => {
       try {
@@ -169,7 +173,7 @@ export default function BoostProductDialog({
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse"></div>
-          <div className="absolute -bottom-8 -left-8 w-20 h-20 bg-gradient-to-tr from-purple-400/20 to-pink-400/20 rounded-full blur-xl animate-pulse delay-1000"></div>
+          <div className="absolute -bottom-8 -left-8 w-20 h-20 bg-gradient-to-tr from-purple-400/20 to-blue-400/20 rounded-full blur-xl animate-pulse delay-1000"></div>
         </div>
 
         <AlertDialogHeader className="relative z-10 text-center space-y-3">
@@ -202,7 +206,7 @@ export default function BoostProductDialog({
                 <div className="flex items-center justify-center space-x-2">
                   <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
                   <div className="w-4 h-4 bg-purple-500 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-4 h-4 bg-pink-500 rounded-full animate-bounce delay-200"></div>
+                  <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce delay-200"></div>
                   <span className="ml-2">Loading boost settings...</span>
                 </div>
               ) : !setting ? (
@@ -253,7 +257,7 @@ export default function BoostProductDialog({
                         className={`bg-gradient-to-r rounded-lg p-3 border transition-all duration-300 ${
                           hasInsufficientBalance
                             ? "from-red-500/10 to-orange-500/10 border-red-200/30 dark:border-red-700/30"
-                            : "from-purple-500/10 to-pink-500/10 border-purple-200/30 dark:border-purple-700/30"
+                            : "from-purple-500/10 to-blue-500/10 border-purple-200/30 dark:border-purple-700/30"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
@@ -265,7 +269,9 @@ export default function BoostProductDialog({
                                   : "text-purple-500"
                               }`}
                             />
-                            <span className="font-semibold text-sm">Balance</span>
+                            <span className="font-semibold text-sm">
+                              Balance
+                            </span>
                           </div>
                           <button
                             type="button"
@@ -277,7 +283,9 @@ export default function BoostProductDialog({
                             className="p-1 rounded-md hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
                           >
                             <RotateCcw
-                              className={`w-4 h-4 ${walletFetching ? "animate-spin" : ""}`}
+                              className={`w-4 h-4 ${
+                                walletFetching ? "animate-spin" : ""
+                              }`}
                             />
                           </button>
                         </div>
@@ -315,7 +323,9 @@ export default function BoostProductDialog({
                   <div className="mt-2 flex items-start gap-2 rounded-lg p-3 bg-amber-50 border border-amber-200/50 dark:bg-amber-950/30 dark:border-amber-700/30">
                     <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" />
                     <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-200">
-                      <span className="font-semibold">Note:</span> Boosting is competitive. Others can overtake you. Check and boost regularly to stay on top.
+                      <span className="font-semibold">Note:</span> Boosting is
+                      competitive. Others can overtake you. Check and boost
+                      regularly to stay on top.
                     </p>
                   </div>
                 </div>

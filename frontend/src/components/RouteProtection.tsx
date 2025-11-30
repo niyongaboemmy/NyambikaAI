@@ -24,6 +24,12 @@ const ROUTE_CONFIG = {
     "/products-search",
     "/social-banner",
     "/public-tryon",
+    "/public-tryon?session=[id]",
+    "/public-tryon?session-details=[id]",
+    "/public-tryon?product-id=[id]",
+    "/tryon-room",
+    "/session-details",
+    "/session-details/[id]",
   ],
 
   // Protected routes (authentication required)
@@ -193,10 +199,10 @@ export function RouteProtection({ children }: RouteProtectionProps) {
 
       default:
         // Unknown route, treat as protected
-        if (!isAuthenticated) {
-          // open();
-          return;
-        }
+        // if (!isAuthenticated) {
+        // open();
+        return;
+      // }
     }
   }, [isAuthenticated, user?.role, routeCategory, router, isLoading]);
 

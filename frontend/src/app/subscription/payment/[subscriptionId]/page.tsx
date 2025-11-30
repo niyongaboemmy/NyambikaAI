@@ -1,8 +1,14 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowLeft, CreditCard, Smartphone, CheckCircle, Loader2 } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  CreditCard,
+  Smartphone,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
 
 interface PaymentPageProps {
   params: Promise<{ subscriptionId: string }>;
@@ -10,9 +16,11 @@ interface PaymentPageProps {
 
 export default function PaymentPage({ params }: PaymentPageProps) {
   const router = useRouter();
-  const [subscriptionId, setSubscriptionId] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<'mobile_money' | 'airtel_money'>('mobile_money');
-  const [phoneNumber, setPhoneNumber] = useState('');
+  const [subscriptionId, setSubscriptionId] = useState<string>("");
+  const [paymentMethod, setPaymentMethod] = useState<
+    "mobile_money" | "airtel_money"
+  >("mobile_money");
+  const [phoneNumber, setPhoneNumber] = useState("");
   const [processing, setProcessing] = useState(false);
   const [paymentComplete, setPaymentComplete] = useState(false);
 
@@ -28,32 +36,35 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
     try {
       // Simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
       // In production, this would integrate with actual payment providers
-      const response = await fetch(`/api/subscriptions/${subscriptionId}/payment`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          paymentMethod,
-          phoneNumber,
-          paymentReference: `PAY_${Date.now()}`,
-        }),
-      });
+      const response = await fetch(
+        `/api/subscriptions/${subscriptionId}/payment`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            paymentMethod,
+            phoneNumber,
+            paymentReference: `PAY_${Date.now()}`,
+          }),
+        }
+      );
 
       if (response.ok) {
         setPaymentComplete(true);
         setTimeout(() => {
-          router.push('/subscription?success=true');
+          router.push("/subscription?success=true");
         }, 2000);
       } else {
-        throw new Error('Payment failed');
+        throw new Error("Payment failed");
       }
     } catch (error) {
-      console.error('Payment error:', error);
-      alert('Payment failed. Please try again.');
+      console.error("Payment error:", error);
+      alert("Payment failed. Please try again.");
     } finally {
       setProcessing(false);
     }
@@ -64,8 +75,12 @@ export default function PaymentPage({ params }: PaymentPageProps) {
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
           <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-white mb-4">Payment Successful!</h1>
-          <p className="text-gray-300 mb-6">Your subscription has been activated.</p>
+          <h1 className="text-3xl font-bold text-white mb-4">
+            Payment Successful!
+          </h1>
+          <p className="text-gray-300 mb-6">
+            Your subscription has been activated.
+          </p>
           <div className="animate-pulse text-purple-400">Redirecting...</div>
         </div>
       </div>
@@ -92,8 +107,12 @@ export default function PaymentPage({ params }: PaymentPageProps) {
           </button>
 
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-white mb-4">Complete Your Payment</h1>
-            <p className="text-gray-300">Choose your preferred payment method to activate your subscription</p>
+            <h1 className="text-4xl font-bold text-white mb-4">
+              Complete Your Payment
+            </h1>
+            <p className="text-gray-300">
+              Choose your preferred payment method to activate your subscription
+            </p>
           </div>
 
           {/* Payment Form */}
@@ -101,29 +120,33 @@ export default function PaymentPage({ params }: PaymentPageProps) {
             <form onSubmit={handlePayment} className="space-y-6">
               {/* Payment Method Selection */}
               <div>
-                <label className="block text-white text-lg font-semibold mb-4">Payment Method</label>
+                <label className="block text-white text-lg font-semibold mb-4">
+                  Payment Method
+                </label>
                 <div className="grid grid-cols-2 gap-4">
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('mobile_money')}
+                    onClick={() => setPaymentMethod("mobile_money")}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
-                      paymentMethod === 'mobile_money'
-                        ? 'border-purple-500 bg-purple-500/20'
-                        : 'border-white/20 bg-white/5 hover:border-white/30'
+                      paymentMethod === "mobile_money"
+                        ? "border-purple-500 bg-purple-500/20"
+                        : "border-white/20 bg-white/5 hover:border-white/30"
                     }`}
                   >
                     <Smartphone className="h-8 w-8 mx-auto mb-2 text-yellow-400" />
-                    <div className="text-white font-semibold">MTN Mobile Money</div>
+                    <div className="text-white font-semibold">
+                      MTN Mobile Money
+                    </div>
                     <div className="text-gray-400 text-sm">*182#</div>
                   </button>
 
                   <button
                     type="button"
-                    onClick={() => setPaymentMethod('airtel_money')}
+                    onClick={() => setPaymentMethod("airtel_money")}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
-                      paymentMethod === 'airtel_money'
-                        ? 'border-purple-500 bg-purple-500/20'
-                        : 'border-white/20 bg-white/5 hover:border-white/30'
+                      paymentMethod === "airtel_money"
+                        ? "border-purple-500 bg-purple-500/20"
+                        : "border-white/20 bg-white/5 hover:border-white/30"
                     }`}
                   >
                     <CreditCard className="h-8 w-8 mx-auto mb-2 text-red-400" />
@@ -135,7 +158,10 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
               {/* Phone Number Input */}
               <div>
-                <label htmlFor="phoneNumber" className="block text-white text-lg font-semibold mb-2">
+                <label
+                  htmlFor="phoneNumber"
+                  className="block text-white text-lg font-semibold mb-2"
+                >
                   Phone Number
                 </label>
                 <input
@@ -148,17 +174,24 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                   required
                 />
                 <p className="text-gray-400 text-sm mt-2">
-                  Enter your {paymentMethod === 'mobile_money' ? 'MTN' : 'Airtel'} number
+                  Enter your{" "}
+                  {paymentMethod === "mobile_money" ? "MTN" : "Airtel"} number
                 </p>
               </div>
 
               {/* Payment Instructions */}
               <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-6">
-                <h3 className="text-white font-semibold mb-3">Payment Instructions:</h3>
+                <h3 className="text-white font-semibold mb-3">
+                  Payment Instructions:
+                </h3>
                 <ol className="text-gray-300 space-y-2 text-sm">
                   <li>1. Click "Process Payment" below</li>
                   <li>2. You'll receive a payment prompt on your phone</li>
-                  <li>3. Enter your {paymentMethod === 'mobile_money' ? 'MTN' : 'Airtel'} PIN to confirm</li>
+                  <li>
+                    3. Enter your{" "}
+                    {paymentMethod === "mobile_money" ? "MTN" : "Airtel"} PIN to
+                    confirm
+                  </li>
                   <li>4. Your subscription will be activated immediately</li>
                 </ol>
               </div>
@@ -167,7 +200,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
               <button
                 type="submit"
                 disabled={processing || !phoneNumber}
-                className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {processing ? (
                   <>
@@ -175,7 +208,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                     Processing Payment...
                   </>
                 ) : (
-                  'Process Payment'
+                  "Process Payment"
                 )}
               </button>
             </form>

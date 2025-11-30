@@ -288,14 +288,14 @@ function OrdersPage() {
               </Button>
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
                     <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce" />
                   <Zap className="absolute -bottom-1 -left-1 h-3 w-3 text-yellow-400 animate-pulse" />
                 </div>
                 <div>
-                  <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                  <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
                     {t("orders.title")}
                   </h1>
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -319,7 +319,7 @@ function OrdersPage() {
           {orders.length === 0 ? (
             <div className="flex items-center justify-center min-h-[60vh]">
               <Card className="relative overflow-hidden bg-white/60 dark:bg-black/60 backdrop-blur-xl p-12 text-center max-w-md mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-blue-400/10" />
                 <div className="relative z-10">
                   <div className="relative mb-6">
                     <ShoppingBag className="h-20 w-20 text-gray-400 mx-auto" />
@@ -369,7 +369,7 @@ function OrdersPage() {
                     }}
                   >
                     {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                     {/* AI Progress indicator */}
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700">
@@ -394,7 +394,8 @@ function OrdersPage() {
                             <div className="flex flex-col gap-0 mb-1">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white">
-                                  {t("orders.order")} #{order.id.slice(-8).toUpperCase()}
+                                  {t("orders.order")} #
+                                  {order.id.slice(-8).toUpperCase()}
                                 </h3>
                                 <Badge
                                   className={`${
@@ -438,7 +439,12 @@ function OrdersPage() {
                                   item.product?.imageUrl ||
                                   "https://via.placeholder.com/40"
                                 }
-                                alt={(language === "rw" && (item as any).product?.nameRw) ? (item as any).product?.nameRw : (item.product?.name || "Product")}
+                                alt={
+                                  language === "rw" &&
+                                  (item as any).product?.nameRw
+                                    ? (item as any).product?.nameRw
+                                    : item.product?.name || "Product"
+                                }
                                 className="w-10 h-10 object-cover rounded-full border-2 border-white dark:border-gray-800"
                                 style={{ zIndex: 4 - idx }}
                               />
@@ -451,16 +457,19 @@ function OrdersPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white">
-                              {(language === "rw" && (order.items[0] as any)?.product?.nameRw)
+                              {language === "rw" &&
+                              (order.items[0] as any)?.product?.nameRw
                                 ? (order.items[0] as any).product.nameRw
-                                : (order.items[0]?.product?.name || t("home.products"))}
-                              {order.items.length > 1 && ` +${order.items.length - 1} more`}
+                                : order.items[0]?.product?.name ||
+                                  t("home.products")}
+                              {order.items.length > 1 &&
+                                ` +${order.items.length - 1} more`}
                             </div>
                             <div className="text-sm text-gray-600 dark:text-gray-400">
                               {order.items.reduce(
                                 (sum, item) => sum + item.quantity,
                                 0
-                              )} {" "}
+                              )}{" "}
                               {t("orders.itemsLabel")}
                             </div>
                           </div>
@@ -556,7 +565,7 @@ function OrdersPage() {
         <div className="fixed top-20 right-8 w-2 h-2 bg-blue-400 rounded-full animate-ping" />
         <div className="fixed top-32 right-12 w-1 h-1 bg-purple-400 rounded-full animate-pulse" />
         <div
-          className="fixed bottom-20 left-8 w-3 h-3 bg-pink-400 rounded-full animate-bounce"
+          className="fixed bottom-20 left-8 w-3 h-3 bg-blue-400 rounded-full animate-bounce"
           style={{ animationDelay: "1s" }}
         />
 

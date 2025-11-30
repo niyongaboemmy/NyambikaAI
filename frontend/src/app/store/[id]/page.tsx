@@ -710,7 +710,6 @@ export default function StorePage() {
       {storeJsonLd && (
         <script
           type="application/ld+json"
-           
           dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
         />
       )}
@@ -719,13 +718,13 @@ export default function StorePage() {
         <div className="absolute inset-0 bg-black/20 dark:bg-black" />
         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 dark:from-blue-950 via-transparent to-blue-500/30 dark:to-violet-950/60 animate-pulse dark:animate-none" />
         <div
-          className="absolute inset-0 bg-gradient-to-l from-pink-500/20 dark:from-pink-950/40 via-transparent to-yellow-500/20 dark:to-blue-950/70 animate-pulse dark:animate-none"
+          className="absolute inset-0 bg-gradient-to-l from-blue-500/20 dark:from-blue-950/40 via-transparent to-yellow-500/20 dark:to-blue-950/70 animate-pulse dark:animate-none"
           style={{ animationDelay: "2s" }}
         />
         <div className="absolute inset-0">
           <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-20 dark:opacity-5 animate-float" />
           <div
-            className="absolute top-20 right-20 w-24 h-24 bg-gradient-to-r from-purple-400 to-pink-400 rounded-full opacity-20 dark:opacity-5 animate-float"
+            className="absolute top-20 right-20 w-24 h-24 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full opacity-20 dark:opacity-5 animate-float"
             style={{ animationDelay: "1s" }}
           />
           <div
@@ -843,7 +842,7 @@ export default function StorePage() {
               <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
 
               <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
                   <Grid className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
@@ -1550,7 +1549,7 @@ export default function StorePage() {
                       </tr>
 
                       {/* Categories */}
-                      <tr className="border-b bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20">
+                      <tr className="border-b bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
                         <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
                           Category
                         </td>
@@ -1604,7 +1603,7 @@ export default function StorePage() {
                       </tr>
 
                       {/* Colors */}
-                      <tr className="border-b bg-gradient-to-r from-pink-50 to-red-50 dark:from-pink-900/20 dark:to-red-900/20">
+                      <tr className="border-b bg-gradient-to-r from-blue-50 to-red-50 dark:from-blue-900/20 dark:to-red-900/20">
                         <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
                           Colors
                         </td>

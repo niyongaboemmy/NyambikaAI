@@ -247,7 +247,7 @@ export function ProductFormWizard({
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-pink-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 rounded-2xl">
+    <div className="bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-blue-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 rounded-2xl">
       <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-4">
         {/* Header */}
         <div className="mb-1">
@@ -307,7 +307,7 @@ export function ProductFormWizard({
               </div>
               <div className="min-w-0">
                 <div className="flex flex-row items-center gap-2 min-w-0">
-                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent truncate max-w-[60vw] sm:max-w-none">
+                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent truncate max-w-[60vw] sm:max-w-none">
                     {formData.name?.trim()
                       ? `${title}: ${formData.name}`
                       : title}

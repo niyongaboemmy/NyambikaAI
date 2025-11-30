@@ -86,7 +86,7 @@ export default function LoginForm({
 
               {/* Secondary animated gradient orb */}
               <motion.div
-                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-purple-400/25 via-pink-400/20 to-indigo-400/15 rounded-full blur-xl"
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-purple-400/25 via-blue-400/20 to-indigo-400/15 rounded-full blur-xl"
                 animate={{
                   x: [0, -15, 0],
                   y: [0, 10, 0],
@@ -171,7 +171,7 @@ export default function LoginForm({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
                   ✨ Welcome Back
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
@@ -270,7 +270,7 @@ export default function LoginForm({
                   <Button
                     type="submit"
                     disabled={isLoading || submitting}
-                    className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                    className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
                   >
                     {submitting ? (
                       <>
@@ -418,7 +418,7 @@ export default function LoginForm({
                         email: "producer@demo.com",
                         password: "password",
                         icon: "🏭",
-                        color: "from-purple-500/10 to-pink-500/10",
+                        color: "from-purple-500/10 to-blue-500/10",
                         borderColor:
                           "border-purple-200/50 dark:border-purple-700/50",
                       },

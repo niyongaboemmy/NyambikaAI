@@ -32,7 +32,7 @@ export default function CategoryPills({
             const active = (selectedId || "all") === c.id;
             const imageUrl = c.imageUrl || defaultCategoryImage;
 
-            const label = language === "rw" ? (c.nameRw || c.name) : c.name;
+            const label = language === "rw" ? c.nameRw || c.name : c.name;
             return (
               <button
                 key={c.id}
@@ -43,7 +43,7 @@ export default function CategoryPills({
                 <div
                   className={`relative transition-all duration-300 ${
                     active
-                      ? "bg-gradient-to-tr from-pink-500 via-purple-500 to-violet-600 shadow-lg scale-110"
+                      ? "bg-gradient-to-tr from-blue-500 via-purple-500 to-violet-600 shadow-lg scale-110"
                       : "bg-gray-200 dark:bg-gray-700 group-hover:bg-gray-300 dark:group-hover:bg-gray-600"
                   } p-[2px] rounded-full group-hover:scale-105`}
                 >

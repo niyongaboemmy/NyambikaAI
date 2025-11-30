@@ -133,7 +133,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
     status: string;
     amount: number;
   }>({ refId: null, status: "idle", amount: 0 });
-  
+
   // State to track and display backend errors
   const [backendError, setBackendError] = useState<{
     title: string;
@@ -289,25 +289,25 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
     },
     onError: (err: any) => {
-      const errorMessage = err.message || 'An unknown error occurred';
-      const errorTitle = err.response?.data?.error || 'Operation Failed';
-      
+      const errorMessage = err.message || "An unknown error occurred";
+      const errorTitle = err.response?.data?.error || "Operation Failed";
+
       // Set the error state for display in the UI
       setBackendError({
         title: errorTitle,
         message: errorMessage,
-        details: err.response?.data?.details
+        details: err.response?.data?.details,
       });
-      
+
       // Also show a toast notification
       toast({
         title: `⚠️ ${errorTitle}`,
         description: errorMessage,
         variant: "destructive",
       });
-      
+
       // Reset any active payment state
-      setActivePayment({ refId: null, status: 'idle', amount: 0 });
+      setActivePayment({ refId: null, status: "idle", amount: 0 });
     },
   });
 
@@ -354,25 +354,26 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
         if (status && status !== "pending") {
           cleanup();
-          
+
           if (status === "completed") {
             const successAmount = activePayment.amount;
             resetStates();
-            
+
             toast({
               title: "✨ Top-up successful",
               description: `RWF ${successAmount.toLocaleString()} has been added to your wallet!`,
             });
-            
+
             // Refresh wallet data
             qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET] });
             qc.invalidateQueries({ queryKey: [API_ENDPOINTS.WALLET_PAYMENTS] });
           } else if (status === "failed") {
             resetStates();
-            
+
             toast({
               title: "❌ Payment failed",
-              description: "The payment could not be processed. Please try again.",
+              description:
+                "The payment could not be processed. Please try again.",
               variant: "destructive",
             });
           } else {
@@ -384,7 +385,8 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
           toast({
             title: "⏱️ Payment timed out",
-            description: "The payment took too long to process. Please check your transaction history.",
+            description:
+              "The payment took too long to process. Please check your transaction history.",
             variant: "destructive",
           });
         }
@@ -396,7 +398,8 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
           toast({
             title: "❌ Error",
-            description: "Failed to verify payment status. Please check your transaction history.",
+            description:
+              "Failed to verify payment status. Please check your transaction history.",
             variant: "destructive",
           });
         }
@@ -417,7 +420,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
   const handleTopUp = () => {
     // Clear any previous errors
     setBackendError(null);
-    
+
     const amt = Number(amount);
     if (!amt || amt <= 0) {
       toast({
@@ -536,7 +539,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
               <div className="w-full h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full animate-pulse" />
             </div>
             <div className="absolute top-1/2 right-8 w-6 h-6 opacity-15">
-              <div className="w-full h-full bg-gradient-to-r from-purple-400 to-pink-400 rounded-full animate-bounce" />
+              <div className="w-full h-full bg-gradient-to-r from-purple-400 to-blue-400 rounded-full animate-bounce" />
             </div>
           </>
         )}
@@ -590,7 +593,9 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                   </p>
                   {backendError.details && (
                     <details className="mt-2 text-xs text-red-600 dark:text-red-400">
-                      <summary className="cursor-pointer font-medium">View details</summary>
+                      <summary className="cursor-pointer font-medium">
+                        View details
+                      </summary>
                       <pre className="mt-1 p-2 bg-red-50 dark:bg-red-900/30 rounded overflow-auto max-h-40">
                         {JSON.stringify(backendError.details, null, 2)}
                       </pre>
@@ -602,14 +607,23 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                   className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   aria-label="Dismiss error"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 </button>
               </div>
             </div>
           )}
-          
+
           {/* Pending Payment Banner */}
           {!backendError && hasPending && (
             <div className="mb-4 sm:mb-6 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-700/40 flex items-start gap-3">
@@ -624,7 +638,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
           {/* Balance Display with Floating Animation */}
           <div
-            className={`relative mb-4 sm:mb-6 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 dark:from-blue-500/20 dark:via-purple-500/20 dark:to-pink-500/20 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm ${
+            className={`relative mb-4 sm:mb-6 p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-blue-600/10 dark:from-blue-500/20 dark:via-purple-500/20 dark:to-blue-500/20 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm ${
               isMobile ? "mx-2 mt-2" : ""
             }`}
           >
@@ -675,7 +689,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                           isMobile
                             ? "text-3xl"
                             : "text-xl sm:text-2xl md:text-3xl lg:text-4xl"
-                        } font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent animate-pulse`}
+                        } font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent animate-pulse`}
                       >
                         RWF {Number(wallet?.balance || 0).toLocaleString()}
                       </span>

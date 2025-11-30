@@ -10,7 +10,7 @@ export function AppLoader() {
         <div className="relative mb-8">
           <div className="w-20 h-20 mx-auto relative">
             {/* Main circle */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 animate-spin">
               <div className="absolute inset-2 rounded-full bg-white dark:bg-gray-900"></div>
             </div>
 
@@ -38,7 +38,7 @@ export function AppLoader() {
 
         {/* Loading text */}
         <div className="space-y-2">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
             Nyambika
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">
@@ -54,7 +54,7 @@ export function AppLoader() {
             style={{ animationDelay: "0.1s" }}
           ></div>
           <div
-            className="w-2 h-2 bg-pink-500 rounded-full animate-bounce"
+            className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
             style={{ animationDelay: "0.2s" }}
           ></div>
         </div>

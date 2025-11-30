@@ -231,7 +231,7 @@ export default function TryOn() {
           <main className="pt-10 sm:pt-10">
             {/* Compact Hero Header for Categories */}
             <div className="text-center mb-4 sm:mb-6">
-              <div className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2">
+              <div className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
                 ✨ AI Try-On
               </div>
               <div className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-md mx-auto px-4">
@@ -242,7 +242,7 @@ export default function TryOn() {
             {/* Category Search Skeleton */}
             <div className="mb-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-50" />
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-2xl blur-xl opacity-50" />
                 <div className="relative bg-white/90 dark:bg-violet-800/10 backdrop-blur-sm rounded-2xl border border-blue-200/30 shadow-xl shadow-blue-500/10">
                   <Skeleton className="h-12 w-full rounded-2xl" />
                 </div>
@@ -257,12 +257,12 @@ export default function TryOn() {
                   className="group relative p-3 rounded-2xl bg-gradient-to-br from-white/90 dark:from-black/50 to-blue-50/50 dark:to-black/50 border border-blue-200/30 dark:border-none backdrop-blur-sm overflow-hidden"
                 >
                   {/* AI Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10 animate-pulse rounded-2xl" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-blue-400/10 animate-pulse rounded-2xl" />
 
                   {/* Neural Network Pattern */}
                   <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-30 animate-pulse" />
                   <div
-                    className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-20 animate-pulse"
+                    className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 animate-pulse"
                     style={{ animationDelay: "0.5s" }}
                   />
 
@@ -340,7 +340,7 @@ export default function TryOn() {
                 transition={{ duration: 0.4 }}
               >
                 <motion.h1
-                  className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-2"
+                  className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2"
                   whileHover={{ scale: 1.02 }}
                 >
                   ✨ AI Try-On
@@ -373,7 +373,7 @@ export default function TryOn() {
                     style={{ animationDelay: "1s" }}
                   />
                   <div
-                    className="absolute bottom-3 left-1/3 w-1 h-1 bg-pink-400 rounded-full animate-ping opacity-60"
+                    className="absolute bottom-3 left-1/3 w-1 h-1 bg-blue-400 rounded-full animate-ping opacity-60"
                     style={{ animationDelay: "2s" }}
                   />
 
@@ -482,7 +482,7 @@ export default function TryOn() {
                         </motion.div>
 
                         <motion.h1
-                          className="text-sm sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent relative truncate"
+                          className="text-sm sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent relative truncate"
                           animate={{
                             backgroundPosition: [
                               "0% 50%",
@@ -556,7 +556,7 @@ export default function TryOn() {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 dark:from-blue-500/30 dark:via-purple-500/30 dark:to-pink-500/30 flex items-center justify-center">
+                                <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-blue-400/20 dark:from-blue-500/30 dark:via-purple-500/30 dark:to-blue-500/30 flex items-center justify-center">
                                   <Sparkles
                                     className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400 animate-spin"
                                     style={{ animationDuration: "2s" }}
@@ -623,7 +623,7 @@ export default function TryOn() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 rounded-2xl blur-xl opacity-50" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-2xl blur-xl opacity-50" />
                       <div className="relative rounded-xl bg-white dark:bg-gray-800">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
                         <Input
@@ -674,7 +674,7 @@ export default function TryOn() {
                           transition={{ delay: index * 0.1 }}
                         >
                           {/* AI Glow Effect */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-pink-400/10 animate-pulse rounded-2xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-blue-400/10 animate-pulse rounded-2xl" />
 
                           {/* Neural Network Pattern */}
                           <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full animate-pulse" />
@@ -746,12 +746,12 @@ export default function TryOn() {
                             }}
                           >
                             {/* AI Glow Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 via-purple-400/0 to-pink-400/0 group-hover:from-blue-400/10 group-hover:via-purple-400/10 group-hover:to-pink-400/10 transition-all duration-500 rounded-2xl" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 via-purple-400/0 to-blue-400/0 group-hover:from-blue-400/10 group-hover:via-purple-400/10 group-hover:to-blue-400/10 transition-all duration-500 rounded-2xl" />
 
                             {/* Neural Network Pattern */}
                             <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-30 group-hover:opacity-60 animate-pulse" />
                             <div
-                              className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full opacity-20 group-hover:opacity-40 animate-pulse"
+                              className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 group-hover:opacity-40 animate-pulse"
                               style={{ animationDelay: "0.5s" }}
                             />
 
@@ -765,7 +765,7 @@ export default function TryOn() {
                                     loading="lazy"
                                   />
                                 ) : (
-                                  <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-pink-400/20 flex items-center justify-center group-hover:from-blue-400/30 group-hover:via-purple-400/30 group-hover:to-pink-400/30 transition-all duration-300">
+                                  <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-blue-400/20 flex items-center justify-center group-hover:from-blue-400/30 group-hover:via-purple-400/30 group-hover:to-blue-400/30 transition-all duration-300">
                                     <Sparkles className="h-5 w-5 text-blue-600 group-hover:text-purple-600 animate-pulse group-hover:animate-spin transition-all duration-300" />
                                   </div>
                                 )}

@@ -24,10 +24,10 @@ export default function HeroSection() {
     >
       {/* Animated background: layered gradient + soft blobs */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-pink-500/10 to-purple-500/10" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-blue-500/10 to-purple-500/10" />
         {/* Blobs */}
         <div className="absolute -top-24 -left-24 h-80 w-80 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-20 -right-24 h-72 w-72 bg-pink-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 -right-24 h-72 w-72 bg-blue-500/20 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-1/3 h-96 w-96 bg-purple-500/10 rounded-full blur-3xl" />
       </div>
 

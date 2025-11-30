@@ -149,7 +149,7 @@ export default function SubscriptionPlanSelector({
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-purple-400/10 to-pink-600/10 rounded-full blur-3xl"
+          className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-purple-400/10 to-blue-600/10 rounded-full blur-3xl"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -218,7 +218,7 @@ export default function SubscriptionPlanSelector({
               >
                 {plan.isPopular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                    <Badge className="bg-gradient-to-r from-orange-500 to-pink-500 text-white px-4 py-1 shadow-lg">
+                    <Badge className="bg-gradient-to-r from-orange-500 to-blue-500 text-white px-4 py-1 shadow-lg">
                       <Sparkles className="w-3 h-3 mr-1" />
                       Most Popular
                     </Badge>
@@ -232,7 +232,7 @@ export default function SubscriptionPlanSelector({
                       : "hover:shadow-xl"
                   } ${
                     plan.isPremium
-                      ? "bg-gradient-to-br from-purple-50/80 to-pink-50/80 dark:from-purple-900/30 dark:to-pink-900/30 border-purple-200/50 dark:border-purple-700/50"
+                      ? "bg-gradient-to-br from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50"
                       : "bg-white/70 dark:bg-gray-900/70 border-gray-200/50 dark:border-gray-700/50"
                   } backdrop-blur-xl`}
                   onClick={() => onPlanSelect(plan.id, billingCycle)}
@@ -255,7 +255,7 @@ export default function SubscriptionPlanSelector({
                         <motion.div
                           className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
                             plan.isPremium
-                              ? "bg-gradient-to-br from-purple-500 to-pink-500"
+                              ? "bg-gradient-to-br from-purple-500 to-blue-500"
                               : "bg-gradient-to-br from-blue-500 to-purple-500"
                           }`}
                           whileHover={{ rotate: 5 }}
@@ -306,22 +306,24 @@ export default function SubscriptionPlanSelector({
 
                     {/* Features */}
                     <div className="space-y-3 mb-6">
-                      {(Array.isArray(plan.features) ? plan.features : []).map((feature, idx) => (
-                        <motion.div
-                          key={idx}
-                          className="flex items-center gap-3"
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ delay: 0.3 + idx * 0.05 }}
-                        >
-                          <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                            <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
-                          </div>
-                          <span className="text-sm text-gray-700 dark:text-gray-300">
-                            {feature}
-                          </span>
-                        </motion.div>
-                      ))}
+                      {(Array.isArray(plan.features) ? plan.features : []).map(
+                        (feature, idx) => (
+                          <motion.div
+                            key={idx}
+                            className="flex items-center gap-3"
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: 0.3 + idx * 0.05 }}
+                          >
+                            <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                              <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                            </div>
+                            <span className="text-sm text-gray-700 dark:text-gray-300">
+                              {feature}
+                            </span>
+                          </motion.div>
+                        )
+                      )}
                     </div>
 
                     {/* Action Button */}
@@ -337,7 +339,7 @@ export default function SubscriptionPlanSelector({
                           isSelected
                             ? "bg-blue-600 hover:bg-blue-700 text-white"
                             : plan.isPremium
-                            ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                            ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
                             : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                         } shadow-lg hover:shadow-xl transition-all duration-300`}
                       >

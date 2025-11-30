@@ -126,7 +126,7 @@ export default function Companies() {
         <div className="relative overflow-hidden">
           {/* AI-Motivated Animated Background */}
           <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" />
             <div
               className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-bounce"
               style={{ animationDuration: "3s" }}
@@ -226,7 +226,7 @@ export default function Companies() {
             }}
           />
           <motion.div
-            className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-purple-400/12 via-pink-400/8 to-rose-400/12 rounded-full blur-xl"
+            className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-purple-400/12 via-blue-400/8 to-rose-400/12 rounded-full blur-xl"
             animate={{
               y: [0, 15, 0],
               x: [0, -15, 0],
@@ -276,7 +276,7 @@ export default function Companies() {
                   ? "bg-blue-400/20"
                   : i % 3 === 1
                   ? "bg-purple-400/20"
-                  : "bg-pink-400/20"
+                  : "bg-blue-400/20"
               } blur-sm`}
               style={{
                 left: `${20 + i * 15}%`,
@@ -319,7 +319,7 @@ export default function Companies() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 dark:from-blue-400 dark:via-purple-400 dark:to-pink-400 bg-clip-text text-transparent mb-1">
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-1">
               ✨ {t("companies.title")}
             </h1>
 
@@ -419,7 +419,7 @@ export default function Companies() {
                 )}
 
                 {/* Focus Glow Effect */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-pink-500/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none -z-10" />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none -z-10" />
               </div>
             </div>
 
@@ -427,8 +427,16 @@ export default function Companies() {
             <div className="flex gap-1 p-0.5 bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm rounded-xl border border-gray-200/50 dark:border-gray-700/50">
               {[
                 { key: "name", label: t("companies.sort.name"), icon: "🏷️" },
-                { key: "performance", label: t("companies.sort.score"), icon: "🤖" },
-                { key: "trending", label: t("companies.sort.trending"), icon: "🔥" },
+                {
+                  key: "performance",
+                  label: t("companies.sort.score"),
+                  icon: "🤖",
+                },
+                {
+                  key: "trending",
+                  label: t("companies.sort.trending"),
+                  icon: "🔥",
+                },
               ].map(({ key, label, icon }) => (
                 <button
                   key={key}
@@ -471,12 +479,12 @@ export default function Companies() {
                 onClick={() => router.push(`/store/${company.id}`)}
               >
                 {/* Subtle Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/3 via-purple-500/3 to-pink-500/3 rounded-2xl opacity-0 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/3 via-purple-500/3 to-blue-500/3 rounded-2xl opacity-0 transition-opacity duration-300" />
 
                 {/* Trending Badge */}
                 {company.metrics.isTrending && (
                   <div className="absolute top-2 right-2 z-10">
-                    <div className="w-6 h-6 bg-gradient-to-r from-pink-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
+                    <div className="w-6 h-6 bg-gradient-to-r from-blue-500 to-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
                       🔥
                     </div>
                   </div>
@@ -485,7 +493,7 @@ export default function Companies() {
                 {/* Compact Logo */}
                 <div className="flex justify-center mb-3">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 dark:from-blue-900/50 dark:via-purple-900/50 dark:to-pink-900/50 flex items-center justify-center overflow-hidden border border-white/50 dark:border-gray-700/50 group-hover:scale-105 transition-transform duration-200">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 via-purple-100 to-blue-100 dark:from-blue-900/50 dark:via-purple-900/50 dark:to-blue-900/50 flex items-center justify-center overflow-hidden border border-white/50 dark:border-gray-700/50 group-hover:scale-105 transition-transform duration-200">
                       {company.logoUrl ? (
                         <img
                           src={company.logoUrl}

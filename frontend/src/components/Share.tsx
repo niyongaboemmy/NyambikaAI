@@ -330,7 +330,7 @@ export default function Share({
                       label="Instagram"
                       onClick={() => setSelected("instagram")}
                       icon={<Instagram className="w-4 h-4" />}
-                      color="from-pink-500 to-purple-500"
+                      color="from-blue-500 to-purple-500"
                     />
                     {u.pinterest && (
                       <PlatformCard
@@ -338,7 +338,7 @@ export default function Share({
                         label="Pinterest"
                         onClick={() => setSelected("pinterest")}
                         icon={<Bookmark className="w-4 h-4" />}
-                        color="from-rose-600 to-pink-500"
+                        color="from-rose-600 to-blue-500"
                       />
                     )}
                   </div>

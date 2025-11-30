@@ -108,9 +108,9 @@ export default function AgentTermsModal() {
       {/* Modal */}
       <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-white/80 dark:bg-gray-900/80 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col max-h-[99vh]">
         {/* Header with gradient ring (sticky) */}
-        <div className="sticky top-0 z-10 px-4 sm:px-8 pt-4 pb-3 sm:pt-6 sm:pb-4 bg-gradient-to-r from-purple-500/20 via-pink-500/10 to-blue-500/20 border-b border-white/10">
+        <div className="sticky top-0 z-10 px-4 sm:px-8 pt-4 pb-3 sm:pt-6 sm:pb-4 bg-gradient-to-r from-purple-500/20 via-blue-500/10 to-blue-500/20 border-b border-white/10">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <div className="hidden md:inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 animate-pulse" />
+            <div className="hidden md:inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-purple-500 to-blue-500 animate-pulse" />
             <div className="flex-1">
               <h2 className="text-xl sm:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
                 {terms?.title || t("agentTermsTitle")}
@@ -164,7 +164,7 @@ export default function AgentTermsModal() {
 
           {/* Summary bullet points visually modern */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
+            <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/20">
               <div className="text-sm font-medium">
                 {t("termsCommissionTitle")}
               </div>

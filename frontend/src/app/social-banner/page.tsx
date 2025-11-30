@@ -1,18 +1,40 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import SocialMediaBanner from '@/components/SocialMediaBanner';
-import { Download, Share2, Copy, Check } from 'lucide-react';
+import React, { useState } from "react";
+import SocialMediaBanner from "@/components/SocialMediaBanner";
+import { Download, Share2, Copy, Check } from "lucide-react";
 
 export default function SocialBannerPage() {
-  const [selectedVariant, setSelectedVariant] = useState<'facebook' | 'instagram' | 'twitter' | 'linkedin'>('facebook');
+  const [selectedVariant, setSelectedVariant] = useState<
+    "facebook" | "instagram" | "twitter" | "linkedin"
+  >("facebook");
   const [copied, setCopied] = useState(false);
 
   const variants = [
-    { key: 'facebook' as const, name: 'Facebook', dimensions: '1200×630px', description: 'Perfect for Facebook posts and shares' },
-    { key: 'instagram' as const, name: 'Instagram', dimensions: '1080×1080px', description: 'Square format for Instagram posts' },
-    { key: 'twitter' as const, name: 'Twitter', dimensions: '1200×675px', description: 'Twitter card format' },
-    { key: 'linkedin' as const, name: 'LinkedIn', dimensions: '1200×627px', description: 'LinkedIn post format' }
+    {
+      key: "facebook" as const,
+      name: "Facebook",
+      dimensions: "1200×630px",
+      description: "Perfect for Facebook posts and shares",
+    },
+    {
+      key: "instagram" as const,
+      name: "Instagram",
+      dimensions: "1080×1080px",
+      description: "Square format for Instagram posts",
+    },
+    {
+      key: "twitter" as const,
+      name: "Twitter",
+      dimensions: "1200×675px",
+      description: "Twitter card format",
+    },
+    {
+      key: "linkedin" as const,
+      name: "LinkedIn",
+      dimensions: "1200×627px",
+      description: "LinkedIn post format",
+    },
   ];
 
   const copyInstructions = async () => {
@@ -32,7 +54,7 @@ Alternative method:
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error('Failed to copy instructions');
+      console.error("Failed to copy instructions");
     }
   };
 
@@ -47,7 +69,7 @@ Alternative method:
           <p className="text-xl text-gray-600 dark:text-gray-300 mb-6">
             Create and download producer recruitment banners for social media
           </p>
-          
+
           {/* Platform Selector */}
           <div className="flex flex-wrap justify-center gap-4 mb-8">
             {variants.map((variant) => (
@@ -56,8 +78,8 @@ Alternative method:
                 onClick={() => setSelectedVariant(variant.key)}
                 className={`px-6 py-3 rounded-lg font-medium transition-all ${
                   selectedVariant === variant.key
-                    ? 'bg-purple-600 text-white shadow-lg'
-                    : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600'
+                    ? "bg-purple-600 text-white shadow-lg"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
                 }`}
               >
                 <div className="text-sm font-semibold">{variant.name}</div>
@@ -78,14 +100,20 @@ Alternative method:
               onClick={copyInstructions}
               className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-              {copied ? 'Copied!' : 'Copy Instructions'}
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+              {copied ? "Copied!" : "Copy Instructions"}
             </button>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Method 1: Right-click Save</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Method 1: Right-click Save
+              </h3>
               <ol className="list-decimal list-inside text-gray-600 dark:text-gray-300 space-y-1">
                 <li>Right-click on the banner below</li>
                 <li>Select "Save image as..." or "Copy image"</li>
@@ -93,9 +121,11 @@ Alternative method:
                 <li>Share on your social media platform</li>
               </ol>
             </div>
-            
+
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">Method 2: Screenshot</h3>
+              <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Method 2: Screenshot
+              </h3>
               <ol className="list-decimal list-inside text-gray-600 dark:text-gray-300 space-y-1">
                 <li>Take a screenshot of the banner area</li>
                 <li>Crop to remove surrounding elements</li>
@@ -104,11 +134,15 @@ Alternative method:
               </ol>
             </div>
           </div>
-          
+
           <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
             <p className="text-sm text-purple-800 dark:text-purple-200">
-              <strong>Tip:</strong> The banner is optimized for {variants.find(v => v.key === selectedVariant)?.description.toLowerCase()}. 
-              Use this format for best results on {variants.find(v => v.key === selectedVariant)?.name}.
+              <strong>Tip:</strong> The banner is optimized for{" "}
+              {variants
+                .find((v) => v.key === selectedVariant)
+                ?.description.toLowerCase()}
+              . Use this format for best results on{" "}
+              {variants.find((v) => v.key === selectedVariant)?.name}.
             </p>
           </div>
         </div>
@@ -120,15 +154,18 @@ Alternative method:
             Preview & Download
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            Current format: <strong>{variants.find(v => v.key === selectedVariant)?.name}</strong> 
-            ({variants.find(v => v.key === selectedVariant)?.dimensions})
+            Current format:{" "}
+            <strong>
+              {variants.find((v) => v.key === selectedVariant)?.name}
+            </strong>
+            ({variants.find((v) => v.key === selectedVariant)?.dimensions})
           </p>
         </div>
 
         {/* Banner Container */}
         <div className="flex justify-center mb-8">
           <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-2xl">
-            <SocialMediaBanner 
+            <SocialMediaBanner
               variant={selectedVariant}
               className="border-2 border-gray-200 dark:border-gray-600 rounded-xl"
             />
@@ -136,11 +173,15 @@ Alternative method:
         </div>
 
         {/* Usage Tips */}
-        <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-2xl p-6">
-          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Social Media Usage Tips</h3>
+        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-2xl p-6">
+          <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+            Social Media Usage Tips
+          </h3>
           <div className="grid md:grid-cols-2 gap-6 text-sm text-gray-600 dark:text-gray-300">
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Facebook</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Facebook
+              </h4>
               <ul className="list-disc list-inside space-y-1">
                 <li>Use 1200×630px for link previews</li>
                 <li>Post in relevant business groups</li>
@@ -148,7 +189,9 @@ Alternative method:
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Instagram</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Instagram
+              </h4>
               <ul className="list-disc list-inside space-y-1">
                 <li>Square format works best for feed posts</li>
                 <li>Use relevant hashtags like #Rwanda #Business</li>
@@ -156,7 +199,9 @@ Alternative method:
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Twitter</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                Twitter
+              </h4>
               <ul className="list-disc list-inside space-y-1">
                 <li>1200×675px for Twitter cards</li>
                 <li>Include call-to-action in tweet text</li>
@@ -164,7 +209,9 @@ Alternative method:
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">LinkedIn</h4>
+              <h4 className="font-semibold text-gray-900 dark:text-white mb-2">
+                LinkedIn
+              </h4>
               <ul className="list-disc list-inside space-y-1">
                 <li>Professional format for business posts</li>
                 <li>Share in entrepreneur groups</li>

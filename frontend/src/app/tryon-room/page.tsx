@@ -639,7 +639,7 @@ export default function TryOnRoom() {
                       }}
                       className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden border border-blue-100 dark:border-gray-800/60 relative group cursor-pointer"
                       onClick={() =>
-                        router.push(`/session-details?id=${session.id}`)
+                        router.push(`/session-details/${session.id}`)
                       }
                     >
                       {/* Session Image */}

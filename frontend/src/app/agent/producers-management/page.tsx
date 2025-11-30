@@ -289,15 +289,16 @@ export default function ProducersManagement() {
       setBillingCycle("monthly");
       setSelectedPlan(null);
       setSelectedProducer(null);
-      
+
       // Close dialog after a short delay to show success message
       setTimeout(() => {
         setShowPaymentDialog(false);
-        
+
         // Show completion message
         toast({
           title: "Update Complete",
-          description: "Dashboard data has been refreshed with the latest information.",
+          description:
+            "Dashboard data has been refreshed with the latest information.",
         });
       }, 1000);
     } catch (err) {
@@ -316,7 +317,8 @@ export default function ProducersManagement() {
     console.error("Payment error:", error);
     toast({
       title: "Payment Failed",
-      description: error?.message || "Failed to process payment. Please try again.",
+      description:
+        error?.message || "Failed to process payment. Please try again.",
       variant: "destructive",
     });
   };
@@ -617,7 +619,7 @@ export default function ProducersManagement() {
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-400/20 to-pink-600/20 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-400/20 to-blue-600/20 rounded-full blur-3xl"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -652,7 +654,7 @@ export default function ProducersManagement() {
                 ? "bg-blue-400/40"
                 : i % 3 === 1
                 ? "bg-purple-400/40"
-                : "bg-pink-400/40"
+                : "bg-blue-400/40"
             }`}
             style={{
               left: `${20 + i * 15}%`,
@@ -1401,11 +1403,21 @@ export default function ProducersManagement() {
           <PaymentDialog
             open={showPaymentDialog}
             onOpenChange={setShowPaymentDialog}
-            amount={billingCycle === "monthly" ? selectedPlan.monthlyPrice : selectedPlan.annualPrice}
-            title={`${selectedProducer.companyName || selectedProducer.businessName} - ${
-              selectedProducer.subscriptionStatus === "expired" ? "Renew" : "New"
+            amount={
+              billingCycle === "monthly"
+                ? selectedPlan.monthlyPrice
+                : selectedPlan.annualPrice
+            }
+            title={`${
+              selectedProducer.companyName || selectedProducer.businessName
+            } - ${
+              selectedProducer.subscriptionStatus === "expired"
+                ? "Renew"
+                : "New"
             } Subscription`}
-            description={`${selectedPlan.name} (${billingCycle === "monthly" ? "Monthly" : "Annual"})`}
+            description={`${selectedPlan.name} (${
+              billingCycle === "monthly" ? "Monthly" : "Annual"
+            })`}
             phone={selectedProducer.phone}
             defaultMethod="momo"
             onSuccess={handlePaymentSuccess}

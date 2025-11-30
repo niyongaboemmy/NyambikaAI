@@ -709,7 +709,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
             {/* Enhanced holographic background with floating particles */}
             <FloatingParticles />
             <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-cyan-500/30 blur-2xl animate-pulse" />
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-pink-500/20 via-emerald-500/10 to-blue-500/20 blur-xl" />
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-blue-500/20 via-emerald-500/10 to-blue-500/20 blur-xl" />
             <motion.div
               className="absolute inset-0 rounded-3xl bg-gradient-to-br from-yellow-400/10 via-transparent to-purple-600/10"
               animate={{
@@ -752,7 +752,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                     <CreditCardSVG className="h-6 w-6 text-white" />
                   </motion.div>
                   <div>
-                    <CardTitle className="text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                    <CardTitle className="text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
                       {title || "Smart Payment Hub"}
                     </CardTitle>
                     <div className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
@@ -865,7 +865,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 {(errors.momo || errors.wallet || errors.general) &&
                   !awaiting?.refid && (
                     <motion.div
-                      className="p-4 rounded-2xl border border-red-200 dark:border-red-700 bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/30 dark:to-pink-900/30"
+                      className="p-4 rounded-2xl border border-red-200 dark:border-red-700 bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/30 dark:to-blue-900/30"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                     >

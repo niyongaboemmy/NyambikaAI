@@ -93,7 +93,6 @@ export default function ProducerSubscriptionPage() {
     fetchSubscriptionPlans();
   }, [user?.role, router]);
 
-
   // Haptic feedback simulation
   const simulateHapticFeedback = useCallback(() => {
     if ("vibrate" in navigator) {
@@ -344,7 +343,7 @@ export default function ProducerSubscriptionPage() {
           style={{ animationDelay: "1s" }}
         />
         <div
-          className="absolute bottom-32 left-1/4 w-20 h-20 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-md animate-pulse"
+          className="absolute bottom-32 left-1/4 w-20 h-20 bg-gradient-to-r from-purple-400/20 to-blue-400/20 rounded-full blur-md animate-pulse"
           style={{ animationDelay: "2s" }}
         />
         <div
@@ -374,15 +373,13 @@ export default function ProducerSubscriptionPage() {
           style={{ animationDelay: "2s" }}
         />
         <div
-          className="absolute bottom-1/3 right-1/2 w-2 h-2 bg-pink-400 rounded-full animate-ping"
+          className="absolute bottom-1/3 right-1/2 w-2 h-2 bg-blue-400 rounded-full animate-ping"
           style={{ animationDelay: "1.5s" }}
         />
       </div>
 
       {/* Mobile-Optimized Container */}
-      <div
-        className="container mx-auto px-3 sm:px-4 py-2 sm:py-4 relative z-10"
-      >
+      <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-4 relative z-10">
         {/* Mobile Header with Pull-to-Refresh */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -596,7 +593,7 @@ export default function ProducerSubscriptionPage() {
                             Products
                           </div>
                         </div>
-                        <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
+                        <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg">
                           <div className="text-sm font-bold text-purple-600 dark:text-purple-400">
                             {currentPlan.maxOrders}
                           </div>
@@ -631,7 +628,7 @@ export default function ProducerSubscriptionPage() {
                       className={`px-4 py-2 text-sm font-medium rounded-full w-max ${
                         subStatus.hasActiveSubscription
                           ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
-                          : "bg-gradient-to-r from-red-500 to-pink-500 text-white shadow-lg"
+                          : "bg-gradient-to-r from-red-500 to-blue-500 text-white shadow-lg"
                       }`}
                     >
                       {subStatus.hasActiveSubscription
@@ -753,179 +750,176 @@ export default function ProducerSubscriptionPage() {
 
             {/* Subscription Plans - Always use responsive grid (vertical list on mobile) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 sm:gap-7 md:gap-7 mb-6 md:px-2">
-                {plans.map((plan, index) => {
-                  const IconComponent = getPlanIcon(index);
-                  const price =
-                    billingCycle === "monthly"
-                      ? plan.monthlyPrice
-                      : plan.annualPrice;
-                  const isPopular = index === 1;
+              {plans.map((plan, index) => {
+                const IconComponent = getPlanIcon(index);
+                const price =
+                  billingCycle === "monthly"
+                    ? plan.monthlyPrice
+                    : plan.annualPrice;
+                const isPopular = index === 1;
 
-                  return (
-                    <motion.div
-                      key={plan.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 + index * 0.1 }}
-                      className="relative group"
+                return (
+                  <motion.div
+                    key={plan.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className="relative group"
+                  >
+                    {isPopular && (
+                      <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20">
+                        <Badge className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-2 py-0.5 text-xs shadow-md">
+                          Popular
+                        </Badge>
+                      </div>
+                    )}
+
+                    {/* Glassmorphism Card */}
+                    <div
+                      className={`relative h-full cursor-pointer transition-all duration-500 group-hover:scale-105 ${
+                        selectedPlan === plan.id ? "scale-105" : ""
+                      }`}
+                      onClick={() => {
+                        setSelectedPlan(plan.id);
+                        setRenewMode(false);
+                        setDefaultMethod("momo");
+                        setShowPayment(true);
+                      }}
                     >
-                      {isPopular && (
-                        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20">
-                          <Badge className="bg-gradient-to-r from-blue-500 to-violet-500 text-white px-2 py-0.5 text-xs shadow-md">
-                            Popular
-                          </Badge>
-                        </div>
-                      )}
-
-                      {/* Glassmorphism Card */}
+                      {/* Animated Glow Effect */}
                       <div
-                        className={`relative h-full cursor-pointer transition-all duration-500 group-hover:scale-105 ${
-                          selectedPlan === plan.id ? "scale-105" : ""
+                        className={`absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl ${
+                          isPopular
+                            ? "from-blue-400/30 to-violet-400/30"
+                            : "from-blue-400/30 to-violet-400/30"
                         }`}
-                        onClick={() => {
-                          setSelectedPlan(plan.id);
-                          setRenewMode(false);
-                          setDefaultMethod("momo");
-                          setShowPayment(true);
-                        }}
+                      />
+
+                      {/* Card Background */}
+                      <div
+                        className={`relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-lg ${
+                          selectedPlan === plan.id
+                            ? "border-blue-400/50 bg-blue-50/80 dark:bg-blue-900/20"
+                            : isPopular
+                            ? "border-violet-200/50 bg-white/80 dark:bg-gray-800/80"
+                            : "border-white/20 bg-white/60 dark:bg-gray-800/60"
+                        }`}
                       >
-                        {/* Animated Glow Effect */}
-                        <div
-                          className={`absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl ${
-                            isPopular
-                              ? "from-blue-400/30 to-violet-400/30"
-                              : "from-blue-400/30 to-violet-400/30"
-                          }`}
-                        />
+                        {/* Animated Background Pattern */}
+                        <div className="absolute inset-0 opacity-30">
+                          <div className="absolute top-3 right-3 w-12 h-12 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-lg animate-pulse" />
+                          <div
+                            className="absolute bottom-3 left-3 w-8 h-8 bg-gradient-to-br from-violet-400/20 to-blue-400/20 rounded-full blur-md animate-pulse"
+                            style={{ animationDelay: "1s" }}
+                          />
+                        </div>
 
-                        {/* Card Background */}
-                        <div
-                          className={`relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-lg ${
-                            selectedPlan === plan.id
-                              ? "border-blue-400/50 bg-blue-50/80 dark:bg-blue-900/20"
-                              : isPopular
-                              ? "border-violet-200/50 bg-white/80 dark:bg-gray-800/80"
-                              : "border-white/20 bg-white/60 dark:bg-gray-800/60"
-                          }`}
-                        >
-                          {/* Animated Background Pattern */}
-                          <div className="absolute inset-0 opacity-30">
-                            <div className="absolute top-3 right-3 w-12 h-12 bg-gradient-to-br from-blue-400/20 to-violet-400/20 rounded-full blur-lg animate-pulse" />
-                            <div
-                              className="absolute bottom-3 left-3 w-8 h-8 bg-gradient-to-br from-violet-400/20 to-blue-400/20 rounded-full blur-md animate-pulse"
-                              style={{ animationDelay: "1s" }}
-                            />
-                          </div>
-
-                          <div className="relative p-3 sm:p-4 pt-8 sm:pt-8">
-                            {/* Header - Desktop flex-row layout */}
-                            <div className="flex flex-col lg:flex-row lg:items-start lg:gap-4 mb-3">
-                              <div className="flex flex-col items-center lg:items-start lg:flex-1">
-                                <div
-                                  className={`mb-2 p-1.5 rounded-lg w-fit ${
-                                    isPopular
-                                      ? "bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/50 dark:to-blue-900/50"
-                                      : "bg-gradient-to-br from-blue-100 to-violet-100 dark:from-blue-900/50 dark:to-violet-900/50"
-                                  }`}
-                                >
-                                  <IconComponent
-                                    className={`h-5 w-5 ${
-                                      isPopular
-                                        ? "text-violet-600 dark:text-violet-400"
-                                        : "text-blue-600 dark:text-blue-400"
-                                    }`}
-                                  />
-                                </div>
-                                <h3 className="text-base font-bold mb-1 text-center lg:text-left">
-                                  {plan.name}
-                                </h3>
-                                <p className="text-xs text-gray-600 dark:text-gray-400 text-center lg:text-left">
-                                  {plan.description}
-                                </p>
-                              </div>
-                              <div className="text-center lg:text-right mt-2 lg:mt-0">
-                                <div className="mb-2">
-                                  <span
-                                    className={`text-lg font-bold ${
-                                      isPopular
-                                        ? "bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent"
-                                        : "bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent"
-                                    }`}
-                                  >
-                                    {parseInt(price).toLocaleString()}
-                                  </span>
-                                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
-                                    RWF/
-                                    {billingCycle === "monthly" ? "mo" : "yr"}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Features */}
-                            <div className="space-y-2 mb-4">
-                              {(Array.isArray(plan.features)
-                                ? plan.features
-                                : []
-                              )
-                                .slice(0, 4)
-                                .map((feature, featureIndex) => (
-                                  <div
-                                    key={featureIndex}
-                                    className="flex items-center text-xs"
-                                  >
-                                    <div className="w-4 h-4 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 flex items-center justify-center mr-2 flex-shrink-0">
-                                      <Check className="h-2.5 w-2.5 text-white" />
-                                    </div>
-                                    <span className="text-gray-600 dark:text-gray-300 leading-tight">
-                                      {feature}
-                                    </span>
-                                  </div>
-                                ))}
-                            </div>
-
-                            {/* Stats */}
-                            <div className="grid grid-cols-2 gap-2 text-xs">
-                              {plan.maxProducts > 0 && (
-                                <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg">
-                                  <div className="font-bold text-blue-600 dark:text-blue-400">
-                                    {plan.maxProducts}
-                                  </div>
-                                  <div className="text-gray-600 dark:text-gray-400">
-                                    Products
-                                  </div>
-                                </div>
-                              )}
-                              {plan.maxOrders > 0 && (
-                                <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/30 rounded-lg">
-                                  <div className="font-bold text-purple-600 dark:text-purple-400">
-                                    {plan.maxOrders}
-                                  </div>
-                                  <div className="text-gray-600 dark:text-gray-400">
-                                    Orders
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* CTA Button */}
-                            <div className="mt-4">
+                        <div className="relative p-3 sm:p-4 pt-8 sm:pt-8">
+                          {/* Header - Desktop flex-row layout */}
+                          <div className="flex flex-col lg:flex-row lg:items-start lg:gap-4 mb-3">
+                            <div className="flex flex-col items-center lg:items-start lg:flex-1">
                               <div
-                                className={`w-full py-2 px-4 rounded-full text-center text-sm font-semibold transition-all duration-300 ${
+                                className={`mb-2 p-1.5 rounded-lg w-fit ${
                                   isPopular
-                                    ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl"
-                                    : "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl"
+                                    ? "bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/50 dark:to-blue-900/50"
+                                    : "bg-gradient-to-br from-blue-100 to-violet-100 dark:from-blue-900/50 dark:to-violet-900/50"
                                 }`}
                               >
-                                Choose Plan
+                                <IconComponent
+                                  className={`h-5 w-5 ${
+                                    isPopular
+                                      ? "text-violet-600 dark:text-violet-400"
+                                      : "text-blue-600 dark:text-blue-400"
+                                  }`}
+                                />
                               </div>
+                              <h3 className="text-base font-bold mb-1 text-center lg:text-left">
+                                {plan.name}
+                              </h3>
+                              <p className="text-xs text-gray-600 dark:text-gray-400 text-center lg:text-left">
+                                {plan.description}
+                              </p>
+                            </div>
+                            <div className="text-center lg:text-right mt-2 lg:mt-0">
+                              <div className="mb-2">
+                                <span
+                                  className={`text-lg font-bold ${
+                                    isPopular
+                                      ? "bg-gradient-to-r from-violet-600 to-blue-600 bg-clip-text text-transparent"
+                                      : "bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent"
+                                  }`}
+                                >
+                                  {parseInt(price).toLocaleString()}
+                                </span>
+                                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+                                  RWF/
+                                  {billingCycle === "monthly" ? "mo" : "yr"}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Features */}
+                          <div className="space-y-2 mb-4">
+                            {(Array.isArray(plan.features) ? plan.features : [])
+                              .slice(0, 4)
+                              .map((feature, featureIndex) => (
+                                <div
+                                  key={featureIndex}
+                                  className="flex items-center text-xs"
+                                >
+                                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-green-400 to-emerald-400 flex items-center justify-center mr-2 flex-shrink-0">
+                                    <Check className="h-2.5 w-2.5 text-white" />
+                                  </div>
+                                  <span className="text-gray-600 dark:text-gray-300 leading-tight">
+                                    {feature}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+
+                          {/* Stats */}
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            {plan.maxProducts > 0 && (
+                              <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg">
+                                <div className="font-bold text-blue-600 dark:text-blue-400">
+                                  {plan.maxProducts}
+                                </div>
+                                <div className="text-gray-600 dark:text-gray-400">
+                                  Products
+                                </div>
+                              </div>
+                            )}
+                            {plan.maxOrders > 0 && (
+                              <div className="text-center p-2 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-900/30 dark:to-blue-900/30 rounded-lg">
+                                <div className="font-bold text-purple-600 dark:text-purple-400">
+                                  {plan.maxOrders}
+                                </div>
+                                <div className="text-gray-600 dark:text-gray-400">
+                                  Orders
+                                </div>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* CTA Button */}
+                          <div className="mt-4">
+                            <div
+                              className={`w-full py-2 px-4 rounded-full text-center text-sm font-semibold transition-all duration-300 ${
+                                isPopular
+                                  ? "bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg hover:shadow-xl"
+                                  : "bg-gradient-to-r from-blue-500 to-purple-500 text-white shadow-lg hover:shadow-xl"
+                              }`}
+                            >
+                              Choose Plan
                             </div>
                           </div>
                         </div>
                       </div>
-                    </motion.div>
-                  );
-                })}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
           </div>
         )}
