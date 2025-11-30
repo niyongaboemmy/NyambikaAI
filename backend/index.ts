@@ -77,7 +77,7 @@ app.use(
         res.setHeader("Content-Type", mimeTypes[ext]);
       }
 
-      // Add CORS headers for static files
+      // Allow any origin for static files
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
       res.setHeader(
@@ -94,7 +94,7 @@ app.use(
   "/api/uploads",
   express.static(uploadsDir, {
     setHeaders: (res, _path) => {
-      // Add CORS headers for static files
+      // Allow any origin for static files
       res.setHeader("Access-Control-Allow-Origin", "*");
       res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
       res.setHeader(
