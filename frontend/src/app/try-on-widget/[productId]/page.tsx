@@ -150,7 +150,7 @@ export default function TryOnWidgetPage() {
   const productImageUrl = product.imageUrl || "";
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 dark:from-background dark:via-slate-900 dark:to-slate-800">
+    <div className="min-h-screen">
       {/* AI-Motivated Animated Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
