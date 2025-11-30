@@ -884,7 +884,7 @@ export default function TryOnWidget({
 
       // Get garment image from the correct backend URL
       const garmentUrl = selectedGarmentUrl.startsWith("http")
-        ? selectedGarmentUrl
+        ? selectedGarmentUrl.replace("/uploads/", "/api/uploads/")
         : `${API_BASE_URL}${selectedGarmentUrl.replace(
             "/uploads/",
             "/api/uploads/"
