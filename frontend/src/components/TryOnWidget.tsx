@@ -885,7 +885,10 @@ export default function TryOnWidget({
       // Get garment image from the correct backend URL
       const garmentUrl = selectedGarmentUrl.startsWith("http")
         ? selectedGarmentUrl
-        : `${API_BASE_URL}${selectedGarmentUrl}`;
+        : `${API_BASE_URL}${selectedGarmentUrl.replace(
+            "/uploads/",
+            "/api/uploads/"
+          )}`;
       const garmentResp = await fetch(garmentUrl);
       const garmentBlob = await garmentResp.blob();
       const garmentFile = new File([garmentBlob], "garment.jpg", {
