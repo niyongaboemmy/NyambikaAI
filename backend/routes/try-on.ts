@@ -1,9 +1,17 @@
 import { Router, Request, Response } from "express";
 import { db } from "../db";
-import { tryOnSessions } from "../shared/schema.dialect";
+import {
+  tryOnSessions,
+  sessionLikes,
+  sessionViews,
+  sessionComments,
+  sessionSaves,
+  users,
+  products,
+} from "../shared/schema.dialect";
 import jwt from "jsonwebtoken";
 import { randomUUID } from "crypto";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { generateVirtualTryOn } from "../tryon";
 import multer from "multer";
 
@@ -153,34 +161,105 @@ router.post("/sessions", requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/try-on/sessions - Get user's try-on sessions
-router.get("/sessions", requireAuth, async (req: Request, res: Response) => {
+// GET /api/try-on/sessions - Get try-on sessions (public or user's)
+router.get("/sessions", async (req: Request, res: Response) => {
   try {
-    const { limit = 20, offset = 0, status, productId } = req.query;
+    const {
+      page = 1,
+      limit = 12,
+      sort = "createdAt",
+      order = "desc",
+      status,
+      productId,
+    } = req.query;
+    const userId = (req as any).user?.id;
 
-    let query = db
-      .select()
-      .from(tryOnSessions)
-      .where(eq(tryOnSessions.userId, req.user!.id));
+    const limitNum = Number(limit);
+    const pageNum = Number(page);
+    const offset = (pageNum - 1) * limitNum;
+
+    // Build where conditions
+    const whereConditions = [eq(tryOnSessions.isHidden, false)];
+
+    // If authenticated, filter by user; if not, show all public sessions
+    if (userId) {
+      whereConditions.push(eq(tryOnSessions.userId, userId));
+    }
 
     if (status) {
-      query = query.where(eq(tryOnSessions.status, status as any));
+      whereConditions.push(eq(tryOnSessions.status, status as any));
     }
 
     if (productId) {
-      query = query.where(eq(tryOnSessions.productId, productId as string));
+      whereConditions.push(eq(tryOnSessions.productId, productId as string));
+    }
+
+    // Get total count for pagination
+    const totalQuery = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(tryOnSessions)
+      .where(and(...whereConditions));
+
+    const total = totalQuery[0]?.count || 0;
+    const totalPages = Math.ceil(total / limitNum);
+
+    // Build main query
+    let query = db
+      .select({
+        id: tryOnSessions.id,
+        userId: tryOnSessions.userId,
+        customerImageUrl: tryOnSessions.customerImageUrl,
+        tryOnImageUrl: tryOnSessions.tryOnImageUrl,
+        productId: tryOnSessions.productId,
+        productName: products.name,
+        productImage: products.imageUrl,
+        fitRecommendation: tryOnSessions.fitRecommendation,
+        status: tryOnSessions.status,
+        isHidden: tryOnSessions.isHidden,
+        isFavorite: tryOnSessions.isFavorite,
+        notes: tryOnSessions.notes,
+        rating: tryOnSessions.rating,
+        likes: tryOnSessions.likes,
+        views: tryOnSessions.views,
+        createdAt: tryOnSessions.createdAt,
+      })
+      .from(tryOnSessions)
+      .leftJoin(products, eq(tryOnSessions.productId, products.id))
+      .where(and(...whereConditions));
+
+    // Apply sorting
+    let orderByColumn;
+    switch (sort) {
+      case "likes":
+        orderByColumn = tryOnSessions.likes;
+        break;
+      case "views":
+        orderByColumn = tryOnSessions.views;
+        break;
+      case "createdAt":
+      default:
+        orderByColumn = tryOnSessions.createdAt;
+        break;
     }
 
     query = query
-      .orderBy(desc(tryOnSessions.createdAt))
-      .limit(Number(limit))
-      .offset(Number(offset));
+      .orderBy(order === "desc" ? desc(orderByColumn) : asc(orderByColumn))
+      .limit(limitNum)
+      .offset(offset);
 
     const sessions = await query;
 
     res.json({
       success: true,
       sessions,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages,
+        hasNextPage: pageNum < totalPages,
+        hasPreviousPage: pageNum > 1,
+      },
     });
   } catch (error) {
     console.error("Error fetching try-on sessions:", error);
@@ -191,41 +270,148 @@ router.get("/sessions", requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/try-on/sessions/:id - Get a specific try-on session
-router.get(
-  "/sessions/:id",
-  requireAuth,
-  async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
+// GET /api/try-on/sessions/:id - Get a specific try-on session (public view)
+router.get("/sessions/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user?.id;
 
-      const [session] = await db
-        .select()
-        .from(tryOnSessions)
-        .where(
-          and(eq(tryOnSessions.id, id), eq(tryOnSessions.userId, req.user!.id))
-        );
+    const result = await db
+      .select({
+        id: tryOnSessions.id,
+        userId: tryOnSessions.userId,
+        customerImageUrl: tryOnSessions.customerImageUrl,
+        tryOnImageUrl: tryOnSessions.tryOnImageUrl,
+        productId: tryOnSessions.productId,
+        productName: products.name,
+        productImage: products.imageUrl,
+        productCategoryId: products.categoryId,
+        fitRecommendation: tryOnSessions.fitRecommendation,
+        likes: tryOnSessions.likes,
+        views: tryOnSessions.views,
+        createdAt: tryOnSessions.createdAt,
+        userFullName: users.fullNameRw,
+        fullNameRw: users.fullNameRw,
+        userName: users.username,
+        username: users.username,
+        // Check if current user has liked this session
+        isLiked: userId
+          ? sql<boolean>`EXISTS(
+          SELECT 1 FROM ${sessionLikes}
+          WHERE ${sessionLikes.sessionId} = ${tryOnSessions.id}
+          AND ${sessionLikes.userId} = ${userId}
+        )`
+          : sql<boolean>`FALSE`,
+        // Check if current user has saved this session
+        isSaved: userId
+          ? sql<boolean>`EXISTS(
+          SELECT 1 FROM ${sessionSaves}
+          WHERE ${sessionSaves.sessionId} = ${tryOnSessions.id}
+          AND ${sessionSaves.userId} = ${userId}
+        )`
+          : sql<boolean>`FALSE`,
+      })
+      .from(tryOnSessions)
+      .leftJoin(users, eq(tryOnSessions.userId, users.id))
+      .leftJoin(products, eq(tryOnSessions.productId, products.id))
+      .where(eq(tryOnSessions.id, id));
 
-      if (!session) {
-        return res.status(404).json({
-          success: false,
-          error: "Try-on session not found",
-        });
-      }
-
-      res.json({
-        success: true,
-        session: session,
-      });
-    } catch (error) {
-      console.error("Error fetching try-on session:", error);
-      res.status(500).json({
+    if (!result || result.length === 0) {
+      console.log(`Session not found: ${id}`);
+      return res.status(404).json({
         success: false,
-        error: "Failed to fetch try-on session",
+        error: "Try-on session not found",
       });
     }
+
+    console.log(`Session fetched successfully: ${id}`, result[0]);
+    res.json({
+      success: true,
+      session: result[0],
+    });
+  } catch (error) {
+    console.error("Error fetching try-on session:", error);
+    console.error("Stack trace:", error instanceof Error ? error.stack : "N/A");
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch try-on session",
+    });
   }
-);
+});
+
+// GET /api/try-on-sessions/:id - Alias for /sessions/:id (for compatibility)
+router.get("/:id", async (req: Request, res: Response) => {
+  // Only match if not a known route pattern (like 'like', 'save', 'view', 'comments')
+  if (["like", "save", "view", "comments"].includes(req.params.id)) {
+    return;
+  }
+
+  try {
+    const { id } = req.params;
+    const userId = (req as any).user?.id;
+
+    const result = await db
+      .select({
+        id: tryOnSessions.id,
+        userId: tryOnSessions.userId,
+        customerImageUrl: tryOnSessions.customerImageUrl,
+        tryOnImageUrl: tryOnSessions.tryOnImageUrl,
+        productId: tryOnSessions.productId,
+        productName: products.name,
+        productImage: products.imageUrl,
+        productCategoryId: products.categoryId,
+        fitRecommendation: tryOnSessions.fitRecommendation,
+        likes: tryOnSessions.likes,
+        views: tryOnSessions.views,
+        createdAt: tryOnSessions.createdAt,
+        userFullName: users.fullNameRw,
+        fullNameRw: users.fullNameRw,
+        userName: users.username,
+        username: users.username,
+        // Check if current user has liked this session
+        isLiked: userId
+          ? sql<boolean>`EXISTS(
+          SELECT 1 FROM ${sessionLikes}
+          WHERE ${sessionLikes.sessionId} = ${tryOnSessions.id}
+          AND ${sessionLikes.userId} = ${userId}
+        )`
+          : sql<boolean>`FALSE`,
+        // Check if current user has saved this session
+        isSaved: userId
+          ? sql<boolean>`EXISTS(
+          SELECT 1 FROM ${sessionSaves}
+          WHERE ${sessionSaves.sessionId} = ${tryOnSessions.id}
+          AND ${sessionSaves.userId} = ${userId}
+        )`
+          : sql<boolean>`FALSE`,
+      })
+      .from(tryOnSessions)
+      .leftJoin(users, eq(tryOnSessions.userId, users.id))
+      .leftJoin(products, eq(tryOnSessions.productId, products.id))
+      .where(eq(tryOnSessions.id, id));
+
+    if (!result || result.length === 0) {
+      console.log(`Session not found: ${id}`);
+      return res.status(404).json({
+        success: false,
+        error: "Try-on session not found",
+      });
+    }
+
+    console.log(`Session fetched successfully: ${id}`, result[0]);
+    res.json({
+      success: true,
+      session: result[0],
+    });
+  } catch (error) {
+    console.error("Error fetching try-on session:", error);
+    console.error("Stack trace:", error instanceof Error ? error.stack : "N/A");
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch try-on session",
+    });
+  }
+});
 
 // PUT /api/try-on/sessions/:id - Update a try-on session
 router.put(
@@ -384,7 +570,7 @@ router.put("/:id", requireAuth, async (req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/try-on/sessions/:id - Delete a try-on session
+// DELETE /api/try-on/sessions/:id - Hide a try-on session (soft delete)
 router.delete(
   "/sessions/:id",
   requireAuth,
@@ -392,7 +578,7 @@ router.delete(
     try {
       const { id } = req.params;
 
-      // First check if session exists
+      // First check if session exists and belongs to user
       const [existingSession] = await db
         .select()
         .from(tryOnSessions)
@@ -407,26 +593,64 @@ router.delete(
         });
       }
 
-      // Delete the session
+      // Hide the session instead of deleting
       await db
-        .delete(tryOnSessions)
-        .where(
-          and(eq(tryOnSessions.id, id), eq(tryOnSessions.userId, req.user!.id))
-        );
+        .update(tryOnSessions)
+        .set({ isHidden: true })
+        .where(eq(tryOnSessions.id, id));
 
       res.json({
         success: true,
-        message: "Try-on session deleted successfully",
+        message: "Try-on session hidden successfully",
       });
     } catch (error) {
-      console.error("Error deleting try-on session:", error);
+      console.error("Error hiding try-on session:", error);
       res.status(500).json({
         success: false,
-        error: "Failed to delete try-on session",
+        error: "Failed to hide try-on session",
       });
     }
   }
 );
+
+// DELETE /api/try-on-sessions/:id - Hide a try-on session (direct path when mounted at /api/try-on-sessions)
+router.delete("/:id", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // First check if session exists and belongs to user
+    const [existingSession] = await db
+      .select()
+      .from(tryOnSessions)
+      .where(
+        and(eq(tryOnSessions.id, id), eq(tryOnSessions.userId, req.user!.id))
+      );
+
+    if (!existingSession) {
+      return res.status(404).json({
+        success: false,
+        error: "Try-on session not found",
+      });
+    }
+
+    // Hide the session instead of deleting
+    await db
+      .update(tryOnSessions)
+      .set({ isHidden: true })
+      .where(eq(tryOnSessions.id, id));
+
+    res.json({
+      success: true,
+      message: "Try-on session hidden successfully",
+    });
+  } catch (error) {
+    console.error("Error hiding try-on session:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to hide try-on session",
+    });
+  }
+});
 
 // POST /api/try-on/sessions/:id/download-images - Download and save images locally
 router.post(
@@ -583,5 +807,450 @@ router.post(
     }
   }
 );
+
+// POST /api/try-on-sessions/:id/like - Like a try-on session
+router.post("/:id/like", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Check if session exists and is not hidden
+    const [session] = await db
+      .select()
+      .from(tryOnSessions)
+      .where(eq(tryOnSessions.id, id));
+
+    if (!session || session.isHidden) {
+      return res.status(404).json({
+        success: false,
+        error: "Try-on session not found",
+      });
+    }
+
+    // Check if user already liked this session
+    const [existingLike] = await db
+      .select()
+      .from(sessionLikes)
+      .where(
+        and(
+          eq(sessionLikes.sessionId, id),
+          eq(sessionLikes.userId, req.user!.id)
+        )
+      );
+
+    if (existingLike) {
+      return res.status(400).json({
+        success: false,
+        error: "You already liked this session",
+      });
+    }
+
+    // Add like
+    await db.insert(sessionLikes).values({
+      id: randomUUID(),
+      sessionId: id,
+      userId: req.user!.id,
+    });
+
+    // Increment like count
+    const newLikesCount = (session.likes || 0) + 1;
+    await db
+      .update(tryOnSessions)
+      .set({ likes: newLikesCount })
+      .where(eq(tryOnSessions.id, id));
+
+    res.json({
+      success: true,
+      likes: newLikesCount,
+    });
+  } catch (error) {
+    console.error("Error liking session:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to like session",
+    });
+  }
+});
+
+// DELETE /api/try-on-sessions/:id/like - Unlike a try-on session
+router.delete("/:id/like", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Check if user has liked this session
+    const [existingLike] = await db
+      .select()
+      .from(sessionLikes)
+      .where(
+        and(
+          eq(sessionLikes.sessionId, id),
+          eq(sessionLikes.userId, req.user!.id)
+        )
+      );
+
+    if (!existingLike) {
+      return res.status(400).json({
+        success: false,
+        error: "You haven't liked this session",
+      });
+    }
+
+    // Remove like
+    await db
+      .delete(sessionLikes)
+      .where(
+        and(
+          eq(sessionLikes.sessionId, id),
+          eq(sessionLikes.userId, req.user!.id)
+        )
+      );
+
+    // Decrement like count
+    const [session] = await db
+      .select()
+      .from(tryOnSessions)
+      .where(eq(tryOnSessions.id, id));
+
+    if (session) {
+      const newLikesCount = Math.max((session.likes || 0) - 1, 0);
+      await db
+        .update(tryOnSessions)
+        .set({ likes: newLikesCount })
+        .where(eq(tryOnSessions.id, id));
+    }
+
+    res.json({
+      success: true,
+      likes: session ? Math.max((session.likes || 0) - 1, 0) : 0,
+    });
+  } catch (error) {
+    console.error("Error unliking session:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to unlike session",
+    });
+  }
+});
+
+// POST /api/try-on-sessions/:id/view - Track a view
+router.post("/:id/view", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Check if session exists and is not hidden
+    const [session] = await db
+      .select()
+      .from(tryOnSessions)
+      .where(eq(tryOnSessions.id, id));
+
+    if (!session || session.isHidden) {
+      return res.status(404).json({
+        success: false,
+        error: "Try-on session not found",
+      });
+    }
+
+    // Add view (only track one view per user per session per day)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    await db.insert(sessionViews).values({
+      id: randomUUID(),
+      sessionId: id,
+      userId: req.user?.id || null,
+    });
+
+    // Increment view count
+    const newViewsCount = (session.views || 0) + 1;
+    await db
+      .update(tryOnSessions)
+      .set({ views: newViewsCount })
+      .where(eq(tryOnSessions.id, id));
+
+    res.json({
+      success: true,
+      views: newViewsCount,
+    });
+  } catch (error) {
+    console.error("Error tracking view:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to track view",
+    });
+  }
+});
+
+// POST /api/try-on-sessions/:id/comments - Add a comment
+router.post(
+  "/:id/comments",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { text } = req.body;
+
+      if (!text || text.trim().length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: "Comment text is required",
+        });
+      }
+
+      // Check if session exists and is not hidden
+      const [session] = await db
+        .select()
+        .from(tryOnSessions)
+        .where(eq(tryOnSessions.id, id));
+
+      if (!session || session.isHidden) {
+        return res.status(404).json({
+          success: false,
+          error: "Try-on session not found",
+        });
+      }
+
+      const commentId = randomUUID();
+      await db.insert(sessionComments).values({
+        id: commentId,
+        sessionId: id,
+        userId: req.user!.id,
+        text: text.trim(),
+      });
+
+      // Fetch the created comment
+      const [comment] = await db
+        .select()
+        .from(sessionComments)
+        .where(eq(sessionComments.id, commentId));
+
+      res.status(201).json({
+        success: true,
+        comment,
+      });
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to post comment",
+      });
+    }
+  }
+);
+
+// GET /api/try-on-sessions/:id/comments - Get comments for a session
+router.get("/:id/comments", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const { limit = 20, offset = 0 } = req.query;
+
+    // Check if session exists
+    const [session] = await db
+      .select()
+      .from(tryOnSessions)
+      .where(eq(tryOnSessions.id, id));
+
+    if (!session) {
+      return res.status(404).json({
+        success: false,
+        error: "Try-on session not found",
+      });
+    }
+
+    const comments = await db
+      .select({
+        id: sessionComments.id,
+        userId: sessionComments.userId,
+        sessionId: sessionComments.sessionId,
+        text: sessionComments.text,
+        isDeleted: sessionComments.isDeleted,
+        createdAt: sessionComments.createdAt,
+        userFullName: users.fullNameRw,
+        userName: users.username,
+      })
+      .from(sessionComments)
+      .leftJoin(users, eq(sessionComments.userId, users.id))
+      .where(
+        and(
+          eq(sessionComments.sessionId, id),
+          eq(sessionComments.isDeleted, false)
+        )
+      )
+      .orderBy(desc(sessionComments.createdAt))
+      .limit(Number(limit))
+      .offset(Number(offset));
+
+    res.json({
+      success: true,
+      comments,
+    });
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to fetch comments",
+    });
+  }
+});
+
+// DELETE /api/try-on-sessions/:id/comments/:commentId - Delete a comment
+router.delete(
+  "/:id/comments/:commentId",
+  requireAuth,
+  async (req: Request, res: Response) => {
+    try {
+      const { id, commentId } = req.params;
+
+      // Get the comment
+      const [comment] = await db
+        .select()
+        .from(sessionComments)
+        .where(
+          and(
+            eq(sessionComments.id, commentId),
+            eq(sessionComments.sessionId, id)
+          )
+        );
+
+      if (!comment) {
+        return res.status(404).json({
+          success: false,
+          error: "Comment not found",
+        });
+      }
+
+      // Get the session to check if user is the owner
+      const [session] = await db
+        .select()
+        .from(tryOnSessions)
+        .where(eq(tryOnSessions.id, id));
+
+      // Allow deletion if user is the comment author OR the session owner
+      if (comment.userId !== req.user!.id && session?.userId !== req.user!.id) {
+        return res.status(403).json({
+          success: false,
+          error: "You don't have permission to delete this comment",
+        });
+      }
+
+      // Soft delete the comment
+      await db
+        .update(sessionComments)
+        .set({ isDeleted: true })
+        .where(eq(sessionComments.id, commentId));
+
+      res.json({
+        success: true,
+        message: "Comment deleted successfully",
+      });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      res.status(500).json({
+        success: false,
+        error: "Failed to delete comment",
+      });
+    }
+  }
+);
+
+// POST /api/try-on-sessions/:id/save - Save a session
+router.post("/:id/save", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Check if session exists and is not hidden
+    const [session] = await db
+      .select()
+      .from(tryOnSessions)
+      .where(eq(tryOnSessions.id, id));
+
+    if (!session || session.isHidden) {
+      return res.status(404).json({
+        success: false,
+        error: "Try-on session not found",
+      });
+    }
+
+    // Check if already saved
+    const [existingSave] = await db
+      .select()
+      .from(sessionSaves)
+      .where(
+        and(
+          eq(sessionSaves.sessionId, id),
+          eq(sessionSaves.userId, req.user!.id)
+        )
+      );
+
+    if (existingSave) {
+      return res.status(400).json({
+        success: false,
+        error: "You already saved this session",
+      });
+    }
+
+    // Save the session
+    await db.insert(sessionSaves).values({
+      id: randomUUID(),
+      sessionId: id,
+      userId: req.user!.id,
+    });
+
+    res.json({
+      success: true,
+      message: "Session saved successfully",
+    });
+  } catch (error) {
+    console.error("Error saving session:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to save session",
+    });
+  }
+});
+
+// DELETE /api/try-on-sessions/:id/save - Unsave a session
+router.delete("/:id/save", requireAuth, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // Check if session is saved
+    const [existingSave] = await db
+      .select()
+      .from(sessionSaves)
+      .where(
+        and(
+          eq(sessionSaves.sessionId, id),
+          eq(sessionSaves.userId, req.user!.id)
+        )
+      );
+
+    if (!existingSave) {
+      return res.status(400).json({
+        success: false,
+        error: "You haven't saved this session",
+      });
+    }
+
+    // Remove save
+    await db
+      .delete(sessionSaves)
+      .where(
+        and(
+          eq(sessionSaves.sessionId, id),
+          eq(sessionSaves.userId, req.user!.id)
+        )
+      );
+
+    res.json({
+      success: true,
+      message: "Session unsaved successfully",
+    });
+  } catch (error) {
+    console.error("Error unsaving session:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to unsave session",
+    });
+  }
+});
 
 export default router;

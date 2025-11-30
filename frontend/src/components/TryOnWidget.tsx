@@ -1175,7 +1175,7 @@ export default function TryOnWidget({
 
         <Button
           variant="ghost"
-          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-purple-100 hover:text-purple-700 dark:hover:bg-purple-800 bg-gray-100 dark:bg-gray-800"
+          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-800 bg-gray-100 dark:bg-gray-800"
           onClick={() => {
             const params = new URLSearchParams();
             if (productId) params.append("product-id", productId);
@@ -1188,7 +1188,12 @@ export default function TryOnWidget({
           }}
           title="View Try-On Room"
         >
-          <Grid3X3 className="h-4 w-4" />
+          <div>
+            <Grid3X3 className="h-4 w-4" />
+          </div>
+          <div className="flex flex-row items-center gap-1">
+            <span className="hidden sm:block">Try On</span> <span>Room</span>
+          </div>
         </Button>
       </div>
 
@@ -2204,7 +2209,7 @@ export default function TryOnWidget({
                   variant="outline"
                   className="px-5 py-3 text-sm touch-manipulation rounded-full w-full"
                 >
-                  Reset & Try Again
+                  Reset
                 </Button>
               </motion.div>
               <motion.div
@@ -2224,9 +2229,10 @@ export default function TryOnWidget({
                     }
                   }}
                   variant="outline"
-                  className="px-5 py-3 cursor-pointer text-sm touch-manipulation rounded-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white border-0 shadow-md hover:shadow-lg w-full"
+                  className="px-5 py-3 cursor-pointer text-sm touch-manipulation rounded-full bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white hover:text-white border-0 shadow-md hover:shadow-lg w-full"
                 >
-                  <ShoppingBag className="h-4 w-4 mr-2" /> Send Order
+                  <ShoppingBag className="h-4 w-4 mr-2" />
+                  Order Now
                 </Button>
               </motion.div>
             </div>

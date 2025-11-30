@@ -147,9 +147,12 @@ export const tryOnSessions = table("try_on_sessions", {
   tryOnImageLocalPath: varchar("try_on_image_local_path", { length: 500 }),
   fitRecommendation: text("fit_recommendation"),
   status: text("status").notNull().default("processing"),
+  isHidden: boolean("is_hidden").default(false), // soft delete - hide instead of delete
   isFavorite: boolean("is_favorite").default(false),
   notes: text("notes"),
   rating: int("rating"),
+  likes: int("likes").default(0), // total likes count
+  views: int("views").default(0), // total views count
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -360,6 +363,55 @@ export const emailSubscriptions = table("email_subscriptions", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Session Likes - Track who liked which try-on session
+export const sessionLikes = table("session_likes", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  sessionId: varchar("session_id", { length: 36 })
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id", { length: 36 })
+    .references(() => users.id)
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Session Views - Track views for analytics
+export const sessionViews = table("session_views", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  sessionId: varchar("session_id", { length: 36 })
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id", { length: 36 }).references(() => users.id), // nullable for anonymous views
+  viewedAt: timestamp("viewed_at").defaultNow(),
+});
+
+// Session Comments - Comments on try-on sessions
+export const sessionComments = table("session_comments", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  sessionId: varchar("session_id", { length: 36 })
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id", { length: 36 })
+    .references(() => users.id)
+    .notNull(),
+  text: text("text").notNull(),
+  isDeleted: boolean("is_deleted").default(false), // soft delete for comments
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Session Saves - Track which users saved which sessions
+export const sessionSaves = table("session_saves", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  sessionId: varchar("session_id", { length: 36 })
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id", { length: 36 })
+    .references(() => users.id)
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -426,6 +478,18 @@ export const insertPaymentSettingSchema = createInsertSchema(
 export const insertEmailSubscriptionSchema = createInsertSchema(
   emailSubscriptions
 ).omit({ createdAt: true });
+export const insertSessionLikeSchema = createInsertSchema(sessionLikes).omit({
+  createdAt: true,
+});
+export const insertSessionViewSchema = createInsertSchema(sessionViews).omit({
+  viewedAt: true,
+});
+export const insertSessionCommentSchema = createInsertSchema(
+  sessionComments
+).omit({ createdAt: true, updatedAt: true });
+export const insertSessionSaveSchema = createInsertSchema(sessionSaves).omit({
+  createdAt: true,
+});
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -482,3 +546,11 @@ export type EmailSubscription = typeof emailSubscriptions.$inferSelect;
 export type InsertEmailSubscription = z.infer<
   typeof insertEmailSubscriptionSchema
 >;
+export type SessionLike = typeof sessionLikes.$inferSelect;
+export type InsertSessionLike = z.infer<typeof insertSessionLikeSchema>;
+export type SessionView = typeof sessionViews.$inferSelect;
+export type InsertSessionView = z.infer<typeof insertSessionViewSchema>;
+export type SessionComment = typeof sessionComments.$inferSelect;
+export type InsertSessionComment = z.infer<typeof insertSessionCommentSchema>;
+export type SessionSave = typeof sessionSaves.$inferSelect;
+export type InsertSessionSave = z.infer<typeof insertSessionSaveSchema>;

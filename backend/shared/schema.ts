@@ -153,9 +153,12 @@ export const tryOnSessions = pgTable("try_on_sessions", {
   tryOnImageUrl: text("try_on_image_url"),
   fitRecommendation: text("fit_recommendation"), // JSON string
   status: text("status").notNull().default("processing"), // processing, completed, failed
+  isHidden: boolean("is_hidden").default(false), // soft delete - hide instead of delete
   isFavorite: boolean("is_favorite").default(false), // user can favorite try-ons
   notes: text("notes"), // user notes about this try-on
   rating: integer("rating"), // 1-5 rating for the try-on result
+  likes: integer("likes").default(0), // total likes count
+  views: integer("views").default(0), // total views count
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -164,7 +167,9 @@ export const outfitCollections = pgTable("outfit_collections", {
   id: varchar("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).notNull(),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
   name: text("name").notNull(),
   description: text("description"),
   occasion: text("occasion"), // casual, formal, party, work, etc.
@@ -182,20 +187,84 @@ export const outfitItems = pgTable("outfit_items", {
   id: varchar("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  outfitId: varchar("outfit_id").references(() => outfitCollections.id).notNull(),
-  tryOnSessionId: varchar("try_on_session_id").references(() => tryOnSessions.id),
+  outfitId: varchar("outfit_id")
+    .references(() => outfitCollections.id)
+    .notNull(),
+  tryOnSessionId: varchar("try_on_session_id").references(
+    () => tryOnSessions.id
+  ),
   productId: varchar("product_id").references(() => products.id),
   position: integer("position").default(0), // ordering within outfit
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// User Style Profile - Track preferences and history
+// Session Likes - Track who liked which try-on session
+export const sessionLikes = pgTable("session_likes", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id")
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Session Views - Track views for analytics
+export const sessionViews = pgTable("session_views", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id")
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id").references(() => users.id), // nullable for anonymous views
+  viewedAt: timestamp("viewed_at").defaultNow(),
+});
+
+// Session Comments - Comments on try-on sessions
+export const sessionComments = pgTable("session_comments", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id")
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
+  text: text("text").notNull(),
+  isDeleted: boolean("is_deleted").default(false), // soft delete for comments
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Session Saves - Track which users saved which sessions
+export const sessionSaves = pgTable("session_saves", {
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id")
+    .references(() => tryOnSessions.id)
+    .notNull(),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// User Style Profiles - Track preferences and history
 export const userStyleProfiles = pgTable("user_style_profiles", {
   id: varchar("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").references(() => users.id).notNull().unique(),
+  userId: varchar("user_id")
+    .references(() => users.id)
+    .notNull()
+    .unique(),
   favoriteColors: text("favorite_colors").array(), // tracked from try-on history
   favoriteCategories: text("favorite_categories").array(),
   preferredBrands: text("preferred_brands").array(),
@@ -296,9 +365,13 @@ export const agentCommissions = pgTable("agent_commissions", {
     .primaryKey()
     .default(sql`gen_random_uuid()`),
   // The agent who receives this referral commission
-  agentId: varchar("agent_id").references(() => users.id).notNull(),
+  agentId: varchar("agent_id")
+    .references(() => users.id)
+    .notNull(),
   // The direct agent whose action triggered this commission (the managed agent)
-  sourceAgentId: varchar("source_agent_id").references(() => users.id).notNull(),
+  sourceAgentId: varchar("source_agent_id")
+    .references(() => users.id)
+    .notNull(),
   // The subscription payment that generated this event
   subscriptionPaymentId: varchar("subscription_payment_id")
     .references(() => subscriptionPayments.id)
@@ -391,47 +464,109 @@ export const emailSubscriptions = pgTable("email_subscriptions", {
 });
 
 // Insert schemas (allow app-provided UUIDs; only paymentSettings keeps id omitted)
-export const insertUserSchema = createInsertSchema(users).omit({ createdAt: true });
+export const insertUserSchema = createInsertSchema(users).omit({
+  createdAt: true,
+});
 
-export const insertCompanySchema = createInsertSchema(companies).omit({ createdAt: true });
+export const insertCompanySchema = createInsertSchema(companies).omit({
+  createdAt: true,
+});
 
-export const insertCategorySchema = createInsertSchema(categories).omit({ createdAt: true });
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  createdAt: true,
+});
 
-export const insertProductSchema = createInsertSchema(products).omit({ createdAt: true });
+export const insertProductSchema = createInsertSchema(products).omit({
+  createdAt: true,
+});
 
-export const insertCartItemSchema = createInsertSchema(cartItems).omit({ createdAt: true });
+export const insertCartItemSchema = createInsertSchema(cartItems).omit({
+  createdAt: true,
+});
 
-export const insertOrderSchema = createInsertSchema(orders).omit({ createdAt: true });
+export const insertOrderSchema = createInsertSchema(orders).omit({
+  createdAt: true,
+});
 
 export const insertOrderItemSchema = createInsertSchema(orderItems);
 
-export const insertFavoriteSchema = createInsertSchema(favorites).omit({ createdAt: true });
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  createdAt: true,
+});
 
-export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({ createdAt: true });
+export const insertTryOnSessionSchema = createInsertSchema(tryOnSessions).omit({
+  createdAt: true,
+});
 
-export const insertOutfitCollectionSchema = createInsertSchema(outfitCollections).omit({ createdAt: true, updatedAt: true });
+export const insertOutfitCollectionSchema = createInsertSchema(
+  outfitCollections
+).omit({ createdAt: true, updatedAt: true });
 
-export const insertOutfitItemSchema = createInsertSchema(outfitItems).omit({ createdAt: true });
+export const insertOutfitItemSchema = createInsertSchema(outfitItems).omit({
+  createdAt: true,
+});
 
-export const insertUserStyleProfileSchema = createInsertSchema(userStyleProfiles).omit({ createdAt: true, updatedAt: true });
+export const insertSessionLikeSchema = createInsertSchema(sessionLikes).omit({
+  createdAt: true,
+});
 
-export const insertReviewSchema = createInsertSchema(reviews).omit({ createdAt: true });
+export const insertSessionViewSchema = createInsertSchema(sessionViews).omit({
+  viewedAt: true,
+});
 
-export const insertSubscriptionPlanSchema = createInsertSchema(subscriptionPlans).omit({ createdAt: true });
+export const insertSessionCommentSchema = createInsertSchema(
+  sessionComments
+).omit({
+  createdAt: true,
+  updatedAt: true,
+});
 
-export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({ createdAt: true });
+export const insertSessionSaveSchema = createInsertSchema(sessionSaves).omit({
+  createdAt: true,
+});
 
-export const insertSubscriptionPaymentSchema = createInsertSchema(subscriptionPayments).omit({ createdAt: true });
-export const insertAgentCommissionSchema = createInsertSchema(agentCommissions).omit({ createdAt: true });
+export const insertUserStyleProfileSchema = createInsertSchema(
+  userStyleProfiles
+).omit({ createdAt: true, updatedAt: true });
 
-export const insertNotificationSchema = createInsertSchema(notifications).omit({ createdAt: true });
+export const insertReviewSchema = createInsertSchema(reviews).omit({
+  createdAt: true,
+});
 
-export const insertUserWalletSchema = createInsertSchema(userWallets).omit({ createdAt: true, updatedAt: true });
+export const insertSubscriptionPlanSchema = createInsertSchema(
+  subscriptionPlans
+).omit({ createdAt: true });
 
-export const insertWalletPaymentSchema = createInsertSchema(walletPayments).omit({ createdAt: true });
+export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
+  createdAt: true,
+});
 
-export const insertPaymentSettingSchema = createInsertSchema(paymentSettings).omit({ id: true, createdAt: true });
-export const insertEmailSubscriptionSchema = createInsertSchema(emailSubscriptions).omit({ createdAt: true });
+export const insertSubscriptionPaymentSchema = createInsertSchema(
+  subscriptionPayments
+).omit({ createdAt: true });
+export const insertAgentCommissionSchema = createInsertSchema(
+  agentCommissions
+).omit({ createdAt: true });
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  createdAt: true,
+});
+
+export const insertUserWalletSchema = createInsertSchema(userWallets).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertWalletPaymentSchema = createInsertSchema(
+  walletPayments
+).omit({ createdAt: true });
+
+export const insertPaymentSettingSchema = createInsertSchema(
+  paymentSettings
+).omit({ id: true, createdAt: true });
+export const insertEmailSubscriptionSchema = createInsertSchema(
+  emailSubscriptions
+).omit({ createdAt: true });
 
 // Types
 export type User = typeof users.$inferSelect;
@@ -462,13 +597,29 @@ export type TryOnSession = typeof tryOnSessions.$inferSelect;
 export type InsertTryOnSession = z.infer<typeof insertTryOnSessionSchema>;
 
 export type OutfitCollection = typeof outfitCollections.$inferSelect;
-export type InsertOutfitCollection = z.infer<typeof insertOutfitCollectionSchema>;
+export type InsertOutfitCollection = z.infer<
+  typeof insertOutfitCollectionSchema
+>;
 
 export type OutfitItem = typeof outfitItems.$inferSelect;
 export type InsertOutfitItem = z.infer<typeof insertOutfitItemSchema>;
 
+export type SessionLike = typeof sessionLikes.$inferSelect;
+export type InsertSessionLike = z.infer<typeof insertSessionLikeSchema>;
+
+export type SessionView = typeof sessionViews.$inferSelect;
+export type InsertSessionView = z.infer<typeof insertSessionViewSchema>;
+
+export type SessionComment = typeof sessionComments.$inferSelect;
+export type InsertSessionComment = z.infer<typeof insertSessionCommentSchema>;
+
+export type SessionSave = typeof sessionSaves.$inferSelect;
+export type InsertSessionSave = z.infer<typeof insertSessionSaveSchema>;
+
 export type UserStyleProfile = typeof userStyleProfiles.$inferSelect;
-export type InsertUserStyleProfile = z.infer<typeof insertUserStyleProfileSchema>;
+export type InsertUserStyleProfile = z.infer<
+  typeof insertUserStyleProfileSchema
+>;
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
@@ -501,4 +652,6 @@ export type InsertWalletPayment = z.infer<typeof insertWalletPaymentSchema>;
 export type PaymentSetting = typeof paymentSettings.$inferSelect;
 export type InsertPaymentSetting = z.infer<typeof insertPaymentSettingSchema>;
 export type EmailSubscription = typeof emailSubscriptions.$inferSelect;
-export type InsertEmailSubscription = z.infer<typeof insertEmailSubscriptionSchema>;
+export type InsertEmailSubscription = z.infer<
+  typeof insertEmailSubscriptionSchema
+>;

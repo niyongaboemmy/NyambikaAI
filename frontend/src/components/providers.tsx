@@ -93,9 +93,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Determine container class outside of JSX to avoid conditional hook calls
-  const containerClass = pathname?.includes("/store/")
-    ? "min-h-screen"
-    : "min-h-screen container mx-auto px-2 sm:px-0";
+  const containerClass =
+    pathname?.includes("/store/") || pathname?.includes("/public-tryon")
+      ? "min-h-screen"
+      : "min-h-screen container mx-auto px-2 sm:px-0";
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -78,6 +78,7 @@ export default function RoleBasedNavigation() {
   const publicLinks = [
     { href: "/", label: "home", icon: Home },
     { href: "/try-on", label: "tryOn", icon: Package },
+    { href: "/public-tryon", label: "publicTryon", icon: Sparkles },
     { href: "/companies", label: "companies", icon: Building2 },
   ];
 

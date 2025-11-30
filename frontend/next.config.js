@@ -68,6 +68,10 @@ const nextConfig = withPWA({
       "nyambikav2.vms.rw",
       "picsum.photos",
       "view.tryon-api.com",
+      "localhost:3001", // API server
+      "localhost:5000", // Alternative API port
+      "127.0.0.1:3001",
+      "127.0.0.1:5000",
     ],
     formats: ["image/webp", "image/avif"],
     // Explicit qualities used in the app (required in Next.js 16+)

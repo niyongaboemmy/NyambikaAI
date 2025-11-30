@@ -20,6 +20,10 @@ export const favorites = s.favorites;
 export const tryOnSessions = s.tryOnSessions;
 export const outfitCollections = s.outfitCollections;
 export const outfitItems = s.outfitItems;
+export const sessionLikes = s.sessionLikes;
+export const sessionViews = s.sessionViews;
+export const sessionComments = s.sessionComments;
+export const sessionSaves = s.sessionSaves;
 export const userStyleProfiles = s.userStyleProfiles;
 export const reviews = s.reviews;
 export const subscriptionPlans = s.subscriptionPlans;
@@ -44,6 +48,10 @@ export const insertFavoriteSchema = s.insertFavoriteSchema;
 export const insertTryOnSessionSchema = s.insertTryOnSessionSchema;
 export const insertOutfitCollectionSchema = s.insertOutfitCollectionSchema;
 export const insertOutfitItemSchema = s.insertOutfitItemSchema;
+export const insertSessionLikeSchema = s.insertSessionLikeSchema;
+export const insertSessionViewSchema = s.insertSessionViewSchema;
+export const insertSessionCommentSchema = s.insertSessionCommentSchema;
+export const insertSessionSaveSchema = s.insertSessionSaveSchema;
 export const insertUserStyleProfileSchema = s.insertUserStyleProfileSchema;
 export const insertReviewSchema = s.insertReviewSchema;
 export const insertSubscriptionPlanSchema = s.insertSubscriptionPlanSchema;
@@ -81,6 +89,14 @@ export type {
   InsertOutfitCollection,
   OutfitItem,
   InsertOutfitItem,
+  SessionLike,
+  InsertSessionLike,
+  SessionView,
+  InsertSessionView,
+  SessionComment,
+  InsertSessionComment,
+  SessionSave,
+  InsertSessionSave,
   UserStyleProfile,
   InsertUserStyleProfile,
   Review,
