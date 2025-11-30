@@ -66,12 +66,24 @@ export async function generateMetadata({
     ? `Check out this amazing AI try-on result for ${session.productName}. ${session.fitRecommendation}`
     : `Discover this stunning virtual try-on of ${session.productName} using AI technology. See how fashion comes to life!`;
 
-  // Use the try-on result image as the primary OG image
-  const imageUrl = session.tryOnImageUrl.startsWith("http")
-    ? session.tryOnImageUrl
-    : `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003"}${
-        session.tryOnImageUrl
-      }`;
+  // Use the try-on result image as the primary OG image, fallback to customer image or default
+  let imageUrl: string;
+  if (session.tryOnImageUrl) {
+    imageUrl = session.tryOnImageUrl.startsWith("http")
+      ? session.tryOnImageUrl
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003"}${
+          session.tryOnImageUrl
+        }`;
+  } else if (session.customerImageUrl) {
+    imageUrl = session.customerImageUrl.startsWith("http")
+      ? session.customerImageUrl
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003"}${
+          session.customerImageUrl
+        }`;
+  } else {
+    // Fallback to a default image
+    imageUrl = "/nyambika_light_icon.png";
+  }
 
   return {
     title,
