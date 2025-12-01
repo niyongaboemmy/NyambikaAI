@@ -1,3 +1,7 @@
+import { processImage } from "./utils/imageProcessor";
+import path from "path";
+import fs from "fs";
+
 // Prefer VIRTUAL_TRYON_URL if provided, backward compatibility
 const VIRTUAL_TRYON_URL =
   process.env.VIRTUAL_TRYON_URL || "https://tryon-api.com";
@@ -38,14 +42,104 @@ async function toClothFlowInput(val: string): Promise<string> {
   return val;
 }
 
+// Crop product image for try-on by downloading, processing, and returning as data URL
+async function cropProductImageForTryOn(
+  imageUrlOrBase64: string
+): Promise<string | null> {
+  try {
+    let imageBuffer: Buffer;
+
+    if (/^https?:\/\//i.test(imageUrlOrBase64)) {
+      // Download image from URL
+      const response = await fetch(imageUrlOrBase64);
+      if (!response.ok) {
+        throw new Error(`Failed to download image: ${response.status}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      imageBuffer = Buffer.from(arrayBuffer);
+    } else if (imageUrlOrBase64.startsWith("data:")) {
+      // Handle data URL
+      const match = imageUrlOrBase64.match(
+        /^data:image\/(png|jpg|jpeg|webp);base64,(.+)$/i
+      );
+      if (match) {
+        imageBuffer = Buffer.from(match[2], "base64");
+      } else {
+        throw new Error("Invalid data URL format");
+      }
+    } else {
+      // Assume base64
+      imageBuffer = Buffer.from(imageUrlOrBase64, "base64");
+    }
+
+    // Create temp file for processing
+    const tempDir = path.join(process.cwd(), "temp");
+    if (!fs.existsSync(tempDir)) {
+      fs.mkdirSync(tempDir, { recursive: true });
+    }
+
+    const tempInputPath = path.join(tempDir, `temp-product-${Date.now()}.jpg`);
+    const tempOutputPath = path.join(
+      tempDir,
+      `temp-product-cropped-${Date.now()}.jpg`
+    );
+
+    // Write buffer to temp file
+    fs.writeFileSync(tempInputPath, imageBuffer);
+
+    try {
+      // Process the image (compress and crop)
+      const result = await processImage(tempInputPath, tempOutputPath);
+
+      if (result.success && result.outputPath) {
+        // Read the processed image and convert to base64
+        const base64 = fs.readFileSync(result.outputPath).toString("base64");
+        return `data:image/jpeg;base64,${base64}`;
+      } else {
+        console.error("Image processing failed:", result.error);
+        return null;
+      }
+    } finally {
+      // Clean up temp files
+      try {
+        if (fs.existsSync(tempInputPath)) fs.unlinkSync(tempInputPath);
+        if (fs.existsSync(tempOutputPath)) fs.unlinkSync(tempOutputPath);
+      } catch (cleanupError) {
+        console.warn("Failed to clean up temp files:", cleanupError);
+      }
+    }
+  } catch (error) {
+    console.error("Error cropping product image for try-on:", error);
+    return null;
+  }
+}
+
 // Python virtual_tryon service integration (supports engines: viton_hd, stable_viton)
 async function generateWithVirtualTryOnService(
   customerImageBase64OrUrl: string,
   productImageBase64OrUrl: string
 ): Promise<VirtualTryOnResult> {
   try {
+    // Crop the product image before processing
+    let processedProductImage = productImageBase64OrUrl;
+    try {
+      console.log("Cropping product image for try-on...");
+      const croppedImage = await cropProductImageForTryOn(
+        productImageBase64OrUrl
+      );
+      if (croppedImage) {
+        processedProductImage = croppedImage;
+        console.log("Product image cropped successfully for try-on");
+      } else {
+        console.log("Product image cropping failed, using original");
+      }
+    } catch (cropError) {
+      console.error("Error cropping product image:", cropError);
+      // Continue with original image
+    }
+
     const person = await toClothFlowInput(customerImageBase64OrUrl);
-    const cloth = await toClothFlowInput(productImageBase64OrUrl);
+    const cloth = await toClothFlowInput(processedProductImage);
 
     if (!person || !cloth) {
       return {

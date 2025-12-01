@@ -865,7 +865,7 @@ export function PexelsImageModal({
                               setSelectedImage(chosenUrl);
                             return (
                               <div
-                                key={image.id}
+                                key={index + 1}
                                 className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer hover:scale-[1.02] hover:shadow-xl ${
                                   selectedImage === chosenUrl
                                     ? "ring-2 ring-blue-500 border-blue-500 shadow-lg shadow-blue-500/25"

@@ -633,7 +633,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-6">
             <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white">
-              💕 {t("home.brands")}
+              {t("home.brands")}
             </h2>
             <div className="flex gap-1">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-ping" />
@@ -715,15 +715,13 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white">
-                🎀 {t("home.shopByCategory")}
+                {t("home.shopByCategory")}
               </h2>
               <div className="flex items-center gap-1">
                 <span
                   className="text-base animate-spin"
                   style={{ animationDuration: "3s" }}
-                >
-                  🌈
-                </span>
+                ></span>
                 <span className="text-sm animate-bounce">✨</span>
               </div>
             </div>
@@ -761,19 +759,17 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               <h2 className="text-lg sm:text-xl md:text-2xl lg:text-2xl font-bold text-black dark:text-white">
                 {selectedCompany
                   ? `${selectedCompany.name} ${t("home.products")}`
-                  : `🔥 ${t("home.trending")}`}
+                  : `${t("home.trending")}`}
               </h2>
               <div className="flex items-center gap-3">
                 <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse shadow-xl">
-                  {t("home.hot")} 🔥
+                  {t("home.hot")}
                 </span>
                 <div className="flex gap-2">
                   <span
                     className="text-2xl animate-bounce"
                     style={{ animationDelay: "0s" }}
-                  >
-                    💫
-                  </span>
+                  ></span>
                   <span
                     className="text-lg animate-bounce"
                     style={{ animationDelay: "0.3s" }}
@@ -829,9 +825,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                     {/* Content */}
                     <div className="relative z-10 text-center">
                       <div className="flex items-center justify-center gap-2 mb-4">
-                        <span className="text-2xl sm:text-3xl animate-bounce">
-                          🎉
-                        </span>
+                        <span className="text-2xl sm:text-3xl animate-bounce"></span>
                         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                           {t("home.moreTitle")}
                         </h3>
@@ -846,7 +840,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                       <p className="text-white/90 text-sm sm:text-base md:text-lg mb-6 max-w-2xl mx-auto">
                         {t("home.moreDesc.prefix")}{" "}
                         {activeProducerProducts.length - 10}
-                        {t("home.moreDesc.suffix")} 💖
+                        {t("home.moreDesc.suffix")}
                       </p>
 
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -854,7 +848,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                           onClick={() => router.push("/products-search")}
                           className="bg-white text-purple-600 hover:bg-gray-50 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg text-sm sm:text-base w-full sm:w-auto"
                         >
-                          🔍 {t("home.browseAll")}
+                          {t("home.browseAll")}
                         </Button>
 
                         <div className="flex items-center gap-2 text-white/80 text-xs sm:text-sm">
