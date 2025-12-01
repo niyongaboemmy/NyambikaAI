@@ -24,9 +24,39 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype.startsWith("image/")) {
+    console.log(
+      `File upload attempt: ${file.originalname}, mimetype: ${file.mimetype}`
+    );
+    const allowedMimes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/bmp",
+    ];
+    const allowedExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".gif",
+      ".webp",
+      ".bmp",
+    ];
+
+    const isMimeValid =
+      file.mimetype.startsWith("image/") ||
+      allowedMimes.includes(file.mimetype);
+    const isExtensionValid = allowedExtensions.some((ext) =>
+      file.originalname.toLowerCase().endsWith(ext)
+    );
+
+    if (isMimeValid || isExtensionValid) {
       cb(null, true);
     } else {
+      console.error(
+        `Rejected file: ${file.originalname} with mimetype: ${file.mimetype}`
+      );
       cb(new Error("Only image files are allowed"));
     }
   },

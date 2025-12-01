@@ -1,4 +1,4 @@
-import sharp from "sharp";
+import Jimp from "jimp";
 import path from "path";
 import fs from "fs";
 import { OpenAI } from "openai";
@@ -62,40 +62,30 @@ export async function compressImage(
     const stats = fs.statSync(inputPath);
     const originalSize = stats.size;
 
-    let sharpInstance = sharp(inputPath);
+    const image = await Jimp.read(inputPath);
 
     // Resize if needed
-    const metadata = await sharpInstance.metadata();
-    if (metadata.width! > maxWidth || metadata.height! > maxHeight) {
-      sharpInstance = sharpInstance.resize(maxWidth, maxHeight, {
-        fit: "inside",
-        withoutEnlargement: true,
-      });
+    if (image.bitmap.width > maxWidth || image.bitmap.height > maxHeight) {
+      image.resize(maxWidth, maxHeight);
     }
 
     // Compress based on format
-    switch (format) {
-      case "jpeg":
-        sharpInstance = sharpInstance.jpeg({ quality });
-        break;
-      case "png":
-        sharpInstance = sharpInstance.png({ quality });
-        break;
-      case "webp":
-        sharpInstance = sharpInstance.webp({ quality });
-        break;
+    if (format === "jpeg") {
+      image.quality(quality);
+    } else if (format === "png") {
+      // Jimp PNG quality is compression level 0-9 (0 = no compression, 9 = max)
+      image.quality(Math.round((100 - quality) / 10));
+    } else {
+      // webp not supported by Jimp, fallback to jpeg
+      image.quality(quality);
     }
 
-    // Process and save
-    const outputBuffer = await sharpInstance.toBuffer();
-    fs.writeFileSync(outputPath, outputBuffer);
+    // Save
+    await image.writeAsync(outputPath);
 
     // Get new file stats
     const newStats = fs.statSync(outputPath);
     const processedSize = newStats.size;
-
-    // Get final dimensions
-    const finalMetadata = await sharp(outputPath).metadata();
 
     return {
       success: true,
@@ -105,8 +95,8 @@ export async function compressImage(
         processedSize,
         compressionRatio: originalSize / processedSize,
         dimensions: {
-          width: finalMetadata.width!,
-          height: finalMetadata.height!,
+          width: image.bitmap.width,
+          height: image.bitmap.height,
         },
       },
     };
@@ -172,7 +162,7 @@ export async function detectSubjectForCropping(
 }
 
 /**
- * Crop an image using Sharp
+ * Crop an image using Jimp
  */
 export async function cropImage(
   inputPath: string,
@@ -180,31 +170,25 @@ export async function cropImage(
   cropOptions: CropOptions
 ): Promise<ImageProcessingResult> {
   try {
-    const metadata = await sharp(inputPath).metadata();
-    const { width: imgWidth, height: imgHeight } = metadata;
+    const image = await Jimp.read(inputPath);
+    const imgWidth = image.bitmap.width;
+    const imgHeight = image.bitmap.height;
 
     // Convert relative coordinates to absolute pixels
-    const left = Math.round(cropOptions.left * imgWidth!);
-    const top = Math.round(cropOptions.top * imgHeight!);
-    const width = Math.round(cropOptions.width * imgWidth!);
-    const height = Math.round(cropOptions.height * imgHeight!);
+    const left = Math.round(cropOptions.left * imgWidth);
+    const top = Math.round(cropOptions.top * imgHeight);
+    const width = Math.round(cropOptions.width * imgWidth);
+    const height = Math.round(cropOptions.height * imgHeight);
 
     // Ensure crop area is within bounds
     const safeLeft = Math.max(0, left);
     const safeTop = Math.max(0, top);
-    const safeWidth = Math.min(width, imgWidth! - safeLeft);
-    const safeHeight = Math.min(height, imgHeight! - safeTop);
+    const safeWidth = Math.min(width, imgWidth - safeLeft);
+    const safeHeight = Math.min(height, imgHeight - safeTop);
 
-    const outputBuffer = await sharp(inputPath)
-      .extract({
-        left: safeLeft,
-        top: safeTop,
-        width: safeWidth,
-        height: safeHeight,
-      })
-      .toBuffer();
+    image.crop(safeLeft, safeTop, safeWidth, safeHeight);
 
-    fs.writeFileSync(outputPath, outputBuffer);
+    await image.writeAsync(outputPath);
 
     const stats = fs.statSync(inputPath);
     const originalSize = stats.size;
