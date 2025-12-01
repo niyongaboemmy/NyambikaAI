@@ -122,6 +122,12 @@ export async function detectSubjectForCropping(
       return null;
     }
 
+    // Check if API key is available
+    if (!process.env.OPENAI_API_KEY) {
+      console.warn("OpenAI API key not set - skipping subject detection");
+      return null;
+    }
+
     // Convert image to base64
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = imageBuffer.toString("base64");
@@ -157,6 +163,7 @@ export async function detectSubjectForCropping(
     return cropData as CropOptions;
   } catch (error) {
     console.error("Error detecting subject for cropping:", error);
+    // Return null instead of throwing to allow graceful fallback
     return null;
   }
 }

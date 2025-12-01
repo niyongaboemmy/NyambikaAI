@@ -88,7 +88,16 @@ async function cropProductImageForTryOn(
     fs.writeFileSync(tempInputPath, imageBuffer);
 
     try {
-      // Process the image (compress and crop)
+      // Process the image (compress and crop) - skip if OpenAI not available
+      if (!process.env.OPENAI_API_KEY) {
+        console.log(
+          "OpenAI API key not available - skipping image cropping for try-on"
+        );
+        // Return original image as base64
+        const base64 = imageBuffer.toString("base64");
+        return `data:image/jpeg;base64,${base64}`;
+      }
+
       const result = await processImage(tempInputPath, tempOutputPath);
 
       if (result.success && result.outputPath) {
@@ -97,7 +106,9 @@ async function cropProductImageForTryOn(
         return `data:image/jpeg;base64,${base64}`;
       } else {
         console.error("Image processing failed:", result.error);
-        return null;
+        // Return original image as fallback
+        const base64 = imageBuffer.toString("base64");
+        return `data:image/jpeg;base64,${base64}`;
       }
     } finally {
       // Clean up temp files
