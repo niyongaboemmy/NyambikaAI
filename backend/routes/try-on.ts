@@ -745,6 +745,37 @@ router.post(
               return;
             }
 
+            // Handle local uploads that start with /api/uploads/
+            if (imageUrl.startsWith("/api/uploads/")) {
+              const localPath = path.join(
+                process.cwd(),
+                "public",
+                imageUrl.replace("/api/uploads/", "uploads/")
+              );
+
+              if (fs.existsSync(localPath)) {
+                // Copy local file
+                const destPath = path.join(uploadDir, filename);
+                fs.copyFile(
+                  localPath,
+                  destPath,
+                  (err: NodeJS.ErrnoException | null) => {
+                    if (err) {
+                      console.error("Error copying local file:", err);
+                      resolve(null);
+                    } else {
+                      resolve(`/uploads/tryon-images/${filename}`);
+                    }
+                  }
+                );
+                return;
+              } else {
+                console.error("Local file not found:", localPath);
+                resolve(null);
+                return;
+              }
+            }
+
             const filePath = path.join(uploadDir, filename);
             const file = fs.createWriteStream(filePath);
             const protocol = imageUrl.startsWith("https") ? https : http;

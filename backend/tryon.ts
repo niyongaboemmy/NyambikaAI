@@ -209,7 +209,7 @@ async function generateWithVirtualTryOnService(
     console.log("Polling status URL:", absoluteStatusUrl);
 
     // Poll for completion
-    const totalTimeoutMs = Number(process.env.TRYON_POLL_TIMEOUT_MS || 120000); // Increased to 2 minutes
+    const totalTimeoutMs = Number(process.env.TRYON_POLL_TIMEOUT_MS || 900000); // Increased to 15 minutes for processing_from_queue
     const status = await pollTryOnStatus(
       absoluteStatusUrl,
       headers,
