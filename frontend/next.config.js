@@ -56,22 +56,21 @@ const nextConfig = withPWA({
 
   // ✅ Configure image optimization
   images: {
-    domains: [
-      "localhost",
-      "127.0.0.1",
-      "nyambika.com",
-      "images.unsplash.com",
-      "images.pexels.com",
-      "res.cloudinary.com",
-      "marketplace.canva.com",
-      "vms.rw",
-      "nyambikav2.vms.rw",
-      "picsum.photos",
-      "view.tryon-api.com",
-      "localhost:3001", // API server
-      "localhost:5000", // Alternative API port
-      "127.0.0.1:3001",
-      "127.0.0.1:5000",
+    remotePatterns: [
+      { protocol: "http", hostname: "localhost" },
+      { protocol: "http", hostname: "127.0.0.1" },
+      { protocol: "https", hostname: "nyambika.com" },
+      { protocol: "https", hostname: "images.unsplash.com" },
+      { protocol: "https", hostname: "images.pexels.com" },
+      { protocol: "https", hostname: "res.cloudinary.com" },
+      { protocol: "https", hostname: "marketplace.canva.com" },
+      { protocol: "https", hostname: "vms.rw" },
+      { protocol: "https", hostname: "nyambikav2.vms.rw" },
+      { protocol: "https", hostname: "picsum.photos" },
+      { protocol: "https", hostname: "view.tryon-api.com" },
+      { protocol: "https", hostname: "example.com" }, // placeholder/test data
+      { protocol: "https", hostname: "**.amazonaws.com" }, // S3 / try-on results
+      { protocol: "https", hostname: "**.neon.tech" },
     ],
     formats: ["image/webp", "image/avif"],
     // Explicit qualities used in the app (required in Next.js 16+)

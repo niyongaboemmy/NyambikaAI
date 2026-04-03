@@ -26,6 +26,7 @@
     "framer-motion": "^12.23.12"
   },
   "devDependencies": {
-    "@types/node": "20.16.11"
+    "@types/node": "20.16.11",
+    "prisma": "^7.0.1"
   }
 }

@@ -1,6 +1,9 @@
 import { processImage } from "./utils/imageProcessor";
 import path from "path";
 import fs from "fs";
+import { db } from "./db";
+import { tryOnSessions } from "./shared/schema.dialect";
+import { eq } from "drizzle-orm";
 
 // Prefer VIRTUAL_TRYON_URL if provided, backward compatibility
 const VIRTUAL_TRYON_URL =
@@ -424,4 +427,63 @@ export async function generateVirtualTryOn(
     customerImageBase64OrUrl,
     productImageBase64OrUrl
   );
+}
+
+// Async processing function for try-on sessions
+export async function processTryOnAsync(
+  sessionId: string,
+  customerImageBase64OrUrl: string,
+  productImageBase64OrUrl: string,
+  productType: string = "general"
+): Promise<void> {
+  try {
+    console.log(`Starting async try-on processing for session ${sessionId}`);
+
+    // Generate virtual try-on
+    const result = await generateVirtualTryOn(
+      customerImageBase64OrUrl,
+      productImageBase64OrUrl,
+      productType
+    );
+
+    if (result.success) {
+      // Update session with successful result
+      await db
+        .update(tryOnSessions)
+        .set({
+          tryOnImageUrl: result.tryOnImageUrl,
+          fitRecommendation: JSON.stringify(result.recommendations || {}),
+          status: "completed",
+        })
+        .where(eq(tryOnSessions.id, sessionId));
+
+      console.log(`Try-on session ${sessionId} completed successfully`);
+    } else {
+      // Update session with failure
+      await db
+        .update(tryOnSessions)
+        .set({
+          status: "failed",
+          notes: result.error || "Processing failed",
+        })
+        .where(eq(tryOnSessions.id, sessionId));
+
+      console.error(`Try-on session ${sessionId} failed: ${result.error}`);
+    }
+  } catch (error) {
+    console.error(`Error processing try-on session ${sessionId}:`, error);
+
+    try {
+      // Update session with error
+      await db
+        .update(tryOnSessions)
+        .set({
+          status: "failed",
+          notes: error instanceof Error ? error.message : "Unknown error",
+        })
+        .where(eq(tryOnSessions.id, sessionId));
+    } catch (dbError) {
+      console.error(`Failed to update session ${sessionId} status:`, dbError);
+    }
+  }
 }

@@ -12,7 +12,7 @@ import {
 import jwt from "jsonwebtoken";
 import { randomUUID } from "crypto";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
-import { generateVirtualTryOn } from "../tryon";
+import { processTryOnAsync } from "../tryon";
 import multer from "multer";
 
 const router = Router();
@@ -85,7 +85,7 @@ const requireAuth = async (req: any, res: any, next: any) => {
   }
 };
 
-// POST /api/try-on - Main virtual try-on endpoint
+// POST /api/try-on - Main virtual try-on endpoint (async)
 router.post(
   "/",
   upload.fields([
@@ -94,7 +94,7 @@ router.post(
   ]),
   async (req: any, res: Response) => {
     try {
-      const { product_type = "general" } = req.body;
+      const { product_type = "general", productId, productName } = req.body;
 
       // Check if files were uploaded
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -108,28 +108,40 @@ router.post(
         });
       }
 
+      if (!productId || !productName) {
+        return res.status(400).json({
+          success: false,
+          error: "productId and productName are required",
+        });
+      }
+
       // Convert buffer to base64 for processing
       const personImageBase64 = personImage.buffer.toString("base64");
       const garmentImageBase64 = garmentImage.buffer.toString("base64");
 
-      // Generate virtual try-on
-      const result = await generateVirtualTryOn(
+      // Create try-on session
+      const sessionId = randomUUID();
+      await db.insert(tryOnSessions).values({
+        id: sessionId,
+        userId: req.user?.id || null, // Allow anonymous try-ons
+        customerImageUrl: `data:${personImage.mimetype};base64,${personImageBase64}`,
+        productId,
+        status: "processing",
+        isFavorite: false,
+      });
+
+      // Start async processing (don't await)
+      processTryOnAsync(
+        sessionId,
         `data:${personImage.mimetype};base64,${personImageBase64}`,
         `data:${garmentImage.mimetype};base64,${garmentImageBase64}`,
         product_type
       );
 
-      if (!result.success) {
-        return res.status(500).json({
-          success: false,
-          error: result.error || "Failed to generate virtual try-on",
-        });
-      }
-
       res.json({
         success: true,
-        tryOnImageUrl: result.tryOnImageUrl,
-        recommendations: result.recommendations,
+        sessionId,
+        message: "Try-on session created. Processing in background.",
       });
     } catch (error) {
       console.error("Error in POST /api/try-on:", error);

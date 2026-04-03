@@ -127,6 +127,7 @@ export default function TryOnRoom() {
   const productImageUrl = searchParams.get("product-image-url")
     ? decodeURIComponent(searchParams.get("product-image-url")!)
     : null;
+  const sessionId = searchParams.get("session-id");
 
   const [sessions, setSessions] = useState<TryOnSession[]>([]);
   const [pagination, setPagination] = useState<PaginationData | null>(null);
@@ -158,12 +159,63 @@ export default function TryOnRoom() {
   const [postingComment, setPostingComment] = useState(false);
   const [showCommentsModal, setShowCommentsModal] = useState(false);
 
+  // Processing session state
+  const [processingSession, setProcessingSession] =
+    useState<TryOnSession | null>(null);
+  const [processingStatus, setProcessingStatus] =
+    useState<string>("processing");
+  const [processingProgress, setProcessingProgress] = useState(0);
+  const [processingStartTime, setProcessingStartTime] = useState<Date | null>(
+    null
+  );
+  const [estimatedTimeRemaining, setEstimatedTimeRemaining] = useState<
+    number | null
+  >(null);
+
   // Redirect unauthenticated users to public tryon page
   useEffect(() => {
     if (!user) {
       router.push("/public-tryon");
     }
   }, [user, router]);
+
+  // Handle session processing when session-id is provided
+  useEffect(() => {
+    if (sessionId && user) {
+      fetchProcessingSession();
+      setProcessingStartTime(new Date());
+    }
+  }, [sessionId, user]);
+
+  // Poll for session status updates
+  useEffect(() => {
+    if (
+      !processingSession ||
+      processingSession.status === "completed" ||
+      processingSession.status === "failed"
+    ) {
+      return;
+    }
+
+    const pollInterval = setInterval(() => {
+      pollSessionStatus();
+    }, 3000); // Poll every 3 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [processingSession]);
+
+  // Update progress and estimated time
+  useEffect(() => {
+    if (processingStartTime && processingSession) {
+      const elapsed = Date.now() - processingStartTime.getTime();
+      const progress = Math.min((elapsed / 180000) * 100, 90); // Assume 3 minutes max, cap at 90%
+      setProcessingProgress(progress);
+
+      // Estimate remaining time (rough estimate)
+      const remaining = Math.max(180000 - elapsed, 0);
+      setEstimatedTimeRemaining(remaining);
+    }
+  }, [processingStartTime, processingSession, processingProgress]);
 
   // Group sessions by product (for bottom gallery)
   const productsWithSessions = Array.from(
@@ -179,6 +231,84 @@ export default function TryOnRoom() {
       ])
     ).values()
   );
+
+  // Fetch processing session details
+  const fetchProcessingSession = async () => {
+    if (!sessionId) return;
+
+    try {
+      const response = await apiClient.get(`/api/try-on/sessions/${sessionId}`);
+      if (response.data?.success) {
+        const session = response.data.session;
+        setProcessingSession({
+          id: session.id,
+          productId: session.productId,
+          productName: session.productName || productName || "Product",
+          productImage:
+            session.productImage ||
+            productImageUrl ||
+            "/images/placeholder-product.jpg",
+          customerImage: session.customerImageUrl,
+          resultImage: session.tryOnImageUrl || session.customerImageUrl,
+          status: session.status,
+          createdAt: session.createdAt,
+          userId: session.userId,
+          userName: "You",
+          userAvatar: "https://picsum.photos/seed/avatar/100/100.jpg",
+          likes: session.likes || 0,
+          views: session.views || 0,
+        });
+        setProcessingStatus(session.status);
+
+        // If completed, stop polling
+        if (session.status === "completed" || session.status === "failed") {
+          setProcessingProgress(100);
+        }
+      }
+    } catch (err) {
+      console.error("Error fetching processing session:", err);
+      setError("Failed to load session details");
+    }
+  };
+
+  // Poll session status
+  const pollSessionStatus = async () => {
+    if (!sessionId || !processingSession) return;
+
+    try {
+      const response = await apiClient.get(`/api/try-on/sessions/${sessionId}`);
+      if (response.data?.success) {
+        const session = response.data.session;
+
+        // Update processing session if status changed
+        if (session.status !== processingSession.status) {
+          setProcessingSession((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: session.status,
+                  resultImage: session.tryOnImageUrl || prev.resultImage,
+                }
+              : null
+          );
+          setProcessingStatus(session.status);
+
+          if (session.status === "completed") {
+            setProcessingProgress(100);
+            // Show success message or redirect
+            setTimeout(() => {
+              // Refresh the page to show in gallery
+              window.location.reload();
+            }, 2000);
+          } else if (session.status === "failed") {
+            setProcessingProgress(100);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Error polling session status:", err);
+    }
+  };
 
   const fetchSessions = async (page: number = 1) => {
     try {
@@ -545,6 +675,151 @@ export default function TryOnRoom() {
           </AnimatePresence>
         </div>
       </motion.div>
+
+      {/* Processing Session UI */}
+      {processingSession && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/50 dark:to-indigo-950/50 border border-blue-200 dark:border-blue-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 mx-3 sm:mx-4 mt-4"
+        >
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start lg:items-center">
+            {/* Product Info */}
+            <div className="flex gap-3 sm:gap-4 flex-1 min-w-0">
+              <div className="relative w-12 h-12 sm:w-16 sm:h-16 rounded-lg overflow-hidden flex-shrink-0">
+                <Image
+                  src={processingSession.productImage}
+                  alt={processingSession.productName}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="min-w-0 flex-1">
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm sm:text-base truncate">
+                  {processingSession.productName}
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
+                  AI Virtual Try-On in Progress
+                </p>
+              </div>
+            </div>
+
+            {/* Processing Status */}
+            <div className="flex-1 max-w-md w-full lg:w-auto">
+              <div className="space-y-3">
+                {/* Progress Bar */}
+                <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                  <motion.div
+                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${processingProgress}%` }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </div>
+
+                {/* Status Text */}
+                <div className="flex items-center justify-between text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    {processingStatus === "processing" && (
+                      <>
+                        <motion.div
+                          animate={{ rotate: 360 }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "linear",
+                          }}
+                        >
+                          <RefreshCw className="h-4 w-4 text-blue-500" />
+                        </motion.div>
+                        <span className="text-slate-600 dark:text-slate-400">
+                          Processing your try-on...
+                        </span>
+                      </>
+                    )}
+                    {processingStatus === "completed" && (
+                      <>
+                        <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                          <svg
+                            className="w-2.5 h-2.5 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </div>
+                        <span className="text-green-600 dark:text-green-400 font-medium">
+                          Try-on completed!
+                        </span>
+                      </>
+                    )}
+                    {processingStatus === "failed" && (
+                      <>
+                        <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                          <X className="w-2.5 h-2.5 text-white" />
+                        </div>
+                        <span className="text-red-600 dark:text-red-400 font-medium">
+                          Processing failed
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  {estimatedTimeRemaining &&
+                    processingStatus === "processing" && (
+                      <span className="text-slate-500 dark:text-slate-400">
+                        ~{Math.ceil(estimatedTimeRemaining / 1000 / 60)} min
+                        remaining
+                      </span>
+                    )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 sm:gap-3">
+                  {processingStatus === "completed" && (
+                    <Button
+                      onClick={() => setSelectedSession(processingSession)}
+                      className="flex-1 sm:flex-none bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full"
+                    >
+                      <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                      View Result
+                    </Button>
+                  )}
+
+                  {processingStatus === "failed" && (
+                    <Button
+                      onClick={() =>
+                        router.push(
+                          `/try-on-widget/${processingSession.productId}`
+                        )
+                      }
+                      className="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full"
+                    >
+                      <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                      Try Again
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="outline"
+                    onClick={() =>
+                      router.push(`/product/${processingSession.productId}`)
+                    }
+                    className="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400"
+                  >
+                    <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
+                    View Product
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Main Content */}
       <div className="container mx-auto px-0 xs:px-1 sm:px-4 py-4 xs:py-6 pt-2 xs:pt-3 sm:py-8 sm:pt-4">

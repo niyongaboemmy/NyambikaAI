@@ -1030,17 +1030,15 @@ export default function TryOnWidget({
           processingStatus: j.processingStatus,
         });
 
-        // Show tracking modal
-        setShowTrackingModal(true);
+        // Redirect to tryon-room page with session ID
+        const params = new URLSearchParams();
+        if (productId) params.append("product-id", productId);
+        if (productName) params.append("product-name", productName);
+        if (productImageUrl)
+          params.append("product-image-url", productImageUrl);
+        if (session.id) params.append("session-id", session.id);
 
-        // Set timeout to check back later (frontend could implement polling here)
-        setTimeout(() => {
-          toast({
-            title: "Try-on taking longer",
-            description:
-              "Your try-on is still processing. You can check back in a few minutes.",
-          });
-        }, 30000); // 30 seconds
+        router.push(`/tryon-room?${params.toString()}`);
 
         return; // Don't set tryOnResult yet
       }

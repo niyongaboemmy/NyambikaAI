@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NODE_ENV === "production"
       ? "https://nyambika.com"
-      : "http://localhost:3000"
+      : "http://localhost:3000",
   ),
   title: "Nyambika - AI-Powered Fashion Platform",
   description:
