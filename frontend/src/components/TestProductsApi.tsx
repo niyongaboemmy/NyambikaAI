@@ -9,14 +9,12 @@ export default function TestProductsApi() {
   useEffect(() => {
     const testApi = async () => {
       try {
-        console.log('Testing products API...');
         const response = await apiClient.get('/api/products', {
           params: {
             limit: 5,
             offset: 0
           }
         });
-        console.log('API Response:', response);
         setData(response.data);
       } catch (err) {
         console.error('API Error:', err);

@@ -93,42 +93,34 @@ export function InstallPrompt({
 
     // Don't show if already installed
     if (isStandalone()) {
-      console.log("✅ App is already installed");
       return;
     }
 
     // Check dismissal status
     if (checkDismissalStatus()) {
-      console.log("ℹ️ Install prompt was recently dismissed");
       return;
     }
 
     // Detect platform
     if (isIOS()) {
       setPlatform("ios");
-      console.log("📱 Platform detected: iOS");
       // iOS doesn't fire beforeinstallprompt, so we show manual instructions
       const timer = setTimeout(() => {
-        console.log(" iOS timer triggered - showing prompt");
         setShowPrompt(true);
       }, delay);
       return () => clearTimeout(timer);
     } else if (isAndroid()) {
       setPlatform("android");
-      console.log("📱 Platform detected: Android");
       // Android: Wait for beforeinstallprompt event OR show prompt with instructions
       const fallbackTimer = setTimeout(() => {
-        console.log(" Android fallback timer - showing prompt");
         setShowPrompt(true);
         // Don't auto-open instructions, let user click "Get App" button
       }, delay + 2000); // Show after delay + 2 seconds if no event
       return () => clearTimeout(fallbackTimer);
     } else {
       setPlatform("desktop");
-      console.log("💻 Platform detected: Desktop");
       // Desktop: Wait for beforeinstallprompt event OR show prompt
       const fallbackTimer = setTimeout(() => {
-        console.log(" Desktop fallback timer - showing prompt");
         setShowPrompt(true);
         // Don't auto-open instructions, let user click "Get App" button
       }, delay + 2000); // Show after delay + 2 seconds if no event
@@ -141,7 +133,6 @@ export function InstallPrompt({
     if (typeof window === "undefined") return;
 
     const handleManualTrigger = () => {
-      console.log(" Manual install trigger activated");
       setManualTrigger(true);
       setShowPrompt(true);
       if (!deferredPrompt) {
@@ -161,8 +152,6 @@ export function InstallPrompt({
     if (typeof window === "undefined") return;
 
     const handleBeforeInstallPrompt = (e: any) => {
-      console.log("🎉 beforeinstallprompt event fired");
-
       // Prevent the mini-infobar from appearing
       e.preventDefault();
 
@@ -177,7 +166,6 @@ export function InstallPrompt({
     };
 
     const handleAppInstalled = () => {
-      console.log("✅ PWA was installed successfully");
       setDeferredPrompt(null);
       setIsInstallable(false);
       setShowPrompt(false);
@@ -199,27 +187,7 @@ export function InstallPrompt({
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
     window.addEventListener("appinstalled", handleAppInstalled);
 
-    // Debug info in development
-    if (process.env.NODE_ENV === "development") {
-      console.log("🔍 PWA Install Prompt Debug:");
-      console.log("  - HTTPS:", window.location.protocol === "https:");
-      console.log("  - Service Worker:", "serviceWorker" in navigator);
-      console.log(
-        "  - Manifest:",
-        !!document.querySelector('link[rel="manifest"]'),
-      );
-      console.log("  - Platform:", platform);
-      console.log("  - Standalone:", isStandalone());
-
-      // Check service worker registration
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.getRegistrations().then((registrations) => {
-          console.log(
-            `  - SW Registered: ${registrations.length > 0 ? "Yes" : "No"}`,
-          );
-        });
-      }
-    }
+    // Removed debug info
 
     return () => {
       window.removeEventListener(
@@ -246,12 +214,6 @@ export function InstallPrompt({
 
       // Wait for the user's response
       const { outcome } = await deferredPrompt.userChoice;
-
-      console.log(
-        `User ${
-          outcome === "accepted" ? "accepted" : "dismissed"
-        } the install prompt`,
-      );
 
       // Track user choice
       if (typeof window !== "undefined" && (window as any).gtag) {

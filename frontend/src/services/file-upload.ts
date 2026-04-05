@@ -34,9 +34,6 @@ const createPreviewUrl = (file: File): string => {
 
 // Simple test upload without compression
 export const uploadFileDirect = async (file: File): Promise<UploadResponse> => {
-  console.log("=== Direct Upload Test ===");
-  console.log("File:", file);
-
   const formData = new FormData();
   formData.append("image", file);
 
@@ -46,10 +43,9 @@ export const uploadFileDirect = async (file: File): Promise<UploadResponse> => {
       formData
     );
 
-    console.log("Direct upload success:", response.data);
     return response.data;
   } catch (error) {
-    console.log("Direct upload error:", error);
+    console.error("Direct upload error:", error);
     throw error;
   }
 };
@@ -58,12 +54,6 @@ export const uploadFile = async (
   file: File,
   options: UploadOptions = { renameFile: true, preview: true }
 ): Promise<UploadResponse> => {
-  console.log("=== Frontend Upload Debug ===");
-  console.log("Original file:", file);
-  console.log("File name:", file.name);
-  console.log("File size:", file.size);
-  console.log("File type:", file.type);
-
   const formData = new FormData();
 
   // Generate new filename with UUID if renameFile is true
@@ -81,9 +71,7 @@ export const uploadFile = async (
     ? new File([file], fileName, { type: file.type })
     : file;
 
-  console.log("File to upload:", fileToUpload);
   formData.append("image", fileToUpload);
-  console.log("FormData created, sending request...");
 
   try {
     const response = await apiClient.post<UploadResponse>(
@@ -121,14 +109,12 @@ export const uploadFile = async (
       fileType: file.type,
     };
   } catch (error) {
-    console.log("=== Upload Error ===");
-    console.log("Error:", error);
+    console.error("Upload Error:", error);
 
     // Type guard for axios error
     if (error && typeof error === "object" && "response" in error) {
-      console.log("Error response:", (error as any).response?.data);
+      console.error("Error response:", (error as any).response?.data);
     }
-    console.log("===================");
 
     // Clean up preview URL on error
     if (previewUrl) {

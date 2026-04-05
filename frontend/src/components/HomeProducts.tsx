@@ -597,24 +597,10 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
     [isAdmin, isProducer, user?.id, productsById],
   );
 
-  // Debug logging
-  console.log("Categories loading:", categoriesLoading);
-  console.log("Products loading:", productsLoading);
-  console.log("Products pages:", productsPages);
-
   // Get all products from pages
   const allProducts =
     productsPages?.pages?.flatMap((page) => page.products || []) || [];
   const hasProducts = allProducts.length > 0;
-
-  // Debug logging for loading states
-  console.log("=== DEBUG ===");
-  console.log("Categories loading:", categoriesLoading);
-  console.log("Products loading:", productsLoading);
-  console.log("Has products pages:", !!productsPages);
-  console.log("Pages count:", productsPages?.pages?.length || 0);
-  console.log("Total products:", allProducts.length);
-  console.log("First page data:", productsPages?.pages?.[0]);
 
   // Determine loading states
   const isLoading = categoriesLoading || productsLoading;
@@ -622,7 +608,6 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
 
   // Show skeleton only if everything is loading and we have no data yet
   if (showSkeleton) {
-    console.log("Showing loading skeleton - initial load");
     return <HomeProductsSkeleton />;
   }
 

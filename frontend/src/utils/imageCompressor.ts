@@ -36,10 +36,6 @@ export async function compressImage(
   } = options;
 
   const originalSize = file.size;
-  console.log(`=== Starting Compression ===`);
-  console.log(
-    `Original file: ${file.name}, Size: ${(originalSize / 1024).toFixed(2)}KB`
-  );
 
   try {
     // Strategy 1: Try canvas-based compression
@@ -52,7 +48,6 @@ export async function compressImage(
     });
 
     if (canvasResult.success && canvasResult.file.size <= maxSizeKB * 1024) {
-      console.log(`✅ Canvas compression successful`);
       return {
         ...canvasResult,
         originalSize,
@@ -62,7 +57,6 @@ export async function compressImage(
     }
 
     // Strategy 2: Try quality reduction only
-    console.log(`Canvas compression failed, trying quality reduction...`);
     const qualityResult = await compressWithQuality(file, {
       maxSizeKB,
       quality: 0.6,
@@ -70,7 +64,6 @@ export async function compressImage(
     });
 
     if (qualityResult.success && qualityResult.file.size <= maxSizeKB * 1024) {
-      console.log(`✅ Quality compression successful`);
       return {
         ...qualityResult,
         originalSize,
@@ -80,7 +73,6 @@ export async function compressImage(
     }
 
     // Strategy 3: Return original if all compression fails
-    console.log(`⚠️ All compression strategies failed, returning original`);
     return {
       file,
       originalSize,
