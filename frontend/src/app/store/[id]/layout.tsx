@@ -43,10 +43,11 @@ function mimeFromUrl(url: string): string | undefined {
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
-  const company = await getCompany(params.id);
-  const safeId = encodeURIComponent((params.id || "").trim());
+  const { id } = await params;
+  const company = await getCompany(id);
+  const safeId = encodeURIComponent((id || "").trim());
   const title = company?.name || "Store";
   const description =
     (company?.location && company.location.trim()) ||

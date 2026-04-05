@@ -8,7 +8,7 @@ _Your complete guide to earning commissions by managing producer subscriptions_
 
 Join Rwanda's premier fashion platform as an Agent and earn substantial commissions by helping producers succeed. Manage subscriptions, support businesses, and build your income through our innovative agent program.
 
-### ✨ Why Become an Agent
+###  Why Become an Agent
 
 - **40% Commission**: Earn 40% of every subscription payment you process
 - **Flexible Work**: Work on your own schedule
@@ -18,7 +18,7 @@ Join Rwanda's premier fashion platform as an Agent and earn substantial commissi
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Becoming an Agent
 
@@ -68,7 +68,7 @@ Access your dashboard at `/agent-dashboard` to monitor:
 
 - **👥 Total Producers**: Number of producers under your management
 - **✅ Active Subscriptions**: Currently paying subscriptions
-- **⏰ Expired Subscriptions**: Subscriptions needing renewal
+- ** Expired Subscriptions**: Subscriptions needing renewal
 - **💰 Total Commissions**: Lifetime earnings from the platform
 - **📈 Monthly Commissions**: Current month's earnings
 - **⏳ Pending Payments**: Commissions awaiting payout
@@ -304,7 +304,7 @@ View all your assigned producers with:
 
 ---
 
-## 🎯 Best Practices
+##  Best Practices
 
 ### Effective Producer Management
 
@@ -501,4 +501,4 @@ View all your assigned producers with:
 _Last updated: January 2025_  
 _Version: 2.0_
 
-**Your success is our success! 💼🚀**
+**Your success is our success! 💼**

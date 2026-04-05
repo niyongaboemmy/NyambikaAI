@@ -36,7 +36,7 @@ export default function AdminAgentPaymentsPage() {
   const [to, setTo] = useState<string>(search.get("to") || "");
   const [status, setStatus] = useState<string>(search.get("status") || "");
   const [payoutStatus, setPayoutStatus] = useState<string>(
-    search.get("payoutStatus") || ""
+    search.get("payoutStatus") || "",
   );
 
   const queryString = useMemo(() => {
@@ -83,7 +83,7 @@ export default function AdminAgentPaymentsPage() {
   const csvUrl = useMemo(() => {
     const base = API_ENDPOINTS.ADMIN_AGENT_PAYMENTS(agentId).replace(
       "/payments",
-      "/payments.csv"
+      "/payments.csv",
     );
     return `${base}${queryString ? `?${queryString}` : ""}`;
   }, [agentId, queryString]);
@@ -95,7 +95,7 @@ export default function AdminAgentPaymentsPage() {
           <div className="mb-8 flex items-center justify-between">
             <div className="space-y-2">
               <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-indigo-700 dark:from-white dark:to-indigo-300 bg-clip-text text-transparent">
-                ✨ Agent Payments Dashboard
+                Agent Payments Dashboard
               </h1>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-600 dark:text-gray-400">
@@ -338,8 +338,8 @@ export default function AdminAgentPaymentsPage() {
                               p.status === "completed"
                                 ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
                                 : p.status === "pending"
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                             }`}
                           >
                             {p.status === "completed" && "✅"}

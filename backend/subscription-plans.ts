@@ -3,6 +3,8 @@ import { randomUUID } from 'crypto';
 import { db } from './db';
 import { subscriptionPlans, InsertSubscriptionPlan } from './shared/schema.dialect';
 import { eq } from 'drizzle-orm';
+import { sendSuccess, sendError } from './utils/response';
+
 
 // Get all active subscription plans
 export const getSubscriptionPlans = async (_req: Request, res: Response) => {
@@ -13,12 +15,13 @@ export const getSubscriptionPlans = async (_req: Request, res: Response) => {
       .where(eq(subscriptionPlans.isActive, true))
       .orderBy(subscriptionPlans.monthlyPrice);
 
-    res.json(plans);
+    return sendSuccess(res, plans);
   } catch (error) {
     console.error('Error fetching subscription plans:', error);
-    res.status(500).json({ error: 'Failed to fetch subscription plans' });
+    return sendError(res, 500, 'Failed to fetch subscription plans', error);
   }
 };
+
 
 // Get subscription plan by ID
 export const getSubscriptionPlanById = async (req: Request, res: Response) => {
@@ -32,15 +35,16 @@ export const getSubscriptionPlanById = async (req: Request, res: Response) => {
       .limit(1);
 
     if (plan.length === 0) {
-      return res.status(404).json({ error: 'Subscription plan not found' });
+      return sendError(res, 404, 'Subscription plan not found');
     }
 
-    res.json(plan[0]);
+    return sendSuccess(res, plan[0]);
   } catch (error) {
     console.error('Error fetching subscription plan:', error);
-    res.status(500).json({ error: 'Failed to fetch subscription plan' });
+    return sendError(res, 500, 'Failed to fetch subscription plan', error);
   }
 };
+
 
 // Create subscription plan (admin only)
 export const createSubscriptionPlan = async (req: Request, res: Response) => {
@@ -52,12 +56,13 @@ export const createSubscriptionPlan = async (req: Request, res: Response) => {
       .values({ id: randomUUID(), ...planData })
       .returning();
 
-    res.status(201).json(newPlan[0]);
+    return sendSuccess(res, newPlan[0], 'Subscription plan created successfully', 201);
   } catch (error) {
     console.error('Error creating subscription plan:', error);
-    res.status(500).json({ error: 'Failed to create subscription plan' });
+    return sendError(res, 500, 'Failed to create subscription plan', error);
   }
 };
+
 
 // Update subscription plan (admin only)
 export const updateSubscriptionPlan = async (req: Request, res: Response) => {
@@ -72,15 +77,16 @@ export const updateSubscriptionPlan = async (req: Request, res: Response) => {
       .returning();
 
     if (updatedPlan.length === 0) {
-      return res.status(404).json({ error: 'Subscription plan not found' });
+      return sendError(res, 404, 'Subscription plan not found');
     }
 
-    res.json(updatedPlan[0]);
+    return sendSuccess(res, updatedPlan[0], 'Subscription plan updated successfully');
   } catch (error) {
     console.error('Error updating subscription plan:', error);
-    res.status(500).json({ error: 'Failed to update subscription plan' });
+    return sendError(res, 500, 'Failed to update subscription plan', error);
   }
 };
+
 
 // Seed default subscription plans
 export const seedSubscriptionPlans = async () => {

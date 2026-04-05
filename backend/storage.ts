@@ -8,8 +8,6 @@ import {
   favorites,
   tryOnSessions,
   outfitCollections,
-  outfitItems,
-  userStyleProfiles,
   reviews,
   companies,
   subscriptions,
@@ -33,10 +31,6 @@ import {
   type InsertTryOnSession,
   type OutfitCollection,
   type InsertOutfitCollection,
-  type OutfitItem,
-  type InsertOutfitItem,
-  type UserStyleProfile,
-  type InsertUserStyleProfile,
   type Review,
   type InsertReview,
 } from "./shared/schema.dialect";
@@ -81,6 +75,11 @@ export interface IStorage {
     updates: Partial<InsertProduct>
   ): Promise<Product | undefined>;
   deleteProduct(id: string): Promise<void>;
+  getProductsCount(options?: {
+    categoryId?: string;
+    search?: string;
+    producerId?: string;
+  }): Promise<number>;
 
   // Cart operations
   getCartItems(userId: string): Promise<(CartItem & { product: Product })[]>;
@@ -120,23 +119,20 @@ export interface IStorage {
 
   // Outfit Collection operations
   getOutfitCollections(userId: string): Promise<OutfitCollection[]>;
-  getOutfitCollection(id: string): Promise<(OutfitCollection & { items: (OutfitItem & { tryOnSession?: TryOnSession; product?: Product })[] }) | undefined>;
+  getOutfitCollection(id: string): Promise<(OutfitCollection & { items: any[] }) | undefined>;
   createOutfitCollection(collection: InsertOutfitCollection): Promise<OutfitCollection>;
   updateOutfitCollection(
     id: string,
     updates: Partial<InsertOutfitCollection>
   ): Promise<OutfitCollection | undefined>;
   deleteOutfitCollection(id: string): Promise<void>;
-  addItemToOutfit(item: InsertOutfitItem): Promise<OutfitItem>;
+  addItemToOutfit(item: any): Promise<any>;
   removeItemFromOutfit(id: string): Promise<void>;
 
-  // User Style Profile operations
-  getUserStyleProfile(userId: string): Promise<UserStyleProfile | undefined>;
-  createUserStyleProfile(profile: InsertUserStyleProfile): Promise<UserStyleProfile>;
-  updateUserStyleProfile(
-    userId: string,
-    updates: Partial<InsertUserStyleProfile>
-  ): Promise<UserStyleProfile | undefined>;
+  // User Style Profile operations (stored as JSONB in users.style_profile)
+  getUserStyleProfile(userId: string): Promise<Record<string, any> | undefined>;
+  createUserStyleProfile(profile: any): Promise<Record<string, any>>;
+  updateUserStyleProfile(userId: string, updates: Record<string, any>): Promise<Record<string, any> | undefined>;
 
   // Reviews operations
   getReviews(productId?: string): Promise<Review[]>;
@@ -158,8 +154,6 @@ export interface IStorage {
 }
 
 export class DatabaseStorage implements IStorage {
-  private readonly isMySQL =
-    String(process.env.DB_DIALECT || "mysql").toLowerCase() === "mysql";
   // User operations
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
@@ -185,20 +179,13 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    // For MySQL with UUID, we need to generate the ID first
     const userId = crypto.randomUUID();
-    const newUser = { ...user, id: userId };
-
-    // Insert the user with the generated UUID
-    await db.insert(users).values(newUser);
-
-    // Fetch the newly created user to get all fields
+    await db.insert(users).values({ ...user, id: userId });
     const [createdUser] = await db
       .select()
       .from(users)
       .where(eq(users.id, userId));
     if (!createdUser) throw new Error("Failed to create user");
-
     return createdUser;
   }
 
@@ -206,18 +193,12 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertUser>
   ): Promise<User | undefined> {
-    if (this.isMySQL) {
-      await db.update(users).set(updates).where(eq(users.id, id)).execute();
-      const [row] = await db.select().from(users).where(eq(users.id, id));
-      return row || undefined;
-    } else {
-      const [user] = await db
-        .update(users)
-        .set(updates)
-        .where(eq(users.id, id))
-        .returning();
-      return user || undefined;
-    }
+    const [user] = await db
+      .update(users)
+      .set(updates)
+      .where(eq(users.id, id))
+      .returning();
+    return user || undefined;
   }
 
   // Category operations
@@ -248,25 +229,12 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertCategory>
   ): Promise<Category | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(categories)
-        .set(updates)
-        .where(eq(categories.id, id))
-        .execute();
-      const [row] = await db
-        .select()
-        .from(categories)
-        .where(eq(categories.id, id));
-      return row || undefined;
-    } else {
-      const [category] = await db
-        .update(categories)
-        .set(updates)
-        .where(eq(categories.id, id))
-        .returning();
-      return category || undefined;
-    }
+    const [category] = await db
+      .update(categories)
+      .set(updates)
+      .where(eq(categories.id, id))
+      .returning();
+    return category || undefined;
   }
 
   async deleteCategory(id: string): Promise<void> {
@@ -366,26 +334,62 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertProduct>
   ): Promise<Product | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(products)
-        .set(updates)
-        .where(eq(products.id, id))
-        .execute();
-      const [row] = await db.select().from(products).where(eq(products.id, id));
-      return row || undefined;
-    } else {
-      const [product] = await db
-        .update(products)
-        .set(updates)
-        .where(eq(products.id, id))
-        .returning();
-      return product || undefined;
-    }
+    const [product] = await db
+      .update(products)
+      .set(updates)
+      .where(eq(products.id, id))
+      .returning();
+    return product || undefined;
   }
 
   async deleteProduct(id: string): Promise<void> {
     await db.delete(products).where(eq(products.id, id));
+  }
+  
+  async getProductsCount(options?: {
+    categoryId?: string;
+    search?: string;
+    producerId?: string;
+  }): Promise<number> {
+    // Build conditions array
+    const conditions = [] as any[];
+    if (options?.categoryId) {
+      conditions.push(eq(products.categoryId, options.categoryId));
+    }
+    if (options?.search) {
+      conditions.push(like(products.name, `%${options.search}%`));
+    }
+    if (options?.producerId) {
+      conditions.push(eq(products.producerId, options.producerId));
+    }
+
+    // Reuse the same verification check logic
+    const now = new Date();
+    const producersWithActiveSubs = await db
+      .select({ id: users.id })
+      .from(users)
+      .innerJoin(subscriptions, eq(subscriptions.userId, users.id))
+      .where(
+        and(
+          eq(users.role, "producer"),
+          eq(users.isVerified, true),
+          eq(subscriptions.status, "active"),
+          gt(subscriptions.endDate, now)
+        )
+      );
+
+    const allowedProducerIds = producersWithActiveSubs.map((r: any) => r.id);
+    if (allowedProducerIds.length === 0) return 0;
+
+    conditions.push(inArray(products.producerId, allowedProducerIds));
+
+    let query: any = db.select({ count: sql<number>`count(*)` }).from(products);
+    if (conditions.length > 0) {
+      query = query.where(and(...conditions));
+    }
+
+    const [result] = await query;
+    return Number(result?.count || 0);
   }
 
   // Cart operations
@@ -427,25 +431,12 @@ export class DatabaseStorage implements IStorage {
 
     if (existingItem) {
       // Update quantity
-      if (this.isMySQL) {
-        await db
-          .update(cartItems)
-          .set({ quantity: existingItem.quantity! + (cartItem.quantity || 1) })
-          .where(eq(cartItems.id, existingItem.id))
-          .execute();
-        const [row] = await db
-          .select()
-          .from(cartItems)
-          .where(eq(cartItems.id, existingItem.id));
-        return row as any;
-      } else {
-        const [updatedItem] = await db
-          .update(cartItems)
-          .set({ quantity: existingItem.quantity! + (cartItem.quantity || 1) })
-          .where(eq(cartItems.id, existingItem.id))
-          .returning();
-        return updatedItem;
-      }
+      const [updatedItem] = await db
+        .update(cartItems)
+        .set({ quantity: existingItem.quantity! + (cartItem.quantity || 1) })
+        .where(eq(cartItems.id, existingItem.id))
+        .returning();
+      return updatedItem;
     } else {
       // Insert new item with explicit UUID
       const id = crypto.randomUUID();
@@ -463,25 +454,12 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertCartItem>
   ): Promise<CartItem | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(cartItems)
-        .set(updates)
-        .where(eq(cartItems.id, id))
-        .execute();
-      const [row] = await db
-        .select()
-        .from(cartItems)
-        .where(eq(cartItems.id, id));
-      return row || undefined;
-    } else {
-      const [item] = await db
-        .update(cartItems)
-        .set(updates)
-        .where(eq(cartItems.id, id))
-        .returning();
-      return item || undefined;
-    }
+    const [item] = await db
+      .update(cartItems)
+      .set(updates)
+      .where(eq(cartItems.id, id))
+      .returning();
+    return item || undefined;
   }
 
   async removeFromCart(id: string): Promise<void> {
@@ -636,22 +614,12 @@ export class DatabaseStorage implements IStorage {
     id: string,
     status: string
   ): Promise<Order | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(orders)
-        .set({ status })
-        .where(eq(orders.id, id))
-        .execute();
-      const [row] = await db.select().from(orders).where(eq(orders.id, id));
-      return row || undefined;
-    } else {
-      const [order] = await db
-        .update(orders)
-        .set({ status })
-        .where(eq(orders.id, id))
-        .returning();
-      return order || undefined;
-    }
+    const [order] = await db
+      .update(orders)
+      .set({ status })
+      .where(eq(orders.id, id))
+      .returning();
+    return order || undefined;
   }
 
   // Favorites operations
@@ -741,25 +709,12 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertTryOnSession>
   ): Promise<TryOnSession | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(tryOnSessions)
-        .set(updates)
-        .where(eq(tryOnSessions.id, id))
-        .execute();
-      const [row] = await db
-        .select()
-        .from(tryOnSessions)
-        .where(eq(tryOnSessions.id, id));
-      return row || undefined;
-    } else {
-      const [session] = await db
-        .update(tryOnSessions)
-        .set(updates)
-        .where(eq(tryOnSessions.id, id))
-        .returning();
-      return session || undefined;
-    }
+    const [session] = await db
+      .update(tryOnSessions)
+      .set(updates)
+      .where(eq(tryOnSessions.id, id))
+      .returning();
+    return session || undefined;
   }
 
   // Outfit Collection operations
@@ -776,35 +731,18 @@ export class DatabaseStorage implements IStorage {
     }
   }
 
-  async getOutfitCollection(id: string): Promise<(OutfitCollection & { items: (OutfitItem & { tryOnSession?: TryOnSession; product?: Product })[] }) | undefined> {
+  async getOutfitCollection(id: string): Promise<(OutfitCollection & { items: any[] }) | undefined> {
     try {
       const [collection] = await db
         .select()
         .from(outfitCollections)
         .where(eq(outfitCollections.id, id));
-      
-      if (!collection) return undefined;
 
-      // Get outfit items with related try-on sessions and products
-      const items = await db
-        .select({
-          outfitItem: outfitItems,
-          tryOnSession: tryOnSessions,
-          product: products,
-        })
-        .from(outfitItems)
-        .leftJoin(tryOnSessions, eq(outfitItems.tryOnSessionId, tryOnSessions.id))
-        .leftJoin(products, eq(outfitItems.productId, products.id))
-        .where(eq(outfitItems.outfitId, id))
-        .orderBy(asc(outfitItems.position));
+      if (!collection) return undefined;
 
       return {
         ...collection,
-        items: items.map((item: any) => ({
-          ...item.outfitItem,
-          tryOnSession: item.tryOnSession || undefined,
-          product: item.product || undefined,
-        })),
+        items: (collection.items as any[]) || [],
       };
     } catch (error) {
       console.error("Database error in getOutfitCollection:", error);
@@ -827,97 +765,79 @@ export class DatabaseStorage implements IStorage {
     id: string,
     updates: Partial<InsertOutfitCollection>
   ): Promise<OutfitCollection | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(outfitCollections)
-        .set({ ...updates, updatedAt: new Date() })
-        .where(eq(outfitCollections.id, id))
-        .execute();
-      const [row] = await db
-        .select()
-        .from(outfitCollections)
-        .where(eq(outfitCollections.id, id));
-      return row || undefined;
-    } else {
-      const [collection] = await db
-        .update(outfitCollections)
-        .set({ ...updates, updatedAt: new Date() })
-        .where(eq(outfitCollections.id, id))
-        .returning();
-      return collection || undefined;
-    }
+    const [collection] = await db
+      .update(outfitCollections)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(outfitCollections.id, id))
+      .returning();
+    return collection || undefined;
   }
 
   async deleteOutfitCollection(id: string): Promise<void> {
-    // First delete all outfit items
-    await db.delete(outfitItems).where(eq(outfitItems.outfitId, id));
-    // Then delete the collection
     await db.delete(outfitCollections).where(eq(outfitCollections.id, id));
   }
 
-  async addItemToOutfit(item: InsertOutfitItem): Promise<OutfitItem> {
-    const id = crypto.randomUUID();
-    await db.insert(outfitItems).values({ id, ...item });
-    const [created] = await db
+  async addItemToOutfit(item: any): Promise<any> {
+    const { outfitId, ...rest } = item;
+    const [coll] = await db
       .select()
-      .from(outfitItems)
-      .where(eq(outfitItems.id, id));
-    if (!created) throw new Error("Failed to add item to outfit");
-    return created;
+      .from(outfitCollections)
+      .where(eq(outfitCollections.id, outfitId));
+    if (!coll) throw new Error("Outfit collection not found");
+    const newItem = { id: crypto.randomUUID(), outfitId, ...rest, createdAt: new Date().toISOString() };
+    const currentItems = (coll.items as any[]) || [];
+    const [updated] = await db
+      .update(outfitCollections)
+      .set({ items: [...currentItems, newItem] })
+      .where(eq(outfitCollections.id, outfitId))
+      .returning();
+    if (!updated) throw new Error("Failed to add item to outfit");
+    return newItem;
   }
 
-  async removeItemFromOutfit(id: string): Promise<void> {
-    await db.delete(outfitItems).where(eq(outfitItems.id, id));
+  async removeItemFromOutfit(itemId: string): Promise<void> {
+    // Find the collection that contains this item id
+    const [coll] = await db
+      .select()
+      .from(outfitCollections)
+      .where(sql`EXISTS (
+        SELECT 1 FROM jsonb_array_elements(${outfitCollections.items}) AS item
+        WHERE item->>'id' = ${itemId}
+      )`);
+    if (coll) {
+      const currentItems = (coll.items as any[]) || [];
+      const newItems = currentItems.filter((item: any) => item.id !== itemId);
+      await db
+        .update(outfitCollections)
+        .set({ items: newItems })
+        .where(eq(outfitCollections.id, coll.id));
+    }
   }
 
-  // User Style Profile operations
-  async getUserStyleProfile(userId: string): Promise<UserStyleProfile | undefined> {
+  // User Style Profile operations (stored as JSONB in users.style_profile)
+  async getUserStyleProfile(userId: string): Promise<Record<string, any> | undefined> {
     try {
-      const [profile] = await db
-        .select()
-        .from(userStyleProfiles)
-        .where(eq(userStyleProfiles.userId, userId));
-      return profile || undefined;
+      const [user] = await db.select({ styleProfile: users.styleProfile }).from(users).where(eq(users.id, userId));
+      if (!user) return undefined;
+      return (user.styleProfile as Record<string, any>) || {};
     } catch (error) {
       console.error("Database error in getUserStyleProfile:", error);
       return undefined;
     }
   }
 
-  async createUserStyleProfile(profile: InsertUserStyleProfile): Promise<UserStyleProfile> {
-    const id = crypto.randomUUID();
-    await db.insert(userStyleProfiles).values({ id, ...profile });
-    const [created] = await db
-      .select()
-      .from(userStyleProfiles)
-      .where(eq(userStyleProfiles.id, id));
-    if (!created) throw new Error("Failed to create user style profile");
-    return created;
+  async createUserStyleProfile(profile: any): Promise<Record<string, any>> {
+    const { userId, ...profileData } = profile;
+    await db.update(users).set({ styleProfile: profileData }).where(eq(users.id, userId));
+    return profileData;
   }
 
-  async updateUserStyleProfile(
-    userId: string,
-    updates: Partial<InsertUserStyleProfile>
-  ): Promise<UserStyleProfile | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(userStyleProfiles)
-        .set({ ...updates, updatedAt: new Date() })
-        .where(eq(userStyleProfiles.userId, userId))
-        .execute();
-      const [row] = await db
-        .select()
-        .from(userStyleProfiles)
-        .where(eq(userStyleProfiles.userId, userId));
-      return row || undefined;
-    } else {
-      const [profile] = await db
-        .update(userStyleProfiles)
-        .set({ ...updates, updatedAt: new Date() })
-        .where(eq(userStyleProfiles.userId, userId))
-        .returning();
-      return profile || undefined;
-    }
+  async updateUserStyleProfile(userId: string, updates: Record<string, any>): Promise<Record<string, any> | undefined> {
+    const [user] = await db.select({ styleProfile: users.styleProfile }).from(users).where(eq(users.id, userId));
+    if (!user) return undefined;
+    const merged = { ...((user.styleProfile as Record<string, any>) || {}), ...updates };
+    await db.update(users).set({ styleProfile: merged }).where(eq(users.id, userId));
+    return merged;
   }
 
   // Reviews operations
@@ -993,25 +913,12 @@ export class DatabaseStorage implements IStorage {
     producerId: string,
     updates: Partial<InsertCompany>
   ): Promise<Company | undefined> {
-    if (this.isMySQL) {
-      await db
-        .update(companies)
-        .set(updates)
-        .where(eq(companies.producerId, producerId))
-        .execute();
-      const [row] = await db
-        .select()
-        .from(companies)
-        .where(eq(companies.producerId, producerId));
-      return row || undefined;
-    } else {
-      const [updated] = await db
-        .update(companies)
-        .set(updates)
-        .where(eq(companies.producerId, producerId))
-        .returning();
-      return updated || undefined;
-    }
+    const [updated] = await db
+      .update(companies)
+      .set(updates)
+      .where(eq(companies.producerId, producerId))
+      .returning();
+    return updated || undefined;
   }
 
   async getCompanyById(id: string): Promise<Company | undefined> {

@@ -15,6 +15,7 @@ import { processImage } from "./utils/imageProcessor";
 import crypto, { randomUUID } from "crypto";
 import path from "path";
 import fs from "fs";
+import { sendSuccess, sendError } from "./utils/response";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
 
@@ -89,8 +90,6 @@ import {
 import tryOnRoutes from "./routes/try-on";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  const isMySQL =
-    String(process.env.DB_DIALECT || "postgres").toLowerCase() === "mysql";
   // Ensure minimal runtime migrations (safe, idempotent)
   try {
     await ensureSchemaMigrations();
@@ -146,7 +145,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Agent-specific terms
       if (role === "agent") {
-        return res.json({
+        return sendSuccess(res, {
           ...base,
           role: "agent",
           title: tr(
@@ -218,7 +217,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Producer-specific terms
       if (role === "producer") {
-        return res.json({
+        return sendSuccess(res, {
           ...base,
           role: "producer",
           title: tr(
@@ -332,7 +331,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Default/basic terms for other roles (minimal placeholder)
-      return res.json({
+      return sendSuccess(res, {
         ...base,
         role,
         title: tr(
@@ -358,15 +357,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (e) {
       console.error("Error in GET /api/terms:", e);
-      return res.status(500).json({ message: "Failed to load terms" });
+      return sendError(res, 500, "Failed to load terms", e);
     }
   });
 
   // Dedicated health endpoint with a simple, stable response
   app.get("/health", (_req, res) => {
-    res.status(200);
-    res.setHeader("Content-Type", "text/plain");
-    res.end("ok");
+    sendSuccess(res, { status: "ok" }, "API is healthy");
   });
 
   // Newsletter subscription (public)
@@ -378,7 +375,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sourceStr = typeof source === "string" ? source.trim() : null;
       const emailRegex = /[^\s@]+@[^\s@]+\.[^\s@]+/;
       if (!emailStr || !emailRegex.test(emailStr)) {
-        return res.status(400).json({ message: "Valid email is required" });
+        return sendError(res, 400, "Valid email is required");
       }
 
       // Idempotent: check if already exists
@@ -388,23 +385,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(emailSubscriptions.email, emailStr))
         .limit(1);
       if (existing && existing[0]) {
-        return res.status(200).json({ ok: true, already: true });
+        return sendSuccess(res, { already: true }, "Already subscribed");
       }
 
       const vals: any = {
         email: emailStr,
         source: sourceStr,
       };
-      if (isMySQL) {
-        vals.id = randomUUID();
-        await db.insert(emailSubscriptions).values(vals).execute();
-      } else {
-        await db.insert(emailSubscriptions).values(vals).returning();
-      }
-      return res.status(200).json({ ok: true, already: false });
+      await db.insert(emailSubscriptions).values(vals).returning();
+      return sendSuccess(res, { already: false }, "Subscribed successfully");
     } catch (error) {
       console.error("Error in POST /api/newsletter/subscribe:", error);
-      return res.status(500).json({ message: "Failed to subscribe" });
+      return sendError(res, 500, "Failed to subscribe", error);
     }
   });
 
@@ -419,7 +411,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const requireAuth = async (req: any, res: any, next: any) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({ message: "Authentication required" });
+      return sendError(res, 401, "Authentication required");
     }
 
     const token = authHeader.substring(7);
@@ -433,18 +425,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const user = await storage.getUserById(req.userId);
           if (!user || !user.role) {
-            return res.status(401).json({ message: "Authentication required" });
+            return sendError(res, 401, "Authentication required");
           }
           req.userRole = user.role;
         } catch {
-          return res.status(401).json({ message: "Authentication required" });
+          return sendError(res, 401, "Authentication required");
         }
       }
       // Populate req.user for handlers that expect it (e.g., agent-routes)
       req.user = { id: req.userId, role: req.userRole } as any;
       next();
     } catch {
-      return res.status(401).json({ message: "Invalid token" });
+      return sendError(res, 401, "Invalid token");
     }
   };
 
@@ -452,7 +444,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/terms/accept", requireAuth, async (req: any, res) => {
     try {
       const user = await storage.getUserById(req.userId);
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) return sendError(res, 404, "User not found");
 
       const now = new Date();
       const updated = await storage.updateUser(user.id, {
@@ -467,18 +459,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fullName,
         ...userWithoutPassword
       } = (updated || user) as any;
-      return res.json({
-        ok: true,
+      return sendSuccess(res, {
         user: {
           ...userWithoutPassword,
           name: fullName || user.email.split("@")[0],
           termsAccepted: true,
           termsAcceptedAt: now,
         },
-      });
+      }, "Terms accepted successfully");
+
     } catch (e) {
       console.error("Error in POST /api/terms/accept:", e);
-      return res.status(500).json({ message: "Failed to accept terms" });
+      return sendError(res, 500, "Failed to accept terms", e);
     }
   });
 
@@ -486,13 +478,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/agent/terms/accept", requireAuth, async (req: any, res) => {
     try {
       const user = await storage.getUserById(req.userId);
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) return sendError(res, 404, "User not found");
 
       // Verify user is an agent
       if (user.role !== "agent") {
-        return res
-          .status(403)
-          .json({ message: "Access denied. Agent role required." });
+        return sendError(res, 403, "Access denied. Agent role required.");
       }
 
       const now = new Date();
@@ -508,18 +498,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         fullName,
         ...userWithoutPassword
       } = (updated || user) as any;
-      return res.json({
-        ok: true,
+      return sendSuccess(res, {
         user: {
           ...userWithoutPassword,
           name: fullName || user.email.split("@")[0],
           termsAccepted: true,
           termsAcceptedAt: now,
         },
-      });
+      }, "Terms accepted successfully");
+
     } catch (e) {
       console.error("Error in POST /api/agent/terms/accept:", e);
-      return res.status(500).json({ message: "Failed to accept agent terms" });
+      return sendError(res, 500, "Failed to accept agent terms", e);
     }
   });
 
@@ -528,7 +518,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { imageUrl, categoryHint } = req.body || {};
       if (!imageUrl || typeof imageUrl !== "string") {
-        return res.status(400).json({ message: "imageUrl is required" });
+        return sendError(res, 400, "imageUrl is required");
       }
       const result = await suggestProductTitles(imageUrl, {
         categoryHint:
@@ -536,10 +526,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             ? categoryHint
             : undefined,
       });
-      return res.json(result);
+      return sendSuccess(res, result);
     } catch (error) {
       console.error("Error in POST /api/ai/suggest-titles:", error);
-      return res.status(500).json({ message: "Failed to suggest titles" });
+      return sendError(res, 500, "Failed to suggest titles", error);
     }
   });
 
@@ -570,7 +560,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid amount" });
       }
       if (!phone || typeof phone !== "string") {
-        return res.status(400).json({ message: "Phone is required" });
+        return sendError(res, 400, "Phone number is required");
       }
 
       // Resolve user context for email/name
@@ -630,11 +620,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             paymentReference: externalReference,
             autoRenew: false,
           };
-          if (isMySQL) {
-            await db.insert(subscriptions).values(vals).execute();
-          } else {
-            await db.insert(subscriptions).values(vals).returning();
-          }
+          await db.insert(subscriptions).values(vals).returning();
         } catch (e) {
           console.warn(
             "Failed to create pending subscription intent:",
@@ -645,7 +631,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (isMock) {
         if (debug) console.log("[Esicia] MOCK generic payment: auto-success");
-        return res.status(200).json({
+        return sendSuccess(res, {
           ok: true,
           mode: "mock",
           refid: externalReference,
@@ -655,9 +641,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       if (!hasAuth) {
-        return res
-          .status(500)
-          .json({ message: "Payment gateway credentials missing" });
+        return sendError(res, 500, "Payment gateway credentials missing");
       }
 
       // Normalize inputs
@@ -714,9 +698,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const retcode = String(json?.retcode ?? "");
       const url = typeof json?.url === "string" ? json.url.trim() : "";
       if (retcode !== "0") {
-        return res.status(400).json({ ok: false, gateway: json });
+        sendSuccess(res, { gateway: json }, "Status checked successfully");
       }
-      return res.status(200).json({
+      return sendSuccess(res, {
         ok: true,
         refid: externalReference,
         redirectUrl: url || null,
@@ -724,7 +708,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error in POST /api/payments/opay/pay:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -736,7 +720,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const { refid } = req.body || {};
         if (!refid)
-          return res.status(400).json({ message: "refid is required" });
+          return sendError(res, 400, "refid is required");
         const endpoint = ESICIA_STATIC.BASE_URL;
         const payload = {
           action: "checkstatus",
@@ -759,13 +743,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
           signal: AbortSignal.timeout(ESICIA_STATIC.TIMEOUT_MS),
         });
         const json = (await resp.json()) as any;
-        return res.json({ ok: true, gateway: json });
+        return sendSuccess(res, { gateway: json }, "Status checked successfully");
       } catch (error) {
         console.error(
           "Error in POST /api/payments/opay/checkstatus-public:",
           error
         );
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -783,13 +767,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         } = req.body || {};
         const parsedAmount = Number(amount);
         if (!parsedAmount || parsedAmount <= 0) {
-          return res.status(400).json({ message: "Invalid amount" });
+          return sendError(res, 400, "Invalid amount");
         }
         const wallet = await ensureUserWallet(req.userId);
         const currentBalance = Number(wallet.balance) || 0;
         if (currentBalance < parsedAmount) {
-          return res.status(402).json({
-            message: "Insufficient wallet balance",
+          return sendError(res, 402, "Insufficient wallet balance", {
             required: parsedAmount,
             balance: currentBalance,
           });
@@ -810,39 +793,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
           externalReference: `WALLET-CHARGE-${Date.now()}`,
           metadata: metadata ? JSON.stringify(metadata) : null,
         } as any;
-        if (isMySQL) {
-          await db.insert(walletPayments).values(vals).execute();
-          payment = vals;
-        } else {
-          const [created] = await db
-            .insert(walletPayments)
-            .values(vals)
-            .returning();
-          payment = created as any;
-        }
+        const [created] = await db
+          .insert(walletPayments)
+          .values(vals)
+          .returning();
+        payment = created as any;
         // Update balance
         const newBalance = String((currentBalance - parsedAmount).toFixed(2));
-        if (isMySQL) {
-          await db
-            .update(userWallets)
-            .set({ balance: newBalance, updatedAt: new Date() as any })
-            .where(eq(userWallets.id, wallet.id))
-            .execute();
-        } else {
-          await db
-            .update(userWallets)
-            .set({ balance: newBalance, updatedAt: new Date() as any })
-            .where(eq(userWallets.id, wallet.id))
-            .returning();
-        }
-        return res.json({
+        await db
+          .update(userWallets)
+          .set({ balance: newBalance, updatedAt: new Date() as any })
+          .where(eq(userWallets.id, wallet.id))
+          .returning();
+        return sendSuccess(res, {
           ok: true,
           payment,
           wallet: { ...wallet, balance: newBalance },
         });
       } catch (error) {
         console.error("Error in POST /api/payments/wallet/charge:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -861,13 +831,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         balance: "0",
         status: "active",
       } as any;
-      if (isMySQL) {
-        await db.insert(userWallets).values(vals).execute();
-        wallet = vals;
-      } else {
-        const [created] = await db.insert(userWallets).values(vals).returning();
-        wallet = created as any;
-      }
+      const [created] = await db.insert(userWallets).values(vals).returning();
+      wallet = created as any;
     }
     return wallet as any;
   };
@@ -881,7 +846,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await updateOrderValidationStatus(req as any, res as any);
       } catch (error) {
         console.error("Error in PUT /api/orders/:id/validation-status:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -893,7 +858,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await createOrder(req as any, res as any);
     } catch (error) {
       console.error("Error in POST /api/orders:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -903,7 +868,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await getUserOrders(req as any, res as any);
     } catch (error) {
       console.error("Error in GET /api/orders:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -913,7 +878,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await getOrderById(req as any, res as any);
     } catch (error) {
       console.error("Error in GET /api/orders/:id:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -923,7 +888,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await updateOrder(req as any, res as any);
     } catch (error) {
       console.error("Error in PUT /api/orders/:id:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -933,7 +898,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await cancelOrder(req as any, res as any);
     } catch (error) {
       console.error("Error in DELETE /api/orders/:id:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -943,7 +908,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await getProducerOrders(req as any, res as any);
     } catch (error) {
       console.error("Error in GET /api/producer/orders:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -953,7 +918,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await getOrdersByProducerId(req as any, res as any);
     } catch (error) {
       console.error("Error in GET /api/orders/producer/:producerId:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -975,19 +940,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           balance: "0",
           status: "active",
         } as any;
-        if (isMySQL) {
-          await db.insert(userWallets).values(vals).execute();
-          wallet = vals as any;
-        } else {
-          const [created] = await db
-            .insert(userWallets)
-            .values(vals)
-            .returning();
-          wallet = created as any;
-        }
+        const [created] = await db
+          .insert(userWallets)
+          .values(vals)
+          .returning();
+        wallet = created as any;
       }
 
-      res.json({
+      sendSuccess(res, {
         id: wallet.id,
         balance: wallet.balance,
         status: wallet.status,
@@ -1003,7 +963,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           try {
             const { refid } = req.body || {};
             if (!refid)
-              return res.status(400).json({ message: "refid is required" });
+              return sendError(res, 400, "refid is required");
 
             const [payment] = await db
               .select()
@@ -1011,7 +971,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .where(eq(walletPayments.externalReference, refid))
               .limit(1);
             if (!payment)
-              return res.status(404).json({ message: "Payment not found" });
+              return sendError(res, 404, "Payment not found");
 
             const endpoint = ESICIA_STATIC.BASE_URL;
             const timeoutMs = ESICIA_STATIC.TIMEOUT_MS;
@@ -1079,12 +1039,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 }
               }
             }
-            return res.json({ ok: true, status: finalStatus, gateway: json });
+            return sendSuccess(res, { status: finalStatus, gateway: json });
           } catch (e) {
             console.error("Error checking payment status:", e);
-            return res
-              .status(500)
-              .json({ message: "Failed to check payment status" });
+            return sendError(res, 500, "Failed to check payment status", e);
           }
         }
       );
@@ -1108,13 +1066,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             setting = rows[0] as any;
           }
           if (!setting)
-            return res
-              .status(404)
-              .json({ message: "product_boost not configured" });
-          return res.json(setting);
+            return sendError(res, 404, "product_boost not configured");
+          return sendSuccess(res, setting);
         } catch (e) {
           console.error("Error fetching product boost payment setting:", e);
-          return res.status(500).json({ message: "Failed to load boost fee" });
+          return sendError(res, 500, "Failed to load boost fee", e);
         }
       });
 
@@ -1133,13 +1089,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               .where(eq(products.id, productId))
               .limit(1);
             if (!product) {
-              return res.status(404).json({ message: "Product not found" });
+              return sendError(res, 404, "Product not found");
             }
             // Authorization: producer can only boost own product unless admin
             if (req.userRole !== "admin" && product.producerId !== req.userId) {
-              return res
-                .status(403)
-                .json({ message: "You can only boost your own product" });
+              return sendError(res, 403, "You can only boost your own product");
             }
 
             // Read boost fee (by id=2 per requirement), fallback by name 'product_boost'
@@ -1157,13 +1111,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
               boostSetting = rows[0] as any;
             }
             if (!boostSetting) {
-              return res
-                .status(500)
-                .json({ message: "Boost pricing not configured" });
+              return sendError(res, 500, "Boost pricing not configured");
             }
             const amount = Number(boostSetting.amountInRwf);
             if (!amount || amount <= 0) {
-              return res.status(500).json({ message: "Invalid boost amount" });
+              return sendError(res, 500, "Invalid boost amount");
             }
 
             // Ensure wallet exists
@@ -1179,22 +1131,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 balance: "0",
                 status: "active",
               } as any;
-              if (isMySQL) {
-                await db.insert(userWallets).values(vals).execute();
-                wallet = vals as any;
-              } else {
-                const [created] = await db
-                  .insert(userWallets)
-                  .values(vals)
-                  .returning();
-                wallet = created as any;
-              }
+              const [created] = await db
+                .insert(userWallets)
+                .values(vals)
+                .returning();
+              wallet = created as any;
             }
 
             const currentBalance = Number(wallet.balance) || 0;
             if (currentBalance < amount) {
-              return res.status(402).json({
-                message: "Insufficient wallet balance to boost product",
+              return sendError(res, 402, "Insufficient wallet balance to boost product", {
                 required: amount,
                 balance: currentBalance,
               });
@@ -1216,41 +1162,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 description: `Product boost fee for product ${productId}`,
                 externalReference: `BOOST-${Date.now()}`,
               } as any;
-              if (isMySQL) {
-                await db.insert(walletPayments).values(vals).execute();
-                payment = vals;
-              } else {
-                const [created] = await db
-                  .insert(walletPayments)
-                  .values(vals)
-                  .returning();
-                payment = created as any;
-              }
+              const [created] = await db
+                .insert(walletPayments)
+                .values(vals)
+                .returning();
+              payment = created as any;
             }
 
             // Update wallet balance
             const newBalance = String((currentBalance - amount).toFixed(2));
-            let updatedWallet: any;
-            if (isMySQL) {
-              await db
-                .update(userWallets)
-                .set({ balance: newBalance, updatedAt: new Date() as any })
-                .where(eq(userWallets.id, wallet.id))
-                .execute();
-              const [w2] = await db
-                .select()
-                .from(userWallets)
-                .where(eq(userWallets.id, wallet.id))
-                .limit(1);
-              updatedWallet = w2 as any;
-            } else {
-              const [w2] = await db
-                .update(userWallets)
-                .set({ balance: newBalance, updatedAt: new Date() as any })
-                .where(eq(userWallets.id, wallet.id))
-                .returning();
-              updatedWallet = w2 as any;
-            }
+            const [updatedWallet] = await db
+              .update(userWallets)
+              .set({ balance: newBalance, updatedAt: new Date() as any })
+              .where(eq(userWallets.id, wallet.id))
+              .returning();
 
             // Set product to top by assigning smallest display_order - 1 (NULLs treated as large)
             const [{ min_order } = { min_order: null }] = (await db
@@ -1261,43 +1186,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
                 ? min_order - 1
                 : 0;
 
-            let updatedProduct: any;
-            if (isMySQL) {
-              await db
-                .update(products)
-                .set({ displayOrder: nextOrder as any })
-                .where(eq(products.id, productId))
-                .execute();
-              const [p2] = await db
-                .select()
-                .from(products)
-                .where(eq(products.id, productId))
-                .limit(1);
-              updatedProduct = p2 as any;
-            } else {
-              const [p2] = await db
-                .update(products)
-                .set({ displayOrder: nextOrder as any })
-                .where(eq(products.id, productId))
-                .returning();
-              updatedProduct = p2 as any;
-            }
+            const [updatedProduct] = await db
+              .update(products)
+              .set({ displayOrder: nextOrder as any })
+              .where(eq(products.id, productId))
+              .returning();
 
-            res.json({
+            sendSuccess(res, {
               product: updatedProduct,
               wallet: updatedWallet,
               payment,
               boostAmount: amount,
-            });
+            }, "Product boosted successfully");
           } catch (error) {
             console.error("Error boosting product:", error);
-            res.status(500).json({ message: "Internal server error" });
+            sendError(res, 500, "Internal server error", error);
           }
         }
       );
     } catch (error) {
       console.error("Error in GET /api/wallet:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error", error);
     }
   });
 
@@ -1307,7 +1216,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { amount, provider = "mtn", phone } = req.body || {};
       const parsedAmount = Number(amount);
       if (!parsedAmount || parsedAmount <= 0) {
-        return res.status(400).json({ message: "Invalid amount" });
+        return sendError(res, 400, "Invalid amount");
       }
 
       // Ensure wallet exists
@@ -1323,16 +1232,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           balance: "0",
           status: "active",
         } as any;
-        if (isMySQL) {
-          await db.insert(userWallets).values(vals).execute();
-          wallet = vals as any;
-        } else {
-          const [created] = await db
-            .insert(userWallets)
-            .values(vals)
-            .returning();
-          wallet = created as any;
-        }
+        const [created] = await db
+          .insert(userWallets)
+          .values(vals)
+          .returning();
+        wallet = created as any;
       }
 
       // Create a pending wallet payment record
@@ -1351,16 +1255,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           description: "Demo Mobile Money top-up",
           externalReference: `DEMO-${Date.now()}`,
         } as any;
-        if (isMySQL) {
-          await db.insert(walletPayments).values(vals).execute();
-          payment = vals;
-        } else {
-          const [created] = await db
-            .insert(walletPayments)
-            .values(vals)
-            .returning();
-          payment = created as any;
-        }
+        const [created] = await db
+          .insert(walletPayments)
+          .values(vals)
+          .returning();
+        payment = created as any;
       }
 
       // In demo mode, immediately mark as completed and update balance
@@ -1370,35 +1269,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(walletPayments.id, payment.id));
 
       const newBalance = String((Number(wallet.balance) || 0) + parsedAmount);
-      let updatedWallet: any;
-      if (isMySQL) {
-        await db
-          .update(userWallets)
-          .set({ balance: newBalance })
-          .where(eq(userWallets.id, wallet.id))
-          .execute();
-        const [w2] = await db
-          .select()
-          .from(userWallets)
-          .where(eq(userWallets.id, wallet.id))
-          .limit(1);
-        updatedWallet = w2 as any;
-      } else {
-        const [w2] = await db
-          .update(userWallets)
-          .set({ balance: newBalance })
-          .where(eq(userWallets.id, wallet.id))
-          .returning();
-        updatedWallet = w2 as any;
-      }
+      const [updatedWallet] = await db
+        .update(userWallets)
+        .set({ balance: newBalance })
+        .where(eq(userWallets.id, wallet.id))
+        .returning();
 
-      res.status(201).json({
+      sendSuccess(res, {
         payment: { ...payment, status: "completed" },
         wallet: updatedWallet,
-      });
+      }, "Top-up successful", 201);
     } catch (error) {
       console.error("Error in POST /api/wallet/topup:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error", error);
     }
   });
 
@@ -1407,7 +1290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { paymentId, status = "completed" } = req.body || {};
       if (!paymentId) {
-        return res.status(400).json({ message: "paymentId is required" });
+        return sendError(res, 400, "paymentId is required");
       }
 
       const [payment] = await db
@@ -1416,7 +1299,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(walletPayments.id, paymentId))
         .limit(1);
       if (!payment) {
-        return res.status(404).json({ message: "Payment not found" });
+        return sendError(res, 404, "Payment not found");
       }
 
       // Update payment status
@@ -1443,10 +1326,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      res.json({ success: true });
+      sendSuccess(res, null, "Webhook processed successfully");
     } catch (error) {
       console.error("Error in POST /api/wallet/webhook:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error", error);
     }
   });
 
@@ -1459,10 +1342,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .where(eq(walletPayments.userId, req.userId))
         .orderBy(desc(walletPayments.createdAt))
         .limit(100);
-      res.json(list);
+      sendSuccess(res, list);
     } catch (error) {
       console.error("Error in GET /api/wallet/payments:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error", error);
     }
   });
 
@@ -1489,10 +1372,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const parsedAmount = Number(amount);
         if (!parsedAmount || parsedAmount <= 0) {
-          return res.status(400).json({ message: "Invalid amount" });
+          return sendError(res, 400, "Invalid amount");
         }
         if (!phone || typeof phone !== "string") {
-          return res.status(400).json({ message: "Phone is required" });
+          return sendError(res, 400, "Phone number is required");
         }
 
         // Get user details
@@ -1531,16 +1414,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             description: "OPAY wallet top-up",
             externalReference,
           } as any;
-          if (isMySQL) {
-            await db.insert(walletPayments).values(vals).execute();
-            payment = vals;
-          } else {
-            const [created] = await db
-              .insert(walletPayments)
-              .values(vals)
-              .returning();
-            payment = created as any;
-          }
+          const [created] = await db
+            .insert(walletPayments)
+            .values(vals)
+            .returning();
+          payment = created as any;
         }
 
         const isMock =
@@ -1582,39 +1460,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const newBalance = String(
             (Number(wallet.balance) || 0) + parsedAmount
           );
-          let updatedWallet: any;
-          if (isMySQL) {
-            await db
-              .update(userWallets)
-              .set({ balance: newBalance, updatedAt: new Date() as any })
-              .where(eq(userWallets.id, wallet.id))
-              .execute();
-            const [w2] = await db
-              .select()
-              .from(userWallets)
-              .where(eq(userWallets.id, wallet.id))
-              .limit(1);
-            updatedWallet = w2 as any;
-          } else {
-            const [w2] = await db
-              .update(userWallets)
-              .set({ balance: newBalance, updatedAt: new Date() as any })
-              .where(eq(userWallets.id, wallet.id))
-              .returning();
-            updatedWallet = w2 as any;
-          }
+          const [updatedWallet] = await db
+            .update(userWallets)
+            .set({ balance: newBalance, updatedAt: new Date() as any })
+            .where(eq(userWallets.id, wallet.id))
+            .returning();
 
-          return res.status(201).json({
+          return sendSuccess(res, {
             payment: { ...payment, status: "completed" },
             wallet: updatedWallet,
             mode: "mock",
-          });
+          }, "Payment successful (Mock Mode)", 201);
         }
 
         if (!hasAuth) {
-          return res
-            .status(500)
-            .json({ message: "Payment gateway credentials missing" });
+          return sendError(res, 500, "Payment gateway credentials missing");
         }
 
         // Normalize fields
@@ -1745,14 +1605,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .update(walletPayments)
             .set({ status: "failed" })
             .where(eq(walletPayments.id, payment.id));
-          return res.status(400).json({
-            message: mapRetcode(retcode),
-            gateway: json,
-          });
+          return sendError(res, 400, mapRetcode(retcode), { gateway: json });
         }
 
         if (success && url) {
-          return res.status(200).json({
+          return sendSuccess(res, {
             ok: true,
             payment,
             redirectUrl: url,
@@ -1761,7 +1618,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         // retcode 0, success 1, but no checkout URL: treat as USSD push/STK flow
         // Keep wallet payment as pending and let client poll or wait for callback
-        return res.status(200).json({
+        return sendSuccess(res, {
           ok: true,
           payment,
           mode: "push",
@@ -1771,7 +1628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } catch (error) {
         console.error("Error in POST /api/payments/opay/initiate:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -1783,7 +1640,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const ref = reference || refid;
 
       if (!ref)
-        return res.status(400).json({ message: "Missing reference/refid" });
+        return sendError(res, 400, "Missing reference/refid");
 
       // Prefer statusid mapping; fallback to textual reply/status
       let finalStatus: "completed" | "failed" | "pending" = "pending";
@@ -1847,29 +1704,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const end = new Date(now);
             if (cycle === "annual") end.setFullYear(end.getFullYear() + 1);
             else end.setMonth(end.getMonth() + 1);
-            if (isMySQL) {
-              await db
-                .update(subscriptions)
-                .set({
-                  status: "active",
-                  startDate: now as any,
-                  endDate: end as any,
-                  paymentMethod: "mobile_money",
-                })
-                .where(eq(subscriptions.id, pendingSub.id))
-                .execute();
-            } else {
-              await db
-                .update(subscriptions)
-                .set({
-                  status: "active",
-                  startDate: now as any,
-                  endDate: end as any,
-                  paymentMethod: "mobile_money",
-                })
-                .where(eq(subscriptions.id, pendingSub.id))
-                .returning();
-            }
+            await db
+              .update(subscriptions)
+              .set({
+                status: "active",
+                startDate: now as any,
+                endDate: end as any,
+                paymentMethod: "mobile_money",
+              })
+              .where(eq(subscriptions.id, pendingSub.id))
+              .returning();
           }
         } catch (e) {
           console.error(
@@ -1879,10 +1723,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      return res.json({ ok: true });
+      return sendSuccess(res, null, "Operation successful");
     } catch (error) {
       console.error("Error in POST /api/payments/opay/callback:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -1892,14 +1736,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const role = (req.userRole || "").toString().toLowerCase();
       // Defensive: if role is missing, treat as unauthenticated
       if (!role) {
-        return res.status(401).json({ message: "Authentication required" });
+        return sendError(res, 401, "Authentication required");
       }
       // Admin bypass (superuser)
       if (role === "admin") {
         return next();
       }
       if (!normalized.includes(role)) {
-        return res.status(403).json({ message: "Insufficient permissions" });
+        return sendError(res, 403, "Insufficient permissions");
       }
       next();
     };
@@ -1918,7 +1762,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Error in /api/admin/producers/:producerId/verify:",
           error
         );
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -1933,7 +1777,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await adminVerifyAgent(req as any, res as any);
       } catch (error) {
         console.error("Error in /api/admin/agents/:agentId/verify:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -1947,10 +1791,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         const { userId } = req.params as { userId: string };
         if (!userId)
-          return res.status(400).json({ message: "userId is required" });
+          return sendError(res, 400, "userId is required");
 
         const user = await storage.getUserById(userId).catch(() => null as any);
-        if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) return sendError(res, 404, "User not found");
 
         const role = String(user.role || "").toLowerCase();
         if (role === "agent") {
@@ -1968,13 +1812,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const updated = await storage.updateUser(userId, {
           isVerified: true,
         } as any);
-        return res.json({
+        return sendSuccess(res, {
           message: "User verified successfully",
           user: updated,
         });
       } catch (error) {
         console.error("Error in /api/admin/users/:userId/verify:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -1992,7 +1836,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Error in POST /api/admin/subscription-payments/:id/refund:",
           error
         );
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2010,7 +1854,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Error in /api/admin/producers/:producerId/subscription:",
           error
         );
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2028,7 +1872,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Error in /api/admin/producers/:producerId/activate-subscription:",
           error
         );
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2046,7 +1890,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           "Error in /api/admin/producers/:producerId/company:",
           error
         );
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2063,7 +1907,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await getProducerStats(req as any, res as any);
       } catch (error) {
         console.error("Error in /api/producer/stats:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2104,7 +1948,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             .from(orders),
         ]);
 
-        res.json({
+        sendSuccess(res, {
           totalUsers,
           totalProducers,
           totalAgents,
@@ -2113,7 +1957,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } catch (error) {
         console.error("Error in /api/admin/stats:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2135,10 +1979,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { password, ...rest } = u as any;
           return rest;
         });
-        res.json(sanitized);
+        sendSuccess(res, sanitized);
       } catch (error) {
         console.error("Error in /api/admin/producers:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2159,10 +2003,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { password, ...rest } = u as any;
           return rest;
         });
-        res.json(sanitized);
+        sendSuccess(res, sanitized);
       } catch (error) {
         console.error("Error in /api/admin/agents:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2275,10 +2119,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const rows = await rowsQuery;
         res.setHeader("X-Total-Count", String(total || 0));
-        return res.json(rows);
+        return sendSuccess(res, rows);
       } catch (error) {
         console.error("Error fetching agent payments:", error);
-        return res.status(500).json({ message: "Internal server error" });
+        return sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2299,10 +2143,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { password, ...rest } = u as any;
           return rest;
         });
-        res.json(sanitized);
+        sendSuccess(res, sanitized);
       } catch (error) {
         console.error("Error in /api/admin/customers:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2323,10 +2167,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const { password, ...rest } = u as any;
           return rest;
         });
-        res.json(sanitized);
+        sendSuccess(res, sanitized);
       } catch (error) {
         console.error("Error in /api/admin/admins:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2341,21 +2185,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const { email, password, name, role, phone } = req.body || {};
 
         if (!email || !password || !name || !role) {
-          return res.status(400).json({
-            message: "Missing required fields: email, password, name, role",
-          });
+          return sendError(res, 400, "Missing required fields: email, password, name, role");
         }
 
         const normalizedRole = String(role).toLowerCase();
         const allowedRoles = ["customer", "producer", "agent", "admin"];
         if (!allowedRoles.includes(normalizedRole)) {
-          return res.status(400).json({ message: "Invalid role" });
+          return sendError(res, 400, "Invalid role");
         }
 
         // Check for existing user
         const existingUser = await storage.getUserByEmail(email);
         if (existingUser) {
-          return res.status(400).json({ message: "User already exists" });
+          return sendError(res, 400, "User already exists");
         }
 
         const hashed = await bcrypt.hash(password, 10);
@@ -2373,10 +2215,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const user = await storage.createUser(userData);
 
         const { password: _pw, ...sanitized } = user as any;
-        res.status(201).json(sanitized);
+        sendSuccess(res, sanitized, "User created successfully", 201);
       } catch (error) {
         console.error("Error in POST /api/admin/users:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2393,10 +2235,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .from(orders)
           .orderBy(desc(orders.createdAt))
           .limit(50);
-        res.json(recent);
+        sendSuccess(res, recent);
       } catch (error) {
         console.error("Error in /api/admin/orders:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2462,10 +2304,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           submittedDate: p.submittedDate,
         }));
 
-        res.json(result);
+        sendSuccess(res, result);
       } catch (error) {
         console.error("Error in /api/admin/pending-approvals:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2476,7 +2318,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await getSubscriptionPlans(req as any, res as any);
     } catch (error) {
       console.error("Error in /api/subscription-plans:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -2487,7 +2329,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await getSubscriptionPlanById(req as any, res as any);
     } catch (error) {
       console.error("Error in /api/subscription-plans/:id:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -2502,7 +2344,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await createSubscriptionPlan(req as any, res as any);
       } catch (error) {
         console.error("Error creating subscription plan:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2518,7 +2360,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await updateSubscriptionPlan(req as any, res as any);
       } catch (error) {
         console.error("Error updating subscription plan:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2535,10 +2377,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         producerId,
       } = req.body || {};
       if (!planId || !billingCycle || !paymentMethod || !amount) {
-        return res.status(400).json({
-          message:
-            "Missing required fields: planId, billingCycle, paymentMethod, amount",
-        });
+        return sendError(res, 400, "Missing required fields: planId, billingCycle, paymentMethod, amount");
       }
 
       // Normalize payload for createSubscription handler
@@ -2558,7 +2397,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await createSubscription(req as any, res as any);
     } catch (error) {
       console.error("Error in /api/subscriptions:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -2576,7 +2415,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await renewSubscription(req as any, res as any);
       } catch (error) {
         console.error("Error in /api/subscriptions/:id/renew:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2591,7 +2430,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await updateSubscriptionStatus(req as any, res as any);
       } catch (error) {
         console.error("Error in PUT /api/subscriptions/:id:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2607,7 +2446,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await getProducerSubscriptionStatus(req as any, res as any);
       } catch (error) {
         console.error("Error in /api/producer/subscription-status:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -2622,17 +2461,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Validate input
       if (!email || !password || !name || !role) {
-        return res.status(400).json({ message: "Missing required fields" });
+        return sendError(res, 400, "Missing required fields");
       }
 
       if (!["customer", "producer", "agent"].includes(role)) {
-        return res.status(400).json({ message: "Invalid role" });
+        return sendError(res, 400, "Invalid role");
       }
 
       // Check if user already exists
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
+        return sendError(res, 400, "User with this email already exists");
       }
 
       // Hash password
@@ -2701,55 +2540,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
         business_name: businessName,
       };
 
-      res.status(201).json({
-        user: mappedUser,
-        token,
-      });
+      sendSuccess(res, { user: mappedUser, token }, "Registration successful", 201);
     } catch (error) {
       console.error("Registration error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
   app.post("/api/auth/login", async (req, res) => {
     try {
-      console.log("Login attempt:", { body: req.body });
-
       const { email, password } = req.body;
 
       if (!email || !password) {
-        console.log("Missing email or password");
-        return res
-          .status(400)
-          .json({ message: "Email and password are required" });
+        return sendError(res, 400, "Email and password are required");
       }
 
       // Find user by email
-      console.log("Looking for user with email:", email);
       const user = await storage.getUserByEmail(email);
-      console.log("User found:", user ? "Yes" : "No");
 
       if (!user) {
-        console.log("User not found");
-        return res.status(401).json({ message: "Invalid credentials" });
+        return sendError(res, 401, "Invalid email or password");
       }
 
       // Check if user has password field
       if (!user.password) {
         console.error("User found but no password field:", user);
-        return res
-          .status(500)
-          .json({ message: "User account configuration error" });
+        return sendError(res, 500, "User account configuration error");
       }
 
       // Check password
-      console.log("Comparing passwords...");
       const isValidPassword = await bcrypt.compare(password, user.password);
-      console.log("Password valid:", isValidPassword);
 
       if (!isValidPassword) {
-        console.log("Invalid password");
-        return res.status(401).json({ message: "Invalid credentials" });
+        return sendError(res, 401, "Invalid email or password");
       }
 
       // Warn if JWT_SECRET is not configured; continue with fallback to avoid hard 500s in dev
@@ -2760,7 +2583,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Generate JWT token
-      console.log("Generating JWT token...");
       const token = jwt.sign(
         { userId: user.id, role: user.role || "customer" },
         jwtSecret,
@@ -2795,12 +2617,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         termsAcceptedAt: (user as any).termsAcceptedAt ?? null,
       };
 
-      console.log("Login successful for user:", mappedUser.id);
-
-      res.json({
+      sendSuccess(res, {
         user: mappedUser,
         token,
-      });
+      }, "Login successful");
     } catch (error) {
       const err = error as Error;
       console.error("Login error details:", {
@@ -2808,10 +2628,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         stack: err.stack,
         name: err.name,
       });
-      res.status(500).json({
-        message: "Internal server error",
-        ...(process.env.NODE_ENV === "development" && { error: err.message }),
-      });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -2819,7 +2636,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const user = await storage.getUserById(req.userId);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return sendError(res, 404, "User not found");
       }
 
       const { password: _, fullName, ...userWithoutPassword } = user;
@@ -2844,10 +2661,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         termsAccepted: (user as any).termsAccepted ?? false,
         termsAcceptedAt: (user as any).termsAcceptedAt ?? null,
       };
-      res.json(mappedUser);
+      sendSuccess(res, mappedUser);
     } catch (error) {
       console.error("Get user error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -2857,46 +2674,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { currentPassword, newPassword } = req.body || {};
 
       if (!currentPassword || !newPassword) {
-        return res
-          .status(400)
-          .json({ message: "currentPassword and newPassword are required" });
+        return sendError(res, 400, "currentPassword and newPassword are required");
       }
 
       if (typeof newPassword !== "string" || newPassword.length < 6) {
-        return res
-          .status(400)
-          .json({ message: "New password must be at least 6 characters" });
+        return sendError(res, 400, "New password must be at least 6 characters");
       }
 
       const user = await storage.getUserById(req.userId);
       if (!user || !user.password) {
-        return res.status(404).json({ message: "User not found" });
+        return sendError(res, 404, "User not found");
       }
 
       const isMatch = await bcrypt.compare(currentPassword, user.password);
       if (!isMatch) {
-        return res
-          .status(400)
-          .json({ message: "Current password is incorrect" });
+        return sendError(res, 400, "Current password is incorrect");
       }
 
       const isSame = await bcrypt.compare(newPassword, user.password);
       if (isSame) {
-        return res.status(400).json({
-          message: "New password must be different from current password",
-        });
+        return sendError(res, 400, "New password must be different from current password");
       }
 
       const hashed = await bcrypt.hash(newPassword, 10);
       await storage.updateUser(user.id, { password: hashed } as any);
 
-      return res.json({
-        success: true,
-        message: "Password updated successfully",
-      });
+      sendSuccess(res, null, "Password updated successfully");
     } catch (error) {
       console.error("Error in change-password:", error);
-      return res.status(500).json({ message: "Internal server error" });
+      return sendError(res, 500, "Internal server error");
     }
   };
 
@@ -2912,9 +2718,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `${req.protocol}://${req.get("host")}/api/auth/oauth/google/callback`;
       const state = req.query.state?.toString() || "";
       if (!clientId) {
-        return res.status(500).json({
-          message: "Google OAuth not configured: missing GOOGLE_CLIENT_ID",
-        });
+        return sendError(res, 500, "Google OAuth not configured: missing GOOGLE_CLIENT_ID");
       }
 
       const params = new URLSearchParams({
@@ -2931,7 +2735,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.redirect(authorizeUrl);
     } catch (error) {
       console.error("Google OAuth init error:", error);
-      res.status(500).json({ message: "Failed to initiate Google OAuth" });
+      sendError(res, 500, "Failed to initiate Google OAuth");
     }
   });
 
@@ -2939,7 +2743,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const code = req.query.code as string | undefined;
       if (!code) {
-        return res.status(400).send("Missing authorization code");
+        return sendError(res, 400, "Missing authorization code");
       }
 
       const clientId = process.env.GOOGLE_CLIENT_ID!;
@@ -2948,7 +2752,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         process.env.GOOGLE_REDIRECT_URI ||
         `${req.protocol}://${req.get("host")}/api/auth/oauth/google/callback`;
       if (!clientId || !clientSecret) {
-        return res.status(500).send("Google OAuth not configured");
+        return sendError(res, 500, "Google OAuth not configured");
       }
 
       // Exchange code for tokens
@@ -2967,7 +2771,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!tokenResp.ok) {
         const txt = await tokenResp.text();
         console.error("Google token exchange failed:", txt);
-        return res.status(502).send("Failed to exchange code");
+        return sendError(res, 502, "Failed to exchange code");
       }
       const tokenJson: any = await tokenResp.json();
       const accessToken = tokenJson.access_token as string;
@@ -2982,7 +2786,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userInfoResp.ok) {
         const txt = await userInfoResp.text();
         console.error("Failed to fetch Google user info:", txt);
-        return res.status(502).send("Failed to fetch user info");
+        return sendError(res, 502, "Failed to fetch user info");
       }
       const profile: any = await userInfoResp.json();
 
@@ -3101,7 +2905,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.send(html);
     } catch (error) {
       console.error("Google OAuth callback error:", error);
-      res.status(500).send("Authentication failed");
+      sendError(res, 500, "Authentication failed");
     }
   });
 
@@ -3110,14 +2914,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { oauthToken, role, phone, ref } = req.body || {};
       if (!oauthToken || !role) {
-        return res
-          .status(400)
-          .json({ message: "oauthToken and role are required" });
+        return sendError(res, 400, "oauthToken and role are required");
       }
 
       const allowedRoles = ["customer", "producer", "agent"];
       if (!allowedRoles.includes(String(role))) {
-        return res.status(400).json({ message: "Invalid role" });
+        return sendError(res, 400, "Invalid role");
       }
 
       // Verify pending token
@@ -3125,12 +2927,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       try {
         payload = jwt.verify(String(oauthToken), jwtSecret);
       } catch {
-        return res
-          .status(401)
-          .json({ message: "Invalid or expired OAuth session" });
+        return sendError(res, 401, "Invalid or expired OAuth session");
       }
       if (!payload || payload.kind !== "oauth_pending" || !payload.email) {
-        return res.status(400).json({ message: "Invalid OAuth payload" });
+        return sendError(res, 400, "Invalid OAuth payload");
       }
 
       const email = String(payload.email).toLowerCase();
@@ -3152,7 +2952,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           ...userWithoutPassword,
           name: fullName || existing.email.split("@")[0],
         } as any;
-        return res.json({ user: mappedExisting, token });
+        return sendSuccess(res, { user: mappedExisting, token });
       }
 
       // Resolve referral (agent onboarding only)
@@ -3213,8 +3013,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         { expiresIn: "7d" }
       );
 
-      // Set HTTP-only cookie for automatic login
-      res.cookie("auth_token", token, {
+        res.cookie("auth_token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
@@ -3223,10 +3022,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       // Note: Referral signup bonus is credited only after admin verification, not during direct registration
-      return res.json({ token, user: mappedUser });
+      return sendSuccess(res, { token, user: mappedUser }, "OAuth registration finalized");
     } catch (error) {
       console.error("register-oauth error:", error);
-      return res.status(500).json({ message: "Internal server error" });
+      return sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3286,7 +3085,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           );
 
         const total = Number(lvl1?.total || 0) + Number(lvl2?.total || 0);
-        res.json({
+        sendSuccess(res, {
           directCount: direct.length,
           indirectCount,
           level1Earnings: Number(lvl1?.total || 0),
@@ -3296,7 +3095,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       } catch (e) {
         console.error("/api/agent/referrals/summary error:", e);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -3344,10 +3143,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
               )
             );
         }
-        res.json({ direct, indirect });
+        sendSuccess(res, { direct, indirect });
       } catch (e) {
         console.error("/api/agent/referrals/network error:", e);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -3406,10 +3205,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
             new Date(a.createdAt as any).getTime()
         );
 
-        res.json(combined);
+        sendSuccess(res, combined);
       } catch (e) {
         console.error("/api/agent/referrals/commissions error:", e);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -3423,9 +3222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         `${req.protocol}://${req.get("host")}/api/auth/oauth/facebook/callback`;
       const state = req.query.state?.toString() || "";
       if (!clientId) {
-        return res.status(500).json({
-          message: "Facebook OAuth not configured: missing FACEBOOK_APP_ID",
-        });
+        return sendError(res, 500, "Facebook OAuth not configured: missing FACEBOOK_APP_ID");
       }
 
       const params = new URLSearchParams({
@@ -3440,7 +3237,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.redirect(authorizeUrl);
     } catch (error) {
       console.error("Facebook OAuth init error:", error);
-      res.status(500).json({ message: "Failed to initiate Facebook OAuth" });
+      sendError(res, 500, "Failed to initiate Facebook OAuth");
     }
   });
 
@@ -3448,7 +3245,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const code = req.query.code as string | undefined;
       if (!code) {
-        return res.status(400).send("Missing authorization code");
+        return sendError(res, 400, "Missing authorization code");
       }
 
       const clientId = process.env.FACEBOOK_APP_ID!;
@@ -3457,7 +3254,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         process.env.FACEBOOK_REDIRECT_URI ||
         `${req.protocol}://${req.get("host")}/api/auth/oauth/facebook/callback`;
       if (!clientId || !clientSecret) {
-        return res.status(500).send("Facebook OAuth not configured");
+        return sendError(res, 500, "Facebook OAuth not configured");
       }
 
       // Exchange code for access token
@@ -3478,7 +3275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!tokenResp.ok) {
         const txt = await tokenResp.text();
         console.error("Facebook token exchange failed:", txt);
-        return res.status(502).send("Failed to exchange code");
+        return sendError(res, 502, "Failed to exchange code");
       }
       const tokenJson: any = await tokenResp.json();
       const accessToken = tokenJson.access_token as string;
@@ -3493,7 +3290,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (!userInfoResp.ok) {
         const txt = await userInfoResp.text();
         console.error("Failed to fetch Facebook user info:", txt);
-        return res.status(502).send("Failed to fetch user info");
+        return sendError(res, 502, "Failed to fetch user info");
       }
       const profile: any = await userInfoResp.json();
 
@@ -3502,7 +3299,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         profile.name || (email ? email.split("@")[0] : "Facebook User");
 
       if (!email) {
-        return res.status(400).send("Email permission required");
+        return sendError(res, 400, "Email permission required");
       }
 
       // Upsert user
@@ -3542,7 +3339,7 @@ try {
       res.send(html);
     } catch (error) {
       console.error("Facebook OAuth callback error:", error);
-      res.status(500).send("Authentication failed");
+      sendError(res, 500, "Authentication failed");
     }
   });
 
@@ -3551,14 +3348,14 @@ try {
     try {
       const existing = await storage.getProduct(req.params.id);
       if (!existing)
-        return res.status(404).json({ message: "Product not found" });
+        return sendError(res, 404, "Product not found");
 
       // Authorization: admin can update any, producer only their own
       const isAdmin = req.userRole === "admin";
       const isOwner =
         req.userRole === "producer" && existing.producerId === req.userId;
       if (!isAdmin && !isOwner) {
-        return res.status(403).json({ message: "Insufficient permissions" });
+        return sendError(res, 403, "Insufficient permissions");
       }
 
       // Validate updates
@@ -3573,16 +3370,14 @@ try {
 
       const product = await storage.updateProduct(req.params.id, updates);
       if (!product)
-        return res.status(404).json({ message: "Product not found" });
-      res.json(product);
+        return sendError(res, 404, "Product not found");
+      sendSuccess(res, product, "Product updated successfully");
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
+        return sendError(res, 400, "Validation error", error.errors);
       }
       console.error("Error updating product:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3591,20 +3386,20 @@ try {
     try {
       const existing = await storage.getProduct(req.params.id);
       if (!existing)
-        return res.status(404).json({ message: "Product not found" });
+        return sendError(res, 404, "Product not found");
 
       const isAdmin = req.userRole === "admin";
       const isOwner =
         req.userRole === "producer" && existing.producerId === req.userId;
       if (!isAdmin && !isOwner) {
-        return res.status(403).json({ message: "Insufficient permissions" });
+        return sendError(res, 403, "Insufficient permissions");
       }
 
       await storage.deleteProduct(req.params.id);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting product:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3634,11 +3429,11 @@ try {
         const trimmed = String(email).trim().toLowerCase();
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(trimmed)) {
-          return res.status(400).json({ message: "Invalid email format" });
+          return sendError(res, 400, "Invalid email format");
         }
         const existing = await storage.getUserByEmail(trimmed);
         if (existing && existing.id !== req.userId) {
-          return res.status(400).json({ message: "Email already in use" });
+          return sendError(res, 400, "Email already in use by another account");
         }
         updateData.email = trimmed;
         // Keep username aligned with email for this app
@@ -3647,7 +3442,7 @@ try {
 
       const user = await storage.updateUser(req.userId, updateData);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return sendError(res, 404, "User not found");
       }
 
       // Return user without password and map fullName to name
@@ -3661,10 +3456,10 @@ try {
         name: userFullName || user.email.split("@")[0],
       };
 
-      res.json(mappedUser);
+      sendSuccess(res, mappedUser);
     } catch (error) {
       console.error("Update profile error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3673,39 +3468,29 @@ try {
     try {
       const { currentPassword, newPassword } = req.body || {};
       if (!currentPassword || !newPassword) {
-        return res
-          .status(400)
-          .json({ message: "currentPassword and newPassword are required" });
+        return sendError(res, 400, "currentPassword and newPassword are required");
       }
 
       // Basic password policy
       if (typeof newPassword !== "string" || newPassword.length < 8) {
-        return res
-          .status(400)
-          .json({ message: "New password must be at least 8 characters long" });
+        return sendError(res, 400, "New password must be at least 8 characters long");
       }
 
       const user = await storage.getUserById(req.userId);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return sendError(res, 404, "User not found");
       }
       if (!user.password) {
-        return res
-          .status(400)
-          .json({ message: "Password change not available for this account" });
+        return sendError(res, 400, "Password change not available for this account type");
       }
 
       const matches = await bcrypt.compare(currentPassword, user.password);
       if (!matches) {
-        return res
-          .status(401)
-          .json({ message: "Current password is incorrect" });
+        return sendError(res, 401, "Current password is incorrect");
       }
 
       if (currentPassword === newPassword) {
-        return res.status(400).json({
-          message: "New password must be different from current password",
-        });
+        return sendError(res, 400, "New password must be different from current password");
       }
 
       const hashed = await bcrypt.hash(newPassword, 10);
@@ -3713,13 +3498,13 @@ try {
         password: hashed,
       } as any);
       if (!updated) {
-        return res.status(500).json({ message: "Failed to update password" });
+        return sendError(res, 500, "Failed to update password");
       }
 
-      return res.json({ message: "Password updated successfully" });
+      sendSuccess(res, null, "Password updated successfully");
     } catch (error) {
       console.error("Change password error:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3764,17 +3549,16 @@ try {
             createdUsers.push(userWithoutPassword);
           }
         } catch (error) {
-          console.log(`User ${userData.email} might already exist`);
+          // User might already exist, ignore
         }
       }
 
-      res.json({
-        message: "Demo users seeded successfully",
+      sendSuccess(res, {
         users: createdUsers,
-      });
+      }, "Demo users seeded successfully");
     } catch (error) {
       console.error("Error seeding demo users:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3782,10 +3566,10 @@ try {
   app.get("/api/categories", async (_req, res) => {
     try {
       const categories = await storage.getCategories();
-      res.json(categories);
+      sendSuccess(res, categories);
     } catch (error) {
       console.error("Error fetching categories:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3793,12 +3577,12 @@ try {
     try {
       const category = await storage.getCategory(req.params.id);
       if (!category) {
-        return res.status(404).json({ message: "Category not found" });
+        return sendError(res, 404, "Category not found");
       }
-      res.json(category);
+      sendSuccess(res, category);
     } catch (error) {
       console.error("Error fetching category:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -3810,15 +3594,13 @@ try {
       try {
         const validatedData = insertCategorySchema.parse(req.body);
         const category = await storage.createCategory(validatedData);
-        res.status(201).json(category);
+        sendSuccess(res, category, "Category created successfully", 201);
       } catch (error) {
         if (error instanceof z.ZodError) {
-          return res
-            .status(400)
-            .json({ message: "Validation error", errors: error.errors });
+          return sendError(res, 400, "Validation error", error.errors);
         }
         console.error("Error creating category:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -3835,17 +3617,15 @@ try {
           validatedData
         );
         if (!category) {
-          return res.status(404).json({ message: "Category not found" });
+          return sendError(res, 404, "Category not found");
         }
-        res.json(category);
+        sendSuccess(res, category, "Category updated successfully");
       } catch (error) {
         if (error instanceof z.ZodError) {
-          return res
-            .status(400)
-            .json({ message: "Validation error", errors: error.errors });
+          return sendError(res, 400, "Validation error", error.errors);
         }
         console.error("Error updating category:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -3860,7 +3640,7 @@ try {
         res.status(204).send();
       } catch (error) {
         console.error("Error deleting category:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -3868,8 +3648,6 @@ try {
   // Function to crop product image specifically
   async function cropProductImage(imageUrl: string): Promise<string> {
     try {
-      console.log("Cropping product image:", imageUrl);
-
       // Download the image
       const response = await fetch(imageUrl);
       if (!response.ok) {
@@ -3903,7 +3681,6 @@ try {
         if (result.success && result.outputPath) {
           // For now, we'll return the original URL since we can't easily upload to the same storage
           // In a real implementation, you'd upload the processed image and return the new URL
-          console.log("Product image cropped successfully");
           return imageUrl; // Return original URL for now
         } else {
           console.error("Image processing failed:", result.error);
@@ -3952,7 +3729,7 @@ try {
           !categoryId ||
           !imageUrl
         ) {
-          return res.status(400).json({ message: "Missing required fields" });
+          return sendError(res, 400, "Missing required fields");
         }
 
         // Enforce subscription plan maxProducts for producers (admins bypass)
@@ -3998,8 +3775,7 @@ try {
                 .where(eq(products.producerId, req.userId));
               const currentCount = current.length;
               if (currentCount >= maxProductsLimit) {
-                return res.status(403).json({
-                  message: `Product limit reached for your current plan. Max allowed products: ${maxProductsLimit}. Please remove some products or upgrade your plan.`,
+                return sendError(res, 403, `Product limit reached for your current plan. Max allowed products: ${maxProductsLimit}. Please remove some products or upgrade your plan.`, {
                   code: "PRODUCT_LIMIT_REACHED",
                   maxProducts: maxProductsLimit,
                   currentProducts: currentCount,
@@ -4035,32 +3811,46 @@ try {
         };
 
         const product = await storage.createProduct(productData);
-        res.status(201).json(product);
+        sendSuccess(res, product, "Product created successfully", 201);
       } catch (error) {
         console.error("Error creating product:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
 
   app.get("/api/products", async (req, res) => {
     try {
-      const { categoryId, search, limit, offset, producerId } = req.query;
+      const { categoryId, category, search, limit, offset, page, producerId } = req.query;
+      
+      const parsedLimit = limit ? parseInt(limit as string) : 30;
+      let parsedOffset = offset ? parseInt(offset as string) : 0;
+      
+      // Support page-based pagination
+      if (page && !offset) {
+        const pageNum = parseInt(page as string);
+        parsedOffset = (pageNum - 1) * parsedLimit;
+      }
+
       const options = {
-        categoryId: categoryId as string,
+        categoryId: (categoryId || category) as string,
         search: search as string,
-        limit: limit ? parseInt(limit as string) : undefined,
-        offset: offset ? parseInt(offset as string) : undefined,
+        limit: parsedLimit,
+        offset: parsedOffset,
         producerId: producerId as string,
       };
 
-      const list = await storage.getProducts(options);
+      const [list, totalCount] = await Promise.all([
+        storage.getProducts(options),
+        storage.getProductsCount(options)
+      ]);
+
+      let finalProducts = list;
 
       // If listing products for a specific producer, enforce plan maxProducts by slicing
       if (options.producerId) {
         try {
-          let maxProductsLimit = 0; // default 0 means unlimited if not found? we'll treat 0 as unlimited per seed
-          // Fetch active subscription for that producer
+          let maxProductsLimit = 0;
           const activeSubs = await db
             .select()
             .from(subscriptions)
@@ -4092,36 +3882,40 @@ try {
           if (
             maxProductsLimit > 0 &&
             Array.isArray(list) &&
-            list.length > maxProductsLimit
+            (parsedOffset + list.length) > maxProductsLimit
           ) {
-            return res.json(list.slice(0, maxProductsLimit));
+            // Calculate how many products from THIS page are allowed
+            const allowedOnThisPage = Math.max(0, maxProductsLimit - parsedOffset);
+            finalProducts = list.slice(0, allowedOnThisPage);
           }
         } catch (e) {
-          console.warn(
-            "Failed to enforce listing limit: ",
-            (e as any)?.message || e
-          );
-          // Fall through to return full list if enforcement fails
+          console.warn("Failed to enforce listing limit: ", e);
         }
       }
 
-      res.json(list);
+      // Return structured response for infinite scroll support
+      sendSuccess(res, {
+        products: finalProducts,
+        totalCount,
+        hasNextPage: parsedOffset + parsedLimit < totalCount,
+        limit: parsedLimit,
+        offset: parsedOffset
+      });
     } catch (error) {
       console.error("Error fetching products:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
   app.get("/api/products/:id", async (req, res) => {
     try {
       const product = await storage.getProduct(req.params.id);
-      if (!product) {
-        return res.status(404).json({ message: "Product not found" });
-      }
-      res.json(product);
+      if (!product)
+        return sendError(res, 404, "Product not found");
+      sendSuccess(res, product, "Product retrieved successfully");
     } catch (error) {
       console.error("Error fetching product:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4129,15 +3923,13 @@ try {
     try {
       const validatedData = insertProductSchema.parse(req.body);
       const product = await storage.createProduct(validatedData);
-      res.status(201).json(product);
+      sendSuccess(res, product, "Product created successfully", 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
+        return sendError(res, 400, "Validation error", error.errors);
       }
       console.error("Error creating product:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4146,14 +3938,14 @@ try {
     try {
       const user = await storage.getUser(req.params.id);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return sendError(res, 404, "User not found");
       }
       // Remove password from response
       const { password, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+      sendSuccess(res, userWithoutPassword);
     } catch (error) {
       console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4163,15 +3955,13 @@ try {
       const user = await storage.createUser(validatedData);
       // Remove password from response
       const { password, ...userWithoutPassword } = user;
-      res.status(201).json(userWithoutPassword);
+      sendSuccess(res, userWithoutPassword, "User created successfully", 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
+        return sendError(res, 400, "Validation error", error.errors);
       }
       console.error("Error creating user:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4180,19 +3970,17 @@ try {
       const validatedData = insertUserSchema.partial().parse(req.body);
       const user = await storage.updateUser(req.params.id, validatedData);
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return sendError(res, 404, "User not found");
       }
       // Remove password from response
       const { password, ...userWithoutPassword } = user;
-      res.json(userWithoutPassword);
+      sendSuccess(res, userWithoutPassword);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
+        return sendError(res, 400, "Validation error", error.errors);
       }
       console.error("Error updating user:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4219,10 +4007,10 @@ try {
           }
         })
       );
-      res.json(withCompany);
+      sendSuccess(res, withCompany);
     } catch (error) {
       console.error("Error fetching producers:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4230,22 +4018,22 @@ try {
     try {
       const user = await storage.getUser(req.params.id);
       if (!user || user.role !== "producer")
-        return res.status(404).json({ message: "Producer not found" });
+        return sendError(res, 404, "Producer not found");
       const { password, ...safe } = user as any;
-      res.json(safe);
+      sendSuccess(res, safe);
     } catch (error) {
       console.error("Error fetching producer:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
   app.get("/api/producers/:id/products", async (req, res) => {
     try {
       const products = await storage.getProducts({ producerId: req.params.id });
-      res.json(products);
+      sendSuccess(res, products);
     } catch (error) {
       console.error("Error fetching producer products:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4258,12 +4046,12 @@ try {
       try {
         const company = await storage.getCompanyByProducerId(req.userId);
         if (!company) {
-          return res.status(404).json({ message: "Company not found" });
+          return sendError(res, 404, "Company not found");
         }
-        res.json(company);
+        sendSuccess(res, company);
       } catch (error) {
         console.error("Error fetching company:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -4277,9 +4065,7 @@ try {
         // Prevent creating multiple companies per producer
         const existing = await storage.getCompanyByProducerId(req.userId);
         if (existing) {
-          return res
-            .status(409)
-            .json({ message: "Company already exists. Use update instead." });
+          return sendError(res, 409, "Company already exists. Use update instead.");
         }
 
         const companyBodySchema = z.object({
@@ -4297,15 +4083,13 @@ try {
           producerId: req.userId,
           ...body,
         } as any);
-        res.status(201).json(company);
+        sendSuccess(res, company, "Company created successfully", 201);
       } catch (error) {
         if (error instanceof z.ZodError) {
-          return res
-            .status(400)
-            .json({ message: "Validation error", errors: error.errors });
+          return sendError(res, 400, "Validation error", error.errors);
         }
         console.error("Error creating company:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -4329,17 +4113,15 @@ try {
         const updates = companyBodyUpdateSchema.parse(req.body);
         const updated = await storage.updateCompany(req.userId, updates as any);
         if (!updated) {
-          return res.status(404).json({ message: "Company not found" });
+          return sendError(res, 404, "Company not found");
         }
-        res.json(updated);
+        sendSuccess(res, updated);
       } catch (error) {
         if (error instanceof z.ZodError) {
-          return res
-            .status(400)
-            .json({ message: "Validation error", errors: error.errors });
+          return sendError(res, 400, "Validation error", error.errors);
         }
         console.error("Error updating company:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -4351,13 +4133,13 @@ try {
       const company = await storage.getCompanyById(id);
 
       if (!company) {
-        return res.status(404).json({ message: "Company not found" });
+        return sendError(res, 404, "Company not found");
       }
 
-      res.json(company);
+      sendSuccess(res, company);
     } catch (error) {
       console.error("Error fetching company:", error);
-      res.status(500).json({ message: "Failed to fetch company" });
+      sendError(res, 500, "Failed to fetch company");
     }
   });
 
@@ -4369,7 +4151,7 @@ try {
       // First verify company exists
       const company = await storage.getCompanyById(id);
       if (!company) {
-        return res.status(404).json({ message: "Company not found" });
+        return sendError(res, 404, "Company not found");
       }
 
       // Enforce active subscription for the producer that owns this company
@@ -4388,25 +4170,20 @@ try {
         const now = new Date();
         const hasActive = sub && new Date(sub.endDate) > now;
         if (!hasActive) {
-          return res.status(403).json({
-            message:
-              "Producer subscription inactive. Store temporarily unavailable.",
-          });
+          return sendError(res, 403, "Producer subscription inactive. Store temporarily unavailable.");
         }
       } catch (e) {
         console.error("Subscription check failed:", e);
-        return res
-          .status(500)
-          .json({ message: "Failed to verify subscription for this store" });
+        return sendError(res, 500, "Failed to verify subscription for this store");
       }
 
       // Get products with category information for this company
       const companyProducts = await storage.getProductsByCompanyId(id);
 
-      res.json(companyProducts);
+      sendSuccess(res, companyProducts);
     } catch (error) {
       console.error("Error fetching company products:", error);
-      res.status(500).json({ message: "Failed to fetch company products" });
+      sendError(res, 500, "Failed to fetch company products");
     }
   });
 
@@ -4418,13 +4195,13 @@ try {
         const company = await storage.getCompanyByProducerId(
           String(producerId)
         );
-        return res.json(company ? [company] : []);
+        return sendSuccess(res, company ? [company] : []);
       }
       const companies = await storage.getCompanies();
-      res.json(companies);
+      sendSuccess(res, companies);
     } catch (error) {
       console.error("Error fetching companies:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4432,10 +4209,10 @@ try {
   app.get("/api/cart", requireAuth, async (req: any, res) => {
     try {
       const cartItems = await storage.getCartItems(req.userId);
-      res.json(cartItems);
+      sendSuccess(res, cartItems);
     } catch (error) {
       console.error("Error fetching cart:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4458,15 +4235,13 @@ try {
       } as const;
 
       const cartItem = await storage.addToCart(payload as any);
-      res.status(201).json(cartItem);
+      sendSuccess(res, cartItem, "Item added to cart", 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
+        return sendError(res, 400, "Validation error", error.errors);
       }
       console.error("Error adding to cart:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4478,17 +4253,15 @@ try {
         validatedData
       );
       if (!cartItem) {
-        return res.status(404).json({ message: "Cart item not found" });
+        return sendError(res, 404, "Cart item not found");
       }
-      res.json(cartItem);
+      sendSuccess(res, cartItem, "Item added to cart");
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
+        return sendError(res, 400, "Validation error", error.errors);
       }
       console.error("Error updating cart item:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4498,7 +4271,7 @@ try {
       res.status(204).send();
     } catch (error) {
       console.error("Error removing from cart:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4508,7 +4281,7 @@ try {
       res.status(204).send();
     } catch (error) {
       console.error("Error clearing cart:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4527,16 +4300,13 @@ try {
         },
       });
 
-      res.json({
+      sendSuccess(res, {
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
       });
     } catch (error: any) {
       console.error("Error creating payment intent:", error);
-      res.status(500).json({
-        message: "Error creating payment intent",
-        error: error.message,
-      });
+      sendError(res, 500, "Error creating payment intent", error.message);
     }
   });
 
@@ -4553,7 +4323,7 @@ try {
         await getProducerOrders(req as any, res as any);
       } catch (error) {
         console.error("Error in /api/producer/orders:", error);
-        res.status(500).json({ message: "Failed to fetch producer orders" });
+        sendError(res, 500, "Failed to fetch producer orders");
       }
     }
   );
@@ -4570,17 +4340,17 @@ try {
       try {
         const { status } = req.body;
         if (!status) {
-          return res.status(400).json({ message: "Status is required" });
+          return sendError(res, 400, "Status is required");
         }
 
         const order = await storage.updateOrderStatus(req.params.id, status);
         if (!order) {
-          return res.status(404).json({ message: "Order not found" });
+          return sendError(res, 404, "Order not found");
         }
-        res.json(order);
+        sendSuccess(res, order);
       } catch (error) {
         console.error("Error updating order status:", error);
-        res.status(500).json({ message: "Failed to update order status" });
+        sendError(res, 500, "Failed to update order status");
       }
     }
   );
@@ -4589,10 +4359,10 @@ try {
   app.get("/api/favorites", requireAuth, async (req: any, res) => {
     try {
       const favorites = await storage.getFavorites(req.userId);
-      res.json(favorites);
+      sendSuccess(res, favorites);
     } catch (error) {
       console.error("Error fetching favorites:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4603,15 +4373,13 @@ try {
         userId: req.userId,
       });
       const favorite = await storage.addToFavorites(validatedData);
-      res.status(201).json(favorite);
+      sendSuccess(res, favorite, "Added to favorites", 201);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res
-          .status(400)
-          .json({ message: "Validation error", errors: error.errors });
+        return sendError(res, 400, "Validation error", error.errors);
       }
       console.error("Error adding to favorites:", error);
-      res.status(500).json({ message: "Internal server error" });
+      sendError(res, 500, "Internal server error");
     }
   });
 
@@ -4624,7 +4392,7 @@ try {
         res.status(204).send();
       } catch (error) {
         console.error("Error removing from favorites:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -4638,10 +4406,10 @@ try {
           req.userId,
           req.params.productId
         );
-        res.json({ isFavorite });
+        sendSuccess(res, { isFavorite });
       } catch (error) {
         console.error("Error checking favorite status:", error);
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error");
       }
     }
   );
@@ -4656,12 +4424,12 @@ try {
       try {
         const session = await storage.getTryOnSession(req.params.id);
         if (!session) {
-          return res.status(404).json({ message: "Try-on session not found" });
+          return sendError(res, 404, "Try-on session not found");
         }
 
         const product = await storage.getProduct(session.productId!);
         if (!product) {
-          return res.status(404).json({ message: "Product not found" });
+          return sendError(res, 404, "Product not found");
         }
 
         // Update status to processing
@@ -4699,21 +4467,18 @@ try {
             tryOnImageUrl: result.tryOnImageUrl,
             fitRecommendation: JSON.stringify(result.recommendations),
           });
-          res.json({
-            message: "Try-on completed successfully",
+          sendSuccess(res, {
             tryOnImageUrl: result.tryOnImageUrl,
             recommendations: result.recommendations,
-          });
+          }, "Try-on completed successfully");
         } else {
           await storage.updateTryOnSession(req.params.id, { status: "failed" });
-          res
-            .status(500)
-            .json({ message: result.error || "Try-on processing failed" });
+          sendError(res, 500, result.error || "Try-on processing failed");
         }
       } catch (error) {
         console.error("Error processing try-on session:", error);
         await storage.updateTryOnSession(req.params.id, { status: "failed" });
-        res.status(500).json({ message: "Internal server error" });
+        sendError(res, 500, "Internal server error", error);
       }
     }
   );
@@ -4723,14 +4488,14 @@ try {
     try {
       const { imageBase64 } = req.body;
       if (!imageBase64) {
-        return res.status(400).json({ message: "Image data is required" });
+        return sendError(res, 400, "Image data is required");
       }
 
       const analysis = await analyzeFashionImage(imageBase64);
-      res.json(analysis);
+      sendSuccess(res, analysis);
     } catch (error) {
       console.error("Error analyzing fashion image:", error);
-      res.status(500).json({ message: "Failed to analyze image" });
+      sendError(res, 500, "Failed to analyze image", error);
     }
   });
 
@@ -4753,12 +4518,10 @@ try {
           productType,
           productSizes
         );
-        res.json(recommendation);
+        sendSuccess(res, recommendation);
       } catch (error) {
         console.error("Error generating size recommendation:", error);
-        res
-          .status(500)
-          .json({ message: "Failed to generate size recommendation" });
+        sendError(res, 500, "Failed to generate size recommendation", error);
       }
     }
   );
@@ -4779,7 +4542,7 @@ try {
       };
 
       const products = await storage.getProducts(options);
-      res.json({ query: q, results: products });
+      sendSuccess(res, { query: q, results: products });
     } catch (error) {
       console.error("Error performing search:", error);
       res.status(500).json({ message: "Internal server error" });
@@ -4856,10 +4619,10 @@ try {
   app.get("/api/outfit-collections", requireAuth, async (req: any, res) => {
     try {
       const collections = await storage.getOutfitCollections(req.userId);
-      res.json(collections);
+      sendSuccess(res, collections);
     } catch (error) {
       console.error("Error fetching outfit collections:", error);
-      res.status(500).json({ message: "Failed to fetch outfit collections" });
+      sendError(res, 500, "Failed to fetch outfit collections", error);
     }
   });
 
@@ -4867,16 +4630,16 @@ try {
     try {
       const collection = await storage.getOutfitCollection(req.params.id);
       if (!collection) {
-        return res.status(404).json({ message: "Outfit collection not found" });
+        return sendError(res, 404, "Outfit collection not found");
       }
       // Verify ownership
       if (collection.userId !== req.userId) {
-        return res.status(403).json({ message: "Access denied" });
+        return sendError(res, 403, "Access denied");
       }
-      res.json(collection);
+      sendSuccess(res, collection);
     } catch (error) {
       console.error("Error fetching outfit collection:", error);
-      res.status(500).json({ message: "Failed to fetch outfit collection" });
+      sendError(res, 500, "Failed to fetch outfit collection", error);
     }
   });
 
@@ -4887,10 +4650,10 @@ try {
         userId: req.userId,
       };
       const collection = await storage.createOutfitCollection(collectionData);
-      res.status(201).json(collection);
+      sendSuccess(res, collection, "Outfit collection created successfully", 201);
     } catch (error) {
       console.error("Error creating outfit collection:", error);
-      res.status(500).json({ message: "Failed to create outfit collection" });
+      sendError(res, 500, "Failed to create outfit collection", error);
     }
   });
 
@@ -4899,20 +4662,20 @@ try {
       // Verify ownership
       const existing = await storage.getOutfitCollection(req.params.id);
       if (!existing) {
-        return res.status(404).json({ message: "Outfit collection not found" });
+        return sendError(res, 404, "Outfit collection not found");
       }
       if (existing.userId !== req.userId) {
-        return res.status(403).json({ message: "Access denied" });
+        return sendError(res, 403, "Access denied");
       }
 
       const updated = await storage.updateOutfitCollection(
         req.params.id,
         req.body
       );
-      res.json(updated);
+      sendSuccess(res, updated, "Outfit collection updated successfully");
     } catch (error) {
       console.error("Error updating outfit collection:", error);
-      res.status(500).json({ message: "Failed to update outfit collection" });
+      sendError(res, 500, "Failed to update outfit collection", error);
     }
   });
 
@@ -4929,11 +4692,11 @@ try {
             .json({ message: "Outfit collection not found" });
         }
         if (existing.userId !== req.userId) {
-          return res.status(403).json({ message: "Access denied" });
+          return sendError(res, 403, "Access denied");
         }
 
         await storage.deleteOutfitCollection(req.params.id);
-        res.json({ message: "Outfit collection deleted successfully" });
+        sendSuccess(res, null, "Outfit collection deleted successfully");
       } catch (error) {
         console.error("Error deleting outfit collection:", error);
         res.status(500).json({ message: "Failed to delete outfit collection" });
@@ -4950,24 +4713,24 @@ try {
         return res.status(404).json({ message: "Outfit collection not found" });
       }
       if (outfit.userId !== req.userId) {
-        return res.status(403).json({ message: "Access denied" });
+        return sendError(res, 403, "Access denied");
       }
 
       const item = await storage.addItemToOutfit(req.body);
-      res.status(201).json(item);
+      sendSuccess(res, item, "Item added to outfit", 201);
     } catch (error) {
       console.error("Error adding item to outfit:", error);
-      res.status(500).json({ message: "Failed to add item to outfit" });
+      sendError(res, 500, "Failed to add item to outfit", error);
     }
   });
 
   app.delete("/api/outfit-items/:id", requireAuth, async (req: any, res) => {
     try {
       await storage.removeItemFromOutfit(req.params.id);
-      res.json({ message: "Item removed from outfit successfully" });
+      sendSuccess(res, null, "Item removed from outfit successfully");
     } catch (error) {
       console.error("Error removing item from outfit:", error);
-      res.status(500).json({ message: "Failed to remove item from outfit" });
+      sendError(res, 500, "Failed to remove item from outfit", error);
     }
   });
 
@@ -4988,10 +4751,10 @@ try {
         });
       }
 
-      res.json(profile);
+      sendSuccess(res, profile);
     } catch (error) {
       console.error("Error fetching style profile:", error);
-      res.status(500).json({ message: "Failed to fetch style profile" });
+      sendError(res, 500, "Failed to fetch style profile", error);
     }
   });
 
@@ -5001,10 +4764,10 @@ try {
         req.userId,
         req.body
       );
-      res.json(updated);
+      sendSuccess(res, updated, "Style profile updated successfully");
     } catch (error) {
       console.error("Error updating style profile:", error);
-      res.status(500).json({ message: "Failed to update style profile" });
+      sendError(res, 500, "Failed to update style profile", error);
     }
   });
 
@@ -5070,7 +4833,7 @@ try {
         categoryId: topCategories[0],
       });
 
-      res.json({
+      sendSuccess(res, {
         recommendations,
         insights: {
           topCategories: Object.entries(categoryFrequency)
@@ -5084,7 +4847,7 @@ try {
       });
     } catch (error) {
       console.error("Error generating recommendations:", error);
-      res.status(500).json({ message: "Failed to generate recommendations" });
+      sendError(res, 500, "Failed to generate recommendations", error);
     }
   });
 
@@ -5115,7 +4878,7 @@ try {
         monthlyActivity[month] = (monthlyActivity[month] || 0) + 1;
       }
 
-      res.json({
+      sendSuccess(res, {
         totalTryOns: tryOnSessions.length,
         totalFavorites: favorites.length,
         totalOutfits: outfitCollections.length,
@@ -5125,13 +4888,13 @@ try {
       });
     } catch (error) {
       console.error("Error fetching style analytics:", error);
-      res.status(500).json({ message: "Failed to fetch style analytics" });
+      sendError(res, 500, "Failed to fetch style analytics", error);
     }
   });
 
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
-    res.json({
+    sendSuccess(res, {
       status: "ok",
       timestamp: new Date().toISOString(),
       service: "Nyambika AI Fashion Platform API",

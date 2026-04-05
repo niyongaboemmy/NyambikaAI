@@ -3,14 +3,16 @@ import { db } from "./db";
 import crypto from "crypto";
 import { orders, orderItems, cartItems, products, users } from "./shared/schema.dialect";
 import { eq, desc, and, inArray, sql } from "drizzle-orm";
+import { sendSuccess, sendError } from "./utils/response";
 
 // GET /api/orders - Get user's orders
 export const getUserOrders = async (req: any, res: Response) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     const userOrders = await db
       .select({
@@ -30,8 +32,9 @@ export const getUserOrders = async (req: any, res: Response) => {
       .orderBy(desc(orders.createdAt));
 
     if (!userOrders || userOrders.length === 0) {
-      return res.status(200).json([]);
+      return sendSuccess(res, []);
     }
+
 
     // Get order items for each order, defensively
     const ordersWithItems = await Promise.all(
@@ -74,13 +77,10 @@ export const getUserOrders = async (req: any, res: Response) => {
       })
     );
 
-    res.status(200).json(ordersWithItems);
+    sendSuccess(res, ordersWithItems);
   } catch (error) {
     console.error("Error fetching orders:", error);
-    res.status(500).json({
-      error: "Failed to fetch orders",
-      details: (error as any)?.message || String(error),
-    });
+    sendError(res, 500, "Failed to fetch orders", error);
   }
 };
 
@@ -89,7 +89,7 @@ export const getProducerOrders = async (req: any, res: Response) => {
   try {
     const userId = req.userId; // producer or admin acting as producer
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
 
     const statusFilter = (req.query.status as string | undefined)?.trim();
@@ -105,7 +105,7 @@ export const getProducerOrders = async (req: any, res: Response) => {
       new Set(orderIdRows.map((r: any) => r.orderId))
     ).filter(Boolean) as string[];
     if (orderIds.length === 0) {
-      return res.status(200).json([]);
+      return sendSuccess(res, []);
     }
 
     // Base orders for these IDs
@@ -205,13 +205,11 @@ export const getProducerOrders = async (req: any, res: Response) => {
       })
     );
 
-    res.status(200).json(ordersWithItems);
+    return sendSuccess(res, ordersWithItems);
+
   } catch (error) {
     console.error("Error fetching producer orders:", error);
-    res.status(500).json({
-      error: "Failed to fetch producer orders",
-      details: (error as any)?.message || String(error),
-    });
+    sendError(res, 500, "Failed to fetch producer orders", error);
   }
 };
 
@@ -223,13 +221,8 @@ export const getOrderById = async (req: any, res: Response) => {
     const producerId = req.userId; // For producers, this is their user ID
     const orderId = req.params.id;
 
-    console.log("Order ID:", orderId);
-    console.log("User ID:", userId);
-    console.log("User Role:", userRole);
-
     if (!userId) {
-      console.log("No user ID found in request");
-      return res.status(401).json({ error: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
 
     // Build the base order query
@@ -263,7 +256,7 @@ export const getOrderById = async (req: any, res: Response) => {
     const [order] = await orderQuery;
 
     if (!order) {
-      return res.status(404).json({ error: "Order not found" });
+      return sendError(res, 404, "Order not found");
     }
 
     // Get order items with product details
@@ -323,13 +316,10 @@ export const getOrderById = async (req: any, res: Response) => {
 
     const orderWithItems = { ...order, shippingAddress, items };
 
-    res.json(orderWithItems);
+    sendSuccess(res, orderWithItems);
   } catch (error) {
     console.error("Error fetching order:", error);
-    res.status(500).json({
-      error: "Failed to fetch order",
-      details: (error as any)?.message || String(error),
-    });
+    sendError(res, 500, "Failed to fetch order", error);
   }
 };
 
@@ -338,32 +328,28 @@ export const createOrder = async (req: any, res: Response) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     const { items, total, paymentMethod: rawPaymentMethod, shippingAddress, notes } = req.body;
 
     // Validate required fields
     if (!items || !Array.isArray(items) || items.length === 0) {
-      return res.status(400).json({ error: "Order items are required" });
+      return sendError(res, 400, "Order items are required");
     }
 
     if (!total || !shippingAddress) {
-      return res
-        .status(400)
-        .json({ error: "Missing required order information" });
+      return sendError(res, 400, "Missing required order information");
     }
 
     // Validate each item has required fields
     for (const item of items) {
       if (!item.productId || !item.quantity || !item.price) {
-        return res.status(400).json({
-          error: "Each item must have productId, quantity, and price",
-        });
+        return sendError(res, 400, "Each item must have productId, quantity, and price");
       }
     }
 
-    const isMySQL = String(process.env.DB_DIALECT || "postgres").toLowerCase() === "mysql";
 
     // Start transaction
     const result = await db.transaction(async (tx: any) => {
@@ -382,16 +368,13 @@ export const createOrder = async (req: any, res: Response) => {
             : JSON.stringify(shippingAddress),
         notes: notes || null,
       };
-      if (isMySQL) {
-        await tx.insert(orders).values(orderValues).execute();
-      } else {
-        await tx.insert(orders).values(orderValues).returning();
-      }
+      await tx.insert(orders).values(orderValues).returning();
       // Select created order row for consistent return shape
       const [newOrder] = await tx.select().from(orders).where(eq(orders.id, orderId));
 
       // Create order items
       const orderItemsData = items.map((item: any) => ({
+        id: crypto.randomUUID(),
         orderId: newOrder.id,
         productId: item.productId,
         quantity: parseInt(item.quantity) || 1,
@@ -399,14 +382,7 @@ export const createOrder = async (req: any, res: Response) => {
         size: item.size || null,
         color: item.color || null,
       }));
-
-      if (isMySQL) {
-        // Provide explicit UUIDs for MySQL
-        const withIds = orderItemsData.map((oi: any) => ({ id: crypto.randomUUID(), ...oi }));
-        await tx.insert(orderItems).values(withIds).execute();
-      } else {
-        await tx.insert(orderItems).values(orderItemsData).returning();
-      }
+      await tx.insert(orderItems).values(orderItemsData).returning();
 
       // Clear user's cart after successful order
       await tx.delete(cartItems).where(eq(cartItems.userId, userId));
@@ -416,10 +392,10 @@ export const createOrder = async (req: any, res: Response) => {
 
     // Orders are automatically confirmed without payment processing
 
-    res.status(201).json(result);
+    sendSuccess(res, result, "Order created successfully", 201);
   } catch (error) {
     console.error("Error creating order:", error);
-    res.status(500).json({ error: "Failed to create order" });
+    sendError(res, 500, "Failed to create order", error);
   }
 };
 
@@ -430,8 +406,9 @@ export const updateOrder = async (req: any, res: Response) => {
     const userRole = req.userRole;
 
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     const orderId = req.params.id;
     const { status, trackingNumber, notes } = req.body;
@@ -446,8 +423,9 @@ export const updateOrder = async (req: any, res: Response) => {
       .where(eq(orders.id, orderId));
 
     if (!existingOrder) {
-      return res.status(404).json({ error: "Order not found" });
+      return sendError(res, 404, "Order not found");
     }
+
 
     // Check if user is admin - they can update any order
     if (userRole === "admin") {
@@ -458,10 +436,9 @@ export const updateOrder = async (req: any, res: Response) => {
       // Customers can only update certain fields (like notes)
       // and can't change status to certain values
       if (status && !["cancelled"].includes(status)) {
-        return res.status(403).json({
-          error: "You can only cancel your own orders",
-        });
+        return sendError(res, 403, "You can only cancel your own orders");
       }
+
     }
     // Check if user is a producer with items in this order
     else if (userRole === "producer") {
@@ -474,17 +451,15 @@ export const updateOrder = async (req: any, res: Response) => {
         );
 
       if (producerItems[0].count === 0) {
-        return res.status(403).json({
-          error: "You don't have permission to update this order",
-        });
+        return sendError(res, 403, "You don't have permission to update this order");
       }
+
     }
     // If none of the above, user is not authorized
     else {
-      return res.status(403).json({
-        error: "You don't have permission to update this order",
-      });
+      return sendError(res, 403, "You don't have permission to update this order");
     }
+
 
     // If we get here, the user is authorized to update the order
     const updateData: any = {};
@@ -498,10 +473,10 @@ export const updateOrder = async (req: any, res: Response) => {
       .where(eq(orders.id, orderId))
       .returning();
 
-    res.json(updatedOrder);
+    sendSuccess(res, updatedOrder, "Order updated successfully");
   } catch (error) {
     console.error("Error updating order:", error);
-    res.status(500).json({ error: "Failed to update order" });
+    sendError(res, 500, "Failed to update order", error);
   }
 };
 
@@ -510,8 +485,9 @@ export const cancelOrder = async (req: any, res: Response) => {
   try {
     const userId = req.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     const orderId = req.params.id;
 
@@ -526,23 +502,21 @@ export const cancelOrder = async (req: any, res: Response) => {
       .where(eq(orders.id, orderId));
 
     if (!existingOrder) {
-      return res.status(404).json({ error: "Order not found" });
+      return sendError(res, 404, "Order not found");
     }
+
 
     // Only allow cancellation by the customer who placed the order
     if (existingOrder.customerId !== userId) {
-      return res
-        .status(403)
-        .json({ error: "You can only cancel your own orders" });
+      return sendError(res, 403, "You can only cancel your own orders");
     }
+
 
     // Only allow cancellation if order is still pending or confirmed (since orders auto-confirm now)
     if (!["pending", "confirmed"].includes(existingOrder.status)) {
-      return res.status(400).json({
-        error: "Order cannot be cancelled",
-        message: `Orders with status '${existingOrder.status}' cannot be cancelled.`,
-      });
+      return sendError(res, 400, "Order cannot be cancelled", `Orders with status '${existingOrder.status}' cannot be cancelled.`);
     }
+
 
     // Update order status to cancelled
     const [cancelledOrder] = await db
@@ -554,22 +528,21 @@ export const cancelOrder = async (req: any, res: Response) => {
       .where(eq(orders.id, orderId))
       .returning();
 
-    res.json({
-      message: "Order cancelled successfully",
-      order: cancelledOrder,
-    });
+    sendSuccess(res, cancelledOrder, "Order cancelled successfully");
   } catch (error) {
     console.error("Error cancelling order:", error);
-    res.status(500).json({ error: "Failed to cancel order" });
+    return sendError(res, 500, "Failed to cancel order", error);
   }
 };
+
 
 // PUT /api/orders/:id/validation-status - Update validation_status with role checks
 export const updateOrderValidationStatus = async (req: any, res: Response) => {
   try {
     const userId = req.userId as string | undefined;
     const role = req.userRole as string | undefined;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    if (!userId) return sendError(res, 401, "Unauthorized");
+
 
     const orderId = req.params.id as string;
     const newStatus = String(req.body?.validationStatus || "").trim();
@@ -580,26 +553,28 @@ export const updateOrderValidationStatus = async (req: any, res: Response) => {
       "confirmed_by_customer",
     ];
     if (!allowedValues.includes(newStatus)) {
-      return res.status(400).json({ error: "Invalid validationStatus value" });
+      return sendError(res, 400, "Invalid validationStatus value");
     }
+
 
     // Fetch order basic info
     const [existing] = await db
       .select({ id: orders.id, customerId: orders.customerId })
       .from(orders)
       .where(eq(orders.id, orderId));
-    if (!existing) return res.status(404).json({ error: "Order not found" });
+    if (!existing) return sendError(res, 404, "Order not found");
+
 
     // Customers: can only set confirmed_by_customer on their own orders
     if (role === "customer") {
       if (existing.customerId !== userId) {
-        return res.status(403).json({ error: "hello" });
+        return sendError(res, 403, "Unauthorized access");
       }
+
       if (newStatus !== "confirmed_by_customer") {
-        return res.status(400).json({
-          error: "Customers can only set confirmed_by_customer",
-        });
+        return sendError(res, 400, "Customers can only set confirmed_by_customer");
       }
+
       const [updated] = await db
         .update(orders)
         .set({
@@ -609,8 +584,9 @@ export const updateOrderValidationStatus = async (req: any, res: Response) => {
         })
         .where(eq(orders.id, orderId))
         .returning();
-      return res.json(updated);
+      return sendSuccess(res, updated);
     }
+
 
     // Producers/Admins: can set pending, in_progress, done
     if (role === "producer" || role === "admin") {
@@ -628,33 +604,32 @@ export const updateOrderValidationStatus = async (req: any, res: Response) => {
           )
           .limit(1);
         if (ownedItem.length === 0) {
-          return res
-            .status(403)
-            .json({ error: "You do not have items in this order" });
+          return sendError(res, 403, "You do not have items in this order");
         }
+
       }
 
       if (!["in_progress", "done", "pending"].includes(newStatus)) {
-        return res.status(400).json({
-          error: "Producers can set: pending, in_progress, done",
-        });
+        return sendError(res, 400, "Producers can set: pending, in_progress, done");
       }
+
       const [updated] = await db
         .update(orders)
         .set({ validationStatus: newStatus })
         .where(eq(orders.id, orderId))
         .returning();
-      return res.json(updated);
+      return sendSuccess(res, updated);
     }
 
-    return res.status(403).json({ error: "hello" });
+
+    return sendError(res, 403, "Unauthorized access");
+
   } catch (error) {
     console.error("Error updating validation status:", error);
-    return res
-      .status(500)
-      .json({ error: "Failed to update validation status" });
+    return sendError(res, 500, "Failed to update validation status", error);
   }
 };
+
 
 // GET /api/orders/producer/:producerId - Get orders for specific producer
 export const getOrdersByProducerId = async (req: any, res: Response) => {
@@ -664,13 +639,15 @@ export const getOrdersByProducerId = async (req: any, res: Response) => {
     const userRole = req.userRole;
     
     if (!userId) {
-      return res.status(401).json({ message: "Authentication required" });
+      return sendError(res, 401, "Authentication required");
     }
+
 
     // Only allow access if user is the producer themselves or an admin
     if (userRole !== 'admin' && userId !== producerId) {
-      return res.status(403).json({ message: "Access denied" });
+      return sendError(res, 403, "Access denied");
     }
+
 
     const statusFilter = (req.query.status as string | undefined)?.trim();
     const searchQuery = (req.query.search as string | undefined)?.trim();
@@ -687,8 +664,9 @@ export const getOrdersByProducerId = async (req: any, res: Response) => {
     ).filter(Boolean) as string[];
 
     if (orderIds.length === 0) {
-      return res.status(200).json([]);
+      return sendSuccess(res, []);
     }
+
 
     // Build dynamic query
     let whereConditions = [inArray(orders.id, orderIds)];
@@ -801,12 +779,10 @@ export const getOrdersByProducerId = async (req: any, res: Response) => {
       );
     }
 
-    return res.status(200).json(filteredOrders);
+    return sendSuccess(res, filteredOrders);
   } catch (error) {
     console.error("Error fetching producer orders:", error);
-    return res.status(500).json({
-      message: "Failed to fetch orders",
-      details: (error as any)?.message || String(error),
-    });
+    return sendError(res, 500, "Failed to fetch orders", error);
   }
 };
+

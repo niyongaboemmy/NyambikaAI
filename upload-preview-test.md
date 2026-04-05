@@ -17,7 +17,7 @@
    ```
 
 5. **Verify the uploaded image appears in preview**:
-   - Blue dot indicator: "✨ Your uploaded image"
+   - Blue dot indicator: " Your uploaded image"
    - Image shows immediately in modal
    - "Use This Image" button appears
 
@@ -50,6 +50,6 @@ type SelectedImage =
 
 ## Visual Indicators
 
-- **Uploaded Images**: Blue dot + "✨ Your uploaded image"
+- **Uploaded Images**: Blue dot + " Your uploaded image"
 - **Pexels Images**: Green dot + "AI-curated image"
 - **Different Actions**: "Use This Image" vs "Confirm Selection"

@@ -1,71 +1,52 @@
-// Dialect-aware re-exports with ESM named exports
-// Supported dialects: 'postgres' (default) and 'mysql'
+// PostgreSQL-only re-exports from schema.ts
 
-const dialect = (process.env.DB_DIALECT || "postgres").toLowerCase();
+export {
+  users,
+  companies,
+  categories,
+  products,
+  cartItems,
+  orders,
+  orderItems,
+  favorites,
+  tryOnSessions,
+  outfitCollections,
+  sessionComments,
+  reviews,
+  subscriptionPlans,
+  subscriptions,
+  subscriptionPayments,
+  agentCommissions,
+  notifications,
+  userWallets,
+  walletPayments,
+  paymentSettings,
+  emailSubscriptions,
+  // Insert schemas
+  insertUserSchema,
+  insertCompanySchema,
+  insertCategorySchema,
+  insertProductSchema,
+  insertCartItemSchema,
+  insertOrderSchema,
+  insertOrderItemSchema,
+  insertFavoriteSchema,
+  insertTryOnSessionSchema,
+  insertOutfitCollectionSchema,
+  insertSessionCommentSchema,
+  insertReviewSchema,
+  insertSubscriptionPlanSchema,
+  insertSubscriptionSchema,
+  insertSubscriptionPaymentSchema,
+  insertAgentCommissionSchema,
+  insertNotificationSchema,
+  insertUserWalletSchema,
+  insertWalletPaymentSchema,
+  insertPaymentSettingSchema,
+  insertEmailSubscriptionSchema,
+} from "./schema";
 
-import * as pgSchema from "./schema";
-import * as mysqlSchema from "./schema.mysql";
-
-const s: any = dialect === "mysql" ? (mysqlSchema as any) : (pgSchema as any);
-
-// Tables
-export const users = s.users;
-export const companies = s.companies;
-export const categories = s.categories;
-export const products = s.products;
-export const cartItems = s.cartItems;
-export const orders = s.orders;
-export const orderItems = s.orderItems;
-export const favorites = s.favorites;
-export const tryOnSessions = s.tryOnSessions;
-export const outfitCollections = s.outfitCollections;
-export const outfitItems = s.outfitItems;
-export const sessionLikes = s.sessionLikes;
-export const sessionViews = s.sessionViews;
-export const sessionComments = s.sessionComments;
-export const sessionSaves = s.sessionSaves;
-export const userStyleProfiles = s.userStyleProfiles;
-export const reviews = s.reviews;
-export const subscriptionPlans = s.subscriptionPlans;
-export const subscriptions = s.subscriptions;
-export const subscriptionPayments = s.subscriptionPayments;
-export const agentCommissions = s.agentCommissions;
-export const notifications = s.notifications;
-export const userWallets = s.userWallets;
-export const walletPayments = s.walletPayments;
-export const paymentSettings = s.paymentSettings;
-export const emailSubscriptions = s.emailSubscriptions;
-
-// Insert schemas
-export const insertUserSchema = s.insertUserSchema;
-export const insertCompanySchema = s.insertCompanySchema;
-export const insertCategorySchema = s.insertCategorySchema;
-export const insertProductSchema = s.insertProductSchema;
-export const insertCartItemSchema = s.insertCartItemSchema;
-export const insertOrderSchema = s.insertOrderSchema;
-export const insertOrderItemSchema = s.insertOrderItemSchema;
-export const insertFavoriteSchema = s.insertFavoriteSchema;
-export const insertTryOnSessionSchema = s.insertTryOnSessionSchema;
-export const insertOutfitCollectionSchema = s.insertOutfitCollectionSchema;
-export const insertOutfitItemSchema = s.insertOutfitItemSchema;
-export const insertSessionLikeSchema = s.insertSessionLikeSchema;
-export const insertSessionViewSchema = s.insertSessionViewSchema;
-export const insertSessionCommentSchema = s.insertSessionCommentSchema;
-export const insertSessionSaveSchema = s.insertSessionSaveSchema;
-export const insertUserStyleProfileSchema = s.insertUserStyleProfileSchema;
-export const insertReviewSchema = s.insertReviewSchema;
-export const insertSubscriptionPlanSchema = s.insertSubscriptionPlanSchema;
-export const insertSubscriptionSchema = s.insertSubscriptionSchema;
-export const insertSubscriptionPaymentSchema =
-  s.insertSubscriptionPaymentSchema;
-export const insertAgentCommissionSchema = s.insertAgentCommissionSchema;
-export const insertNotificationSchema = s.insertNotificationSchema;
-export const insertUserWalletSchema = s.insertUserWalletSchema;
-export const insertWalletPaymentSchema = s.insertWalletPaymentSchema;
-export const insertPaymentSettingSchema = s.insertPaymentSettingSchema;
-export const insertEmailSubscriptionSchema = s.insertEmailSubscriptionSchema;
-
-// Types: re-export from Postgres schema for compile-time convenience
+// Types
 export type {
   User,
   InsertUser,
@@ -87,18 +68,8 @@ export type {
   InsertTryOnSession,
   OutfitCollection,
   InsertOutfitCollection,
-  OutfitItem,
-  InsertOutfitItem,
-  SessionLike,
-  InsertSessionLike,
-  SessionView,
-  InsertSessionView,
   SessionComment,
   InsertSessionComment,
-  SessionSave,
-  InsertSessionSave,
-  UserStyleProfile,
-  InsertUserStyleProfile,
   Review,
   InsertReview,
   SubscriptionPlan,

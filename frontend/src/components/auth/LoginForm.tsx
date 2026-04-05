@@ -30,7 +30,7 @@ export default function LoginForm({
   onNavigateForgot,
   buttonClassName,
 }: LoginFormProps) {
-  const { login, isLoading, loginWithProvider } = useAuth();
+  const { login, isActionLoading, isLoading, loginWithProvider } = useAuth();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -54,7 +54,6 @@ export default function LoginForm({
       return;
     } finally {
       setSubmitting(false);
-      return;
     }
   };
 
@@ -172,7 +171,7 @@ export default function LoginForm({
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
                 <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
-                  ✨ Welcome Back
+                  Welcome Back
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Sign in to your AI-powered fashion account
@@ -269,7 +268,7 @@ export default function LoginForm({
                 >
                   <Button
                     type="submit"
-                    disabled={isLoading || submitting}
+                    disabled={isActionLoading || submitting}
                     className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
                   >
                     {submitting ? (
@@ -287,7 +286,6 @@ export default function LoginForm({
                       </>
                     ) : (
                       <span className="relative z-10 flex items-center justify-center gap-2">
-                        <span>🚀</span>
                         Sign In
                       </span>
                     )}

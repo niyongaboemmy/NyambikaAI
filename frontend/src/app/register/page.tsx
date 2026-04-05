@@ -33,7 +33,7 @@ import {
 import { Progress } from "../../components/custom-ui/progress";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter, useSearchParams } from "next/navigation";
-import { apiClient } from "@/config/api";
+import { apiClient, handleApiError } from "@/config/api";
 
 export default function Register() {
   const router = useRouter();
@@ -173,14 +173,15 @@ export default function Register() {
           formData.name,
           formData.role as "customer" | "producer" | "agent",
           fullPhone,
-          ref
+          ref,
         );
         router.push("/");
       }
-    } catch (error) {
+    } catch (error: any) {
+      const description = handleApiError(error);
       toast({
         title: "Registration failed",
-        description: "Please try again.",
+        description,
         variant: "destructive",
       });
     } finally {
@@ -475,7 +476,7 @@ export default function Register() {
                     transition={{ delay: 0.2, duration: 0.5 }}
                   >
                     <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
-                      ✨ Join Nyambika
+                      Join Nyambika
                     </CardTitle>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">
                       Create your AI-powered fashion account
@@ -537,7 +538,7 @@ export default function Register() {
                       >
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-medium text-gray-700 dark:text-gray-300">
-                            🚀 Setup Progress
+                            Setup Progress
                           </span>
                           <span className="font-bold text-green-600 dark:text-green-400">
                             {progressPct}%
@@ -564,7 +565,7 @@ export default function Register() {
                           value={formData.role || undefined}
                           onValueChange={(v) =>
                             handleRoleChange(
-                              v as "customer" | "producer" | "agent"
+                              v as "customer" | "producer" | "agent",
                             )
                           }
                         >
@@ -678,7 +679,6 @@ export default function Register() {
                               onClick={() => setStep(2)}
                             >
                               <span className="relative z-10 flex items-center justify-center gap-2">
-                                <span>🚀</span>
                                 Continue
                               </span>
                               <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
@@ -885,7 +885,7 @@ export default function Register() {
                                     className="absolute right-1 top-9 h-8 w-8 rounded-lg hover:bg-gray-100/40 dark:hover:bg-gray-700/40 transition-colors duration-200"
                                     onClick={() =>
                                       setShowConfirmPassword(
-                                        !showConfirmPassword
+                                        !showConfirmPassword,
                                       )
                                     }
                                   >
@@ -1028,7 +1028,7 @@ export default function Register() {
                                   </>
                                 ) : (
                                   <span className="relative z-10 flex items-center justify-center gap-2">
-                                    <span>✨</span>
+                                    <span></span>
                                     Create AI Account
                                   </span>
                                 )}

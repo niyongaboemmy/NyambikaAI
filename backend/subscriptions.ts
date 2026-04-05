@@ -7,8 +7,10 @@ import {
   subscriptionPayments,
   users,
   InsertSubscription,
-} from "./shared/schema.mysql";
+} from "./shared/schema.dialect";
 import { eq, and, gte, desc } from "drizzle-orm";
+import { sendSuccess, sendError } from "./utils/response";
+
 
 // Extend Request interface to include subscription property
 interface AuthenticatedRequest extends Request {
@@ -41,15 +43,16 @@ export const getUserSubscription = async (req: Request, res: Response) => {
       .limit(1);
 
     if (subscription.length === 0) {
-      return res.status(404).json({ error: "No active subscription found" });
+      return sendError(res, 404, "No active subscription found");
     }
 
-    res.json(subscription[0]);
+    return sendSuccess(res, subscription[0]);
   } catch (error) {
     console.error("Error fetching user subscription:", error);
-    res.status(500).json({ error: "Failed to fetch subscription" });
+    return sendError(res, 500, "Failed to fetch subscription", error);
   }
 };
+
 
 // Create new subscription
 export const createSubscription = async (req: Request, res: Response) => {
@@ -68,7 +71,7 @@ export const createSubscription = async (req: Request, res: Response) => {
 
     const subscriptionId = randomUUID();
 
-    // Drizzle ORM handles Date objects properly for MySQL datetime columns
+    // Drizzle ORM handles Date objects properly for PostgreSQL timestamp columns
     const { id, ...subscriptionDataWithoutId } = subscriptionData;
     await db.insert(subscriptions).values({
       id: subscriptionId,
@@ -84,12 +87,13 @@ export const createSubscription = async (req: Request, res: Response) => {
       .where(eq(subscriptions.id, subscriptionId))
       .limit(1);
 
-    res.status(201).json(newSubscription[0]);
+    return sendSuccess(res, newSubscription[0], "Subscription created successfully", 201);
   } catch (error) {
     console.error("Error creating subscription:", error);
-    res.status(500).json({ error: "Failed to create subscription" });
+    return sendError(res, 500, "Failed to create subscription", error);
   }
 };
+
 
 // Update subscription status
 export const updateSubscriptionStatus = async (req: Request, res: Response) => {
@@ -110,15 +114,16 @@ export const updateSubscriptionStatus = async (req: Request, res: Response) => {
       .limit(1);
 
     if (updatedSubscription.length === 0) {
-      return res.status(404).json({ error: "Subscription not found" });
+      return sendError(res, 404, "Subscription not found");
     }
 
-    res.json(updatedSubscription[0]);
+    return sendSuccess(res, updatedSubscription[0], "Subscription updated successfully");
   } catch (error) {
     console.error("Error updating subscription:", error);
-    res.status(500).json({ error: "Failed to update subscription" });
+    return sendError(res, 500, "Failed to update subscription", error);
   }
 };
+
 
 // Renew subscription
 export const renewSubscription = async (req: Request, res: Response) => {
@@ -134,7 +139,7 @@ export const renewSubscription = async (req: Request, res: Response) => {
       .limit(1);
 
     if (currentSub.length === 0) {
-      return res.status(404).json({ error: "Subscription not found" });
+      return sendError(res, 404, "Subscription not found");
     }
 
     const subscription = currentSub[0];
@@ -146,8 +151,8 @@ export const renewSubscription = async (req: Request, res: Response) => {
       .where(eq(subscriptionPlans.id, subscription.planId))
       .limit(1);
 
-    if (plan.length === 0) {
-      return res.status(404).json({ error: "Subscription plan not found" });
+    if (!plan[0]) {
+      return sendError(res, 404, "Subscription plan not found");
     }
 
     const planData = plan[0];
@@ -205,15 +210,16 @@ export const renewSubscription = async (req: Request, res: Response) => {
       .where(eq(subscriptions.id, id))
       .limit(1);
 
-    res.json({
+    return sendSuccess(res, {
       subscription: updatedSubscription[0],
       payment: payment[0],
-    });
+    }, "Subscription renewed successfully");
   } catch (error) {
     console.error("Error renewing subscription:", error);
-    res.status(500).json({ error: "Failed to renew subscription" });
+    return sendError(res, 500, "Failed to renew subscription", error);
   }
 };
+
 
 // Get subscription payments history
 export const getSubscriptionPayments = async (req: Request, res: Response) => {
@@ -234,12 +240,13 @@ export const getSubscriptionPayments = async (req: Request, res: Response) => {
       .where(eq(subscriptionPayments.subscriptionId, subscriptionId))
       .orderBy(desc(subscriptionPayments.createdAt));
 
-    res.json(payments);
+    return sendSuccess(res, payments);
   } catch (error) {
     console.error("Error fetching subscription payments:", error);
-    res.status(500).json({ error: "Failed to fetch payments" });
+    return sendError(res, 500, "Failed to fetch payments", error);
   }
 };
+
 
 // Get agent's managed subscriptions
 export const getAgentSubscriptions = async (req: Request, res: Response) => {
@@ -266,12 +273,13 @@ export const getAgentSubscriptions = async (req: Request, res: Response) => {
       .where(eq(subscriptions.agentId, agentId))
       .orderBy(desc(subscriptions.createdAt));
 
-    res.json(subscriptionsData);
+    return sendSuccess(res, subscriptionsData);
   } catch (error) {
     console.error("Error fetching agent subscriptions:", error);
-    res.status(500).json({ error: "Failed to fetch agent subscriptions" });
+    return sendError(res, 500, "Failed to fetch agent subscriptions", error);
   }
 };
+
 
 // Check subscription validity
 export const checkSubscriptionValidity = async (userId: string) => {
@@ -305,8 +313,9 @@ export const validateProducerSubscription = async (
     const userId = req.user?.id; // Assuming user is attached to request
 
     if (!userId) {
-      return res.status(401).json({ error: "User not authenticated" });
+      return sendError(res, 401, "User not authenticated");
     }
+
 
     // Check if user is a producer
     const user = await db
@@ -322,18 +331,18 @@ export const validateProducerSubscription = async (
     const validSubscription = await checkSubscriptionValidity(userId);
 
     if (!validSubscription) {
-      return res.status(402).json({
-        error: "Subscription required",
-        message:
-          "Please subscribe to a plan to continue using producer features",
+      return sendError(res, 402, "Subscription required", {
+        description: "Please subscribe to a plan to continue using producer features",
         redirectTo: "/subscription",
       });
     }
+
 
     req.subscription = validSubscription;
     next();
   } catch (error) {
     console.error("Error validating subscription:", error);
-    res.status(500).json({ error: "Failed to validate subscription" });
+    return sendError(res, 500, "Failed to validate subscription", error);
   }
 };
+

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { handleApiError } from "@/config/api";
 import { Input } from "@/components/custom-ui/input";
 import { Button } from "@/components/custom-ui/button";
 import { Label } from "@/components/custom-ui/label";
@@ -39,7 +40,8 @@ export default function PasswordRecoveryForm({
       setMessage("Password reset link sent. Check your email.");
       onSent?.();
     } catch (err: any) {
-      setError(err?.message || "Failed to send reset link");
+      const description = handleApiError(err);
+      setError(description);
     } finally {
       setSubmitting(false);
     }
@@ -127,7 +129,7 @@ export default function PasswordRecoveryForm({
                   </div>
                 </div>
                 <CardTitle className="text-3xl dark:text-white font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
-                  🔐 Reset Password
+                  Reset Password
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
                   Enter your email to receive a secure reset link
@@ -224,7 +226,6 @@ export default function PasswordRecoveryForm({
                       </>
                     ) : (
                       <span className="relative z-10 flex items-center justify-center gap-2">
-                        <span>🔐</span>
                         Send Reset Link
                       </span>
                     )}

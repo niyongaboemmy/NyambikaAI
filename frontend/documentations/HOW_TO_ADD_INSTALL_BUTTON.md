@@ -449,4 +449,4 @@ export function Layout({ children }) {
 
 **Remember**: The goal is to make the PWA installation feature **discoverable** without being **intrusive**. The button provides a persistent, user-controlled way to install your app!
 
-🎯 **Next Step**: Add `<InstallAppButton variant="compact" />` to your navigation component now!
+ **Next Step**: Add `<InstallAppButton variant="compact" />` to your navigation component now!

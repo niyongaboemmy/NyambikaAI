@@ -51,7 +51,7 @@ Implemented a **fallback timer** that ensures the prompt shows even if the nativ
 // Desktop: Wait for beforeinstallprompt event OR fallback timer
 const fallbackTimer = setTimeout(() => {
   if (!isInstallable) {
-    console.log('⏰ Desktop fallback timer - showing instructions');
+    console.log(' Desktop fallback timer - showing instructions');
     setShowPrompt(true);
     setShowInstructions(true);
   }
@@ -63,7 +63,7 @@ const fallbackTimer = setTimeout(() => {
 ```typescript
 // Added detailed console logs for debugging
 console.log('💻 Platform detected: Desktop');
-console.log('⏰ Desktop fallback timer - showing instructions');
+console.log(' Desktop fallback timer - showing instructions');
 console.log('🎉 beforeinstallprompt event fired');
 ```
 
@@ -123,7 +123,7 @@ debugPWA()
 
 ---
 
-## 🎯 User Experience
+##  User Experience
 
 ### Chromium Browsers (Chrome, Edge)
 
@@ -170,10 +170,10 @@ Now you'll see detailed logs:
 🎉 beforeinstallprompt event fired
 
 // If fallback activates
-⏰ Desktop fallback timer - showing instructions
+ Desktop fallback timer - showing instructions
 
 // If manually triggered
-🎯 Manual install trigger activated
+ Manual install trigger activated
 
 // If already installed
 ✅ App is already installed
@@ -244,7 +244,7 @@ isSafari: false
 1. Open in Firefox
 2. Open DevTools Console
 3. Look for: "💻 Platform detected: Desktop"
-4. After 5s: "⏰ Desktop fallback timer - showing instructions"
+4. After 5s: " Desktop fallback timer - showing instructions"
 5. Modal appears with manual instructions
 ```
 
@@ -256,7 +256,7 @@ isSafari: false
 1. Open in Safari
 2. Open DevTools Console
 3. Look for: "💻 Platform detected: Desktop"
-4. After 5s: "⏰ Desktop fallback timer - showing instructions"
+4. After 5s: " Desktop fallback timer - showing instructions"
 5. Modal appears with manual instructions
 ```
 

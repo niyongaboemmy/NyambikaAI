@@ -65,10 +65,10 @@ const generateCompanyMetrics = (company: Company): CompanyMetrics => {
       baseScore >= 95
         ? "Elite"
         : baseScore >= 85
-        ? "Premium"
-        : baseScore >= 75
-        ? "Rising Star"
-        : "Growing",
+          ? "Premium"
+          : baseScore >= 75
+            ? "Rising Star"
+            : "Growing",
   };
 };
 
@@ -78,7 +78,7 @@ export default function Companies() {
   const { t } = useLanguage();
   const [q, setQ] = useState("");
   const [sortBy, setSortBy] = useState<"name" | "performance" | "trending">(
-    "performance"
+    "performance",
   );
 
   const companiesWithMetrics = useMemo(() => {
@@ -86,7 +86,7 @@ export default function Companies() {
       (company: Company): CompanyWithMetrics => ({
         ...company,
         metrics: generateCompanyMetrics(company),
-      })
+      }),
     );
   }, [companies]);
 
@@ -275,8 +275,8 @@ export default function Companies() {
                 i % 3 === 0
                   ? "bg-blue-400/20"
                   : i % 3 === 1
-                  ? "bg-purple-400/20"
-                  : "bg-blue-400/20"
+                    ? "bg-purple-400/20"
+                    : "bg-blue-400/20"
               } blur-sm`}
               style={{
                 left: `${20 + i * 15}%`,
@@ -320,7 +320,7 @@ export default function Companies() {
             transition={{ duration: 0.4 }}
           >
             <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-1">
-              ✨ {t("companies.title")}
+              {t("companies.title")}
             </h1>
 
             <motion.p
@@ -351,7 +351,7 @@ export default function Companies() {
                 <span className="font-medium text-green-700 dark:text-green-300">
                   {
                     filtered.filter(
-                      (c: CompanyWithMetrics) => c.metrics.isTopPerformer
+                      (c: CompanyWithMetrics) => c.metrics.isTopPerformer,
                     ).length
                   }
                 </span>
@@ -362,7 +362,7 @@ export default function Companies() {
                 <span className="font-medium text-purple-700 dark:text-purple-300">
                   {
                     filtered.filter(
-                      (c: CompanyWithMetrics) => c.metrics.isTrending
+                      (c: CompanyWithMetrics) => c.metrics.isTrending,
                     ).length
                   }
                 </span>
@@ -538,8 +538,8 @@ export default function Companies() {
                               company.metrics.performanceScore >= 90
                                 ? "text-green-500"
                                 : company.metrics.performanceScore >= 75
-                                ? "text-blue-500"
-                                : "text-yellow-500"
+                                  ? "text-blue-500"
+                                  : "text-yellow-500"
                             }`}
                           />
                         </svg>

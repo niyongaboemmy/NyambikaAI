@@ -1,4 +1,4 @@
-# 🚀 Getting Started with Nyambika
+#  Getting Started with Nyambika
 
 _Your quick start guide to Rwanda's premier AI-powered fashion platform_
 
@@ -8,7 +8,7 @@ _Your quick start guide to Rwanda's premier AI-powered fashion platform_
 
 Nyambika revolutionizes fashion shopping in Rwanda by combining artificial intelligence with local entrepreneurship. Whether you're shopping for the latest trends, building your fashion business, or earning through our agent program, we've got you covered.
 
-### ✨ What is Nyambika?
+###  What is Nyambika?
 
 - **AI-Powered Shopping**: Try on clothes virtually before buying
 - **Local Marketplace**: Support Rwandan fashion entrepreneurs
@@ -165,7 +165,7 @@ Nyambika revolutionizes fashion shopping in Rwanda by combining artificial intel
 
 ---
 
-## 🎯 First Steps by Role
+##  First Steps by Role
 
 ### 🛍️ New Customer Checklist
 
@@ -418,4 +418,4 @@ A: Use the "Available Producers" section in your dashboard to find unassigned bu
 _Last updated: January 2025_  
 _Version: 2.0_
 
-**Welcome to the future of fashion in Rwanda! 🇷🇼✨**
+**Welcome to the future of fashion in Rwanda! 🇷🇼**

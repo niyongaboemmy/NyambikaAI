@@ -81,7 +81,7 @@ export function InstallPrompt({
     if (!dismissedDate) return false;
 
     const daysSinceDismissal = Math.floor(
-      (Date.now() - parseInt(dismissedDate)) / (1000 * 60 * 60 * 24)
+      (Date.now() - parseInt(dismissedDate)) / (1000 * 60 * 60 * 24),
     );
 
     return daysSinceDismissal < showAfterDismissalDays;
@@ -109,7 +109,7 @@ export function InstallPrompt({
       console.log("📱 Platform detected: iOS");
       // iOS doesn't fire beforeinstallprompt, so we show manual instructions
       const timer = setTimeout(() => {
-        console.log("⏰ iOS timer triggered - showing prompt");
+        console.log(" iOS timer triggered - showing prompt");
         setShowPrompt(true);
       }, delay);
       return () => clearTimeout(timer);
@@ -118,7 +118,7 @@ export function InstallPrompt({
       console.log("📱 Platform detected: Android");
       // Android: Wait for beforeinstallprompt event OR show prompt with instructions
       const fallbackTimer = setTimeout(() => {
-        console.log("⏰ Android fallback timer - showing prompt");
+        console.log(" Android fallback timer - showing prompt");
         setShowPrompt(true);
         // Don't auto-open instructions, let user click "Get App" button
       }, delay + 2000); // Show after delay + 2 seconds if no event
@@ -128,7 +128,7 @@ export function InstallPrompt({
       console.log("💻 Platform detected: Desktop");
       // Desktop: Wait for beforeinstallprompt event OR show prompt
       const fallbackTimer = setTimeout(() => {
-        console.log("⏰ Desktop fallback timer - showing prompt");
+        console.log(" Desktop fallback timer - showing prompt");
         setShowPrompt(true);
         // Don't auto-open instructions, let user click "Get App" button
       }, delay + 2000); // Show after delay + 2 seconds if no event
@@ -141,7 +141,7 @@ export function InstallPrompt({
     if (typeof window === "undefined") return;
 
     const handleManualTrigger = () => {
-      console.log("🎯 Manual install trigger activated");
+      console.log(" Manual install trigger activated");
       setManualTrigger(true);
       setShowPrompt(true);
       if (!deferredPrompt) {
@@ -206,7 +206,7 @@ export function InstallPrompt({
       console.log("  - Service Worker:", "serviceWorker" in navigator);
       console.log(
         "  - Manifest:",
-        !!document.querySelector('link[rel="manifest"]')
+        !!document.querySelector('link[rel="manifest"]'),
       );
       console.log("  - Platform:", platform);
       console.log("  - Standalone:", isStandalone());
@@ -215,7 +215,7 @@ export function InstallPrompt({
       if ("serviceWorker" in navigator) {
         navigator.serviceWorker.getRegistrations().then((registrations) => {
           console.log(
-            `  - SW Registered: ${registrations.length > 0 ? "Yes" : "No"}`
+            `  - SW Registered: ${registrations.length > 0 ? "Yes" : "No"}`,
           );
         });
       }
@@ -224,7 +224,7 @@ export function InstallPrompt({
     return () => {
       window.removeEventListener(
         "beforeinstallprompt",
-        handleBeforeInstallPrompt
+        handleBeforeInstallPrompt,
       );
       window.removeEventListener("appinstalled", handleAppInstalled);
     };
@@ -250,7 +250,7 @@ export function InstallPrompt({
       console.log(
         `User ${
           outcome === "accepted" ? "accepted" : "dismissed"
-        } the install prompt`
+        } the install prompt`,
       );
 
       // Track user choice

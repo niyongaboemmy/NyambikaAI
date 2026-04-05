@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { db } from "./db";
 import { subscriptions, products, orderItems } from "./shared/schema.dialect";
 import { eq, and } from "drizzle-orm";
+import { sendSuccess, sendError } from "./utils/response";
+
 
 interface AuthenticatedRequest extends Request {
   user?: {
@@ -15,7 +17,8 @@ interface AuthenticatedRequest extends Request {
 export async function getProducerStats(req: AuthenticatedRequest, res: Response) {
   try {
     const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ message: "Unauthorized" });
+    if (!userId) return sendError(res, 401, "Unauthorized");
+
 
     // Products count for this producer
     const producerProducts = await db
@@ -45,12 +48,13 @@ export async function getProducerStats(req: AuthenticatedRequest, res: Response)
     }
     const totalOrders = orderIdSet.size;
 
-    return res.json({ totalProducts, totalOrders, totalRevenue });
+    return sendSuccess(res, { totalProducts, totalOrders, totalRevenue });
   } catch (error) {
     console.error("Error fetching producer stats:", error);
-    return res.status(500).json({ message: "Failed to fetch producer stats" });
+    return sendError(res, 500, "Failed to fetch producer stats", error);
   }
 }
+
 
 // Get producer subscription status
 export async function getProducerSubscriptionStatus(req: AuthenticatedRequest, res: Response) {
@@ -58,13 +62,15 @@ export async function getProducerSubscriptionStatus(req: AuthenticatedRequest, r
     const userId = req.user?.id;
     
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     // Check if user is a producer
     if (req.user?.role !== "producer") {
-      return res.status(403).json({ message: "Access denied. Producer role required." });
+      return sendError(res, 403, "Access denied. Producer role required.");
     }
+
 
     // Find active subscription for the producer
     const activeSubscription = await db
@@ -79,11 +85,11 @@ export async function getProducerSubscriptionStatus(req: AuthenticatedRequest, r
       .limit(1);
 
     if (activeSubscription.length === 0) {
-      return res.json({
+      return sendSuccess(res, {
         hasActiveSubscription: false,
-        message: "No active subscription found"
-      });
+      }, "No active subscription found");
     }
+
 
     const subscription = activeSubscription[0];
     const now = new Date();
@@ -91,16 +97,15 @@ export async function getProducerSubscriptionStatus(req: AuthenticatedRequest, r
 
     // Check if subscription is expired
     if (expiresAt < now) {
-      return res.json({
+      return sendSuccess(res, {
         hasActiveSubscription: false,
         subscriptionId: subscription.id,
         status: "expired",
         expiresAt: subscription.endDate,
-        message: "Subscription has expired"
-      });
+      }, "Subscription has expired");
     }
 
-    return res.json({
+    return sendSuccess(res, {
       hasActiveSubscription: true,
       subscriptionId: subscription.id,
       status: subscription.status,
@@ -110,6 +115,7 @@ export async function getProducerSubscriptionStatus(req: AuthenticatedRequest, r
 
   } catch (error) {
     console.error("Error checking subscription status:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+

@@ -26,9 +26,9 @@ import {
   countDistinct,
   ne,
 } from "drizzle-orm";
+import { sendSuccess, sendError } from "./utils/response";
 
-const isMySQL =
-  String(process.env.DB_DIALECT || "postgres").toLowerCase() === "mysql";
+
 
 // Ensure a wallet exists and return it
 async function ensureUserWallet(userId: string) {
@@ -44,13 +44,8 @@ async function ensureUserWallet(userId: string) {
       balance: "0",
       status: "active",
     };
-    if (isMySQL) {
-      await db.insert(userWallets).values(vals).execute();
-      wallet = vals as any;
-    } else {
-      const [created] = await db.insert(userWallets).values(vals).returning();
-      wallet = created as any;
-    }
+    const [created] = await db.insert(userWallets).values(vals).returning();
+    wallet = created as any;
   }
   return wallet as any;
 }
@@ -80,27 +75,15 @@ async function creditWallet(
     externalReference: metadata?.externalReference || null,
     description,
   };
-  if (isMySQL) {
-    await db.insert(walletPayments).values(paymentVals).execute();
-    await db
-      .update(userWallets)
-      .set({
-        balance: String(newBalance.toFixed(2)),
-        updatedAt: new Date() as any,
-      })
-      .where(eq(userWallets.id, wallet.id))
-      .execute();
-  } else {
-    await db.insert(walletPayments).values(paymentVals).returning();
-    await db
-      .update(userWallets)
-      .set({
-        balance: String(newBalance.toFixed(2)),
-        updatedAt: new Date() as any,
-      })
-      .where(eq(userWallets.id, wallet.id))
-      .returning();
-  }
+  await db.insert(walletPayments).values(paymentVals).returning();
+  await db
+    .update(userWallets)
+    .set({
+      balance: String(newBalance.toFixed(2)),
+      updatedAt: new Date() as any,
+    })
+    .where(eq(userWallets.id, wallet.id))
+    .returning();
   return { ...wallet, balance: String(newBalance.toFixed(2)) };
 }
 
@@ -129,21 +112,12 @@ async function debitWallet(
     externalReference: metadata?.externalReference || null,
     description,
   };
-  if (isMySQL) {
-    await db.insert(walletPayments).values(paymentVals).execute();
-    await db
-      .update(userWallets)
-      .set({ balance: String(newBalance.toFixed(2)), updatedAt: new Date() as any })
-      .where(eq(userWallets.id, wallet.id))
-      .execute();
-  } else {
-    await db.insert(walletPayments).values(paymentVals).returning();
-    await db
-      .update(userWallets)
-      .set({ balance: String(newBalance.toFixed(2)), updatedAt: new Date() as any })
-      .where(eq(userWallets.id, wallet.id))
-      .returning();
-  }
+  await db.insert(walletPayments).values(paymentVals).returning();
+  await db
+    .update(userWallets)
+    .set({ balance: String(newBalance.toFixed(2)), updatedAt: new Date() as any })
+    .where(eq(userWallets.id, wallet.id))
+    .returning();
   return { ...wallet, balance: String(newBalance.toFixed(2)) };
 }
 
@@ -167,32 +141,27 @@ export async function refundSubscriptionPayment(req: Request, res: Response) {
   try {
     const paymentId = String((req.params as any)?.id || "");
     if (!paymentId)
-      return res.status(400).json({ message: "Payment id is required" });
+      return sendError(res, 400, "Payment id is required");
+
 
     const [pay] = await db
       .select()
       .from(subscriptionPayments)
       .where(eq(subscriptionPayments.id, paymentId))
       .limit(1);
-    if (!pay) return res.status(404).json({ message: "Payment not found" });
+    if (!pay) return sendError(res, 404, "Payment not found");
+
     if (String((pay as any).status).toLowerCase() === "refunded") {
-      return res.status(400).json({ message: "Payment already refunded" });
+      return sendError(res, 400, "Payment already refunded");
     }
 
+
     // Mark payment refunded
-    if (isMySQL) {
-      await db
-        .update(subscriptionPayments)
-        .set({ status: "refunded" } as any)
-        .where(eq(subscriptionPayments.id, paymentId))
-        .execute();
-    } else {
-      await db
-        .update(subscriptionPayments)
-        .set({ status: "refunded" } as any)
-        .where(eq(subscriptionPayments.id, paymentId))
-        .returning();
-    }
+    await db
+      .update(subscriptionPayments)
+      .set({ status: "refunded" } as any)
+      .where(eq(subscriptionPayments.id, paymentId))
+      .returning();
 
     // Reverse direct agent commission
     const agentId = (pay as any).agentId as string | null;
@@ -229,26 +198,19 @@ export async function refundSubscriptionPayment(req: Request, res: Response) {
     }
 
     // Mark those commissions as cancelled
-    if (isMySQL) {
-      await db
-        .update(agentCommissions)
-        .set({ status: "cancelled" } as any)
-        .where(eq(agentCommissions.subscriptionPaymentId, paymentId))
-        .execute();
-    } else {
-      await db
-        .update(agentCommissions)
-        .set({ status: "cancelled" } as any)
-        .where(eq(agentCommissions.subscriptionPaymentId, paymentId))
-        .returning();
-    }
+    await db
+      .update(agentCommissions)
+      .set({ status: "cancelled" } as any)
+      .where(eq(agentCommissions.subscriptionPaymentId, paymentId))
+      .returning();
 
-    res.json({ ok: true, message: "Payment refunded and commissions reversed" });
+    return sendSuccess(res, null, "Payment refunded and commissions reversed");
   } catch (e) {
     console.error("refundSubscriptionPayment error:", e);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", e);
   }
 }
+
 
 // Helper: distribute referral commissions to parent (L1) and grandparent (L2)
 async function distributeReferralCommissions(
@@ -326,11 +288,7 @@ async function distributeReferralCommissions(
         amount,
         status: "pending",
       } as any;
-      if (isMySQL) {
-        await db.insert(agentCommissions).values(vals).execute();
-      } else {
-        await db.insert(agentCommissions).values(vals).returning();
-      }
+      await db.insert(agentCommissions).values(vals).returning();
       // Auto-credit wallet for referral commission
       await creditWallet(agentId, amountNum, `Referral commission L${level}`, {
         externalReference: `REF-COM-${commissionId}`,
@@ -365,16 +323,19 @@ export async function getAgentStats(req: Request, res: Response) {
   try {
     const agentId = (req.user as User)?.id;
     if (!agentId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     // Get total producers managed by this agent (distinct count)
     const totalProducers = await db
       .select({ count: countDistinct(subscriptions.userId) })
       .from(subscriptions)
       .where(
-        eq(subscriptions.agentId, agentId),
-        ne(subscriptions.status, "pending")
+        and(
+          eq(subscriptions.agentId, agentId),
+          ne(subscriptions.status, "pending")
+        )
       );
 
     // Get active subscriptions
@@ -453,20 +414,22 @@ export async function getAgentStats(req: Request, res: Response) {
       pendingPayments: pendingPayments[0].count,
     };
 
-    res.json(stats);
+    return sendSuccess(res, stats);
   } catch (error) {
     console.error("Error fetching agent stats:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+
 
 // Get All Available Producers (for agent assignment)
 export async function getAvailableProducers(req: Request, res: Response) {
   try {
     const agentId = (req.user as User)?.id;
     if (!agentId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     // Get all producers that have registered companies
     const producers = await db
@@ -546,20 +509,22 @@ export async function getAvailableProducers(req: Request, res: Response) {
       })
     );
 
-    res.json(producersWithCounts);
+    return sendSuccess(res, producersWithCounts);
   } catch (error) {
     console.error("Error fetching available producers:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+
 
 // Get Producers Managed by Agent
 export async function getAgentProducers(req: Request, res: Response) {
   try {
     const agentId = (req.user as User)?.id;
     if (!agentId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     // First, get the latest subscription for each producer
     interface LatestSubscription {
@@ -692,20 +657,22 @@ export async function getAgentProducers(req: Request, res: Response) {
       })
     );
 
-    res.json(producersWithDetails);
+    return sendSuccess(res, producersWithDetails);
   } catch (error) {
     console.error("Error fetching agent producers:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+
 
 // Process Subscription Payment
 export async function processSubscriptionPayment(req: Request, res: Response) {
   try {
     const agentId = (req.user as User)?.id;
     if (!agentId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     const {
       producerId,
@@ -717,13 +684,13 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
 
     // Basic validation
     if (!producerId || !planId || !billingCycle) {
-      return res
-        .status(400)
-        .json({ message: "producerId, planId and billingCycle are required" });
+      return sendError(res, 400, "producerId, planId and billingCycle are required");
     }
+
     if (!paymentMethod) {
-      return res.status(400).json({ message: "paymentMethod is required" });
+      return sendError(res, 400, "paymentMethod is required");
     }
+
 
     // Get the subscription plan
     const plan = await db
@@ -733,8 +700,9 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
       .limit(1);
 
     if (!plan.length) {
-      return res.status(404).json({ message: "Subscription plan not found" });
+      return sendError(res, 404, "Subscription plan not found");
     }
+
 
     const selectedPlan = plan[0];
     const amount =
@@ -808,11 +776,7 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
       paymentReference: paymentReference ?? null,
       status: "completed",
     };
-    if (isMySQL) {
-      await db.insert(subscriptionPayments).values(payVals).execute();
-    } else {
-      await db.insert(subscriptionPayments).values(payVals).returning();
-    }
+    await db.insert(subscriptionPayments).values(payVals).returning();
 
     // Auto-credit direct agent's wallet with their commission (40%)
     const agentCommissionNum = Number(agentCommission) || 0;
@@ -830,23 +794,24 @@ export async function processSubscriptionPayment(req: Request, res: Response) {
     // Distribute referral commissions to L1 (10%) and L2 (5%) of the direct agent's commission
     await distributeReferralCommissions(agentId, paymentId, agentCommission);
 
-    res.json({
-      message: "Subscription payment processed successfully",
+    return sendSuccess(res, {
       commission: agentCommission,
-    });
+    }, "Subscription payment processed successfully");
   } catch (error) {
     console.error("Error processing subscription payment:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+
 
 // Assign Agent to Producer
 export async function assignAgentToProducer(req: Request, res: Response) {
   try {
     const agentId = (req.user as User)?.id;
     if (!agentId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     const {
       producerId,
@@ -858,8 +823,9 @@ export async function assignAgentToProducer(req: Request, res: Response) {
     } = req.body;
     const planId = rawPlanId || subscriptionPlanId;
     if (!producerId) {
-      return res.status(400).json({ message: "Producer ID is required" });
+      return sendError(res, 400, "Producer ID is required");
     }
+
 
     // Check if producer exists
     const producer = await db
@@ -869,8 +835,9 @@ export async function assignAgentToProducer(req: Request, res: Response) {
       .limit(1);
 
     if (!producer.length) {
-      return res.status(404).json({ message: "Producer not found" });
+      return sendError(res, 404, "Producer not found");
     }
+
 
     // If planId provided, fetch plan (for amount + dates)
     let selectedPlan: any | null = null;
@@ -881,18 +848,17 @@ export async function assignAgentToProducer(req: Request, res: Response) {
         .where(eq(subscriptionPlans.id, planId))
         .limit(1);
       if (!planRows.length) {
-        return res.status(404).json({ message: "Subscription plan not found" });
+        return sendError(res, 404, "Subscription plan not found");
       }
+
       selectedPlan = planRows[0];
       if (
         !billingCycle ||
         (billingCycle !== "monthly" && billingCycle !== "annual")
       ) {
-        return res.status(400).json({
-          message:
-            "billingCycle must be 'monthly' or 'annual' when planId is provided",
-        });
+        return sendError(res, 400, "billingCycle must be 'monthly' or 'annual' when planId is provided");
       }
+
     }
 
     // Check if producer has an active subscription
@@ -936,17 +902,16 @@ export async function assignAgentToProducer(req: Request, res: Response) {
           .where(eq(subscriptions.id, existingSubscription[0].id));
       }
 
-      return res.json({ message: "Agent assigned to producer successfully" });
+      return sendSuccess(res, null, "Agent assigned to producer successfully");
     }
+
 
     // No subscription exists yet
     if (!selectedPlan) {
       // If no plan provided, require one to create subscription; otherwise previous behavior blocks assignment
-      return res.status(400).json({
-        message:
-          "No subscription found. Provide planId and billingCycle to create and assign in one step, or use the payment endpoint.",
-      });
+      return sendError(res, 400, "No subscription found. Provide planId and billingCycle to create and assign in one step, or use the payment endpoint.");
     }
+
 
     const amount =
       billingCycle === "monthly"
@@ -987,14 +952,13 @@ export async function assignAgentToProducer(req: Request, res: Response) {
       });
     }
 
-    return res.json({
-      message: "Subscription created and agent assigned successfully",
-    });
+    return sendSuccess(res, null, "Subscription created and agent assigned successfully");
   } catch (error) {
     console.error("Error assigning agent to producer:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+
 
 // Get Producer Details for Agent
 export async function getProducerDetails(req: Request, res: Response) {
@@ -1003,8 +967,9 @@ export async function getProducerDetails(req: Request, res: Response) {
     const { producerId } = req.params;
 
     if (!agentId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     // Get producer details with subscription info and company details
     const producer = await db
@@ -1053,10 +1018,9 @@ export async function getProducerDetails(req: Request, res: Response) {
       .limit(1);
 
     if (!producer.length) {
-      return res
-        .status(404)
-        .json({ message: "Producer not found or not assigned to you" });
+      return sendError(res, 404, "Producer not found or not assigned to you");
     }
+
 
     // Get additional details
     const productCount = await db
@@ -1108,20 +1072,22 @@ export async function getProducerDetails(req: Request, res: Response) {
       paymentHistory,
     };
 
-    res.json(result);
+    return sendSuccess(res, result);
   } catch (error) {
     console.error("Error fetching producer details:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+
 
 // Get Agent Commission History
 export async function getAgentCommissions(req: Request, res: Response) {
   try {
     const agentId = (req.user as User)?.id;
     if (!agentId) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return sendError(res, 401, "Unauthorized");
     }
+
 
     const commissions = await db
       .select({
@@ -1147,9 +1113,10 @@ export async function getAgentCommissions(req: Request, res: Response) {
       .where(eq(subscriptionPayments.agentId, agentId))
       .orderBy(desc(subscriptionPayments.createdAt));
 
-    res.json(commissions);
+    return sendSuccess(res, commissions);
   } catch (error) {
     console.error("Error fetching agent commissions:", error);
-    res.status(500).json({ message: "Internal server error" });
+    return sendError(res, 500, "Internal server error", error);
   }
 }
+

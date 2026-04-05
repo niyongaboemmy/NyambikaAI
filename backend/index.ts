@@ -9,25 +9,22 @@ import uploadRoutes from "./upload-routes";
 const app = express();
 
 // CORS configuration using cors middleware
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+  ? process.env.ALLOWED_ORIGINS.split(",")
+  : ["http://localhost:3000", "http://localhost:3001", "http://localhost:3003", "https://nyambika.com"];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3003",
-      "http://127.0.0.1:3000",
-      "http://127.0.0.1:3001",
-      "http://127.0.0.1:3003",
-      "https://Nyambika.onrender.com",
-      "https://nyambika-python.onrender.com",
-      "https://nyambika-ai.vercel.app",
-      "https://nyambika.com",
-      "http://nyambika.com",
-      "https://www.nyambika.com",
-      "http://www.nyambika.com",
-      "https://nyambikav2.vms.rw", // Production server
-      "https://www.nyambikav2.vms.rw", // Production server
-    ],
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes("*")) {
+        callback(null, true);
+      } else {
+        console.warn(`CORS blocked for origin: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Origin",
@@ -136,6 +133,8 @@ app.use((req, res, next) => {
   next();
 });
 
+import { sendError } from "./utils/response";
+
 (async () => {
   const server = await registerRoutes(app);
 
@@ -143,8 +142,7 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
+    return sendError(res, status, message, err);
   });
 
   // ALWAYS serve the app on the port specified in the environment variable PORT

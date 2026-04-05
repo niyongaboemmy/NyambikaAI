@@ -138,7 +138,7 @@ export default function PublicTryOn() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<TryOnSession | null>(
-    null
+    null,
   );
   const [sortBy, setSortBy] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
@@ -146,14 +146,14 @@ export default function PublicTryOn() {
   const [likedSessions, setLikedSessions] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [bookmarkedSessions, setBookmarkedSessions] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
   const [savedSessions, setSavedSessions] = useState<Set<string>>(new Set());
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareSession, setShareSession] = useState<TryOnSession | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
   const [newSessionAlert, setNewSessionAlert] = useState<TryOnSession | null>(
-    null
+    null,
   );
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -176,8 +176,8 @@ export default function PublicTryOn() {
           image: session.productImage,
           sessions: sessions.filter((s) => s.productId === session.productId),
         },
-      ])
-    ).values()
+      ]),
+    ).values(),
   );
 
   const fetchSessions = async (page: number = 1) => {
@@ -236,7 +236,7 @@ export default function PublicTryOn() {
       try {
         setLoadingProduct(true);
         const response = await apiClient.get<Product>(
-          `/api/products/${productId}`
+          `/api/products/${productId}`,
         );
         setProduct(response.data);
       } catch (err) {
@@ -258,7 +258,7 @@ export default function PublicTryOn() {
       updateMetaTags(
         `${product.name} - Try-On Gallery | Nyambika`,
         `Explore amazing virtual try-ons with ${product.name}. See how this fashion item looks on different people using AI technology.`,
-        product.imageUrl
+        product.imageUrl,
       );
     } else if (!productId) {
       // When viewing general gallery
@@ -267,7 +267,7 @@ export default function PublicTryOn() {
       updateMetaTags(
         "AI Try-On Gallery - Discover Amazing Fashion | Nyambika",
         "Explore our collection of AI-powered virtual try-on results. See fashion transformations and discover your perfect style with cutting-edge technology.",
-        "/products-grid.png"
+        "/products-grid.png",
       );
     }
 
@@ -281,14 +281,14 @@ export default function PublicTryOn() {
   const updateMetaTags = (
     title: string,
     description: string,
-    imageUrl: string
+    imageUrl: string,
   ) => {
     if (typeof document === "undefined") return;
 
     // Update existing meta tags or create new ones
     const updateOrCreateMeta = (property: string, content: string) => {
       let meta = document.querySelector(
-        `meta[property="${property}"]`
+        `meta[property="${property}"]`,
       ) as HTMLMetaElement;
       if (!meta) {
         meta = document.createElement("meta");
@@ -305,7 +305,7 @@ export default function PublicTryOn() {
       "og:image",
       imageUrl.startsWith("http")
         ? imageUrl
-        : `${window.location.origin}${imageUrl}`
+        : `${window.location.origin}${imageUrl}`,
     );
     updateOrCreateMeta("og:url", window.location.href);
 
@@ -316,7 +316,7 @@ export default function PublicTryOn() {
       "twitter:image",
       imageUrl.startsWith("http")
         ? imageUrl
-        : `${window.location.origin}${imageUrl}`
+        : `${window.location.origin}${imageUrl}`,
     );
     updateOrCreateMeta("twitter:card", "summary_large_image");
   };
@@ -355,8 +355,8 @@ export default function PublicTryOn() {
           prev.map((session) =>
             session.id === sessionId
               ? { ...session, likes: response.data.likes }
-              : session
-          )
+              : session,
+          ),
         );
       }
     } catch (err) {
@@ -411,7 +411,7 @@ export default function PublicTryOn() {
     try {
       setLoadingComments(true);
       const response = await apiClient.get(
-        `/api/try-on-sessions/${sessionId}/comments`
+        `/api/try-on-sessions/${sessionId}/comments`,
       );
       if (response.data?.success) {
         setComments(response.data.comments || []);
@@ -430,7 +430,7 @@ export default function PublicTryOn() {
       setPostingComment(true);
       const response = await apiClient.post(
         `/api/try-on-sessions/${sessionId}/comments`,
-        { text: commentText }
+        { text: commentText },
       );
 
       if (response.data?.success) {
@@ -447,7 +447,7 @@ export default function PublicTryOn() {
   const handleDeleteComment = async (sessionId: string, commentId: string) => {
     try {
       const response = await apiClient.delete(
-        `/api/try-on-sessions/${sessionId}/comments/${commentId}`
+        `/api/try-on-sessions/${sessionId}/comments/${commentId}`,
       );
 
       if (response.data?.success) {
@@ -463,7 +463,7 @@ export default function PublicTryOn() {
 
     try {
       const response = await apiClient.delete(
-        `/api/try-on-sessions/${sessionId}`
+        `/api/try-on-sessions/${sessionId}`,
       );
 
       if (response.data?.success) {
@@ -1228,16 +1228,16 @@ export default function PublicTryOn() {
                         <Button
                           onClick={() => {
                             const params = new URLSearchParams(
-                              searchParams || ""
+                              searchParams || "",
                             );
                             params.set("product-id", product.id);
                             params.set(
                               "product-name",
-                              encodeURIComponent(product.name)
+                              encodeURIComponent(product.name),
                             );
                             params.set(
                               "product-image-url",
-                              encodeURIComponent(product.image)
+                              encodeURIComponent(product.image),
                             );
                             router.push(`/public-tryon?${params.toString()}`);
                           }}
@@ -1470,9 +1470,7 @@ export default function PublicTryOn() {
                       animate={{ x: [0, 5, 0] }}
                       transition={{ duration: 1.5, repeat: Infinity }}
                       className="ml-2"
-                    >
-                      ✨
-                    </motion.div>
+                    ></motion.div>
                   </Button>
                 </Link>
               </motion.div>
@@ -1604,7 +1602,7 @@ export default function PublicTryOn() {
                         </div>
                         <span className="text-sm text-slate-500 dark:text-slate-400">
                           {new Date(
-                            selectedSession.createdAt
+                            selectedSession.createdAt,
                           ).toLocaleDateString()}
                         </span>
                       </div>
@@ -1825,7 +1823,7 @@ export default function PublicTryOn() {
                             onClick={() =>
                               handleDeleteComment(
                                 selectedSession.id,
-                                comment.id
+                                comment.id,
                               )
                             }
                             className="h-6 w-6 p-0 text-red-500 hover:text-red-600"

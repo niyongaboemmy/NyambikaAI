@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@jridgewell/trace-mapping": "^0.3.25",
-    "@neondatabase/serverless": "^0.10.4",
     "@prisma/client": "^6.16.1",
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.19",
@@ -33,7 +32,6 @@
     "jsonwebtoken": "^9.0.2",
     "memorystore": "^1.6.7",
     "multer": "^2.0.2",
-    "mysql2": "^3.14.5",
     "openai": "^5.13.1",
     "passport": "^0.7.0",
     "passport-local": "^1.0.0",

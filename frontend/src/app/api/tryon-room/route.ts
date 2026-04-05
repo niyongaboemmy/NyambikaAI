@@ -14,8 +14,7 @@ export async function GET(req: NextRequest) {
     const sortOrder = searchParams.get("order") || "desc";
 
     // Call the actual backend API
-    const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003";
+    const backendUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
     // Build query parameters for backend
     const backendParams = new URLSearchParams({

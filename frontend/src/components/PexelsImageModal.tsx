@@ -56,7 +56,7 @@ export function PexelsImageModal({
       };
 
   const [selectedImage, setSelectedImage] = useState<SelectedImage | null>(
-    null
+    null,
   );
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -88,7 +88,7 @@ export function PexelsImageModal({
   const loadImages = async (
     query: string = "",
     pageNum: number = 1,
-    reset: boolean = false
+    reset: boolean = false,
   ) => {
     try {
       setIsLoading(true);
@@ -127,7 +127,7 @@ export function PexelsImageModal({
   };
 
   const handleImageError = (
-    e: React.SyntheticEvent<HTMLImageElement, Event>
+    e: React.SyntheticEvent<HTMLImageElement, Event>,
   ) => {
     const target = e.target as HTMLImageElement;
     target.style.display = "none";
@@ -147,7 +147,7 @@ export function PexelsImageModal({
 
   const getSrcBySize = (
     photo: PexelsPhoto,
-    size: "original" | "large2x" | "large" | "medium" | "small"
+    size: "original" | "large2x" | "large" | "medium" | "small",
   ): string => {
     // Pexels src object supports these keys; fallback to medium if missing
     const map = photo.src as any;
@@ -193,7 +193,7 @@ export function PexelsImageModal({
       if (!compressionResult.success) {
         console.warn(
           "Compression failed, using original file:",
-          compressionResult.error
+          compressionResult.error,
         );
       }
 
@@ -205,8 +205,8 @@ export function PexelsImageModal({
       console.log("=== Uploading File ===");
       console.log(
         `File: ${fileToUpload.name}, Size: ${(fileToUpload.size / 1024).toFixed(
-          2
-        )}KB`
+          2,
+        )}KB`,
       );
 
       const result = await uploadFile(fileToUpload, {
@@ -216,7 +216,7 @@ export function PexelsImageModal({
           if (!evt.total) return;
           const percent = Math.min(
             99,
-            Math.round((evt.loaded / evt.total) * 100)
+            Math.round((evt.loaded / evt.total) * 100),
           );
           setUploadProgress(percent);
         },
@@ -608,7 +608,7 @@ export function PexelsImageModal({
                         e.currentTarget.style.opacity = "1";
                         const placeholder =
                           e.currentTarget.parentElement?.querySelector(
-                            ".absolute.inset-0"
+                            ".absolute.inset-0",
                           );
                         if (placeholder) {
                           (placeholder as HTMLElement).style.opacity = "0";
@@ -617,7 +617,7 @@ export function PexelsImageModal({
                       onError={(e) => {
                         const placeholder =
                           e.currentTarget.parentElement?.querySelector(
-                            ".absolute.inset-0"
+                            ".absolute.inset-0",
                           );
                         if (placeholder) {
                           placeholder.innerHTML = `
@@ -652,7 +652,7 @@ export function PexelsImageModal({
                       <>
                         <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                         <span className="text-sm text-slate-600 dark:text-slate-400">
-                          ✨ Your uploaded image
+                          Your uploaded image
                         </span>
                       </>
                     ) : (
@@ -732,7 +732,7 @@ export function PexelsImageModal({
                                   if (!evt.total) return;
                                   const percent = Math.min(
                                     99,
-                                    Math.round((evt.loaded / evt.total) * 100)
+                                    Math.round((evt.loaded / evt.total) * 100),
                                   );
                                   setUploadProgress(percent);
                                 },
@@ -745,7 +745,7 @@ export function PexelsImageModal({
                             } catch (err) {
                               console.error(
                                 "Failed to process Pexels image:",
-                                err
+                                err,
                               );
                             } finally {
                               setUploading(false);

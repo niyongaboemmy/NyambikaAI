@@ -152,7 +152,7 @@ export default function ProductDetail() {
       try {
         const res = await apiClient.get(
           API_ENDPOINTS.FAVORITES_CHECK(productIdStr),
-          { suppressAuthModal: true } as any
+          { suppressAuthModal: true } as any,
         );
         return res.data || { favorited: false };
       } catch {
@@ -362,9 +362,9 @@ export default function ProductDetail() {
           toast({
             title: "Insufficient balance",
             description: `Required: RF ${Number(
-              data.required
+              data.required,
             ).toLocaleString()} | Your balance: RF ${Number(
-              data.balance || 0
+              data.balance || 0,
             ).toLocaleString()}`,
             variant: "destructive",
           });
@@ -418,7 +418,7 @@ export default function ProductDetail() {
         image: product.imageUrl,
         size: selectedSize,
       },
-      quantity
+      quantity,
     );
     toast({
       title: t("product.addedToCart"),
@@ -874,7 +874,7 @@ export default function ProductDetail() {
                 {selectedSize && product.measurements?.[selectedSize] && (
                   <div className="p-1.5 sm:p-2 bg-gray-50 dark:bg-gray-800 rounded-sm sm:rounded-md border border-gray-200/60 dark:border-gray-600/60 shadow-inner">
                     <h3 className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
-                      ✨ Product Features
+                      Product Features
                     </h3>
                     <p className="text-sm font-semibold mb-2 text-gray-900 dark:text-white">
                       Size {selectedSize} Measurements:
@@ -889,7 +889,7 @@ export default function ProductDetail() {
                             {key}:{value}
                             {key}:{value}
                           </span>
-                        )
+                        ),
                       )}
                     </div>
                   </div>

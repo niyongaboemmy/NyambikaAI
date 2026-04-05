@@ -2,6 +2,7 @@ import { Camera, ChevronsDown } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import Image from "next/image";
 import { apiClient, handleApiError } from "@/config/api";
 
 type Category = {
@@ -121,14 +122,15 @@ function CategoriesStrip() {
                 <div className="snap-start min-w-[180px] max-w-[200px] cursor-pointer group">
                   <div className="rounded-2xl overflow-hidden border bg-card hover:shadow-md transition-all">
                     <div className="h-28 w-full overflow-hidden">
-                      <img
+                      <Image
                         src={
                           c.imageUrl ||
-                          "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600"
+                          "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=400&h=300"
                         }
                         alt={c.name}
-                        className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        loading="lazy"
+                        fill
+                        sizes="200px"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
                     <div className="p-3">

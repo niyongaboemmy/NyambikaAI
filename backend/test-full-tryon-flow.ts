@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 async function testFullTryOnFlow() {
   try {
     console.log(
-      "🧪 Testing Full Try-On Flow (Backend + Frontend Integration)...\n"
+      "🧪 Testing Full Try-On Flow (Backend + Frontend Integration)...\n",
     );
 
     // Step 1: Create test user
@@ -89,7 +89,7 @@ async function testFullTryOnFlow() {
     console.log("\n🔗 Step 6: Testing frontend redirect URL construction...");
 
     const redirectUrl = `/tryon-room?product-id=${productId}&product-name=${encodeURIComponent(
-      productName
+      productName,
     )}&product-image-url=https://example.com/product.jpg&session-id=${sessionId}`;
     console.log("Generated redirect URL:", redirectUrl);
 
@@ -195,7 +195,7 @@ async function testFullTryOnFlow() {
       console.log("✅ Status transitions: WORKING");
       console.log("✅ Data integrity: MAINTAINED");
       console.log(
-        "\n🚀 The interactive try-on room feature is ready for production!"
+        "\n The interactive try-on room feature is ready for production!",
       );
     } else {
       console.log("❌ SOME TESTS FAILED! Please review the implementation.");

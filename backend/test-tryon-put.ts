@@ -107,7 +107,7 @@ async function testTryOnPutEndpoint() {
     console.log(JSON.stringify(updatedSession, null, 2));
 
     // Step 5: Verify critical fields are preserved
-    console.log("\n🔐 Step 5: Verifying critical data preservation...");
+    console.log("\n Step 5: Verifying critical data preservation...");
     const checks = [
       {
         name: "Customer Image URL preserved",
@@ -211,12 +211,12 @@ async function testTryOnPutEndpoint() {
     console.log("\n" + "=".repeat(50));
     if (allPassed) {
       console.log(
-        "✅ ALL TESTS PASSED! The PUT endpoint is working correctly."
+        "✅ ALL TESTS PASSED! The PUT endpoint is working correctly.",
       );
       console.log(
-        "📁 Data is being saved and retrieved correctly from the database."
+        "📁 Data is being saved and retrieved correctly from the database.",
       );
-      console.log("🔐 Critical fields (images, session data) are preserved.");
+      console.log(" Critical fields (images, session data) are preserved.");
     } else {
       console.log("❌ SOME TESTS FAILED! Please review the implementation.");
     }

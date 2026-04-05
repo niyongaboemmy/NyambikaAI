@@ -1,6 +1,7 @@
 import { useCompanies } from "@/hooks/useCompanies";
 import { Button } from "@/components/custom-ui/button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function CompaniesPreview() {
   const { data: companies = [], isLoading } = useCompanies();
@@ -37,11 +38,12 @@ export default function CompaniesPreview() {
                 >
                   <div className="aspect-square rounded-xl overflow-hidden border border-border/60 flex items-center justify-center bg-muted/40">
                     {c?.logoUrl ? (
-                      <img
+                      <Image
                         src={c.logoUrl}
                         alt={c.name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        fill
+                        sizes="96px"
+                        className="object-cover"
                       />
                     ) : (
                       <div className="text-xs text-muted-foreground">

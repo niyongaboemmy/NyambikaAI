@@ -1,6 +1,6 @@
 # PWA Install Flow Explained
 
-## 🎯 Overview
+##  Overview
 
 The PWA installation feature consists of a **smart banner** that appears automatically and adapts based on the browser's capabilities.
 
@@ -287,7 +287,7 @@ debugPWA()  // Check installation criteria
 
 ---
 
-## 🎯 Best Practices
+##  Best Practices
 
 ### When to Show Banner
 
@@ -431,7 +431,7 @@ This site can be installed as an app
 
 ---
 
-## 🚀 Summary
+##  Summary
 
 ### The Banner's Purpose
 

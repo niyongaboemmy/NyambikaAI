@@ -17,7 +17,7 @@ interface LanguageContextType {
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(
-  undefined
+  undefined,
 );
 
 interface LanguageProviderProps {
@@ -253,7 +253,7 @@ const translations = {
     "home.items": "items",
     // Products Search
     "search.title": "Discover Products",
-    "search.subtitle": "Find amazing products with AI-powered search ✨",
+    "search.subtitle": "Find amazing products with AI-powered search ",
     "search.searchingFor": "Searching for",
     "search.allProducts": "All Products",
     "search.browseAll": "Browse all",
@@ -271,6 +271,8 @@ const translations = {
     "search.loadMoreProducts": "Load More Products",
     "search.loading": "Loading...",
     "search.loadingMore": "Loading more products...",
+    "search.reachedEnd": "You've reached the end",
+    "search.noMoreProducts": "No more products to show",
     "search.sort.newest": "Newest First",
     "search.sort.popular": "Most Popular",
     "search.sort.priceAsc": "Price: Low to High",
@@ -883,7 +885,7 @@ const translations = {
     // Products Search
     "search.title": "Shakisha Ibicuruzwa",
     "search.subtitle":
-      "Shaka ibicuruzwa byiza ukoresheje gushakisha bufashijwe na AI ✨",
+      "Shaka ibicuruzwa byiza ukoresheje gushakisha bufashijwe na AI ",
     "search.searchingFor": "Turimo gushakisha",
     "search.allProducts": "Ibicuruzwa Byose",
     "search.browseAll": "Reba byose",
@@ -901,6 +903,8 @@ const translations = {
     "search.loadMoreProducts": "Komeza Urebe Ibicuruzwa",
     "search.loading": "Birahabwa...",
     "search.loadingMore": "Gukomeza Guhabwa ibicuruzwa...",
+    "search.reachedEnd": "Wageze ku mpera",
+    "search.noMoreProducts": "Nta bindi bicuruzwa bihari",
     "search.sort.newest": "Ibiheruka Byambere",
     "search.sort.popular": "Bikunzwe cyane",
     "search.sort.priceAsc": "Igiciro: Gito kujya hejuru",
@@ -1236,8 +1240,7 @@ const translations = {
     "home.items": "articles",
     // Products Search
     "search.title": "Découvrir des Produits",
-    "search.subtitle":
-      "Trouvez des produits incroyables avec la recherche IA ✨",
+    "search.subtitle": "Trouvez des produits incroyables avec la recherche IA ",
     "search.searchingFor": "Recherche de",
     "search.allProducts": "Tous les Produits",
     "search.browseAll": "Tout parcourir",
@@ -1255,6 +1258,8 @@ const translations = {
     "search.loadMoreProducts": "Charger Plus de Produits",
     "search.loading": "Chargement...",
     "search.loadingMore": "Chargement de plus de produits...",
+    "search.reachedEnd": "Vous avez atteint la fin",
+    "search.noMoreProducts": "Plus de produits à afficher",
     "search.sort.newest": "Les plus récents",
     "search.sort.popular": "Les plus populaires",
     "search.sort.priceAsc": "Prix : du plus bas au plus élevé",

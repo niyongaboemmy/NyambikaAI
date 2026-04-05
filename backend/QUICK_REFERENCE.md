@@ -10,7 +10,7 @@
 - ✅ Database persistence
 - ✅ Result photo storage
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Test the Endpoint
 
@@ -73,7 +73,7 @@ curl -X PUT http://localhost:3003/api/try-on-sessions/YOUR_SESSION_ID \
 | Notes          | String  | `"Great fit!"`                           |
 | Rating         | Number  | `1-5`                                    |
 
-## 🔐 Security
+##  Security
 
 - ✅ Requires JWT authentication
 - ✅ Validates user ownership
@@ -121,7 +121,7 @@ npx tsx test-tryon-put.ts
 - [x] Database integration working
 - [x] Code validation passed
 
-## 🎯 Success Criteria Met
+##  Success Criteria Met
 
 ✅ Customer images preserved  
 ✅ Result photos saved  

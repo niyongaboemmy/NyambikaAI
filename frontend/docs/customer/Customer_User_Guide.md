@@ -8,7 +8,7 @@ _Your complete guide to shopping with AI-powered fashion on Nyambika_
 
 Nyambika is Rwanda's premier AI-powered fashion platform where you can discover, try-on, and purchase clothing using cutting-edge artificial intelligence technology.
 
-### ✨ What Makes Us Special
+###  What Makes Us Special
 
 - **AI Virtual Try-On**: See how clothes look on you before buying
 - **Smart Recommendations**: AI-powered style suggestions based on your preferences
@@ -17,7 +17,7 @@ Nyambika is Rwanda's premier AI-powered fashion platform where you can discover,
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Creating Your Account
 
@@ -305,7 +305,7 @@ Each order shows:
 
 ---
 
-## 🎯 Tips for Best Experience
+##  Tips for Best Experience
 
 ### Shopping Smart
 
@@ -376,4 +376,4 @@ Email: info@nyambika.com
 _Last updated: January 2025_  
 _Version: 2.0_
 
-**Happy Shopping! 🛍️✨**
+**Happy Shopping! 🛍️**

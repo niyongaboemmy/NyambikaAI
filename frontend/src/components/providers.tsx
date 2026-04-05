@@ -56,20 +56,6 @@ function TermsModalsGate() {
   );
 }
 
-// Gate that hides children when the user exists but is not verified
-function VerifiedContentGate({
-  className,
-  children,
-}: {
-  className?: string;
-  children: React.ReactNode;
-}) {
-  const { user } = useAuth() as any;
-  const shouldHide = !!user && user.isVerified === false;
-  if (shouldHide) return null;
-  return <div className={className}>{children}</div>;
-}
-
 // Create a client-side only wrapper for AuthProvider
 function AuthProviderWrapper({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
@@ -118,16 +104,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
                         <AnimatedAIBackground>
                           <RouteProtection>
                             <ProducerSubscriptionGuard>
-                              <VerifiedContentGate className={containerClass}>
-                                <>
-                                  <ClientOnly>
-                                    <LoginModal />
-                                    <UserWalletDialog />
-                                    <ChangePasswordDialogWrapper />
-                                    {children}
-                                  </ClientOnly>
-                                </>
-                              </VerifiedContentGate>
+                              <div className={containerClass}>
+                                <ClientOnly>
+                                  <LoginModal />
+                                  <UserWalletDialog />
+                                  <ChangePasswordDialogWrapper />
+                                  {children}
+                                </ClientOnly>
+                              </div>
                               <Footer />
                             </ProducerSubscriptionGuard>
                           </RouteProtection>

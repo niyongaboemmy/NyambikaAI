@@ -1,57 +1,101 @@
-import { Pool as PgPool } from 'pg';
-import { drizzle as drizzlePg } from 'drizzle-orm/node-postgres';
-import { createPool as createMySqlPool } from 'mysql2/promise';
-import { drizzle as drizzleMySql } from 'drizzle-orm/mysql2';
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./shared/schema.dialect";
-
-const DIALECT = (process.env.DB_DIALECT || 'postgres').toLowerCase();
+import * as fs from "fs";
+import * as path from "path";
 
 if (!process.env.DATABASE_URL) {
   throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
+    "DATABASE_URL must be set. Did you forget to provision a database?"
   );
 }
 
-export let pool: any;
-export let db: any;
+export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+export const db = drizzle(pool, { schema });
 
-if (DIALECT === 'mysql') {
-  // mysql2 supports passing a connection URI directly
-  pool = createMySqlPool(process.env.DATABASE_URL);
-  db = drizzleMySql(pool, { schema: schema as any, mode: 'default' });
-} else {
-  // default: postgres
-  pool = new PgPool({ connectionString: process.env.DATABASE_URL });
-  db = drizzlePg(pool, { schema });
-}
-
-// Runtime-safe migration to add missing columns without a migration framework
+// ─────────────────────────────────────────────────────────────────────────────
+// Auto-migration runner: tracks applied migrations in `schema_migrations` table
+// and applies any pending *.sql files from the migrations/ directory on startup.
+// ─────────────────────────────────────────────────────────────────────────────
 export async function ensureSchemaMigrations() {
-  if (DIALECT === 'mysql') {
-    // No-op for MySQL in this lightweight helper. Use proper migrations for production.
+  // 1. Create the migrations tracking table if it doesn't exist
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+      filename   TEXT PRIMARY KEY,
+      applied_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `);
+
+  // 2. Also run the hand-coded column guards (kept for safety)
+  await pool.query(`
+    ALTER TABLE orders
+      ADD COLUMN IF NOT EXISTS validation_status TEXT DEFAULT 'pending'
+  `);
+  await pool.query(`
+    ALTER TABLE products
+      ADD COLUMN IF NOT EXISTS display_order INTEGER
+  `);
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_products_display_order
+      ON products (display_order ASC NULLS LAST)
+  `);
+
+  // 3. Discover and apply pending migration files
+  const migrationsDir = path.join(
+    new URL(".", import.meta.url).pathname,
+    "migrations"
+  );
+
+  if (!fs.existsSync(migrationsDir)) {
+    console.log("[migrations] No migrations directory found — skipping.");
     return;
   }
 
-  // Ensure orders.validation_status exists (Postgres)
-  const checkColSql = `
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'orders' AND column_name = 'validation_status'
-  `;
-  const result = await (pool as PgPool).query(checkColSql);
-  if (result.rowCount === 0) {
-    // Add the column with default 'pending'
-    await (pool as PgPool).query(`ALTER TABLE orders ADD COLUMN IF NOT EXISTS validation_status TEXT DEFAULT 'pending'`);
+  const files = fs
+    .readdirSync(migrationsDir)
+    .filter((f) => f.endsWith(".sql"))
+    .sort((a, b) => a.localeCompare(b));
+
+  if (files.length === 0) {
+    console.log("[migrations] No SQL migration files found.");
+    return;
   }
 
-  // Ensure products.display_order exists for custom product ordering (Postgres)
-  const checkDisplayOrderSql = `
-    SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'products' AND column_name = 'display_order'
-  `;
-  const displayOrderResult = await (pool as PgPool).query(checkDisplayOrderSql);
-  if (displayOrderResult.rowCount === 0) {
-    await (pool as PgPool).query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS display_order INTEGER`);
-    // Helpful index to speed up ordering queries
-    await (pool as PgPool).query(`CREATE INDEX IF NOT EXISTS idx_products_display_order ON products (display_order ASC NULLS LAST)`);
+  // 4. Find which files have already been applied
+  const { rows: applied } = await pool.query<{ filename: string }>(
+    "SELECT filename FROM schema_migrations"
+  );
+  const appliedSet = new Set(applied.map((r) => r.filename));
+
+  const pending = files.filter((f) => !appliedSet.has(f));
+
+  if (pending.length === 0) {
+    console.log("[migrations] All migrations already applied ✓");
+    return;
   }
+
+  console.log(
+    `[migrations] Applying ${pending.length} pending migration(s)...`
+  );
+
+  for (const file of pending) {
+    const sqlPath = path.join(migrationsDir, file);
+    const sql = fs.readFileSync(sqlPath, "utf8");
+    console.log(`[migrations] >>> ${file}`);
+    try {
+      await pool.query(sql);
+      await pool.query(
+        "INSERT INTO schema_migrations (filename) VALUES ($1) ON CONFLICT DO NOTHING",
+        [file]
+      );
+      console.log(`[migrations] <<< ${file} ✓`);
+    } catch (err: any) {
+      // Log but continue — migrations should be idempotent (IF NOT EXISTS etc.)
+      console.warn(
+        `[migrations] !!! ${file} — warning: ${err?.message ?? err}`
+      );
+    }
+  }
+
+  console.log("[migrations] Done ✓");
 }

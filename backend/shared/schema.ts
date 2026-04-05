@@ -7,6 +7,7 @@ import {
   decimal,
   timestamp,
   boolean,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -35,6 +36,7 @@ export const users = pgTable("users", {
   referralCode: text("referral_code").unique(), // unique, shareable code
   referredBy: varchar("referred_by"), // parent agent id (nullable) - self-referential FK omitted to avoid TS circular ref
   isActive: boolean("is_active").default(true), // used to block commissions for inactive/banned accounts
+  styleProfile: jsonb("style_profile").default(sql`'{}'`), // user style preferences (replaces user_style_profiles table)
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -159,6 +161,8 @@ export const tryOnSessions = pgTable("try_on_sessions", {
   rating: integer("rating"), // 1-5 rating for the try-on result
   likes: integer("likes").default(0), // total likes count
   views: integer("views").default(0), // total views count
+  likedBy: text("liked_by").array().default(sql`'{}'`), // user IDs who liked
+  savedBy: text("saved_by").array().default(sql`'{}'`), // user IDs who saved
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -178,51 +182,9 @@ export const outfitCollections = pgTable("outfit_collections", {
   isPublic: boolean("is_public").default(false), // share with community
   likes: integer("likes").default(0),
   views: integer("views").default(0),
+  items: jsonb("items").default(sql`'[]'`), // outfit items stored as JSONB array
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Items in outfit collections
-export const outfitItems = pgTable("outfit_items", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  outfitId: varchar("outfit_id")
-    .references(() => outfitCollections.id)
-    .notNull(),
-  tryOnSessionId: varchar("try_on_session_id").references(
-    () => tryOnSessions.id
-  ),
-  productId: varchar("product_id").references(() => products.id),
-  position: integer("position").default(0), // ordering within outfit
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Session Likes - Track who liked which try-on session
-export const sessionLikes = pgTable("session_likes", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  sessionId: varchar("session_id")
-    .references(() => tryOnSessions.id)
-    .notNull(),
-  userId: varchar("user_id")
-    .references(() => users.id)
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// Session Views - Track views for analytics
-export const sessionViews = pgTable("session_views", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  sessionId: varchar("session_id")
-    .references(() => tryOnSessions.id)
-    .notNull(),
-  userId: varchar("user_id").references(() => users.id), // nullable for anonymous views
-  viewedAt: timestamp("viewed_at").defaultNow(),
 });
 
 // Session Comments - Comments on try-on sessions
@@ -238,41 +200,6 @@ export const sessionComments = pgTable("session_comments", {
     .notNull(),
   text: text("text").notNull(),
   isDeleted: boolean("is_deleted").default(false), // soft delete for comments
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Session Saves - Track which users saved which sessions
-export const sessionSaves = pgTable("session_saves", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  sessionId: varchar("session_id")
-    .references(() => tryOnSessions.id)
-    .notNull(),
-  userId: varchar("user_id")
-    .references(() => users.id)
-    .notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-// User Style Profiles - Track preferences and history
-export const userStyleProfiles = pgTable("user_style_profiles", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  userId: varchar("user_id")
-    .references(() => users.id)
-    .notNull()
-    .unique(),
-  favoriteColors: text("favorite_colors").array(), // tracked from try-on history
-  favoriteCategories: text("favorite_categories").array(),
-  preferredBrands: text("preferred_brands").array(),
-  stylePreferences: text("style_preferences"), // JSON: {casual: 0.8, formal: 0.3, etc}
-  bodyType: text("body_type"),
-  skinTone: text("skin_tone"),
-  aiInsights: text("ai_insights"), // JSON with AI-generated style insights
-  lastAnalyzedAt: timestamp("last_analyzed_at"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -502,32 +429,12 @@ export const insertOutfitCollectionSchema = createInsertSchema(
   outfitCollections
 ).omit({ createdAt: true, updatedAt: true });
 
-export const insertOutfitItemSchema = createInsertSchema(outfitItems).omit({
-  createdAt: true,
-});
-
-export const insertSessionLikeSchema = createInsertSchema(sessionLikes).omit({
-  createdAt: true,
-});
-
-export const insertSessionViewSchema = createInsertSchema(sessionViews).omit({
-  viewedAt: true,
-});
-
 export const insertSessionCommentSchema = createInsertSchema(
   sessionComments
 ).omit({
   createdAt: true,
   updatedAt: true,
 });
-
-export const insertSessionSaveSchema = createInsertSchema(sessionSaves).omit({
-  createdAt: true,
-});
-
-export const insertUserStyleProfileSchema = createInsertSchema(
-  userStyleProfiles
-).omit({ createdAt: true, updatedAt: true });
 
 export const insertReviewSchema = createInsertSchema(reviews).omit({
   createdAt: true,
@@ -601,25 +508,8 @@ export type InsertOutfitCollection = z.infer<
   typeof insertOutfitCollectionSchema
 >;
 
-export type OutfitItem = typeof outfitItems.$inferSelect;
-export type InsertOutfitItem = z.infer<typeof insertOutfitItemSchema>;
-
-export type SessionLike = typeof sessionLikes.$inferSelect;
-export type InsertSessionLike = z.infer<typeof insertSessionLikeSchema>;
-
-export type SessionView = typeof sessionViews.$inferSelect;
-export type InsertSessionView = z.infer<typeof insertSessionViewSchema>;
-
 export type SessionComment = typeof sessionComments.$inferSelect;
 export type InsertSessionComment = z.infer<typeof insertSessionCommentSchema>;
-
-export type SessionSave = typeof sessionSaves.$inferSelect;
-export type InsertSessionSave = z.infer<typeof insertSessionSaveSchema>;
-
-export type UserStyleProfile = typeof userStyleProfiles.$inferSelect;
-export type InsertUserStyleProfile = z.infer<
-  typeof insertUserStyleProfileSchema
->;
 
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;

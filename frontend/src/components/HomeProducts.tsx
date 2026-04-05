@@ -47,7 +47,7 @@ function CategoryCard({
       Electronics: "📱",
       Beauty: "💄",
       All: "🛍️",
-      Fashion: "✨",
+      Fashion: "",
       Sports: "⚽",
       Home: "🏠",
     };
@@ -88,21 +88,23 @@ function CategoryCard({
       <div className="absolute inset-0">
         {isImageUrl ? (
           <>
-            <img
+            <Image
               src={categoryImage}
               alt={category.name}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              fill
+              sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
             <div
               className={`absolute inset-0 bg-gradient-to-t ${getGradientColors(
-                category.name
+                category.name,
               )} mix-blend-multiply group-hover:opacity-80 transition-opacity duration-300`}
             />
           </>
         ) : (
           <div
             className={`w-full h-full bg-gradient-to-br ${getGradientColors(
-              category.name
+              category.name,
             )}`}
           />
         )}
@@ -142,7 +144,7 @@ function CategoryCard({
           </h3>
           {productCount !== undefined && (
             <p className="text-white/90 text-sm font-medium drop-shadow">
-              {productCount} {t("home.items")} ✨
+              {productCount} {t("home.items")}
             </p>
           )}
         </div>
@@ -169,9 +171,7 @@ function CategoryCard({
               animationDelay: `${i * 0.3}s`,
               animationDuration: "2s",
             }}
-          >
-            ✨
-          </div>
+          ></div>
         ))}
       </div>
 
@@ -347,13 +347,13 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
   } = useInfiniteProducts(
     selectedCategoryId || undefined,
     selectedCompany?.producerId || undefined,
-    undefined // search - handled locally
+    undefined, // search - handled locally
   );
 
   // Sort products by display_order then by createdAt
   const products: Product[] = useMemo(() => {
     const allProducts = (productsPages?.pages || []).flatMap(
-      (page) => page.products || []
+      (page) => page.products || [],
     );
 
     return allProducts.sort((a, b) => {
@@ -407,7 +407,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               // On error, default to false to be safe
               return [id, false];
             }
-          })
+          }),
         );
         return Object.fromEntries(entries);
       },
@@ -443,12 +443,12 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
           typeof v === "string"
             ? v
             : typeof v === "number"
-            ? v.toString()
-            : typeof v === "boolean"
-            ? v.toString()
-            : v instanceof Date
-            ? v.toISOString()
-            : "";
+              ? v.toString()
+              : typeof v === "boolean"
+                ? v.toString()
+                : v instanceof Date
+                  ? v.toISOString()
+                  : "";
         return s.toLowerCase().includes(term);
       });
     });
@@ -479,7 +479,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
           fetchNextPage();
         }
       },
-      { root: null, rootMargin: "300px 0px", threshold: 0 }
+      { root: null, rootMargin: "300px 0px", threshold: 0 },
     );
     obs.observe(el);
     return () => obs.disconnect();
@@ -510,7 +510,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
         const response = await apiClient.post(
           "/api/favorites",
           { productId },
-          { headers: { "x-user-id": "demo-user" } }
+          { headers: { "x-user-id": "demo-user" } },
         );
         return response.data;
       } catch (error) {
@@ -547,12 +547,12 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
         setFavorites((prev) => [...prev, productId]);
       }
     },
-    [favorites, removeFromFavoritesMutation, addToFavoritesMutation]
+    [favorites, removeFromFavoritesMutation, addToFavoritesMutation],
   );
 
   const onViewDetails = useCallback(
     (productId: string) => router.push(`/product/${productId}`),
-    [router]
+    [router],
   );
 
   // Boost mutation for producers/admin
@@ -560,7 +560,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
     mutationFn: async (productId: string) => {
       try {
         const res = await apiClient.post(
-          API_ENDPOINTS.PRODUCT_BOOST(productId)
+          API_ENDPOINTS.PRODUCT_BOOST(productId),
         );
         return res.data;
       } catch (error) {
@@ -594,7 +594,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
         });
       }
     },
-    [isAdmin, isProducer, user?.id, productsById]
+    [isAdmin, isProducer, user?.id, productsById],
   );
 
   // Debug logging
@@ -722,7 +722,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   className="text-base animate-spin"
                   style={{ animationDuration: "3s" }}
                 ></span>
-                <span className="text-sm animate-bounce">✨</span>
+                <span className="text-sm animate-bounce"></span>
               </div>
             </div>
           </div>
@@ -770,12 +770,6 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                     className="text-2xl animate-bounce"
                     style={{ animationDelay: "0s" }}
                   ></span>
-                  <span
-                    className="text-lg animate-bounce"
-                    style={{ animationDelay: "0.3s" }}
-                  >
-                    ⭐
-                  </span>
                 </div>
               </div>
             </div>
@@ -832,9 +826,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                         <span
                           className="text-2xl sm:text-3xl animate-bounce"
                           style={{ animationDelay: "0.3s" }}
-                        >
-                          ✨
-                        </span>
+                        ></span>
                       </div>
 
                       <p className="text-white/90 text-sm sm:text-base md:text-lg mb-6 max-w-2xl mx-auto">

@@ -4,7 +4,7 @@ _Complete documentation for Rwanda's premier AI-powered fashion platform_
 
 ---
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### New to Nyambika?
 
@@ -40,7 +40,7 @@ Choose your path and get up and running quickly with role-specific guidance.
 
 ## 📖 Documentation Types
 
-### 🎯 User-Friendly Guides
+###  User-Friendly Guides
 
 **Perfect for end users** - Step-by-step instructions, practical workflows, and success tips
 
@@ -66,7 +66,7 @@ Choose your path and get up and running quickly with role-specific guidance.
 
 ---
 
-## 🎯 Quick Navigation
+##  Quick Navigation
 
 ### By Role
 
@@ -78,7 +78,7 @@ Choose your path and get up and running quickly with role-specific guidance.
 
 ### By Topic
 
-- **🚀 Getting Started**: Platform introduction and account setup
+- ** Getting Started**: Platform introduction and account setup
 - **🛒 Shopping**: AI try-on, product browsing, order management
 - **💼 Selling**: Product management, store setup, order processing
 - **💰 Earning**: Commission structure, producer management, payments
@@ -168,4 +168,4 @@ For documentation updates or suggestions:
 _Last updated: January 2025_  
 _Documentation Version: 2.0_
 
-**Everything you need to succeed on Nyambika! 🇷🇼✨**
+**Everything you need to succeed on Nyambika! 🇷🇼**

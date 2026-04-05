@@ -137,15 +137,11 @@ async function generateWithVirtualTryOnService(
     // Crop the product image before processing
     let processedProductImage = productImageBase64OrUrl;
     try {
-      console.log("Cropping product image for try-on...");
       const croppedImage = await cropProductImageForTryOn(
         productImageBase64OrUrl
       );
       if (croppedImage) {
         processedProductImage = croppedImage;
-        console.log("Product image cropped successfully for try-on");
-      } else {
-        console.log("Product image cropping failed, using original");
       }
     } catch (cropError) {
       console.error("Error cropping product image:", cropError);
@@ -190,12 +186,6 @@ async function generateWithVirtualTryOnService(
       body: formData,
     });
 
-    console.log("TryOn API Response Status:", resp.status);
-    console.log(
-      "TryOn API Response Headers:",
-      Object.fromEntries(resp.headers.entries())
-    );
-
     if (!resp.ok) {
       const text = await resp.text();
       console.error("TryOn API Error Response:", text);
@@ -208,7 +198,6 @@ async function generateWithVirtualTryOnService(
     }
 
     const data = await resp.json();
-    console.log("TryOn API Response Data:", data);
 
     // Parse the submit response (202 accepted)
     const submitResponse = parseTryOnSubmitResponse(data);
@@ -220,8 +209,6 @@ async function generateWithVirtualTryOnService(
           submitResponse.statusUrl
         }`;
 
-    console.log("Polling status URL:", absoluteStatusUrl);
-
     // Poll for completion
     const totalTimeoutMs = Number(process.env.TRYON_POLL_TIMEOUT_MS || 900000); // Increased to 15 minutes for processing_from_queue
     const status = await pollTryOnStatus(
@@ -229,8 +216,6 @@ async function generateWithVirtualTryOnService(
       headers,
       totalTimeoutMs
     );
-
-    console.log("Final status:", status);
 
     // Handle the final status
     if (status.status === "completed") {
@@ -437,8 +422,6 @@ export async function processTryOnAsync(
   productType: string = "general"
 ): Promise<void> {
   try {
-    console.log(`Starting async try-on processing for session ${sessionId}`);
-
     // Generate virtual try-on
     const result = await generateVirtualTryOn(
       customerImageBase64OrUrl,
@@ -456,8 +439,6 @@ export async function processTryOnAsync(
           status: "completed",
         })
         .where(eq(tryOnSessions.id, sessionId));
-
-      console.log(`Try-on session ${sessionId} completed successfully`);
     } else {
       // Update session with failure
       await db

@@ -3,9 +3,7 @@ import axios, { AxiosInstance, AxiosError, AxiosResponse } from "axios";
 // API Configuration
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  (process.env.NODE_ENV === "development"
-    ? "http://localhost:3003"
-    : "https://nyambikav2.vms.rw");
+  (typeof window !== "undefined" ? window.location.origin : "http://localhost:3003");
 export enum RoleEnum {
   ADMIN = "admin",
   AGENT = "agent",
@@ -74,9 +72,28 @@ const createAxiosInstance = (): AxiosInstance => {
     }
   );
 
-  // Response interceptor for error handling
+  // Response interceptor for error handling and data unwrapping
   instance.interceptors.response.use(
-    (response: AxiosResponse) => response,
+    (response: AxiosResponse) => {
+      // Check if the response follows our standardized { success, data, message } pattern
+      const responseData = response.data;
+      if (
+        responseData &&
+        typeof responseData === "object" &&
+        responseData.success === true &&
+        Object.prototype.hasOwnProperty.call(responseData, "data")
+      ) {
+        // Return a modified response object with the inner data at the root
+        // This makes the standard pattern transparent to the rest of the application
+        return {
+          ...response,
+          data: responseData.data,
+          // We can also attach the message if needed for components to read
+          _message: responseData.message, 
+        };
+      }
+      return response;
+    },
     (error: AxiosError) => {
       if (error.response?.status === 401) {
         const requestUrl = (error.config?.url || "").toString();
@@ -115,14 +132,12 @@ const createAxiosInstance = (): AxiosInstance => {
 // Export the configured axios instance
 export const apiClient = createAxiosInstance();
 
+import { ApiErrorService } from "@/services/api-error-service";
+
 // Helper function for error handling
 export const handleApiError = (error: unknown): string => {
-  if (axios.isAxiosError(error)) {
-    return (
-      error.response?.data?.message || error.message || "An error occurred"
-    );
-  }
-  return error instanceof Error ? error.message : "An unknown error occurred";
+  const parsed = ApiErrorService.parse(error);
+  return parsed.message;
 };
 
 // Common API endpoints

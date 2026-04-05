@@ -8,7 +8,7 @@ _Your complete guide to managing the Nyambika platform_
 
 As a platform administrator, you have comprehensive control over the Nyambika ecosystem. Manage users, oversee business operations, monitor performance, and ensure the platform runs smoothly for all stakeholders.
 
-### ✨ Admin Responsibilities
+###  Admin Responsibilities
 
 - **User Management**: Oversee customers, producers, and agents
 - **Platform Operations**: Monitor system health and performance
@@ -18,7 +18,7 @@ As a platform administrator, you have comprehensive control over the Nyambika ec
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Admin Access
 
@@ -394,7 +394,7 @@ Access comprehensive platform metrics at `/admin-dashboard`:
 
 ---
 
-## 🎯 Best Practices
+##  Best Practices
 
 ### Administrative Excellence
 

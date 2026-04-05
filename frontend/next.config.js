@@ -71,6 +71,7 @@ const nextConfig = withPWA({
       { protocol: "https", hostname: "example.com" }, // placeholder/test data
       { protocol: "https", hostname: "**.amazonaws.com" }, // S3 / try-on results
       { protocol: "https", hostname: "**.neon.tech" },
+      { protocol: "https", hostname: "**" }, // catch-all for any HTTPS image host
     ],
     formats: ["image/webp", "image/avif"],
     // Explicit qualities used in the app (required in Next.js 16+)

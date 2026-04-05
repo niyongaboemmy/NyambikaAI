@@ -6,6 +6,7 @@ import ServiceWorkerCleanup from "@/components/service-worker-cleanup";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import "@/utils/pwa-debug"; // Load PWA debug utility
+import NextTopLoader from "nextjs-toploader";
 
 // Theme script to be injected into the document head
 const themeScript = `
@@ -154,6 +155,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden">
+        <NextTopLoader color="#6366f1" showSpinner={false} height={3} shadow="0 0 10px #6366f1,0 0 5px #6366f1" zIndex={1600} />
         <Providers>
           {children}
           <LoadingIndicatorStyles />

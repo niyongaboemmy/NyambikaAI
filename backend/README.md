@@ -1,8 +1,8 @@
-# Nyambika Backend 🚀
+# Nyambika Backend 
 
 Node.js + Express API server with authentication, database management, and AI service integration.
 
-## 🚀 Features
+##  Features
 
 - **RESTful API**: Express.js with TypeScript
 - **Authentication**: Passport.js with Google OAuth
@@ -195,7 +195,7 @@ DELETE /api/favorites/:id  # Remove from favorites
 - **Authentication**: Passport.js strategies
 - **Environment Variables**: Sensitive data protection
 
-## 🚀 Deployment
+##  Deployment
 
 ### Production Checklist
 

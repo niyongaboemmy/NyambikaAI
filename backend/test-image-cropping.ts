@@ -37,15 +37,15 @@ async function testImageCropping() {
         console.log("✅ Compression test passed");
         console.log(`   Original size: ${result.metadata?.originalSize} bytes`);
         console.log(
-          `   Processed size: ${result.metadata?.processedSize} bytes`
+          `   Processed size: ${result.metadata?.processedSize} bytes`,
         );
         console.log(
           `   Compression ratio: ${result.metadata?.compressionRatio?.toFixed(
-            2
-          )}`
+            2,
+          )}`,
         );
         console.log(
-          `   Dimensions: ${result.metadata?.dimensions.width}x${result.metadata?.dimensions.height}`
+          `   Dimensions: ${result.metadata?.dimensions.width}x${result.metadata?.dimensions.height}`,
         );
       } else {
         console.log("❌ Compression test failed:", result.error);
@@ -63,7 +63,7 @@ async function testImageCropping() {
   }
 
   // Test 2: Subject detection (requires OpenAI API key)
-  console.log("\n🎯 Test 2: Subject Detection");
+  console.log("\n Test 2: Subject Detection");
   try {
     const testImagePath = path.join(process.cwd(), "test-sample.jpg");
 
@@ -75,14 +75,14 @@ async function testImageCropping() {
       if (cropOptions) {
         console.log("✅ Subject detection successful");
         console.log(
-          `   Crop coordinates: left=${cropOptions.left}, top=${cropOptions.top}`
+          `   Crop coordinates: left=${cropOptions.left}, top=${cropOptions.top}`,
         );
         console.log(
-          `   Crop dimensions: ${cropOptions.width}x${cropOptions.height}`
+          `   Crop dimensions: ${cropOptions.width}x${cropOptions.height}`,
         );
       } else {
         console.log(
-          "⚠️  Subject detection returned no results (may be due to API limits or image content)"
+          "⚠️  Subject detection returned no results (may be due to API limits or image content)",
         );
       }
     } else {
@@ -100,7 +100,7 @@ async function testImageCropping() {
     if (fs.existsSync(testImagePath)) {
       const outputPath = path.join(
         process.cwd(),
-        "test-output-direct-crop.jpg"
+        "test-output-direct-crop.jpg",
       );
 
       // Test cropping with fixed coordinates (center crop)
@@ -119,7 +119,7 @@ async function testImageCropping() {
         console.log("✅ Direct crop test passed");
         console.log(`   Output saved to: ${outputPath}`);
         console.log(
-          `   Cropped dimensions: ${result.metadata?.dimensions.width}x${result.metadata?.dimensions.height}`
+          `   Cropped dimensions: ${result.metadata?.dimensions.width}x${result.metadata?.dimensions.height}`,
         );
       } else {
         console.log("❌ Direct crop test failed:", result.error);
@@ -154,7 +154,7 @@ async function testImageCropping() {
         console.log("✅ Full cropping pipeline test passed");
         console.log(`   Output saved to: ${outputPath}`);
         console.log(
-          `   Final dimensions: ${result.metadata?.dimensions.width}x${result.metadata?.dimensions.height}`
+          `   Final dimensions: ${result.metadata?.dimensions.width}x${result.metadata?.dimensions.height}`,
         );
       } else {
         console.log("❌ Full cropping pipeline test failed:", result.error);
@@ -180,11 +180,11 @@ async function testImageCropping() {
 
     if (!result.success) {
       console.log(
-        "✅ Error handling test passed (correctly handled invalid input)"
+        "✅ Error handling test passed (correctly handled invalid input)",
       );
     } else {
       console.log(
-        "❌ Error handling test failed (should have failed with invalid input)"
+        "❌ Error handling test failed (should have failed with invalid input)",
       );
     }
   } catch (error) {
@@ -204,10 +204,10 @@ async function testImageCropping() {
 
   console.log("\n🎉 Image cropping tests completed!");
   console.log(
-    "\n📝 Note: For full AI cropping functionality, ensure OPENAI_API_KEY is set in your environment."
+    "\n📝 Note: For full AI cropping functionality, ensure OPENAI_API_KEY is set in your environment.",
   );
   console.log(
-    "💡 The system will gracefully fall back to compression-only if AI features are unavailable."
+    "💡 The system will gracefully fall back to compression-only if AI features are unavailable.",
   );
 }
 

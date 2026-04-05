@@ -62,7 +62,7 @@ const isSafari = () => {
 - **Does NOT show**: Browser warning
 - **User sees**: Platform-appropriate instructions
 
-## 🎯 Result
+##  Result
 
 - ✅ No redundant warnings for iOS Safari users
 - ✅ Helpful warning for iOS non-Safari users

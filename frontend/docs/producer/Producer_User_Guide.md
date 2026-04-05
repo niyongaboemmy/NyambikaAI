@@ -8,7 +8,7 @@ _Your complete guide to selling fashion on Rwanda's premier AI-powered platform_
 
 Transform your fashion business with Nyambika's cutting-edge platform. Reach thousands of customers, showcase your products with AI try-on technology, and grow your brand in Rwanda's digital marketplace.
 
-### ✨ Why Choose Nyambika
+###  Why Choose Nyambika
 
 - **AI-Powered Sales**: Customers can try on your products virtually
 - **Zero Sales Commission**: Keep 100% of your revenue
@@ -18,7 +18,7 @@ Transform your fashion business with Nyambika's cutting-edge platform. Reach tho
 
 ---
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Becoming a Producer
 
@@ -466,7 +466,7 @@ All plans include:
 
 ---
 
-## 🎯 Success Tips
+##  Success Tips
 
 ### Maximizing Sales
 
@@ -553,4 +553,4 @@ All plans include:
 _Last updated: January 2025_  
 _Version: 2.0_
 
-**Success starts here! 🚀💼**
+**Success starts here! 💼**

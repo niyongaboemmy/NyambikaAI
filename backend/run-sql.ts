@@ -1,5 +1,4 @@
 import { Pool } from "pg";
-import { createPool } from "mysql2/promise";
 import * as fs from "fs";
 import * as path from "path";
 import "dotenv/config";
@@ -11,20 +10,7 @@ async function runSQL() {
     process.exit(1);
   }
 
-  const DIALECT = (process.env.DB_DIALECT || "postgres").toLowerCase();
-  let pool: any;
-
-  if (DIALECT === "mysql") {
-    pool = createPool(connectionString);
-  } else {
-    pool = new Pool({
-      connectionString,
-      ssl:
-        process.env.NODE_ENV === "production"
-          ? { rejectUnauthorized: false }
-          : false,
-    });
-  }
+  const pool = new Pool({ connectionString });
 
   try {
     const migrationsDir = path.join(process.cwd(), "migrations");
@@ -61,11 +47,7 @@ async function runSQL() {
     console.error("Error running migrations:", error);
     process.exit(1);
   } finally {
-    if (DIALECT === "mysql") {
-      await pool.end();
-    } else {
-      await pool.end();
-    }
+    await pool.end();
   }
 }
 

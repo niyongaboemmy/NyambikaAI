@@ -1,0 +1,23 @@
+Serving static files from: /Users/m2pro/dev/projects/AI PROJECTS/NyambikaAI/backend/public/uploads
+[migrations] No migrations directory found — skipping.
+node:events:486
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: listen EADDRINUSE: address already in use :::3003
+    at Server.setupListenHandle [as _listen2] (node:net:2016:16)
+    at listenInCluster (node:net:2073:12)
+    at Server.listen (node:net:2178:7)
+    at <anonymous> (/Users/m2pro/dev/projects/AI PROJECTS/NyambikaAI/backend/index.ts:155:10)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+Emitted 'error' event on Server instance at:
+    at emitErrorNT (node:net:2052:8)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21) {
+  code: 'EADDRINUSE',
+  errno: -48,
+  syscall: 'listen',
+  address: '::',
+  port: 3003
+}
+
+Node.js v25.6.1

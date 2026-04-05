@@ -14,7 +14,7 @@ import {
 import { randomUUID } from 'crypto';
 import { seedSubscriptionPlans } from './subscription-plans';
 import bcrypt from 'bcryptjs';
-import { eq, and, sql } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 
 async function seedCategories() {
   // Check if categories already exist
@@ -275,8 +275,8 @@ async function seedProductsForProducers() {
   if (catRows.length === 0 || producerRows.length === 0) return;
 
   const samples = [
-    { name: 'Classic Shirt', price: '25000', imageUrl: 'https://images.unsplash.com/photo-1520975922391-922f8cfe9f39?auto=format&fit=crop&w=800&h=600' },
-    { name: 'Elegant Dress', price: '45000', imageUrl: 'https://images.unsplash.com/photo-1520975916090-3105956f2279?auto=format&fit=crop&w=800&h=600' },
+    { name: 'Classic Shirt', price: '25000', imageUrl: 'https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&h=600' },
+    { name: 'Elegant Dress', price: '45000', imageUrl: 'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?auto=format&fit=crop&w=800&h=600' },
     { name: 'Casual Pants', price: '30000', imageUrl: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&h=600' },
   ];
 
@@ -300,7 +300,7 @@ async function seedProductsForProducers() {
           isApproved: true,
           stockQuantity: 20,
           createdAt: new Date(),
-        }).onDuplicateKeyUpdate({ set: { name: sql`VALUES(name)` } });
+        }).onConflictDoNothing();
       }
     }
   }

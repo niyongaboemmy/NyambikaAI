@@ -233,7 +233,7 @@ export default function ClientProductsSearchPage() {
     queryFn: async ({ pageParam = 1 }) => {
       const params = new URLSearchParams({
         page: pageParam.toString(),
-        limit: "20",
+        limit: "30",
         ...(debouncedSearchQuery && { search: debouncedSearchQuery }),
         ...(selectedCategoryId !== "all" && { category: selectedCategoryId }),
         ...(sortBy && { sort: sortBy }),
@@ -314,12 +314,30 @@ export default function ClientProductsSearchPage() {
     return sortedProducts;
   }, [productsPages]);
 
-  // Check if we actually have more pages available
-  const actualHasNextPage = useMemo(() => {
-    if (!productsPages?.pages?.length) return false;
-    const lastPage = productsPages.pages[productsPages.pages.length - 1];
-    return lastPage?.hasNextPage === true && lastPage?.products?.length > 0;
-  }, [productsPages]);
+  
+  // Intersection Observer for infinite scroll
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1, rootMargin: "200px" }
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => {
+      if (observerTarget.current) {
+        observer.unobserve(observerTarget.current);
+      }
+    };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Auto-scroll to selected category position on initial page load
   useEffect(() => {
@@ -695,56 +713,28 @@ export default function ClientProductsSearchPage() {
                 ))}
               </div>
 
-              {/* Load More Button */}
-              {(hasNextPage || actualHasNextPage) && (
-                <div className="flex justify-center pt-6 pb-4">
-                  <Button
-                    onClick={() => fetchNextPage()}
-                    disabled={isFetchingNextPage}
-                    className="touch-feedback gap-2 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transform transition-all duration-300 hover:scale-105 text-sm sm:text-base"
-                  >
-                    {isFetchingNextPage ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        <span className="hidden sm:inline">
-                          {t("search.loadingMore")}
-                        </span>
-                        <span className="sm:hidden">{t("search.loading")}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span className="hidden sm:inline">
-                          {t("search.loadMoreProducts")}
-                        </span>
-                        <span className="sm:hidden">
-                          {t("search.loadMore")}
-                        </span>
-                        <div className="w-2 h-2 bg-white/30 rounded-full animate-pulse" />
-                      </>
-                    )}
-                  </Button>
-                </div>
-              )}
-
-              {/* Loading More Indicator */}
-              {isFetchingNextPage && (
-                <div className="flex justify-center items-center py-4 text-sm text-gray-500 dark:text-gray-400">
-                  <div className="flex items-center gap-2">
-                    <div
-                      className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                      style={{ animationDelay: "0ms" }}
-                    />
-                    <div
-                      className="w-1 h-1 bg-purple-500 rounded-full animate-bounce"
-                      style={{ animationDelay: "150ms" }}
-                    />
-                    <div
-                      className="w-1 h-1 bg-blue-500 rounded-full animate-bounce"
-                      style={{ animationDelay: "300ms" }}
-                    />
+              {/* Scroll Trigger / Modern Loading Indicator */}
+              <div ref={observerTarget} className="py-10 flex flex-col items-center justify-center gap-4">
+                {isFetchingNextPage ? (
+                  <div className="flex flex-col items-center gap-3 animate-pulse">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                    </div>
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider uppercase">
+                      {t("search.loadingMore")}
+                    </span>
                   </div>
-                </div>
-              )}
+                ) : !hasNextPage && products.length > 0 ? (
+                  <div className="flex flex-col items-center gap-2 py-4">
+                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium italic">
+                      {t("search.reachedEnd") || "You've reached the end"} ✨
+                    </p>
+                  </div>
+                ) : null}
+              </div>
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">

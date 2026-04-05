@@ -14,7 +14,7 @@ Nyambika/
 └── README.md          # This file
 ```
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -188,7 +188,7 @@ CLOTHFLOW_API_URL=your_clothflow_api_url
 CLOTHFLOW_API_KEY=your_api_key
 ```
 
-## 🚀 Deployment
+##  Deployment
 
 ### Production Build
 

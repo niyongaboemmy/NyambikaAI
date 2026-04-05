@@ -182,7 +182,7 @@ node scripts/validate-pwa.js
 
 ---
 
-## 🚀 Next Steps
+##  Next Steps
 
 ### 1. Build and Test Locally
 ```bash

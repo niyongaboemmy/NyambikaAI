@@ -1,0 +1,77 @@
+[1m🧪 Nyambika API Test Suite[0m
+   Base: http://localhost:3003
+
+
+[1m[34m══ 1 · Health ══[0m
+  [32m✓[0m GET /health  → 200
+  [32m✓[0m GET /  → 200
+
+[1m[34m══ 2 · Auth ══[0m
+  [32m✓[0m POST /api/auth/register  → 201
+  [32m✓[0m POST /api/auth/login  → 200
+  [32m✓[0m Token extracted  → eyJhbGciOiJIUzI1NiIsInR5cCI6Ik…
+  [32m✓[0m GET /api/auth/me (authed)  → 200
+  [32m✓[0m GET /api/auth/me (unauthed)  → 401
+
+[1m[34m══ 3 · Catalogue ══[0m
+  [32m✓[0m GET /api/categories  → 200
+  [32m✓[0m GET /api/products  → 200
+  [32m✓[0m GET /api/products?limit=3  → 200
+  [32m✓[0m GET /api/products/bad-id  → 404
+  [32m✓[0m GET /api/producers  → 200
+  [32m✓[0m GET /api/companies  → 200
+  [32m✓[0m GET /api/search?q=shirt  → 200
+  [32m✓[0m GET /api/subscription-plans  → 200
+  [32m✓[0m GET /api/terms  → 200
+
+[1m[34m══ 4 · Try-On Sessions (public) ══[0m
+  [32m✓[0m GET /api/try-on/sessions  → 200
+  [32m✓[0m GET /api/try-on-sessions (alias)  → 200
+  [32m✓[0m GET /api/try-on/sessions/:id  → 200
+  [32m✓[0m GET /api/try-on/:id (alias)  → 200
+  [32m✓[0m GET /:id/comments  → 200
+  [32m✓[0m POST /:id/view  → 200
+
+[1m[34m══ 5 · Try-On Sessions (authed writes) ══[0m
+  [32m✓[0m POST /api/try-on/sessions (create)  → 201
+  [32m✓[0m Session ID extracted  → ad6dda90-8073-4db2-9fe5-36ecca614b9c
+  [32m✓[0m PUT /api/try-on/sessions/:id  → 200
+  [32m✓[0m POST /:id/like  → 200
+  [32m✓[0m DELETE /:id/like  → 200
+  [32m✓[0m POST /:id/save  → 200
+  [32m✓[0m DELETE /:id/save  → 200
+  [32m✓[0m POST /:id/comments  → 201
+  [32m✓[0m GET /:id/comments  → 200
+  [32m✓[0m DELETE /:id/comments/:cid  → 200
+  [32m✓[0m DELETE /api/try-on/sessions/:id (hide)  → 200
+
+[1m[34m══ 6 · Cart ══[0m
+  [32m✓[0m GET /api/cart  → 200
+  [32m✓[0m POST /api/cart  → 201
+  [32m✓[0m PUT /api/cart/:id  → 200
+  [32m✓[0m DELETE /api/cart/:id  → 204
+
+[1m[34m══ 7 · Favorites ══[0m
+  [32m✓[0m GET /api/favorites  → 200
+
+[1m[34m══ 8 · Orders ══[0m
+  [32m✓[0m GET /api/orders  → 200
+
+[1m[34m══ 9 · Newsletter ══[0m
+  [32m✓[0m POST /api/newsletter/subscribe  → 200
+
+[1m[34m══ 10 · Wallet ══[0m
+  [32m✓[0m GET /api/wallet  → 200
+  [32m✓[0m GET /api/wallet/payments  → 200
+
+[1m[34m══ 11 · Profile ══[0m
+  [32m✓[0m PUT /api/auth/profile  → 200
+
+[1m[34m══ 12 · Negative cases ══[0m
+  [32m✓[0m Wrong password login (expect 401)  → 401
+  [32m✓[0m Unauthed session create (expect 401)  → 401
+
+[1m══════════════════════════════════════════════════[0m
+  Total: 45  |  [32mPASS: 45[0m  |  [31mFAIL: 0[0m  |  [33mSKIP: 0[0m
+[1m══════════════════════════════════════════════════[0m
+

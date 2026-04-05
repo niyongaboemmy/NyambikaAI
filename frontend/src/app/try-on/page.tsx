@@ -59,7 +59,7 @@ export default function TryOn() {
   const [categorySearch, setCategorySearch] = useState("");
   const [companySearch, setCompanySearch] = useState("");
   const [currentStep, setCurrentStep] = useState<"categories" | "products">(
-    "categories"
+    "categories",
   );
   const [showCompanyFilter, setShowCompanyFilter] = useState(false);
   const [displayLimit, setDisplayLimit] = useState(20); // For handling many companies
@@ -77,7 +77,7 @@ export default function TryOn() {
   useEffect(() => {
     const timer = setTimeout(
       () => setDebouncedCategorySearch(categorySearch),
-      300
+      300,
     );
     return () => clearTimeout(timer);
   }, [categorySearch]);
@@ -85,7 +85,7 @@ export default function TryOn() {
   useEffect(() => {
     const timer = setTimeout(
       () => setDebouncedCompanySearch(companySearch),
-      300
+      300,
     );
     return () => clearTimeout(timer);
   }, [companySearch]);
@@ -100,15 +100,20 @@ export default function TryOn() {
     queryFn: async () => {
       try {
         const response = await apiClient.get(API_ENDPOINTS.PRODUCTS, {
-          params: { limit: 1000 },
+          params: { limit: 50 },
         });
-        return response.data;
+        // Handle standardized paginated response { success, data: { products, totalCount } }
+        // The interceptor unwraps 'data', so response.data is { products, totalCount }
+        if (response.data && typeof response.data === 'object' && 'products' in response.data) {
+           return response.data.products;
+        }
+        return response.data || [];
       } catch (error) {
         throw new Error(handleApiError(error));
       }
     },
   });
-  const products = allProducts || [];
+  const products = (allProducts as Product[]) || [];
 
   // Auto-select category and move to products
   const handleCategorySelect = useCallback((categoryIdValue: string) => {
@@ -157,14 +162,14 @@ export default function TryOn() {
   const filteredCategories = useMemo(() => {
     if (!categorySearch) return categories;
     return categories.filter((category: Category) =>
-      category.name.toLowerCase().includes(categorySearch.toLowerCase())
+      category.name.toLowerCase().includes(categorySearch.toLowerCase()),
     );
   }, [categories, categorySearch]);
 
   const filteredCompanies = useMemo(() => {
     if (!companySearch) return companies || [];
     return (companies || []).filter((company: Company) =>
-      company.name.toLowerCase().includes(companySearch.toLowerCase())
+      company.name.toLowerCase().includes(companySearch.toLowerCase()),
     );
   }, [companies, companySearch]);
 
@@ -232,10 +237,10 @@ export default function TryOn() {
             {/* Compact Hero Header for Categories */}
             <div className="text-center mb-4 sm:mb-6">
               <div className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
-                ✨ AI Try-On
+                AI Try-On
               </div>
               <div className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-md mx-auto px-4">
-                🚀 Smart fashion discovery powered by AI
+                Smart fashion discovery powered by AI
               </div>
             </div>
 
@@ -313,7 +318,7 @@ export default function TryOn() {
               setSelectedProductId(null);
               // Find and select the product to show its try-on
               const product = products.find(
-                (p: Product) => String(p.id) === productId
+                (p: Product) => String(p.id) === productId,
               );
               if (product) {
                 setSelectedProductId({
@@ -343,7 +348,7 @@ export default function TryOn() {
                   className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2"
                   whileHover={{ scale: 1.02 }}
                 >
-                  ✨ AI Try-On
+                  AI Try-On
                 </motion.h1>
                 <motion.p
                   className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-md mx-auto px-4"
@@ -351,7 +356,7 @@ export default function TryOn() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.1 }}
                 >
-                  🚀 Smart fashion discovery powered by AI
+                  Smart fashion discovery powered by AI
                 </motion.p>
               </motion.div>
             ) : (
@@ -501,7 +506,7 @@ export default function TryOn() {
 
                         {/* Category-specific subtitle */}
                         {allCategories?.find(
-                          (c: Category) => String(c.id) === categoryId
+                          (c: Category) => String(c.id) === categoryId,
                         ) && (
                           <motion.p
                             className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-1 font-medium px-2 sm:px-0"
@@ -514,7 +519,7 @@ export default function TryOn() {
                             </span>
                             {
                               allCategories.find(
-                                (c: Category) => String(c.id) === categoryId
+                                (c: Category) => String(c.id) === categoryId,
                               )?.name
                             }{" "}
                             <span className="hidden sm:inline">Specialist</span>
@@ -526,7 +531,7 @@ export default function TryOn() {
 
                     {/* Enhanced Category Chip with AI Processing Indicator */}
                     {allCategories?.find(
-                      (c: Category) => String(c.id) === categoryId
+                      (c: Category) => String(c.id) === categoryId,
                     ) && (
                       <motion.div
                         className="group relative bg-gradient-to-r from-blue-50/80 to-purple-50/80 hover:from-blue-100/90 hover:to-purple-100/90 dark:from-indigo-900/40 dark:to-purple-900/40 dark:hover:from-indigo-800/50 dark:hover:to-purple-800/50 px-2 sm:px-4 py-2 rounded-xl border border-blue-200/50 hover:border-blue-400/70 dark:border-indigo-400/30 dark:hover:border-indigo-400/50 shadow-lg hover:shadow-xl shadow-blue-500/10 hover:shadow-blue-500/20 dark:shadow-indigo-500/10 dark:hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
@@ -543,13 +548,13 @@ export default function TryOn() {
                           <div className="relative">
                             <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 shadow-lg border-2 border-blue-200/50 group-hover:border-blue-400/70 dark:border-indigo-400/30 dark:group-hover:border-indigo-400/50 transition-colors">
                               {allCategories.find(
-                                (c: Category) => String(c.id) === categoryId
+                                (c: Category) => String(c.id) === categoryId,
                               )?.imageUrl ? (
                                 <img
                                   src={
                                     allCategories.find(
                                       (c: Category) =>
-                                        String(c.id) === categoryId
+                                        String(c.id) === categoryId,
                                     )?.imageUrl!
                                   }
                                   alt="Category"
@@ -587,7 +592,7 @@ export default function TryOn() {
                             <h2 className="font-semibold text-sm bg-gradient-to-r from-blue-700 to-purple-700 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                               {
                                 allCategories.find(
-                                  (c: Category) => String(c.id) === categoryId
+                                  (c: Category) => String(c.id) === categoryId,
                                 )?.name
                               }
                             </h2>
@@ -778,7 +783,7 @@ export default function TryOn() {
                               <div className="mt-1 flex justify-center">
                                 <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-purple-100/50 group-hover:from-blue-200/70 group-hover:to-purple-200/70 rounded-full transition-all duration-300">
                                   <span className="text-xs font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                    AI Ready ✨
+                                    AI Ready
                                   </span>
                                 </div>
                               </div>
@@ -858,7 +863,7 @@ export default function TryOn() {
                           {selectedCompanyId
                             ? displayCompanies.find(
                                 (c: Company) =>
-                                  String(c.id) === selectedCompanyId
+                                  String(c.id) === selectedCompanyId,
                               )?.name || "Selected"
                             : `${displayCompanies.length} available`}
                         </span>
@@ -1036,7 +1041,7 @@ export default function TryOn() {
                                       key={company.id}
                                       onClick={() => {
                                         setSelectedCompanyId(
-                                          String(company.id)
+                                          String(company.id),
                                         );
                                         setShowCompanyFilter(false);
                                       }}
@@ -1108,7 +1113,7 @@ export default function TryOn() {
                                         </motion.div>
                                       )}
                                     </motion.button>
-                                  )
+                                  ),
                                 )
                               )}
                             </div>
@@ -1127,7 +1132,7 @@ export default function TryOn() {
                                     Load{" "}
                                     {Math.min(
                                       20,
-                                      filteredCompanies.length - displayLimit
+                                      filteredCompanies.length - displayLimit,
                                     )}{" "}
                                     more brands
                                   </span>

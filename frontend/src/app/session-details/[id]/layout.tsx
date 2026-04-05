@@ -14,8 +14,7 @@ interface SessionData {
 
 async function getSessionData(sessionId: string): Promise<SessionData | null> {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003";
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "";
     const response = await fetch(
       `${baseUrl}/api/try-on-sessions/${sessionId}`,
       {
@@ -71,13 +70,13 @@ export async function generateMetadata({
   if (session.tryOnImageUrl) {
     imageUrl = session.tryOnImageUrl.startsWith("http")
       ? session.tryOnImageUrl
-      : `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003"}${
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${
           session.tryOnImageUrl
         }`;
   } else if (session.customerImageUrl) {
     imageUrl = session.customerImageUrl.startsWith("http")
       ? session.customerImageUrl
-      : `${process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3003"}${
+      : `${process.env.NEXT_PUBLIC_API_BASE_URL || ""}${
           session.customerImageUrl
         }`;
   } else {
@@ -103,8 +102,7 @@ export async function generateMetadata({
                 url: session.customerImageUrl.startsWith("http")
                   ? session.customerImageUrl
                   : `${
-                      process.env.NEXT_PUBLIC_API_BASE_URL ||
-                      "http://localhost:3003"
+                      process.env.NEXT_PUBLIC_API_BASE_URL || ""
                     }${session.customerImageUrl}`,
                 alt: `${session.productName} before try-on`,
               },

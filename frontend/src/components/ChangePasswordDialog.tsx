@@ -1,7 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/custom-ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/custom-ui/dialog";
 import { Button } from "@/components/custom-ui/button";
 import { FormInput } from "@/components/custom-ui/form-input";
 import { Lock, Eye, EyeOff, X } from "lucide-react";
@@ -14,7 +19,10 @@ interface ChangePasswordDialogProps {
   onClose: () => void;
 }
 
-export function ChangePasswordDialog({ isOpen, onClose }: ChangePasswordDialogProps) {
+export function ChangePasswordDialog({
+  isOpen,
+  onClose,
+}: ChangePasswordDialogProps) {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -24,13 +32,16 @@ export function ChangePasswordDialog({ isOpen, onClose }: ChangePasswordDialogPr
   const { toast } = useToast();
 
   const changePasswordMutation = useMutation({
-    mutationFn: async (data: { currentPassword: string; newPassword: string }) => {
+    mutationFn: async (data: {
+      currentPassword: string;
+      newPassword: string;
+    }) => {
       const response = await apiClient.put("/api/auth/change-password", data);
       return response.data;
     },
     onSuccess: () => {
       toast({
-        title: "Password Changed! 🔐",
+        title: "Password Changed! ",
         description: "Your password has been updated successfully.",
       });
       handleClose();
@@ -47,7 +58,7 @@ export function ChangePasswordDialog({ isOpen, onClose }: ChangePasswordDialogPr
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentPassword || !newPassword || !confirmPassword) {
       toast({
         title: "Missing Information",

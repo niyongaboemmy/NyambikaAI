@@ -24,6 +24,8 @@ declare global {
   }
 }
 
+import { sendError } from "../utils/response";
+
 export const authMiddleware = async (
   req: Request,
   res: Response,
@@ -33,12 +35,12 @@ export const authMiddleware = async (
     // Get token from Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'No token provided' });
+      return sendError(res, 401, 'No token provided');
     }
 
     const token = authHeader.split(' ')[1];
     if (!token) {
-      return res.status(401).json({ error: 'No token provided' });
+      return sendError(res, 401, 'No token provided');
     }
 
     // Verify token
@@ -53,7 +55,7 @@ export const authMiddleware = async (
     });
 
     if (!user) {
-      return res.status(401).json({ error: 'User not found' });
+      return sendError(res, 401, 'User not found');
     }
 
     // Add user to request object
@@ -66,12 +68,12 @@ export const authMiddleware = async (
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({ error: 'Token expired' });
+      return sendError(res, 401, 'Your session has expired. Please log in again.');
     }
     if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({ error: 'Invalid token' });
+      return sendError(res, 401, 'Invalid authentication token');
     }
     console.error('Auth middleware error:', error);
-    return res.status(500).json({ error: 'Authentication failed' });
+    return sendError(res, 500, 'Authentication failed');
   }
 };

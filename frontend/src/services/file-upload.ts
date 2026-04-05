@@ -2,8 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { apiClient, API_ENDPOINTS } from "../config/api";
 import type { AxiosProgressEvent } from "axios";
 
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:3003/api";
+import { API_BASE_URL } from "@/config/api";
 
 interface UploadResponse {
   success: boolean;
@@ -14,7 +13,6 @@ interface UploadResponse {
   fileName?: string;
   fileSize?: number;
   fileType?: string;
-  error?: string;
 }
 
 interface UploadOptions {
@@ -149,7 +147,7 @@ export const uploadMultipleFiles = async (
       .then((response) => response)
       .catch((error) => ({
         success: false,
-        error: error.message || "Upload failed",
+        message: error.message || "Upload failed",
         originalName: file.name,
         fileSize: file.size,
         fileType: file.type,

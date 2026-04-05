@@ -1,6 +1,6 @@
 # Quick Start: Add Install Button to Your Navigation
 
-## 🚀 3-Minute Setup
+##  3-Minute Setup
 
 Follow these steps to add the Install App button to your navigation:
 

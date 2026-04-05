@@ -1,6 +1,6 @@
 # My Outfit Room - Quick Start Guide
 
-## 🚀 Quick Setup (5 Minutes)
+##  Quick Setup (5 Minutes)
 
 ### Step 1: Run Database Migration
 ```bash
@@ -32,7 +32,7 @@ Open browser: `http://localhost:3000/outfit-room`
 3. ✅ `frontend/src/components/RoleBasedNavigation.tsx` - Added nav link
 4. ✅ `frontend/src/contexts/LanguageContext.tsx` - Added translations (EN/RW/FR)
 
-## 🎯 Key Features at a Glance
+##  Key Features at a Glance
 
 | Feature | Description | Status |
 |---------|-------------|--------|
@@ -143,7 +143,7 @@ A: Verify backend API is running on port 3003
 - ✅ Bottom sheet modals
 - ✅ Full-screen image view
 
-## 🎯 Next Steps (Optional Enhancements)
+##  Next Steps (Optional Enhancements)
 
 1. **Add Create Collection Modal**
    - Form for name, description, occasion, season
@@ -172,7 +172,7 @@ A: Verify backend API is running on port 3003
 - Image lazy loading implemented
 - Optimized re-renders with useMemo
 
-## 🔐 Security Implemented
+##  Security Implemented
 
 - ✅ Route authentication required
 - ✅ Ownership verification on all operations

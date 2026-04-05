@@ -31,6 +31,7 @@ export interface User {
 interface AuthContextType {
   user: UserInterface | null;
   isLoading: boolean;
+  isActionLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (
     email: string,
@@ -67,6 +68,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<UserInterface | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isActionLoading, setIsActionLoading] = useState(false);
   const { toast } = useSafeToast();
   const didCheckRef = useRef(false);
   const { show } = useLoginPrompt();
@@ -196,7 +198,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = async (email: string, password: string) => {
     try {
-      setIsLoading(true);
+      setIsActionLoading(true);
       const response = await apiClient.post("/api/auth/login", {
         email,
         password,
@@ -244,7 +246,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }, 0);
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsActionLoading(false);
     }
   };
 
@@ -257,7 +259,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     ref?: string | null
   ) => {
     try {
-      setIsLoading(true);
+      setIsActionLoading(true);
       const payload: any = { name, email, password, role };
       if (phone) payload.phone = phone;
       if (ref) payload.ref = ref;
@@ -296,13 +298,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }, 0);
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsActionLoading(false);
     }
   };
 
   const requestPasswordReset = async (email: string) => {
     try {
-      setIsLoading(true);
+      setIsActionLoading(true);
       const response = await apiClient.post("/api/auth/forgot-password", {
         email,
       });
@@ -325,7 +327,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }, 0);
       throw error;
     } finally {
-      setIsLoading(false);
+      setIsActionLoading(false);
     }
   };
 
@@ -354,6 +356,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     user,
     isLoading,
+    isActionLoading,
     login,
     register,
     logout,

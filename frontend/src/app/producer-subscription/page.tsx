@@ -23,6 +23,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import apiClient from "@/lib/api-client";
 import { useToast } from "@/hooks/use-toast";
 import { useProducerSubscriptionStatus } from "@/hooks/useProducerSubscriptionStatus";
+import { handleApiError } from "@/config/api";
 import PaymentDialog, {
   type PaymentMethodKind,
 } from "@/components/PaymentDialog";
@@ -59,7 +60,7 @@ export default function ProducerSubscriptionPage() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
-    "monthly"
+    "monthly",
   );
   // Removed external payment method selector; PaymentDialog handles it
   const [isProcessing, setIsProcessing] = useState(false);
@@ -126,13 +127,13 @@ export default function ProducerSubscriptionPage() {
             features: Array.isArray(p.features)
               ? p.features
               : typeof p.features === "string" && p.features.length
-              ? (JSON.parse(p.features) as string[])
-              : [],
+                ? (JSON.parse(p.features) as string[])
+                : [],
             featuresRw: Array.isArray(p.featuresRw)
               ? p.featuresRw
               : typeof p.featuresRw === "string" && p.featuresRw.length
-              ? (JSON.parse(p.featuresRw) as string[])
-              : [],
+                ? (JSON.parse(p.featuresRw) as string[])
+                : [],
           }))
         : [];
       setPlans(normalized);
@@ -195,7 +196,7 @@ export default function ProducerSubscriptionPage() {
             {
               paymentMethod: "wallet",
               paymentReference: pay.reference,
-            }
+            },
           );
           toast({
             title: "Subscription Renewed",
@@ -213,12 +214,12 @@ export default function ProducerSubscriptionPage() {
               try {
                 await apiClient.put(
                   `/api/subscriptions/${subStatus.subscriptionId}`,
-                  { status: "cancelled" }
+                  { status: "cancelled" },
                 );
               } catch (e) {
                 console.warn(
                   "Could not cancel previous subscription before creating a new one",
-                  e
+                  e,
                 );
               }
             }
@@ -255,13 +256,10 @@ export default function ProducerSubscriptionPage() {
       }
     } catch (error: any) {
       console.error("Error completing subscription after payment:", error);
+      const description = handleApiError(error);
       toast({
         title: renewMode ? "Renewal Failed" : "Subscription Failed",
-        description:
-          error.response?.data?.message ||
-          (renewMode
-            ? "Failed to renew subscription"
-            : "Failed to create subscription"),
+        description,
         variant: "destructive",
       });
     } finally {
@@ -280,7 +278,7 @@ export default function ProducerSubscriptionPage() {
   const daysLeft = subStatus?.expiresAt
     ? Math.ceil(
         (new Date(subStatus.expiresAt).getTime() - Date.now()) /
-          (1000 * 60 * 60 * 24)
+          (1000 * 60 * 60 * 24),
       )
     : undefined;
 
@@ -568,16 +566,16 @@ export default function ProducerSubscriptionPage() {
                         <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                           {subStatus.hasActiveSubscription ? (
                             <>
-                              🚀 Active{" "}
+                              Active{" "}
                               {subStatus.expiresAt && `until ${expiresLabel}`}
                             </>
                           ) : subStatus.status === "expired" ? (
                             <>
-                              ⏰ Expired{" "}
+                              Expired{" "}
                               {subStatus.expiresAt && `on ${expiresLabel}`}
                             </>
                           ) : (
-                            <>🎯 Ready to start?</>
+                            <>Ready to start?</>
                           )}
                         </div>
                       </div>
@@ -634,8 +632,8 @@ export default function ProducerSubscriptionPage() {
                       {subStatus.hasActiveSubscription
                         ? "🟢 Active"
                         : subStatus.status === "expired"
-                        ? "🔴 Expired"
-                        : "⚪ Inactive"}
+                          ? "🔴 Expired"
+                          : "⚪ Inactive"}
                     </Badge>
 
                     <div className="flex flex-col md:flex-row gap-2">
@@ -801,8 +799,8 @@ export default function ProducerSubscriptionPage() {
                           selectedPlan === plan.id
                             ? "border-blue-400/50 bg-blue-50/80 dark:bg-blue-900/20"
                             : isPopular
-                            ? "border-violet-200/50 bg-white/80 dark:bg-gray-800/80"
-                            : "border-white/20 bg-white/60 dark:bg-gray-800/60"
+                              ? "border-violet-200/50 bg-white/80 dark:bg-gray-800/80"
+                              : "border-white/20 bg-white/60 dark:bg-gray-800/60"
                         }`}
                       >
                         {/* Animated Background Pattern */}

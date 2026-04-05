@@ -218,7 +218,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       const retcode = data?.gateway?.body?.retcode ?? data?.opay?.body?.retcode;
       if (status === "completed") {
         toast({
-          title: "✨ Top-up successful",
+          title: " Top-up successful",
           description: `RWF ${amount} has been added to your wallet!`,
         });
         setActivePayment({ refId: null, status: "idle", amount: 0 });
@@ -360,7 +360,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             resetStates();
 
             toast({
-              title: "✨ Top-up successful",
+              title: " Top-up successful",
               description: `RWF ${successAmount.toLocaleString()} has been added to your wallet!`,
             });
 
@@ -424,7 +424,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
     const amt = Number(amount);
     if (!amt || amt <= 0) {
       toast({
-        title: "🎯 Invalid amount",
+        title: " Invalid amount",
         description: "Enter a positive amount to add some magic!",
         variant: "destructive",
       });
@@ -773,9 +773,9 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                 activePayment.status === "completed"
                   ? "bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50"
                   : activePayment.status === "failed" ||
-                    activePayment.status === "error"
-                  ? "bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50"
-                  : "bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50"
+                      activePayment.status === "error"
+                    ? "bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50"
+                    : "bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50"
               }`}
             >
               <div className="flex items-start gap-3">
