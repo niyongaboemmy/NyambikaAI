@@ -1,45 +1,10 @@
 const path = require("path");
+const withSerwist = require("@serwist/next").default;
 
-const withPWA = require("next-pwa")({
-  dest: "public",
-  disable: false, // Re-enable PWA for proper service worker generation
-  register: true,
-  skipWaiting: true,
-  runtimeCaching: [
-    {
-      urlPattern: /^https:\/\/images\.unsplash\.com\/.*/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "unsplash-images",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-        },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/images\.pexels\.com\/.*/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "pexels-images",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-        },
-      },
-    },
-    {
-      urlPattern: /^https:\/\/res\.cloudinary\.com\/.*/i,
-      handler: "CacheFirst",
-      options: {
-        cacheName: "cloudinary-images",
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-        },
-      },
-    },
-  ],
+const withPWA = withSerwist({
+  swSrc: "src/sw.ts",
+  swDest: "public/sw.js",
+  disable: process.env.NODE_ENV === "development",
 });
 
 /** @type {import('next').NextConfig} */
@@ -74,9 +39,7 @@ const nextConfig = withPWA({
       { protocol: "https", hostname: "**" }, // catch-all for any HTTPS image host
     ],
     formats: ["image/webp", "image/avif"],
-    // Explicit qualities used in the app (required in Next.js 16+)
     qualities: [60, 70, 75],
-    // Generate only the sizes we actually use across the app
     deviceSizes: [320, 420, 640, 768, 1024, 1280],
     imageSizes: [32, 48, 64, 96, 120, 160, 240, 320],
     minimumCacheTTL: 60 * 60 * 24, // 24 hours

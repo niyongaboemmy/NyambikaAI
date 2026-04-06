@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "@/components/providers";
 import { LoadingIndicatorStyles } from "@/components/loading-indicator-styles";
-import ServiceWorkerCleanup from "@/components/service-worker-cleanup";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import { InstallPrompt } from "@/components/InstallPrompt";
 import "@/utils/pwa-debug"; // Load PWA debug utility
@@ -159,7 +158,6 @@ export default function RootLayout({
         <Providers>
           {children}
           <LoadingIndicatorStyles />
-          <ServiceWorkerCleanup />
           <InstallPrompt />
           {GA_MEASUREMENT_ID && (
             <GoogleAnalytics GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />
