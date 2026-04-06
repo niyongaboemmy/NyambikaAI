@@ -31,22 +31,22 @@ const SocialMediaBanner: React.FC<SocialMediaBannerProps> = ({
   };
 
   const benefits = [
-    { icon: Store, text: "Your Own Store", color: "text-purple-300" },
+    { icon: Store, text: "Your Own Store", color: "text-blue-300" },
     { icon: BarChart3, text: "Analytics Dashboard", color: "text-blue-300" },
-    { icon: Bell, text: "Real-time Notifications", color: "text-green-300" },
-    { icon: DollarSign, text: "No Sales Commission", color: "text-yellow-300" },
+    { icon: Bell, text: "Real-time Notifications", color: "text-blue-300" },
+    { icon: DollarSign, text: "No Sales Commission", color: "text-blue-300" },
   ];
 
   return (
     <div
-      className={`${dimensions[variant]} ${className} relative overflow-hidden bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 flex flex-col justify-between p-12`}
+      className={`${dimensions[variant]} ${className} relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-900 to-blue-900 flex flex-col justify-between p-12`}
     >
       {/* Background Effects */}
       <div className="absolute inset-0">
         {/* Animated Orbs */}
-        <div className="absolute top-20 left-20 w-48 h-48 bg-gradient-to-r from-purple-400/30 to-blue-400/30 rounded-full blur-3xl"></div>
+        <div className="absolute top-20 left-20 w-48 h-48 bg-gradient-to-r from-blue-400/30 to-blue-400/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-20 w-56 h-56 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-r from-green-400/25 to-emerald-400/25 rounded-full blur-2xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-gradient-to-r from-blue-400/25 to-blue-400/25 rounded-full blur-2xl"></div>
 
         {/* Neural Network Pattern */}
         <div className="absolute inset-0 opacity-10">
@@ -93,7 +93,7 @@ const SocialMediaBanner: React.FC<SocialMediaBannerProps> = ({
       <div className="relative z-10 text-center">
         <div className="flex items-center justify-center mb-8">
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-xl opacity-75"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full blur-xl opacity-75"></div>
             <div className="relative bg-white/10 backdrop-blur-md p-6 rounded-full border-2 border-white/30">
               <Store className="h-12 w-12 text-white" />
             </div>
@@ -101,7 +101,7 @@ const SocialMediaBanner: React.FC<SocialMediaBannerProps> = ({
         </div>
 
         <h1 className="text-6xl font-bold mb-4">
-          <span className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-white via-blue-200 to-blue-200 bg-clip-text text-transparent">
             Nyambika
           </span>
         </h1>
@@ -124,7 +124,7 @@ const SocialMediaBanner: React.FC<SocialMediaBannerProps> = ({
               key={index}
               className="flex items-center gap-6 bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20"
             >
-              <div className="p-4 rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 shadow-lg">
+              <div className="p-4 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 shadow-lg">
                 <benefit.icon className="h-8 w-8 text-white" />
               </div>
               <span className={`text-2xl font-semibold ${benefit.color}`}>
@@ -136,13 +136,13 @@ const SocialMediaBanner: React.FC<SocialMediaBannerProps> = ({
 
         {/* Pricing and CTA */}
         <div className="text-center">
-          <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-md rounded-3xl p-8 mb-8 border border-green-400/30 inline-block">
+          <div className="bg-gradient-to-r from-blue-500/20 to-blue-500/20 backdrop-blur-md rounded-3xl p-8 mb-8 border border-blue-400/30 inline-block">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Sparkles className="h-8 w-8 text-green-400" />
-              <span className="text-3xl font-bold text-green-400">
+              <Sparkles className="h-8 w-8 text-blue-400" />
+              <span className="text-3xl font-bold text-blue-400">
                 Starting from 50,000 RWF/month
               </span>
-              <Sparkles className="h-8 w-8 text-green-400" />
+              <Sparkles className="h-8 w-8 text-blue-400" />
             </div>
             <p className="text-xl text-white/90">
               Keep 100% of your sales revenue • No commission fees
@@ -170,7 +170,7 @@ const SocialMediaBanner: React.FC<SocialMediaBannerProps> = ({
 
       {/* Footer */}
       <div className="relative z-10 text-center">
-        <div className="bg-gradient-to-r from-purple-500 to-blue-500 text-white font-bold py-4 px-12 rounded-2xl shadow-2xl inline-flex items-center gap-4 text-2xl">
+        <div className="bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold py-4 px-12 rounded-2xl shadow-2xl inline-flex items-center gap-4 text-2xl">
           <Store className="h-8 w-8" />
           <span>Start Selling Today</span>
           <ArrowRight className="h-8 w-8" />

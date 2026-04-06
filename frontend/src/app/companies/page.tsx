@@ -126,9 +126,9 @@ export default function Companies() {
         <div className="relative overflow-hidden">
           {/* AI-Motivated Animated Background */}
           <div className="fixed inset-0 pointer-events-none">
-            <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-blue-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" />
             <div
-              className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-bounce"
+              className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-blue-400/20 rounded-full blur-3xl animate-bounce"
               style={{ animationDuration: "3s" }}
             />
           </div>
@@ -226,7 +226,7 @@ export default function Companies() {
             }}
           />
           <motion.div
-            className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-purple-400/12 via-blue-400/8 to-rose-400/12 rounded-full blur-xl"
+            className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-blue-400/12 via-blue-400/8 to-blue-400/12 rounded-full blur-xl"
             animate={{
               y: [0, 15, 0],
               x: [0, -15, 0],
@@ -240,7 +240,7 @@ export default function Companies() {
             }}
           />
           <motion.div
-            className="absolute bottom-32 left-1/4 w-20 h-20 bg-gradient-to-r from-emerald-400/10 via-green-400/8 to-lime-400/10 rounded-full blur-xl"
+            className="absolute bottom-32 left-1/4 w-20 h-20 bg-gradient-to-r from-blue-400/10 via-blue-400/8 to-lime-400/10 rounded-full blur-xl"
             animate={{
               y: [0, -25, 0],
               scale: [1, 1.2, 1],
@@ -253,7 +253,7 @@ export default function Companies() {
             }}
           />
           <motion.div
-            className="absolute bottom-20 right-1/3 w-28 h-28 bg-gradient-to-r from-indigo-400/12 via-blue-400/8 to-cyan-400/12 rounded-full blur-2xl"
+            className="absolute bottom-20 right-1/3 w-28 h-28 bg-gradient-to-r from-blue-400/12 via-blue-400/8 to-cyan-400/12 rounded-full blur-2xl"
             animate={{
               y: [0, 20, 0],
               x: [0, 20, 0],
@@ -275,7 +275,7 @@ export default function Companies() {
                 i % 3 === 0
                   ? "bg-blue-400/20"
                   : i % 3 === 1
-                    ? "bg-purple-400/20"
+                    ? "bg-blue-400/20"
                     : "bg-blue-400/20"
               } blur-sm`}
               style={{
@@ -319,7 +319,7 @@ export default function Companies() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
           >
-            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-1">
+            <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-1">
               {t("companies.title")}
             </h1>
 
@@ -347,8 +347,8 @@ export default function Companies() {
               </div>
 
               <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-full">
-                <Star className="w-2.5 h-2.5 text-green-600 fill-current" />
-                <span className="font-medium text-green-700 dark:text-green-300">
+                <Star className="w-2.5 h-2.5 text-blue-600 fill-current" />
+                <span className="font-medium text-blue-700 dark:text-blue-300">
                   {
                     filtered.filter(
                       (c: CompanyWithMetrics) => c.metrics.isTopPerformer,
@@ -358,8 +358,8 @@ export default function Companies() {
               </div>
 
               <div className="flex items-center gap-1 px-2 py-1 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm rounded-full">
-                <TrendingUp className="w-2.5 h-2.5 text-purple-600" />
-                <span className="font-medium text-purple-700 dark:text-purple-300">
+                <TrendingUp className="w-2.5 h-2.5 text-blue-600" />
+                <span className="font-medium text-blue-700 dark:text-blue-300">
                   {
                     filtered.filter(
                       (c: CompanyWithMetrics) => c.metrics.isTrending,
@@ -419,7 +419,7 @@ export default function Companies() {
                 )}
 
                 {/* Focus Glow Effect */}
-                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none -z-10" />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-blue-500/5 to-blue-500/5 opacity-0 group-focus-within:opacity-100 transition-opacity duration-300 pointer-events-none -z-10" />
               </div>
             </div>
 
@@ -443,7 +443,7 @@ export default function Companies() {
                   onClick={() => setSortBy(key as any)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
                     sortBy === key
-                      ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white shadow-sm"
+                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm"
                       : "text-gray-600 dark:text-gray-300 hover:bg-white/60 dark:hover:bg-gray-700/60"
                   }`}
                 >
@@ -479,7 +479,7 @@ export default function Companies() {
                 onClick={() => router.push(`/store/${company.id}`)}
               >
                 {/* Subtle Glow Effect */}
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/3 via-purple-500/3 to-blue-500/3 rounded-2xl opacity-0 transition-opacity duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/3 via-blue-500/3 to-blue-500/3 rounded-2xl opacity-0 transition-opacity duration-300" />
 
                 {/* Trending Badge */}
                 {company.metrics.isTrending && (
@@ -493,7 +493,7 @@ export default function Companies() {
                 {/* Compact Logo */}
                 <div className="flex justify-center mb-3">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 via-purple-100 to-blue-100 dark:from-blue-900/50 dark:via-purple-900/50 dark:to-blue-900/50 flex items-center justify-center overflow-hidden border border-white/50 dark:border-gray-700/50 group-hover:scale-105 transition-transform duration-200">
+                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-100 via-blue-100 to-blue-100 dark:from-blue-900/50 dark:via-blue-900/50 dark:to-blue-900/50 flex items-center justify-center overflow-hidden border border-white/50 dark:border-gray-700/50 group-hover:scale-105 transition-transform duration-200">
                       {company.logoUrl ? (
                         <img
                           src={company.logoUrl}
@@ -501,7 +501,7 @@ export default function Companies() {
                           className="min-w-full min-h-full object-cover"
                         />
                       ) : (
-                        <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <div className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                           {company.name.charAt(0)}
                         </div>
                       )}
@@ -536,10 +536,10 @@ export default function Companies() {
                             }`}
                             className={`transition-all duration-500 ${
                               company.metrics.performanceScore >= 90
-                                ? "text-green-500"
+                                ? "text-blue-500"
                                 : company.metrics.performanceScore >= 75
                                   ? "text-blue-500"
-                                  : "text-yellow-500"
+                                  : "text-blue-500"
                             }`}
                           />
                         </svg>
@@ -566,8 +566,8 @@ export default function Companies() {
                   {/* Compact Metrics */}
                   <div className="flex justify-center items-center gap-2 text-xs pb-2">
                     <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 text-yellow-500 fill-current" />
-                      <span className="font-medium text-yellow-700 dark:text-yellow-300">
+                      <Star className="w-3 h-3 text-blue-500 fill-current" />
+                      <span className="font-medium text-blue-700 dark:text-blue-300">
                         {company.metrics.rating}
                       </span>
                     </div>
@@ -580,7 +580,7 @@ export default function Companies() {
                   </div>
 
                   {/* Compact Button */}
-                  <button className="w-full py-2 px-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-xs font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
+                  <button className="w-full py-2 px-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs font-medium rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
                     {t("companies.viewStore")}
                   </button>
                 </div>

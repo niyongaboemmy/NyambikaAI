@@ -29,12 +29,12 @@ type OrderStatus =
   | "confirmed";
 
 const statusColors: Record<OrderStatus, string> = {
-  pending: "bg-yellow-100 text-yellow-800",
+  pending: "bg-blue-100 text-blue-800",
   processing: "bg-blue-100 text-blue-800",
-  handled: "bg-purple-100 text-purple-800",
-  shipped: "bg-indigo-100 text-indigo-800",
-  delivered: "bg-green-100 text-green-800",
-  confirmed: "bg-emerald-100 text-emerald-800",
+  handled: "bg-blue-100 text-blue-800",
+  shipped: "bg-blue-100 text-blue-800",
+  delivered: "bg-blue-100 text-blue-800",
+  confirmed: "bg-blue-100 text-blue-800",
   cancelled: "bg-red-100 text-red-800",
 };
 
@@ -440,15 +440,15 @@ export default function ProducerOrderDetailsPage() {
             )}
 
             {(order.status === "delivered" || order.status === "confirmed") && (
-              <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
-                <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-center">
+                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
                   {order.status === "confirmed"
                     ? t("producer.details.confirmedByCustomer")
                     : t("producer.details.orderDelivered")}
                 </p>
                 {order.isConfirmedByCustomer &&
                   order.customerConfirmationDate && (
-                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                       {t("producer.details.confirmedOn")} {" "}
                       {format(new Date(order.customerConfirmationDate), "PPP")}
                     </p>

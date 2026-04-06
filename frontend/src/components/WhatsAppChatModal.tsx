@@ -54,7 +54,7 @@ export default function WhatsAppChatModal({
     if (!online) return null;
     if (online.isOnline) {
       return (
-        <Badge className="bg-emerald-500 text-white border-0 flex items-center gap-1">
+        <Badge className="bg-blue-500 text-white border-0 flex items-center gap-1">
           <span className="w-2 h-2 rounded-full bg-white animate-pulse" />{" "}
           Online now
         </Badge>
@@ -82,10 +82,10 @@ export default function WhatsAppChatModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60">
+      <DialogContent className="sm:max-w-lg bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/60 dark:border-gray-700/60 rounded-3xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white">
               <MessageCircle className="w-4 h-4" />
             </span>
             Chat with {producer?.name || "Producer"}
@@ -115,11 +115,11 @@ export default function WhatsAppChatModal({
             onChange={(e) => setMessage(e.target.value)}
             rows={4}
             placeholder="Type your message"
-            className="w-full rounded-xl"
+            className="w-full rounded-2xl"
           />
 
           {!producer?.phone && (
-            <div className="text-xs text-amber-600 dark:text-amber-400">
+            <div className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1.5 p-2 bg-blue-50/50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800/30">
               Producer phone number is not available. You can call the store or
               try later.
             </div>
@@ -132,7 +132,7 @@ export default function WhatsAppChatModal({
             <Button
               onClick={handleSend}
               disabled={!canSend}
-              className="bg-green-600 hover:bg-green-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Phone className="w-4 h-4 mr-1" /> Send on WhatsApp
             </Button>

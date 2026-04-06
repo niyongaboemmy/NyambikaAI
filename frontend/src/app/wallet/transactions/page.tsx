@@ -32,7 +32,7 @@ const StatusPill = ({ status }: { status: WalletPayment["status"] }) => {
   if (status === "completed")
     return (
       <span
-        className={`${base} bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300`}
+        className={`${base} bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300`}
       >
         <CheckCircle className="h-3 w-3" /> Completed
       </span>
@@ -98,7 +98,7 @@ export default function TransactionsPage() {
     p.type === "debit" ? (
       <ArrowDownLeft className="h-4 w-4 text-red-600 dark:text-red-400" />
     ) : (
-      <ArrowUpRight className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+      <ArrowUpRight className="h-4 w-4 text-blue-600 dark:text-blue-400" />
     );
 
   return (
@@ -243,7 +243,7 @@ export default function TransactionsPage() {
                   <div
                     className={`p-2 rounded-lg ${
                       p.type === "topup"
-                        ? "bg-emerald-100 dark:bg-emerald-900/30"
+                        ? "bg-blue-100 dark:bg-blue-900/30"
                         : "bg-red-100 dark:bg-red-900/30"
                     }`}
                   >
@@ -277,7 +277,7 @@ export default function TransactionsPage() {
                     className={`text-sm font-bold ${
                       p.type === "debit"
                         ? "text-red-600 dark:text-red-400"
-                        : "text-emerald-600 dark:text-emerald-400"
+                        : "text-blue-600 dark:text-blue-400"
                     }`}
                   >
                     {p.type === "debit" ? "-" : "+"} RWF{" "}

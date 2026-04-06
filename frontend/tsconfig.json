@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "preserve",
     "strict": true,
     "noEmit": true,
@@ -16,31 +12,18 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
+      "@/*": ["./src/*"],
       // ✅ Separate shadcn/ui components
-      "@ui/*": [
-        "src/components/custom-ui/*"
-      ],
+      "@ui/*": ["src/components/custom-ui/*"],
       // ✅ Create a separate alias for YOUR custom components
-      "@custom-ui/*": [
-        "./src/components/custom-ui/*"
-      ],
-      "@/components/*": [
-        "./src/components/*"
-      ],
-      "@/lib/*": [
-        "./src/lib/*"
-      ],
-      "@/contexts/*": [
-        "./src/contexts/*"
-      ],
-      "@/types/*": [
-        "./src/types/*"
-      ]
+      "@custom-ui/*": ["./src/components/custom-ui/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/contexts/*": ["./src/contexts/*"],
+      "@/types/*": ["./src/types/*"]
     },
     "plugins": [
       {
@@ -49,14 +32,6 @@
     ],
     "allowJs": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "next-env.d.ts",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules",
-    ".next"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "next-env.d.ts", ".next/types/**/*.ts"],
+  "exclude": ["node_modules", ".next"]
 }

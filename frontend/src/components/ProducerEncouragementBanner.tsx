@@ -32,7 +32,7 @@ const ProducerEncouragementBanner: React.FC<
       icon: Store,
       title: "Your Own Store",
       description: "Get a dedicated store page to showcase your products",
-      color: "from-purple-500 to-blue-500",
+      color: "from-blue-500 to-blue-700",
     },
     {
       icon: BarChart3,
@@ -44,26 +44,26 @@ const ProducerEncouragementBanner: React.FC<
       icon: Bell,
       title: "Real-time Notifications",
       description: "Get instant alerts for new orders and updates",
-      color: "from-green-500 to-emerald-500",
+      color: "from-blue-500 to-blue-700",
     },
     {
       icon: ShoppingBag,
       title: "Order Management",
       description:
         "Manage orders, update status, and communicate with customers",
-      color: "from-orange-500 to-red-500",
+      color: "from-cyan-500 to-red-500",
     },
     {
       icon: Users,
       title: "Customer Reach",
       description: "Access thousands of customers looking for your products",
-      color: "from-indigo-500 to-purple-500",
+      color: "from-blue-500 to-blue-700",
     },
     {
       icon: DollarSign,
       title: "No Sales Commission",
       description: "Keep 100% of your sales revenue - only pay subscription",
-      color: "from-yellow-500 to-orange-500",
+      color: "from-blue-500 to-cyan-500",
     },
   ];
 
@@ -76,18 +76,18 @@ const ProducerEncouragementBanner: React.FC<
 
   return (
     <div
-      className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-8 md:p-12 ${className}`}
+      className={`relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-900 via-blue-900 to-blue-900 p-8 md:p-12 ${className}`}
     >
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Floating Orbs */}
-        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-purple-400/30 to-blue-400/30 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-400/30 to-blue-400/30 rounded-full blur-xl animate-pulse"></div>
         <div
           className="absolute bottom-10 right-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-2xl animate-pulse"
           style={{ animationDelay: "1s" }}
         ></div>
         <div
-          className="absolute top-1/2 left-1/3 w-24 h-24 bg-gradient-to-r from-green-400/25 to-emerald-400/25 rounded-full blur-lg animate-pulse"
+          className="absolute top-1/2 left-1/3 w-24 h-24 bg-gradient-to-r from-blue-400/25 to-blue-400/25 rounded-full blur-lg animate-pulse"
           style={{ animationDelay: "2s" }}
         ></div>
 
@@ -110,7 +110,7 @@ const ProducerEncouragementBanner: React.FC<
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-lg opacity-75 animate-pulse"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full blur-lg opacity-75 animate-pulse"></div>
               <div className="relative bg-white/10 backdrop-blur-md p-4 rounded-full border border-white/20">
                 <Store className="h-8 w-8 text-white" />
               </div>
@@ -118,7 +118,7 @@ const ProducerEncouragementBanner: React.FC<
           </div>
 
           <div className="text-2xl md:text-3xl font-bold">
-            <span className="bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-white via-blue-200 to-blue-200 bg-clip-text text-transparent">
               Join Nyambika
             </span>
           </div>
@@ -155,7 +155,7 @@ const ProducerEncouragementBanner: React.FC<
                   <benefit.icon className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="font-semibold text-white mb-2 group-hover:text-purple-200 transition-colors">
+                  <h3 className="font-semibold text-white mb-2 group-hover:text-blue-200 transition-colors">
                     {benefit.title}
                   </h3>
                   <p className="text-white/80 text-sm leading-relaxed">
@@ -168,18 +168,18 @@ const ProducerEncouragementBanner: React.FC<
         </div>
 
         {/* Pricing Highlight */}
-        <div className="bg-gradient-to-r from-green-500/20 to-emerald-500/20 backdrop-blur-md rounded-2xl p-6 mb-8 border border-green-400/30">
+        <div className="bg-gradient-to-r from-blue-500/20 to-blue-500/20 backdrop-blur-md rounded-2xl p-6 mb-8 border border-blue-400/30">
           <div className="text-center">
             <div className="flex items-center justify-center gap-2 mb-3">
-              <Sparkles className="h-5 w-5 text-green-400" />
-              <span className="text-green-400 font-semibold">
+              <Sparkles className="h-5 w-5 text-blue-400" />
+              <span className="text-blue-400 font-semibold">
                 Flexible Pricing
               </span>
-              <Sparkles className="h-5 w-5 text-green-400" />
+              <Sparkles className="h-5 w-5 text-blue-400" />
             </div>
             <p className="text-white/90 mb-2">
               Starting from{" "}
-              <span className="text-2xl font-bold text-green-400">
+              <span className="text-2xl font-bold text-blue-400">
                 15,000 RWF
               </span>{" "}
               per month
@@ -196,7 +196,7 @@ const ProducerEncouragementBanner: React.FC<
           <div className="text-center">
             <button
               onClick={() => router.push("/register")}
-              className="group bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white font-semibold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3 mx-auto"
+              className="group bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white font-semibold py-4 px-8 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-3 mx-auto"
             >
               <Store className="h-5 w-5" />
               Start Selling Today

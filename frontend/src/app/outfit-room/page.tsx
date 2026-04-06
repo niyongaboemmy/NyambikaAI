@@ -237,14 +237,14 @@ export default function OutfitRoom() {
   const colors: ColorOption[] = [
     { id: "black", name: "Black", hex: "#000000" },
     { id: "white", name: "White", hex: "#FFFFFF" },
-    { id: "red", name: "Red", hex: "#FF0000" },
+    { id: "red", name: "Bright Blue", hex: "#3b82f6" },
     { id: "blue", name: "Blue", hex: "#0000FF" },
-    { id: "green", name: "Green", hex: "#00FF00" },
-    { id: "yellow", name: "Yellow", hex: "#FFFF00" },
-    { id: "purple", name: "Purple", hex: "#800080" },
-    { id: "pink", name: "Pink", hex: "#FFC0CB" },
-    { id: "orange", name: "Orange", hex: "#FFA500" },
-    { id: "brown", name: "Brown", hex: "#A52A2A" },
+    { id: "green", name: "Teal Blue", hex: "#14b8a6" },
+    { id: "yellow", name: "Light Blue", hex: "#93c5fd" },
+    { id: "blue", name: "Royal Blue", hex: "#4169E1" },
+    { id: "blue", name: "Sky Blue", hex: "#87CEEB" },
+    { id: "orange", name: "Cyan Blue", hex: "#06b6d4" },
+    { id: "brown", name: "Brown", hex: "#1e3a8a" },
     { id: "gray", name: "Gray", hex: "#808080" },
     { id: "beige", name: "Beige", hex: "#F5F5DC" },
   ];
@@ -332,7 +332,7 @@ export default function OutfitRoom() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <Sparkles className="h-12 w-12 text-purple-500 mx-auto mb-4" />
+          <Sparkles className="h-12 w-12 text-blue-500 mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">
             Sign in to access your Outfit Room
           </h2>
@@ -342,7 +342,7 @@ export default function OutfitRoom() {
           </p>
           <button
             onClick={() => router.push("/login")}
-            className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-xl hover:shadow-lg transition-all"
           >
             Sign In
           </button>
@@ -360,18 +360,18 @@ export default function OutfitRoom() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <div className="relative bg-gradient-to-r from-purple-600/10 via-blue-600/10 to-blue-600/10 dark:from-purple-600/20 dark:via-blue-600/20 dark:to-blue-600/20 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-purple-200/30 dark:border-purple-500/30 overflow-hidden">
+          <div className="relative bg-gradient-to-r from-blue-600/10 via-blue-600/10 to-blue-600/10 dark:from-blue-600/20 dark:via-blue-600/20 dark:to-blue-600/20 backdrop-blur-xl rounded-3xl p-6 md:p-8 border border-blue-200/30 dark:border-blue-500/30 overflow-hidden">
             {/* Animated background orbs */}
-            <div className="absolute top-0 left-0 w-64 h-64 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute top-0 left-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse" />
             <div className="absolute bottom-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-75" />
 
             <div className="relative z-10">
               <div className="flex items-center gap-3 mb-2">
                 <div className="relative">
-                  <Sparkles className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                  <div className="absolute inset-0 bg-purple-500/30 rounded-full blur animate-ping" />
+                  <Sparkles className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                  <div className="absolute inset-0 bg-blue-500/30 rounded-full blur animate-ping" />
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-blue-600 dark:from-purple-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent">
+                <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent">
                   My Outfit Room
                 </h1>
               </div>
@@ -383,10 +383,10 @@ export default function OutfitRoom() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-6">
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-4 border border-purple-200/30"
+                  className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-4 border border-blue-200/30"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <Grid3x3 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                    <Grid3x3 className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <span className="text-xs text-gray-600 dark:text-gray-400">
                       Try-Ons
                     </span>
@@ -428,10 +428,10 @@ export default function OutfitRoom() {
 
                 <motion.div
                   whileHover={{ scale: 1.05 }}
-                  className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-4 border border-green-200/30"
+                  className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-4 border border-blue-200/30"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <TrendingUp className="h-4 w-4 text-green-600 dark:text-green-400" />
+                    <TrendingUp className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     <span className="text-xs text-gray-600 dark:text-gray-400">
                       Style Score
                     </span>
@@ -481,7 +481,7 @@ export default function OutfitRoom() {
               onClick={() => setViewMode(mode)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all whitespace-nowrap ${
                 viewMode === mode
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg"
+                  ? "bg-gradient-to-r from-blue-600 to-blue-400 text-white shadow-lg"
                   : "bg-white/50 dark:bg-black/30 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
               }`}
             >
@@ -511,14 +511,14 @@ export default function OutfitRoom() {
                 </div>
               ) : completedTryOns.length === 0 ? (
                 <div className="text-center py-12">
-                  <Sparkles className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+                  <Sparkles className="h-16 w-16 text-blue-400 mx-auto mb-4" />
                   <h3 className="text-xl font-bold mb-2">No try-ons yet</h3>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Start trying on products to build your wardrobe
                   </p>
                   <button
                     onClick={() => router.push("/try-on")}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-xl hover:shadow-lg transition-all"
                   >
                     Start Try-On
                   </button>
@@ -545,7 +545,7 @@ export default function OutfitRoom() {
                               )}
                               {session.rating && (
                                 <div className="flex items-center gap-1">
-                                  <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />
+                                  <Star className="h-4 w-4 text-blue-500 fill-yellow-500" />
                                   <span className="text-white text-sm">
                                     {session.rating}
                                   </span>
@@ -577,7 +577,7 @@ export default function OutfitRoom() {
                   onClick={() => {
                     /* TODO: Open create collection modal */
                   }}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-xl hover:shadow-lg transition-all"
                 >
                   <Plus className="h-5 w-5" />
                   <span>Create Collection</span>
@@ -586,7 +586,7 @@ export default function OutfitRoom() {
 
               {collections.length === 0 ? (
                 <div className="text-center py-12">
-                  <ShoppingBag className="h-16 w-16 text-purple-400 mx-auto mb-4" />
+                  <ShoppingBag className="h-16 w-16 text-blue-400 mx-auto mb-4" />
                   <h3 className="text-xl font-bold mb-2">No collections yet</h3>
                   <p className="text-gray-600 dark:text-gray-400">
                     Create collections to organize your favorite outfits
@@ -600,7 +600,7 @@ export default function OutfitRoom() {
                       whileHover={{ scale: 1.03, y: -5 }}
                       className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-700"
                     >
-                      <div className="aspect-[16/9] bg-gradient-to-br from-purple-400 to-blue-400 relative">
+                      <div className="aspect-[16/9] bg-gradient-to-br from-blue-400 to-blue-600 relative">
                         {collection.coverImageUrl && (
                           <img
                             src={collection.coverImageUrl}
@@ -665,7 +665,7 @@ export default function OutfitRoom() {
                   {/* Category Breakdown */}
                   <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-200 dark:border-gray-700">
                     <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
-                      <Palette className="h-5 w-5 text-purple-600" />
+                      <Palette className="h-5 w-5 text-blue-600" />
                       Category Preferences
                     </h3>
                     <div className="space-y-3">
@@ -685,7 +685,7 @@ export default function OutfitRoom() {
                               </div>
                               <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-gradient-to-r from-purple-600 to-blue-600"
+                                  className="h-full bg-gradient-to-r from-blue-600 to-blue-400"
                                   style={{
                                     width: `${
                                       (count / analytics.totalTryOns) * 100
@@ -719,7 +719,7 @@ export default function OutfitRoom() {
                                 className="flex-1 flex flex-col items-center gap-2"
                               >
                                 <div
-                                  className="w-full bg-gradient-to-t from-purple-600 to-blue-600 rounded-t-lg"
+                                  className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t-lg"
                                   style={{
                                     height: `${(count / maxCount) * 100}%`,
                                     minHeight: count > 0 ? "10%" : "0%",
@@ -746,9 +746,9 @@ export default function OutfitRoom() {
               exit={{ opacity: 0, y: -20 }}
               className="space-y-8"
             >
-              <div className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-purple-200/30">
+              <div className="bg-white/50 dark:bg-black/30 backdrop-blur-sm rounded-2xl p-6 border border-blue-200/30">
                 <div className="flex items-center gap-3 mb-6">
-                  <Sliders className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                  <Sliders className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   <h3 className="text-xl font-bold">Style Preferences</h3>
                 </div>
 
@@ -766,7 +766,7 @@ export default function OutfitRoom() {
                     {/* Favorite Categories */}
                     <div>
                       <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Tag className="h-5 w-5 text-purple-600" />
+                        <Tag className="h-5 w-5 text-blue-600" />
                         Favorite Categories
                       </h4>
                       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -792,8 +792,8 @@ export default function OutfitRoom() {
                               }}
                               className={`p-4 rounded-xl border-2 transition-all ${
                                 isSelected
-                                  ? "border-purple-500 bg-purple-50 dark:bg-purple-900/20"
-                                  : "border-gray-200 dark:border-gray-700 hover:border-purple-300"
+                                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
                               }`}
                             >
                               <div className="text-center">
@@ -804,7 +804,7 @@ export default function OutfitRoom() {
                                   {category.name}
                                 </div>
                                 {isSelected && (
-                                  <Check className="h-4 w-4 text-purple-600 mx-auto mt-1" />
+                                  <Check className="h-4 w-4 text-blue-600 mx-auto mt-1" />
                                 )}
                               </div>
                             </motion.button>
@@ -911,7 +911,7 @@ export default function OutfitRoom() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                          <User className="h-5 w-5 text-green-600" />
+                          <User className="h-5 w-5 text-blue-600" />
                           Body Type
                         </h4>
                         <div className="space-y-3">
@@ -930,15 +930,15 @@ export default function OutfitRoom() {
                                 }
                                 className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                                   isSelected
-                                    ? "border-green-500 bg-green-50 dark:bg-green-900/20"
-                                    : "border-gray-200 dark:border-gray-700 hover:border-green-300"
+                                    ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <div
                                     className={`w-3 h-3 rounded-full ${
                                       isSelected
-                                        ? "bg-green-500"
+                                        ? "bg-blue-500"
                                         : "bg-gray-300"
                                     }`}
                                   />
@@ -959,7 +959,7 @@ export default function OutfitRoom() {
 
                       <div>
                         <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                          <Ruler className="h-5 w-5 text-orange-600" />
+                          <Ruler className="h-5 w-5 text-cyan-600" />
                           Skin Tone
                         </h4>
                         <div className="space-y-3">
@@ -978,15 +978,15 @@ export default function OutfitRoom() {
                                 }
                                 className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                                   isSelected
-                                    ? "border-orange-500 bg-orange-50 dark:bg-orange-900/20"
-                                    : "border-gray-200 dark:border-gray-700 hover:border-orange-300"
+                                    ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-cyan-300"
                                 }`}
                               >
                                 <div className="flex items-center gap-3">
                                   <div
                                     className={`w-3 h-3 rounded-full ${
                                       isSelected
-                                        ? "bg-orange-500"
+                                        ? "bg-cyan-500"
                                         : "bg-gray-300"
                                     }`}
                                   />
@@ -1009,7 +1009,7 @@ export default function OutfitRoom() {
                     {/* Occasions */}
                     <div>
                       <h4 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                        <Calendar className="h-5 w-5 text-indigo-600" />
+                        <Calendar className="h-5 w-5 text-blue-600" />
                         Shopping Occasions
                       </h4>
                       <div className="flex flex-wrap gap-2">
@@ -1043,8 +1043,8 @@ export default function OutfitRoom() {
                               }}
                               className={`px-4 py-2 rounded-full border-2 transition-all ${
                                 isSelected
-                                  ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-300"
-                                  : "border-gray-200 dark:border-gray-700 hover:border-indigo-300"
+                                  ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                                  : "border-gray-200 dark:border-gray-700 hover:border-blue-300"
                               }`}
                             >
                               {occasion}
@@ -1070,7 +1070,7 @@ export default function OutfitRoom() {
                           });
                         }}
                         disabled={updateProfileMutation.isPending}
-                        className="px-8 py-3 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
+                        className="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-400 text-white rounded-xl hover:shadow-lg transition-all disabled:opacity-50 flex items-center gap-2"
                       >
                         <Save className="h-5 w-5" />
                         {updateProfileMutation.isPending

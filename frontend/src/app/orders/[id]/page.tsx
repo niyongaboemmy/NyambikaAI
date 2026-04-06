@@ -90,7 +90,7 @@ interface OrderDetails {
 const statusConfig = {
   pending: {
     color:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: Clock,
     label: "Pending",
     description: "Your order is being reviewed",
@@ -103,28 +103,28 @@ const statusConfig = {
   },
   processing: {
     color:
-      "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400",
+      "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
     icon: Package,
     label: "Processing",
     description: "Your order is being prepared",
   },
   handled: {
     color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: CheckCircle,
     label: "Handled",
     description: "Your order has been handled by the producer",
   },
   shipped: {
     color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: Truck,
     label: "Shipped",
     description: "Your order is on its way",
   },
   delivered: {
     color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: CheckCircle,
     label: "Delivered",
     description: "Your order has been delivered",
@@ -334,7 +334,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
             style={{ animationDelay: "0s" }}
           />
           <div
-            className="absolute top-20 right-20 w-2 h-2 bg-purple-400/40 rounded-full animate-pulse"
+            className="absolute top-20 right-20 w-2 h-2 bg-blue-400/40 rounded-full animate-pulse"
             style={{ animationDelay: "1s" }}
           />
           <div
@@ -346,7 +346,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
             style={{ animationDelay: "3s" }}
           />
           <div
-            className="absolute bottom-20 right-32 w-2 h-2 bg-indigo-400/40 rounded-full animate-pulse"
+            className="absolute bottom-20 right-32 w-2 h-2 bg-blue-400/40 rounded-full animate-pulse"
             style={{ animationDelay: "4s" }}
           />
         </div>
@@ -371,14 +371,14 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
               </Button>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="relative">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-500 rounded-lg flex items-center justify-center shadow-md">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 via-blue-500 to-blue-500 rounded-lg flex items-center justify-center shadow-md">
                     <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce" />
+                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full animate-bounce" />
                   <Activity className="absolute -bottom-0.5 -left-0.5 h-2 w-2 text-cyan-400 animate-pulse" />
                 </div>
                 <div>
-                  <h1 className="text-sm sm:text-base md:text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  <h1 className="text-sm sm:text-base md:text-lg font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent">
                     #{order.id.slice(-8).toUpperCase()}
                   </h1>
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -416,7 +416,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                 {/* Progress indicator */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-800/50">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-out animate-pulse"
+                    className="h-full bg-gradient-to-r from-blue-500 to-blue-700 transition-all duration-1000 ease-out animate-pulse"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -435,7 +435,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                           <span className="sm:hidden">
                             {t("orders.detail.journeyShort")}
                           </span>
-                          <Layers className="h-2.5 w-2.5 text-purple-400 animate-pulse" />
+                          <Layers className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           {/* Optional: localized descriptions can be added */}
@@ -444,10 +444,10 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     </CardTitle>
                     <div className="text-right">
                       <div className="relative">
-                        <div className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <div className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                           {Math.round(progress)}%
                         </div>
-                        <Wifi className="absolute -top-1 -right-5 h-3 w-3 text-purple-400 animate-pulse" />
+                        <Wifi className="absolute -top-1 -right-5 h-3 w-3 text-blue-400 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-500">
                         {t("orders.detail.complete")}
@@ -505,7 +505,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         <span className="sm:hidden">
                           {t("orders.detail.items")}
                         </span>
-                        <Cpu className="h-2.5 w-2.5 text-yellow-500 animate-pulse" />
+                        <Cpu className="h-2.5 w-2.5 text-blue-500 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">
                         {order.items.length}{" "}
@@ -537,7 +537,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                             }
                             className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
                           />
-                          <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg animate-pulse">
+                          <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg animate-pulse">
                             {item.quantity}
                           </div>
                         </div>
@@ -568,14 +568,14 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                           </div>
                         </div>
                         <div className="text-center sm:text-right">
-                          <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent group-hover:from-purple-600 group-hover:to-blue-600 transition-all duration-300">
+                          <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-blue-600 transition-all duration-300">
                             {formatPrice(item.price)}
                           </div>
                         </div>
                         <div className="text-xs text-gray-500">
                           {t("orders.detail.each")}
                         </div>
-                        <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                           {formatPrice(parseFloat(item.price) * item.quantity)}
                         </div>
                       </div>
@@ -670,7 +670,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         <span className="sm:hidden">
                           {t("orders.detail.summary")}
                         </span>
-                        <Cpu className="h-2.5 w-2.5 text-purple-400 animate-pulse" />
+                        <Cpu className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">
                         AI totals
@@ -695,10 +695,10 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <Separator className="bg-gray-200/50 dark:bg-gray-800/50/50" />
                       <div className="flex justify-between items-center">
                         <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1">
-                          <Brain className="h-2.5 w-2.5 text-purple-400" />
+                          <Brain className="h-2.5 w-2.5 text-blue-400" />
                           {t("orders.detail.total")}
                         </span>
-                        <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                           {formatPrice(order.total)}
                         </span>
                       </div>
@@ -722,7 +722,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <span className="sm:hidden">
                         {t("orders.detail.payment")}
                       </span>
-                      <Activity className="h-2.5 w-2.5 text-green-400 animate-pulse" />
+                      <Activity className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
                     </div>
                   </CardTitle>
                 </CardHeader>
@@ -782,7 +782,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       onClick={() =>
                         router.push(`/products/${order.items[0]?.productId}`)
                       }
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-xs sm:text-sm py-2 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                      className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white text-xs sm:text-sm py-2 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
                     >
                       <Star className="h-3 w-3 mr-2" />
                       <span className="hidden sm:inline">
@@ -800,7 +800,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <Button
                         onClick={handleConfirmOrder}
                         disabled={confirming}
-                        className="w-full text-xs sm:text-sm py-2 bg-green-600 hover:bg-green-700 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-md"
+                        className="w-full text-xs sm:text-sm py-2 bg-blue-600 hover:bg-blue-700 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-md"
                       >
                         {confirming ? (
                           <>
@@ -823,13 +823,13 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
 
                   {/* Order Confirmed Message */}
                   {order.isConfirmedByCustomer && (
-                    <div className="p-3 bg-green-50 dark:bg-green-950/20 rounded-lg text-center">
-                      <CheckCircle className="h-5 w-5 text-green-600 mx-auto mb-2" />
-                      <p className="text-sm text-green-700 dark:text-green-300 font-medium">
+                    <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-center">
+                      <CheckCircle className="h-5 w-5 text-blue-600 mx-auto mb-2" />
+                      <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
                         {t("orders.detail.confirmedTitle")}
                       </p>
                       {order.customerConfirmationDate && (
-                        <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                           {t("orders.detail.confirmedOn")}{" "}
                           {formatDate(order.customerConfirmationDate)}
                         </p>

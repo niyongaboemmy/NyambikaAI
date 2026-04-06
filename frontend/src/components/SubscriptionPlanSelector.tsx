@@ -128,7 +128,7 @@ export default function SubscriptionPlanSelector({
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="w-full h-80 bg-gray-200 dark:bg-gray-700 rounded-2xl animate-pulse"
+              className="w-full h-80 bg-gray-200 dark:bg-gray-700 rounded-3xl animate-pulse"
             />
           ))}
         </div>
@@ -144,12 +144,12 @@ export default function SubscriptionPlanSelector({
       {/* Holographic Background */}
       <div className="relative">
         <motion.div
-          className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-purple-600/10 rounded-full blur-3xl"
+          className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-blue-600/10 rounded-full blur-3xl"
           animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-purple-400/10 to-blue-600/10 rounded-full blur-3xl"
+          className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-blue-400/10 to-blue-600/10 rounded-full blur-3xl"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -161,14 +161,14 @@ export default function SubscriptionPlanSelector({
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
         >
-          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-full p-1 shadow-lg">
+          <div className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-full p-1">
             <div className="flex">
               <motion.button
                 type="button"
                 onClick={() => setBillingCycle("monthly")}
                 className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
                   billingCycle === "monthly"
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-400 text-white"
                     : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 }`}
                 whileHover={{ scale: 1.02 }}
@@ -181,14 +181,14 @@ export default function SubscriptionPlanSelector({
                 onClick={() => setBillingCycle("annual")}
                 className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                   billingCycle === "annual"
-                    ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-blue-600 to-blue-400 text-white"
                     : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 Annual
-                <Badge className="bg-green-500 text-white text-xs px-2 py-0.5">
+                <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">
                   Save up to 30%
                 </Badge>
               </motion.button>
@@ -218,7 +218,7 @@ export default function SubscriptionPlanSelector({
               >
                 {plan.isPopular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                    <Badge className="bg-gradient-to-r from-orange-500 to-blue-500 text-white px-4 py-1 shadow-lg">
+                    <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-1">
                       <Sparkles className="w-3 h-3 mr-1" />
                       Most Popular
                     </Badge>
@@ -226,13 +226,13 @@ export default function SubscriptionPlanSelector({
                 )}
 
                 <Card
-                  className={`relative overflow-hidden transition-all duration-300 cursor-pointer ${
+                  className={`relative overflow-hidden transition-all duration-300 cursor-pointer rounded-3xl ${
                     isSelected
-                      ? "ring-2 ring-blue-500 shadow-xl shadow-blue-500/25"
+                      ? "ring-2 ring-blue-500-blue-500/25"
                       : "hover:shadow-xl"
                   } ${
                     plan.isPremium
-                      ? "bg-gradient-to-br from-purple-50/80 to-blue-50/80 dark:from-purple-900/30 dark:to-blue-900/30 border-purple-200/50 dark:border-purple-700/50"
+                      ? "bg-gradient-to-br from-blue-50/80 to-blue-50/80 dark:from-blue-900/30 dark:to-blue-900/30 border-blue-200/50 dark:border-blue-700/50"
                       : "bg-white/70 dark:bg-gray-900/70 border-gray-200/50 dark:border-gray-700/50"
                   } backdrop-blur-xl`}
                   onClick={() => onPlanSelect(plan.id, billingCycle)}
@@ -253,11 +253,7 @@ export default function SubscriptionPlanSelector({
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <motion.div
-                          className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-                            plan.isPremium
-                              ? "bg-gradient-to-br from-purple-500 to-blue-500"
-                              : "bg-gradient-to-br from-blue-500 to-purple-500"
-                          }`}
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700`}
                           whileHover={{ rotate: 5 }}
                         >
                           {getPlanIcon(plan.name)}
@@ -294,7 +290,7 @@ export default function SubscriptionPlanSelector({
                       </div>
                       {billingCycle === "annual" && discount > 0 && (
                         <div className="flex items-center gap-2 mt-2">
-                          <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
                             Save {discount}%
                           </Badge>
                           <span className="text-sm text-gray-500 line-through">
@@ -315,8 +311,8 @@ export default function SubscriptionPlanSelector({
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 + idx * 0.05 }}
                           >
-                            <div className="w-5 h-5 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                              <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                            <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                              <Check className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                             </div>
                             <span className="text-sm text-gray-700 dark:text-gray-300">
                               {feature}
@@ -335,13 +331,11 @@ export default function SubscriptionPlanSelector({
                         type="button"
                         onClick={() => onPlanSelect(plan.id, billingCycle)}
                         disabled={loading}
-                        className={`w-full ${
+                        className={`w-full rounded-2xl ${
                           isSelected
                             ? "bg-blue-600 hover:bg-blue-700 text-white"
-                            : plan.isPremium
-                            ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                            : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                        } shadow-lg hover:shadow-xl transition-all duration-300`}
+                            : "bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white"
+                        } hover:shadow-xl transition-all duration-300`}
                       >
                         {isSelected ? (
                           <>

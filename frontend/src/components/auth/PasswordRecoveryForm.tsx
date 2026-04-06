@@ -55,12 +55,12 @@ export default function PasswordRecoveryForm({
           animate={{ opacity: 1, y: 0 }}
           // transition={{ duration: 0.7 }}
         >
-          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-indigo-50/90 to-purple-50/85 dark:from-black/95 dark:via-indigo-950/90 dark:to-purple-950/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-indigo-500/20 dark:shadow-indigo-400/10 overflow-hidden rounded-2xl">
+          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-blue-50/90 to-blue-50/85 dark:from-black/95 dark:via-blue-950/90 dark:to-blue-950/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-blue-500/20 dark:shadow-blue-400/10 overflow-hidden rounded-2xl">
             {/* Animated AI-inspired background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {/* Primary animated gradient orb */}
               <motion.div
-                className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-indigo-400/30 via-purple-400/25 to-blue-400/20 rounded-full blur-2xl"
+                className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/30 via-blue-400/25 to-blue-400/20 rounded-full blur-2xl"
                 animate={{
                   x: [0, 15, 0],
                   y: [0, -10, 0],
@@ -75,7 +75,7 @@ export default function PasswordRecoveryForm({
 
               {/* Secondary animated gradient orb */}
               <motion.div
-                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-blue-400/25 via-indigo-400/20 to-purple-400/15 rounded-full blur-xl"
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-blue-400/25 via-blue-400/20 to-blue-400/15 rounded-full blur-xl"
                 animate={{
                   x: [0, -10, 0],
                   y: [0, 8, 0],
@@ -91,7 +91,7 @@ export default function PasswordRecoveryForm({
 
               {/* Security-themed dots */}
               <motion.div
-                className="absolute top-1/3 left-1/3 w-2 h-2 bg-indigo-400/40 rounded-full"
+                className="absolute top-1/3 left-1/3 w-2 h-2 bg-blue-400/40 rounded-full"
                 animate={{
                   opacity: [0.4, 0.8, 0.4],
                   scale: [1, 1.2, 1],
@@ -103,7 +103,7 @@ export default function PasswordRecoveryForm({
                 }}
               />
               <motion.div
-                className="absolute top-2/3 right-1/4 w-1.5 h-1.5 bg-purple-400/40 rounded-full"
+                className="absolute top-2/3 right-1/4 w-1.5 h-1.5 bg-blue-400/40 rounded-full"
                 animate={{
                   opacity: [0.3, 0.7, 0.3],
                   scale: [1, 1.3, 1],
@@ -124,11 +124,11 @@ export default function PasswordRecoveryForm({
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
                 <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-blue-600 flex items-center justify-center shadow-xl">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 via-blue-600 to-blue-600 flex items-center justify-center shadow-xl">
                     <Shield className="w-8 h-8 text-white" />
                   </div>
                 </div>
-                <CardTitle className="text-3xl dark:text-white font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-blue-600 dark:from-indigo-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
+                <CardTitle className="text-3xl dark:text-white font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
                   Reset Password
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
@@ -147,7 +147,7 @@ export default function PasswordRecoveryForm({
               >
                 {message && (
                   <motion.div
-                    className="p-3 text-sm text-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/50 dark:text-emerald-400 border border-emerald-200/50 dark:border-emerald-800/50 rounded-xl backdrop-blur-sm"
+                    className="p-3 text-sm text-blue-600 bg-blue-50/80 dark:bg-blue-950/50 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/50 rounded-xl backdrop-blur-sm"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.3 }}
@@ -179,7 +179,7 @@ export default function PasswordRecoveryForm({
                     Email Address
                   </Label>
                   <div className="relative group">
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-400/20 via-purple-400/20 to-blue-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300" />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-400/20 via-blue-400/20 to-blue-400/20 blur-sm opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300" />
                     <div className="relative">
                       <Input
                         id="email"
@@ -187,14 +187,14 @@ export default function PasswordRecoveryForm({
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        className="h-10 pl-10 pr-4 bg-gradient-to-br from-white/90 via-indigo-50/60 to-purple-50/40 dark:from-gray-900/90 dark:via-indigo-950/60 dark:to-purple-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-indigo-400/70 dark:focus:border-indigo-500/70 focus:ring-2 focus:ring-indigo-500/15 transition-all duration-300 shadow-md shadow-indigo-500/5 group-hover:shadow-indigo-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
+                        className="h-10 pl-10 pr-4 bg-gradient-to-br from-white/90 via-blue-50/60 to-blue-50/40 dark:from-gray-900/90 dark:via-blue-950/60 dark:to-blue-950/40 border border-gray-200/50 dark:border-gray-700/50 rounded-xl backdrop-blur-xl focus:border-blue-400/70 dark:focus:border-blue-500/70 focus:ring-2 focus:ring-blue-500/15 transition-all duration-300 shadow-md shadow-blue-500/5 group-hover:shadow-blue-500/8 placeholder:text-gray-400 dark:placeholder:text-gray-500 text-gray-800 dark:text-gray-100 font-medium"
                         placeholder="Enter your email address"
                         autoFocus
                       />
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500 pointer-events-none">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-500 pointer-events-none">
                         <Mail className="h-4 w-4" />
                       </div>
-                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/5 via-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/5 via-blue-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
                     </div>
                   </div>
                 </motion.div>
@@ -209,7 +209,7 @@ export default function PasswordRecoveryForm({
                   <Button
                     type="submit"
                     disabled={isLoading || submitting}
-                    className="w-full text-white text-lg py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-blue-500 hover:from-indigo-600 hover:via-purple-600 hover:to-blue-600 shadow-lg shadow-indigo-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                    className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
                   >
                     {submitting ? (
                       <>

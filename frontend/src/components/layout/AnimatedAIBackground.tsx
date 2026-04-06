@@ -24,10 +24,10 @@ const AnimatedAIBackground: React.FC<AnimatedAIBackgroundProps> = ({
     const styles = `
       .custom-scrollbar::-webkit-scrollbar { width: 6px; }
       .custom-scrollbar::-webkit-scrollbar-track { background: rgba(59,130,246,0.1); border-radius: 3px; }
-      .custom-scrollbar::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #3b82f6, #8b5cf6); border-radius: 3px; }
+      .custom-scrollbar::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #3b82f6, #3b82f6); border-radius: 3px; }
       .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, #2563eb, #7c3aed); }
       .dark .custom-scrollbar::-webkit-scrollbar-track { background: rgba(99,102,241,0.2); }
-      .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #6366f1, #a855f7); }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #6366f1, #60a5fa); }
     `;
     const el = document.createElement("style");
     el.id = id;
@@ -41,7 +41,7 @@ const AnimatedAIBackground: React.FC<AnimatedAIBackgroundProps> = ({
   return (
     <div
       className={
-        "min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 " +
+        "min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 " +
         "dark:from-gray-950 dark:via-gray-950 dark:to-black relative " +
         className
       }
@@ -49,17 +49,17 @@ const AnimatedAIBackground: React.FC<AnimatedAIBackgroundProps> = ({
       {decorations && (
         <div className="fixed inset-0 pointer-events-none">
           {/* Gradient orbs */}
-          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-blue-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse" />
           <div
-            className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-indigo-400/20 rounded-full blur-3xl animate-bounce"
+            className="absolute bottom-10 right-10 w-56 h-56 bg-gradient-to-r from-cyan-400/20 via-blue-400/20 to-blue-400/20 rounded-full blur-3xl animate-bounce"
             style={{ animationDuration: "3s" }}
           />
           <div
-            className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-green-400/15 via-teal-400/15 to-blue-400/15 rounded-full blur-2xl animate-ping"
+            className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-blue-400/15 via-teal-400/15 to-blue-400/15 rounded-full blur-2xl animate-ping"
             style={{ animationDuration: "4s" }}
           />
           <div
-            className="absolute bottom-1/3 left-1/4 w-28 h-28 bg-gradient-to-r from-purple-400/15 via-blue-400/15 to-rose-400/15 rounded-full blur-2xl animate-pulse"
+            className="absolute bottom-1/3 left-1/4 w-28 h-28 bg-gradient-to-r from-blue-400/15 via-blue-400/15 to-blue-400/15 rounded-full blur-2xl animate-pulse"
             style={{ animationDuration: "2s" }}
           />
 
@@ -67,7 +67,7 @@ const AnimatedAIBackground: React.FC<AnimatedAIBackgroundProps> = ({
           <div className="absolute inset-0 opacity-5">
             <div className="absolute top-20 left-1/4 w-px h-32 bg-gradient-to-b from-blue-500 to-transparent animate-pulse" />
             <div
-              className="absolute top-40 left-1/3 w-24 h-px bg-gradient-to-r from-purple-500 to-transparent animate-pulse"
+              className="absolute top-40 left-1/3 w-24 h-px bg-gradient-to-r from-blue-500 to-transparent animate-pulse"
               style={{ animationDelay: "1s" }}
             />
             <div

@@ -33,7 +33,7 @@ export default function TestProductsApi() {
   return (
     <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
       <h2 className="text-lg font-bold mb-2">API Test Results</h2>
-      <pre className="text-xs bg-black text-green-400 p-2 rounded overflow-auto max-h-96">
+      <pre className="text-xs bg-black text-blue-400 p-2 rounded overflow-auto max-h-96">
         {JSON.stringify(data, null, 2)}
       </pre>
     </div>

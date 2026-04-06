@@ -82,10 +82,10 @@ export function ImagesSubmitStep({
   return (
     <div className="space-y-4">
       {/* Product Images */}
-      <Card className="glassmorphism border-0 shadow-xl backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-2xl overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-indigo-500/5 to-purple-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
+      <Card className="glassmorphism border-0 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-3xl overflow-hidden">
+        <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
           <CardTitle className="text-lg sm:text-xl flex items-center gap-3 text-gray-800 dark:text-gray-100">
-            <div className="p-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
+            <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white">
               <ImageIcon className="h-5 w-5" />
             </div>
             Product Images
@@ -109,23 +109,23 @@ export function ImagesSubmitStep({
             {formData.imageUrl ? (
               <div className="flex justify-center">
                 <div className="relative group w-full max-w-xs sm:max-w-sm">
-                  <div className="glassmorphism rounded-2xl p-4 transition-all duration-300 hover:scale-[1.02] bg-white/50 dark:bg-gray-800/50">
+                  <div className="glassmorphism rounded-3xl p-4 transition-all duration-300 hover:scale-[1.02] bg-white/50 dark:bg-gray-800/50">
                     <img
                       src={formData.imageUrl}
                       alt="Main product"
-                      className="w-full h-64 sm:h-80 object-cover rounded-xl mx-auto shadow-lg"
+                      className="w-full h-64 sm:h-80 object-cover rounded-xl mx-auto"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none";
                       }}
                     />
-                    <div className="absolute top-6 left-6 px-3 py-1 bg-gradient-to-r from-blue-500 to-indigo-500 text-white text-xs rounded-full font-medium shadow-lg">
+                    <div className="absolute top-6 left-6 px-3 py-1 bg-gradient-to-r from-blue-500 to-blue-700 text-white text-xs rounded-full font-medium">
                       Main Image
                     </div>
                     <div className="absolute inset-4 bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300 rounded-2xl flex items-center justify-center">
                       <Button
                         type="button"
                         onClick={() => openPexelsModal("main")}
-                        className="bg-white/95 hover:bg-white text-gray-900 font-medium shadow-xl transition-all duration-200 hover:scale-105"
+                        className="bg-white/95 hover:bg-white text-gray-900 font-medium transition-all duration-200 hover:scale-105"
                       >
                         <Search className="h-4 w-4 mr-2" />
                         Change Image
@@ -137,11 +137,11 @@ export function ImagesSubmitStep({
             ) : (
               <div
                 onClick={() => openPexelsModal("main")}
-                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-900/20 group"
+                className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-3xl p-6 sm:p-8 text-center cursor-pointer transition-all duration-300 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/20 group"
               >
                 <div className="flex flex-col items-center gap-4">
-                  <div className="p-4 rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30 group-hover:from-indigo-200 group-hover:to-purple-200 dark:group-hover:from-indigo-800/50 dark:group-hover:to-purple-800/50 transition-all duration-300">
-                    <ImagePlus className="h-8 w-8 text-indigo-500 group-hover:text-indigo-600 transition-colors" />
+                  <div className="p-4 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/30 group-hover:from-blue-200 group-hover:to-blue-200 dark:group-hover:from-blue-800/50 dark:group-hover:to-blue-800/50 transition-all duration-300">
+                    <ImagePlus className="h-8 w-8 text-blue-500 group-hover:text-blue-600 transition-colors" />
                   </div>
                   <div>
                     <h3 className="text-lg sm:text-xl font-medium text-gray-900 dark:text-gray-100 mb-2">
@@ -153,7 +153,7 @@ export function ImagesSubmitStep({
                   </div>
                   <Button
                     type="button"
-                    className="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white font-medium shadow-lg transition-all duration-200 hover:scale-105"
+                    className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white font-medium transition-all duration-200 hover:scale-105"
                   >
                     <Search className="h-4 w-4 mr-2" />
                     Add Main Image
@@ -174,7 +174,7 @@ export function ImagesSubmitStep({
                 onClick={() => openPexelsModal("additional")}
                 variant="outline"
                 size="sm"
-                className="border-purple-200 text-purple-600 hover:bg-purple-50 dark:border-purple-800 dark:text-purple-400 dark:hover:bg-purple-900/20 transition-all duration-200 hover:scale-105"
+                className="border-blue-200 text-blue-600 hover:bg-blue-50 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-900/20 transition-all duration-200 hover:scale-105"
               >
                 <ImagePlus className="h-4 w-4 mr-2" />
                 Add Image
@@ -184,7 +184,7 @@ export function ImagesSubmitStep({
             {formData.additionalImages.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
-                  <Sparkles className="h-4 w-4 text-purple-500" />
+                  <Sparkles className="h-4 w-4 text-blue-500" />
                   Additional Images ({formData.additionalImages.length})
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-3">
@@ -195,7 +195,7 @@ export function ImagesSubmitStep({
                           <img
                             src={url}
                             alt={`Additional ${index + 1}`}
-                            className="w-full h-40 sm:h-48 object-cover rounded-lg shadow-md"
+                            className="w-full h-40 sm:h-48 object-cover rounded-lg"
                             onError={(e) => {
                               (e.target as HTMLImageElement).style.display =
                                 "none";
@@ -205,14 +205,14 @@ export function ImagesSubmitStep({
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="absolute -top-1 -right-1 h-6 w-6 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg"
+                            className="absolute -top-1 -right-1 h-6 w-6 bg-red-500 hover:bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200"
                             onClick={() =>
                               removeArrayItem("additionalImages", index)
                             }
                           >
                             <X className="h-3 w-3" />
                           </Button>
-                          <div className="absolute top-2 left-2 px-2 py-1 bg-gradient-to-r from-purple-500 to-indigo-500 text-white text-xs rounded-full font-medium shadow-lg">
+                          <div className="absolute top-2 left-2 px-2 py-1 bg-gradient-to-r from-blue-500 to-blue-700 text-white text-xs rounded-full font-medium">
                             #{index + 1}
                           </div>
                         </div>

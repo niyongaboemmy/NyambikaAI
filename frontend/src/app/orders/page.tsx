@@ -86,7 +86,7 @@ const statusConfig: Record<
 > = {
   pending: {
     color:
-      "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: Clock,
     label: "Pending",
   },
@@ -97,19 +97,19 @@ const statusConfig: Record<
   },
   processing: {
     color:
-      "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: Package,
     label: "Processing",
   },
   shipped: {
     color:
-      "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: Truck,
     label: "Shipped",
   },
   delivered: {
     color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: CheckCircle,
     label: "Delivered",
   },
@@ -120,7 +120,7 @@ const statusConfig: Record<
   },
   completed: {
     color:
-      "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400",
+      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
     icon: CheckCircle,
     label: "Completed",
   },
@@ -288,14 +288,14 @@ function OrdersPage() {
               </Button>
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 via-blue-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
                     <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full animate-bounce" />
-                  <Zap className="absolute -bottom-1 -left-1 h-3 w-3 text-yellow-400 animate-pulse" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full animate-bounce" />
+                  <Zap className="absolute -bottom-1 -left-1 h-3 w-3 text-blue-400 animate-pulse" />
                 </div>
                 <div>
-                  <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                  <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent">
                     {t("orders.title")}
                   </h1>
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -305,7 +305,7 @@ function OrdersPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="px-3 py-0.5 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-full border border-blue-200/50 dark:border-blue-700/50">
+                <div className="px-3 py-0.5 bg-gradient-to-r from-blue-500/10 to-blue-500/10 rounded-full border border-blue-200/50 dark:border-blue-700/50">
                   <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
                     {orders.length} {t("orders.count")}
                   </span>
@@ -319,11 +319,11 @@ function OrdersPage() {
           {orders.length === 0 ? (
             <div className="flex items-center justify-center min-h-[60vh]">
               <Card className="relative overflow-hidden bg-white/60 dark:bg-black/60 backdrop-blur-xl p-12 text-center max-w-md mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-blue-400/10" />
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-blue-400/10 to-blue-400/10" />
                 <div className="relative z-10">
                   <div className="relative mb-6">
                     <ShoppingBag className="h-20 w-20 text-gray-400 mx-auto" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
                       <Sparkles className="h-4 w-4 text-white" />
                     </div>
                   </div>
@@ -335,7 +335,7 @@ function OrdersPage() {
                   </p>
                   <Button
                     onClick={() => router.push("/products")}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-md transition-all duration-300 transform hover:scale-105"
+                    className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-md transition-all duration-300 transform hover:scale-105"
                   >
                     <Zap className="h-5 w-5 mr-2" />
                     {t("orders.empty.cta")}
@@ -369,12 +369,12 @@ function OrdersPage() {
                     }}
                   >
                     {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-blue-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
                     {/* AI Progress indicator */}
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700">
                       <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-purple-500 transition-all duration-1000 ease-out"
+                        className="h-full bg-gradient-to-r from-blue-500 to-blue-700 transition-all duration-1000 ease-out"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -384,11 +384,11 @@ function OrdersPage() {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                         <div className="flex items-start gap-3">
                           <div className="relative flex-shrink-0">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
                               <StatusIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                             </div>
-                            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-green-400 to-blue-500 rounded-full animate-pulse" />
-                            <Sparkles className="absolute -bottom-1 -left-1 h-2 w-2 sm:h-3 sm:w-3 text-yellow-400 animate-pulse" />
+                            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full animate-pulse" />
+                            <Sparkles className="absolute -bottom-1 -left-1 h-2 w-2 sm:h-3 sm:w-3 text-blue-400 animate-pulse" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-col gap-0 mb-1">
@@ -405,8 +405,8 @@ function OrdersPage() {
                                   {t(`orders.status.${order.status}` as any)}
                                 </Badge>
                               </div>
-                              <div className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent flex items-center gap-1">
-                                <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-purple-400" />
+                              <div className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent flex items-center gap-1">
+                                <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
                                 {formatPrice(order.total)}
                               </div>
                             </div>
@@ -450,7 +450,7 @@ function OrdersPage() {
                               />
                             ))}
                             {order.items.length > 4 && (
-                              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-sm font-bold text-white">
+                              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-sm font-bold text-white">
                                 +{order.items.length - 4}
                               </div>
                             )}
@@ -531,7 +531,7 @@ function OrdersPage() {
                           <Button
                             onClick={() => handleDownloadReceipt(order)}
                             variant="outline"
-                            className="flex-1 border-green-500 text-green-600 hover:bg-green-50 hover:border-green-600 dark:border-green-800 dark:text-green-400 dark:hover:bg-green-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full hover:shadow-md transition-all duration-300 transform hover:scale-105 text-sm"
+                            className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full hover:shadow-md transition-all duration-300 transform hover:scale-105 text-sm"
                           >
                             <Download className="h-4 w-4" />
                             {t("orders.receipt")}
@@ -563,7 +563,7 @@ function OrdersPage() {
 
         {/* AI-inspired floating elements */}
         <div className="fixed top-20 right-8 w-2 h-2 bg-blue-400 rounded-full animate-ping" />
-        <div className="fixed top-32 right-12 w-1 h-1 bg-purple-400 rounded-full animate-pulse" />
+        <div className="fixed top-32 right-12 w-1 h-1 bg-blue-400 rounded-full animate-pulse" />
         <div
           className="fixed bottom-20 left-8 w-3 h-3 bg-blue-400 rounded-full animate-bounce"
           style={{ animationDelay: "1s" }}

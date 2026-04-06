@@ -12,7 +12,7 @@ export default function AboutClient() {
     <div className="py-10">
       <PageHeader
         badge="Our Story"
-        badgeTone="pink"
+        badgeTone="blue"
         titleKey="about.title"
         subtitleKey="about.subtitle"
       />

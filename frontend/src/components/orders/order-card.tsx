@@ -15,7 +15,7 @@ import { ProducerOrder } from "@/types/order";
 const STATUS_CONFIG = {
   pending: {
     color:
-      "bg-yellow-100/80 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800/50",
+      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
     label: "Pending",
     icon: "⏳",
   },
@@ -27,19 +27,19 @@ const STATUS_CONFIG = {
   },
   processing: {
     color:
-      "bg-purple-100/80 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50",
+      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
     label: "Processing",
     icon: "⚙️",
   },
   shipped: {
     color:
-      "bg-indigo-100/80 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50",
+      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
     label: "Shipped",
     icon: "🚚",
   },
   delivered: {
     color:
-      "bg-green-100/80 text-green-800 dark:bg-green-900/30 dark:text-green-400 border border-green-200 dark:border-green-800/50",
+      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
     label: "Delivered",
     icon: "✓",
   },

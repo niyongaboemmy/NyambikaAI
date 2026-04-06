@@ -6,7 +6,7 @@ export default function PaymentMethods() {
       name: "MTN MoMo",
       description: "Mobile Money",
       icon: Smartphone,
-      color: "bg-yellow-500",
+      color: "bg-blue-500",
     },
     {
       name: "Airtel Money",
@@ -24,7 +24,7 @@ export default function PaymentMethods() {
       name: "Bank Cards",
       description: "Visa, Mastercard",
       icon: CreditCard,
-      color: "bg-green-500",
+      color: "bg-blue-500",
     },
   ];
 

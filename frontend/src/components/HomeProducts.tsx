@@ -57,18 +57,18 @@ function CategoryCard({
   const getGradientColors = (categoryName: string) => {
     const gradientMap: Record<string, string> = {
       Clothing: "from-blue-600/80 via-blue-500/80 to-blue-400/80",
-      Accessories: "from-blue-700/80 via-blue-600/80 to-indigo-500/80",
-      Shoes: "from-blue-500/80 via-cyan-500/80 to-violet-500/80",
-      Bags: "from-blue-800/80 via-blue-600/80 to-violet-500/80",
+      Accessories: "from-blue-700/80 via-blue-600/80 to-blue-500/80",
+      Shoes: "from-blue-500/80 via-cyan-500/80 to-blue-500/80",
+      Bags: "from-blue-800/80 via-blue-600/80 to-blue-500/80",
       Electronics: "from-slate-600/80 via-blue-600/80 to-blue-500/80",
-      Beauty: "from-blue-500/80 via-indigo-500/80 to-purple-500/80",
+      Beauty: "from-blue-500/80 via-blue-500/80 to-blue-500/80",
       All: "from-blue-600/80 via-blue-500/80 to-sky-400/80",
-      Fashion: "from-blue-700/80 via-indigo-600/80 to-blue-500/80",
-      Sports: "from-blue-500/80 via-cyan-500/80 to-violet-400/80",
+      Fashion: "from-blue-700/80 via-blue-600/80 to-blue-500/80",
+      Sports: "from-blue-500/80 via-cyan-500/80 to-blue-400/80",
       Home: "from-blue-800/80 via-blue-600/80 to-blue-400/80",
     };
     return (
-      gradientMap[categoryName] || "from-blue-500/80 via-blue/80 to-violet/50"
+      gradientMap[categoryName] || "from-blue-500/80 via-blue-500/80 to-blue/50"
     );
   };
 
@@ -80,7 +80,7 @@ function CategoryCard({
       onClick={onClick}
       className={`group relative overflow-hidden rounded-3xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 ${
         isSelected
-          ? "ring-4 ring-purple-500/50 shadow-2xl shadow-purple-500/30 scale-105"
+          ? "ring-4 ring-blue-500/50-blue-500/30 scale-105"
           : "hover:shadow-2xl hover:shadow-black/20"
       } aspect-[4/5]`}
     >
@@ -201,7 +201,7 @@ function HomeProductsSkeleton() {
               {Array.from({ length: 5 }).map((_, i) => (
                 <div
                   key={i}
-                  className="min-w-[180px] aspect-[4/5] rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse"
+                  className="min-w-[180px] aspect-[4/5] rounded-3xl bg-gray-200 dark:bg-gray-700 animate-pulse"
                 />
               ))}
             </div>
@@ -223,7 +223,7 @@ function HomeProductsSkeleton() {
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
-                className="aspect-[3/4] rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse"
+                className="aspect-[3/4] rounded-3xl bg-gray-200 dark:bg-gray-700 animate-pulse"
               />
             ))}
           </div>
@@ -278,7 +278,7 @@ function HomeProductsSkeleton() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                  <div className="h-12 w-48 rounded-2xl bg-gray-300 dark:bg-gray-600 animate-pulse" />
+                  <div className="h-12 w-48 rounded-3xl bg-gray-300 dark:bg-gray-600 animate-pulse" />
                   <div className="flex items-center gap-2">
                     <div className="w-4 h-4 bg-gray-300 dark:bg-gray-600 rounded-full animate-pulse" />
                     <div className="h-3 w-40 rounded bg-gray-300 dark:bg-gray-600 animate-pulse" />
@@ -623,11 +623,11 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
             <div className="flex gap-1">
               <div className="w-2 h-2 bg-blue-400 rounded-full animate-ping" />
               <div
-                className="w-2 h-2 bg-purple-400 rounded-full animate-ping"
+                className="w-2 h-2 bg-blue-400 rounded-full animate-ping"
                 style={{ animationDelay: "0.5s" }}
               />
               <div
-                className="w-2 h-2 bg-rose-400 rounded-full animate-ping"
+                className="w-2 h-2 bg-blue-400 rounded-full animate-ping"
                 style={{ animationDelay: "1s" }}
               />
             </div>
@@ -650,7 +650,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   <button
                     key={company.id}
                     onClick={() => router.push(`/store/${company.id}`)}
-                    className="group relative min-w-[180px] aspect-[4/5] rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    className="group relative min-w-[180px] aspect-[4/5] rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
                     aria-pressed={isSelected}
                     title={label}
                   >
@@ -747,7 +747,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   : `${t("home.trending")}`}
               </h2>
               <div className="flex items-center gap-3">
-                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-orange-400 via-red-500 to-blue-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse shadow-xl">
+                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-cyan-400 via-red-500 to-blue-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse">
                   {t("home.hot")}
                 </span>
                 <div className="flex gap-2">
@@ -793,7 +793,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               {/* Enhanced Products Search Banner */}
               {activeProducerProducts.length > 10 && (
                 <div className="mt-8">
-                  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-600 via-blue-600 to-blue-600 p-6 md:p-8 shadow-2xl">
+                  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-600 to-blue-600 p-6 md:p-8">
                     {/* Animated Background Elements */}
                     <div className="absolute inset-0 overflow-hidden">
                       <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full animate-pulse" />
@@ -823,7 +823,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button
                           onClick={() => router.push("/products-search")}
-                          className="bg-white text-purple-600 hover:bg-gray-50 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-2xl transition-all duration-300 hover:scale-105 shadow-lg text-sm sm:text-base w-full sm:w-auto"
+                          className="bg-white text-blue-600 hover:bg-gray-50 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-full transition-all duration-300 hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
                         >
                           {t("home.browseAll")}
                         </Button>

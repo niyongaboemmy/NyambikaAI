@@ -189,8 +189,8 @@ export default function RoleBasedNavigation() {
                 <div className="flex flex-row items-center gap-2">
                   <div className="relative">
                     {/* Holographic ring for company logo */}
-                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-purple-500 to-cyan-400 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-all duration-500 animate-pulse"></div>
-                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
+                    <div className="absolute -inset-1 bg-gradient-to-r from-blue-400 via-blue-500 to-cyan-400 rounded-2xl blur opacity-30 group-hover:opacity-50 transition-all duration-500 animate-pulse"></div>
+                    <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl opacity-20 group-hover:opacity-30 transition-all duration-300"></div>
                     <img
                       src={company.logoUrl}
                       alt={company.name}
@@ -198,7 +198,7 @@ export default function RoleBasedNavigation() {
                     />
                   </div>
                   <div className="hidden md:flex flex-col">
-                    <div className="max-w-[300px] text-xl md:text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-600 to-purple-600 dark:from-slate-100 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:via-purple-600 group-hover:to-cyan-500 dark:group-hover:from-blue-400 dark:group-hover:via-purple-400 dark:group-hover:to-cyan-400 transition-all duration-500 truncate">
+                    <div className="max-w-[300px] text-xl md:text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-600 to-blue-600 dark:from-slate-100 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:via-blue-600 group-hover:to-cyan-500 dark:group-hover:from-blue-400 dark:group-hover:via-blue-400 dark:group-hover:to-cyan-400 transition-all duration-500 truncate">
                       {company.name}
                     </div>
                     <span className="max-w-[300px] text-[9px] md:text-[10px] font-medium text-slate-500 dark:text-slate-400 tracking-[0.2em] uppercase opacity-60 group-hover:opacity-100 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-all duration-300 truncate">
@@ -210,9 +210,9 @@ export default function RoleBasedNavigation() {
                 <div className="relative flex items-center gap-2 md:gap-3">
                   {/* Modern Logo Container */}
                   <div className="relative group">
-                    {/* Enhanced ambient glow with blue/violet layers */}
-                    <div className="absolute -inset-4 bg-gradient-to-r from-blue-300/20 via-violet-300/20 to-indigo-300/20 rounded-3xl blur-3xl opacity-60 group-hover:opacity-100 transition-all duration-700"></div>
-                    <div className="absolute -inset-2 bg-gradient-to-br from-blue-200/15 to-violet-200/15 rounded-full blur-xl opacity-70 group-hover:opacity-90 transition-all duration-500"></div>
+                    {/* Enhanced ambient glow with blue/blue layers */}
+                    <div className="absolute -inset-4 bg-gradient-to-r from-blue-300/20 via-blue-300/20 to-blue-300/20 rounded-3xl blur-3xl opacity-60 group-hover:opacity-100 transition-all duration-700"></div>
+                    <div className="absolute -inset-2 bg-gradient-to-br from-blue-200/15 to-blue-200/15 rounded-full blur-xl opacity-70 group-hover:opacity-90 transition-all duration-500"></div>
 
                     {/* Cute sparkle pattern overlay */}
                     <div
@@ -227,10 +227,10 @@ export default function RoleBasedNavigation() {
                       }}
                     ></div>
 
-                    {/* Icon background with blue/violet gradient */}
-                    <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-50 via-violet-50 to-indigo-50 dark:from-slate-800/90 dark:via-violet-900/40 dark:to-cyan-900/40 group-hover:from-blue-100 group-hover:via-violet-100 group-hover:to-indigo-100 dark:group-hover:from-violet-800/50 dark:group-hover:via-fuchsia-800/50 dark:group-hover:to-cyan-800/50 flex items-center justify-center group-hover:scale-110 transition-all duration-500 border-2 border-blue-500/15 dark:border-violet-700/40 group-hover:border-violet-300/70 dark:group-hover:border-violet-600/60 backdrop-blur-sm overflow-hidden">
-                      {/* Blue/violet shimmer overlay for light mode */}
-                      <div className="absolute inset-0 bg-gradient-to-tr from-blue-200/30 via-violet-100/20 to-indigo-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    {/* Icon background with blue/blue gradient */}
+                    <div className="relative w-12 h-12 rounded-full bg-gradient-to-br from-blue-50 via-blue-50 to-blue-50 dark:from-slate-800/90 dark:via-blue-900/40 dark:to-cyan-900/40 group-hover:from-blue-100 group-hover:via-blue-100 group-hover:to-blue-100 dark:group-hover:from-blue-800/50 dark:group-hover:via-blue-800/50 dark:group-hover:to-cyan-800/50 flex items-center justify-center group-hover:scale-110 transition-all duration-500 border-2 border-blue-500/15 dark:border-blue-700/40 group-hover:border-blue-300/70 dark:group-hover:border-blue-600/60 backdrop-blur-sm overflow-hidden">
+                      {/* Blue/blue shimmer overlay for light mode */}
+                      <div className="absolute inset-0 bg-gradient-to-tr from-blue-200/30 via-blue-100/20 to-blue-200/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
 
                       {/* Cute dotted pattern for light mode */}
                       <div
@@ -268,11 +268,11 @@ export default function RoleBasedNavigation() {
                       <div className="absolute inset-0 rounded-full overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                         <div className="absolute top-2 left-2 w-1 h-1 bg-blue-400 rounded-full animate-ping"></div>
                         <div
-                          className="absolute top-3 right-3 w-0.5 h-0.5 bg-violet-400 rounded-full animate-pulse"
+                          className="absolute top-3 right-3 w-0.5 h-0.5 bg-blue-400 rounded-full animate-pulse"
                           style={{ animationDelay: "0.5s" }}
                         ></div>
                         <div
-                          className="absolute bottom-2 left-3 w-0.5 h-0.5 bg-indigo-400 rounded-full animate-ping"
+                          className="absolute bottom-2 left-3 w-0.5 h-0.5 bg-blue-400 rounded-full animate-ping"
                           style={{ animationDelay: "1s" }}
                         ></div>
                         <div
@@ -285,7 +285,7 @@ export default function RoleBasedNavigation() {
 
                   {/* Modern Brand Text */}
                   <div className="flex flex-col">
-                    <span className="text-xl md:text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-600 to-purple-600 dark:from-slate-100 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:via-purple-600 group-hover:to-cyan-500 dark:group-hover:from-blue-400 dark:group-hover:via-purple-400 dark:group-hover:to-cyan-400 transition-all duration-500">
+                    <span className="text-xl md:text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-blue-600 to-blue-600 dark:from-slate-100 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:via-blue-600 group-hover:to-cyan-500 dark:group-hover:from-blue-400 dark:group-hover:via-blue-400 dark:group-hover:to-cyan-400 transition-all duration-500">
                       Nyambika
                     </span>
                     <span className="text-[9px] md:text-[10px] font-medium text-slate-500 dark:text-slate-400 tracking-[0.2em] uppercase opacity-60 group-hover:opacity-100 group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-all duration-300 truncate">
@@ -370,14 +370,14 @@ export default function RoleBasedNavigation() {
                 typeof daysLeft === "number" &&
                 daysLeft > 0 &&
                 daysLeft <= 5 ? (
-                  <Badge className="bg-yellow-500 text-black dark:text-white">
+                  <Badge className="bg-blue-500 text-black dark:text-white">
                     {t("expiringIn")} {daysLeft}d
                   </Badge>
                 ) : (
                   <Badge
                     className={
                       status.hasActiveSubscription
-                        ? "bg-green-600 text-white"
+                        ? "bg-blue-600 text-white"
                         : "bg-red-600 text-white"
                     }
                   >
@@ -470,7 +470,7 @@ export default function RoleBasedNavigation() {
                       size="sm"
                       className="flex items-center gap-2 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                     >
-                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                      <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">
                         {user?.name?.charAt(0)?.toUpperCase() || "U"}
                       </div>
                       <span className="text-sm font-medium">
@@ -492,7 +492,7 @@ export default function RoleBasedNavigation() {
                         <button
                           type="button"
                           onClick={() => openUserWalletDialog()}
-                          className="mt-3 w-full flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 group"
+                          className="mt-3 w-full flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-blue-100 dark:hover:from-blue-900/30 dark:hover:to-blue-900/30 transition-all duration-200 group"
                         >
                           <div className="p-1.5 rounded-md bg-blue-600 group-hover:bg-blue-700 transition-colors">
                             <Wallet className="h-3 w-3 text-white" />
@@ -565,7 +565,7 @@ export default function RoleBasedNavigation() {
                   e.stopPropagation();
                   open();
                 }}
-                className="hidden md:flex bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-full"
+                className="hidden md:flex bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 rounded-full"
               >
                 <LogIn className="h-4 w-4 mr-2" />
                 {t("signIn")}
@@ -606,7 +606,7 @@ export default function RoleBasedNavigation() {
                         }}
                         className="cursor-pointer gap-3 py-3 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all duration-200"
                       >
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-500/10 flex items-center justify-center">
                           {Icon && (
                             <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                           )}
@@ -631,7 +631,7 @@ export default function RoleBasedNavigation() {
                       setTheme(actualTheme === "dark" ? "light" : "dark");
                     }}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-500/10 flex items-center justify-center">
                       {actualTheme === "dark" ? (
                         <Sun className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       ) : (
@@ -651,7 +651,7 @@ export default function RoleBasedNavigation() {
                         router.push("/cart");
                       }}
                     >
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center relative">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-500/10 flex items-center justify-center relative">
                         <ShoppingCart className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                         {cartCount > 0 && (
                           <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold shadow-lg animate-pulse">
@@ -682,7 +682,7 @@ export default function RoleBasedNavigation() {
                       <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700 mb-1">
                         <div className="flex items-center gap-3">
                           <div>
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold shadow-lg">
                               {user?.name?.charAt(0)?.toUpperCase() || "U"}
                             </div>
                           </div>
@@ -697,7 +697,7 @@ export default function RoleBasedNavigation() {
                             <button
                               type="button"
                               onClick={() => openUserWalletDialog()}
-                              className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-indigo-100 dark:hover:from-blue-900/30 dark:hover:to-indigo-900/30 transition-all duration-200 group w-full"
+                              className="mt-2 flex items-center gap-2 p-2 rounded-lg bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-800/30 hover:from-blue-100 hover:to-blue-100 dark:hover:from-blue-900/30 dark:hover:to-blue-900/30 transition-all duration-200 group w-full"
                             >
                               <div className="p-1 rounded bg-blue-600 group-hover:bg-blue-700 transition-colors">
                                 <Wallet className="h-3 w-3 text-white" />
@@ -728,7 +728,7 @@ export default function RoleBasedNavigation() {
                               router.push(item.href);
                             }}
                           >
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500/10 to-blue-500/10 flex items-center justify-center">
                               {Icon && (
                                 <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                               )}
@@ -787,7 +787,7 @@ export default function RoleBasedNavigation() {
                             e.stopPropagation();
                             open();
                           }}
-                          className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full gap-1"
+                          className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300 rounded-full gap-1"
                         >
                           <LogIn className="h-4 w-4" />
                           Sign In

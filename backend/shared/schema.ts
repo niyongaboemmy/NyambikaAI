@@ -37,6 +37,8 @@ export const users = pgTable("users", {
   referredBy: varchar("referred_by"), // parent agent id (nullable) - self-referential FK omitted to avoid TS circular ref
   isActive: boolean("is_active").default(true), // used to block commissions for inactive/banned accounts
   styleProfile: jsonb("style_profile").default(sql`'{}'`), // user style preferences (replaces user_style_profiles table)
+  resetToken: text("reset_token"),
+  resetTokenExpires: timestamp("reset_token_expires"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

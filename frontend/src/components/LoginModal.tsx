@@ -65,7 +65,7 @@ export default function LoginModal() {
       {isOpen && <div className="fixed inset-0 bg-black/5 backdrop-blur-md" />}
       <DialogContent
         // allow closing; onOpenChange will handle navigation
-        className="p-0 overflow-hidden border-0 shadow-xl max-h-[95vh] overflow-y-auto rounded-2xl bg-transparent"
+        className="p-0 overflow-hidden border-0 shadow-xl max-h-[95vh] overflow-y-auto rounded-3xl bg-transparent"
         hideClose={false}
       >
         <DialogHeader className="sr-only">
@@ -155,7 +155,7 @@ export default function LoginModal() {
                   setForgotMode(true);
                   clearError();
                 }}
-                buttonClassName="bg-indigo-600 hover:bg-indigo-700 text-white"
+                buttonClassName="bg-blue-600 hover:bg-blue-700 text-white"
               />
             )}
           </div>

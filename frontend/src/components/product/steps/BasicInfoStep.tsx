@@ -65,10 +65,10 @@ export function BasicInfoStep({
 
       {/* Basic Information Card */}
       <Card className="glassmorphism border-0 shadow-xl backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-2xl overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-500/5 to-purple-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
+        <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
           <div className="flex items-center justify-between gap-2">
             <CardTitle className="text-lg sm:text-xl flex items-center gap-3 text-gray-800 dark:text-gray-100">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white">
                 <Package className="h-5 w-5" />
               </div>
               Product Details
@@ -77,7 +77,7 @@ export function BasicInfoStep({
               type="button"
               onClick={handleSuggestTitles}
               disabled={aiLoading}
-              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm bg-gradient-to-r from-indigo-500 to-purple-500 text-white hover:from-indigo-600 hover:to-purple-600 disabled:opacity-60 shadow-md"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:from-blue-600 hover:to-blue-600 disabled:opacity-60 shadow-md"
               aria-label="Suggest titles from image"
             >
               <Sparkles className="h-4 w-4" />
@@ -170,7 +170,7 @@ export function BasicInfoStep({
           </div>
 
           {/* Progress Indicator */}
-          <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-800/50">
+          <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-800/50">
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600 dark:text-gray-400">Progress</span>
               <span className="font-medium text-blue-600 dark:text-blue-400">
@@ -179,7 +179,7 @@ export function BasicInfoStep({
             </div>
             <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
               <div 
-                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300"
+                className="bg-gradient-to-r from-blue-500 to-blue-700 h-2 rounded-full transition-all duration-300"
                 style={{ 
                   width: `${([formData.name, formData.nameRw, formData.price, formData.categoryId].filter(Boolean).length / 4) * 100}%` 
                 }}

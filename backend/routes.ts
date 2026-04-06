@@ -16,6 +16,7 @@ import crypto, { randomUUID } from "crypto";
 import path from "path";
 import fs from "fs";
 import { sendSuccess, sendError } from "./utils/response";
+import { sendPasswordResetEmail } from "./utils/email";
 import { getSubscriptionPlans } from "./subscription-plans";
 import { db, ensureSchemaMigrations } from "./db";
 
@@ -2708,6 +2709,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/auth/change-password", requireAuth, changePasswordHandler);
   app.post("/api/auth/change-password", requireAuth, changePasswordHandler);
+
+  // Logout (JWT is stateless — client discards token)
+  app.post("/api/auth/logout", (_req, res) => {
+    sendSuccess(res, null, "Logged out successfully");
+  });
+
+  // Forgot password — generate reset token and send email
+  app.post("/api/auth/forgot-password", async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email) return sendError(res, 400, "Email is required");
+
+      const user = await storage.getUserByEmail(email);
+      // Always return success to prevent email enumeration
+      if (!user) {
+        return sendSuccess(res, null, "If that email exists, a reset link has been sent");
+      }
+
+      const rawToken = crypto.randomBytes(32).toString("hex");
+      const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+      await storage.updateUser(user.id, {
+        resetToken: rawToken,
+        resetTokenExpires: expires,
+      } as any);
+
+      const frontendUrl = process.env.FRONTEND_URL ?? "http://localhost:3000";
+      const resetUrl = `${frontendUrl}/reset-password?token=${rawToken}`;
+
+      try {
+        await sendPasswordResetEmail(user.email, resetUrl);
+      } catch (emailErr) {
+        console.error("[forgot-password] Email send failed:", emailErr);
+        // Log reset URL in dev so it can be used without email setup
+        if (process.env.NODE_ENV !== "production") {
+          console.log("[forgot-password] Reset URL:", resetUrl);
+        }
+      }
+
+      sendSuccess(res, null, "If that email exists, a reset link has been sent");
+    } catch (error) {
+      console.error("Error in forgot-password:", error);
+      sendError(res, 500, "Failed to process password reset request");
+    }
+  });
+
+  // Reset password — verify token and update password
+  app.post("/api/auth/reset-password", async (req, res) => {
+    try {
+      const { token, newPassword } = req.body;
+      if (!token || !newPassword) {
+        return sendError(res, 400, "token and newPassword are required");
+      }
+      if (typeof newPassword !== "string" || newPassword.length < 6) {
+        return sendError(res, 400, "Password must be at least 6 characters");
+      }
+
+      const user = await storage.getUserByResetToken(token);
+      if (!user || !user.resetTokenExpires || user.resetTokenExpires < new Date()) {
+        return sendError(res, 400, "Invalid or expired reset token");
+      }
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      await storage.updateUser(user.id, {
+        password: hashed,
+        resetToken: null,
+        resetTokenExpires: null,
+      } as any);
+
+      sendSuccess(res, null, "Password reset successfully");
+    } catch (error) {
+      console.error("Error in reset-password:", error);
+      sendError(res, 500, "Failed to reset password");
+    }
+  });
 
   // Google OAuth 2.0
   app.get("/api/auth/oauth/google", async (req, res) => {

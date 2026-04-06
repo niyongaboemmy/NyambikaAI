@@ -110,7 +110,7 @@ export default function EnhancedOrderForm({
   };
 
   return (
-    <div className="bg-white/10 backdrop-blur-xl rounded-2xl border border-white/20 p-6">
+    <div className="bg-white/10 backdrop-blur-xl rounded-3xl border border-white/20 p-6">
       <h3 className="text-xl font-semibold text-white mb-6">Order Details</h3>
 
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -124,7 +124,7 @@ export default function EnhancedOrderForm({
             onChange={(e) => setShippingAddress(e.target.value)}
             placeholder="Enter your complete shipping address..."
             rows={3}
-            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             required
           />
         </div>
@@ -140,12 +140,12 @@ export default function EnhancedOrderForm({
               onClick={() => setPaymentMethod("mobile_money")}
               className={`p-3 rounded-xl border-2 transition-all duration-300 ${
                 paymentMethod === "mobile_money"
-                  ? "border-purple-500 bg-purple-500/20"
+                  ? "border-blue-500 bg-blue-500/20"
                   : "border-white/20 bg-white/5 hover:border-white/30"
               }`}
             >
               <div className="text-center">
-                <div className="text-yellow-400 text-sm font-semibold">
+                <div className="text-blue-400 text-sm font-semibold">
                   MTN MoMo
                 </div>
                 <div className="text-gray-400 text-xs">*182#</div>
@@ -157,7 +157,7 @@ export default function EnhancedOrderForm({
               onClick={() => setPaymentMethod("airtel_money")}
               className={`p-3 rounded-xl border-2 transition-all duration-300 ${
                 paymentMethod === "airtel_money"
-                  ? "border-purple-500 bg-purple-500/20"
+                  ? "border-blue-500 bg-blue-500/20"
                   : "border-white/20 bg-white/5 hover:border-white/30"
               }`}
             >
@@ -174,12 +174,12 @@ export default function EnhancedOrderForm({
               onClick={() => setPaymentMethod("cash_on_delivery")}
               className={`p-3 rounded-xl border-2 transition-all duration-300 ${
                 paymentMethod === "cash_on_delivery"
-                  ? "border-purple-500 bg-purple-500/20"
+                  ? "border-blue-500 bg-blue-500/20"
                   : "border-white/20 bg-white/5 hover:border-white/30"
               }`}
             >
               <div className="text-center">
-                <div className="text-green-400 text-sm font-semibold">Cash</div>
+                <div className="text-blue-400 text-sm font-semibold">Cash</div>
                 <div className="text-gray-400 text-xs">On Delivery</div>
               </div>
             </button>
@@ -218,8 +218,8 @@ export default function EnhancedOrderForm({
               </label>
             ) : (
               <div className="text-center">
-                <CheckCircle className="h-12 w-12 text-green-400 mx-auto mb-3" />
-                <p className="text-green-400">Maximum photos uploaded</p>
+                <CheckCircle className="h-12 w-12 text-blue-400 mx-auto mb-3" />
+                <p className="text-blue-400">Maximum photos uploaded</p>
               </div>
             )}
           </div>
@@ -262,7 +262,7 @@ export default function EnhancedOrderForm({
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any special instructions or requirements..."
             rows={3}
-            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           />
         </div>
 
@@ -270,7 +270,7 @@ export default function EnhancedOrderForm({
         <button
           type="submit"
           disabled={loading || uploading}
-          className="w-full py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-3xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
         >
           {loading || uploading ? (
             <>

@@ -171,7 +171,7 @@ export default function ProducerSubscriptionDetails() {
     switch (status) {
       case "active":
         return (
-          <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
             Active
           </Badge>
         );
@@ -183,7 +183,7 @@ export default function ProducerSubscriptionDetails() {
         );
       case "pending":
         return (
-          <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
             Pending
           </Badge>
         );
@@ -195,11 +195,11 @@ export default function ProducerSubscriptionDetails() {
   const getStatusIcon = (status: string | null) => {
     switch (status) {
       case "active":
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
       case "expired":
         return <AlertCircle className="h-4 w-4 text-red-500" />;
       case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-blue-500" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
     }
@@ -210,12 +210,12 @@ export default function ProducerSubscriptionDetails() {
       {/* Holographic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
           animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-400/20 to-blue-600/20 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -262,7 +262,7 @@ export default function ProducerSubscriptionDetails() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
                 <motion.div
@@ -271,12 +271,12 @@ export default function ProducerSubscriptionDetails() {
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -inset-1 rounded-2xl border border-purple-500/30"
+                  className="absolute -inset-1 rounded-2xl border border-blue-500/30"
                   animate={{ rotate: -360 }}
                   transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full flex items-center justify-center"
                   animate={{ rotate: 360, scale: [1, 1.2, 1] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
@@ -327,7 +327,7 @@ export default function ProducerSubscriptionDetails() {
                       className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-700 shadow-sm"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium shadow-md">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-medium shadow-md">
                       {producer.fullName
                         ?.split(" ")
                         .map((n: string) => n[0])
@@ -514,7 +514,7 @@ export default function ProducerSubscriptionDetails() {
 
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Commission Earned:</span>
-                      <span className="text-lg font-semibold text-green-600">
+                      <span className="text-lg font-semibold text-blue-600">
                         {producer.commissionEarned.toLocaleString()} RWF
                       </span>
                     </div>
@@ -526,7 +526,7 @@ export default function ProducerSubscriptionDetails() {
                             `/agent/subscription/renew/${producer.id}`
                           )
                         }
-                        className="w-full bg-green-600 hover:bg-green-700 text-white"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                       >
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Renew Subscription
@@ -544,7 +544,7 @@ export default function ProducerSubscriptionDetails() {
                       onClick={() =>
                         router.push(`/agent/subscription/create/${producer.id}`)
                       }
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
+                      className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white shadow-lg"
                     >
                       <CreditCard className="h-4 w-4 mr-2" />
                       Create Subscription
@@ -581,7 +581,7 @@ export default function ProducerSubscriptionDetails() {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center">
                             <Calendar className="h-5 w-5" />
                           </div>
                           <div>
@@ -602,7 +602,7 @@ export default function ProducerSubscriptionDetails() {
                             }
                             className={
                               payment.status === "completed"
-                                ? "bg-green-100 text-green-800"
+                                ? "bg-blue-100 text-blue-800"
                                 : ""
                             }
                           >
@@ -623,7 +623,7 @@ export default function ProducerSubscriptionDetails() {
                           <p className="text-gray-500 dark:text-gray-400">
                             Commission
                           </p>
-                          <p className="font-semibold text-green-600">
+                          <p className="font-semibold text-blue-600">
                             {Number(payment.agentCommission).toLocaleString()}{" "}
                             RWF
                           </p>

@@ -32,20 +32,6 @@ export default function Footer() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const quickLinks = [
-    { href: "/", label: t("footer.link.home") },
-    { href: "/products", label: t("footer.link.products") },
-    { href: "/try-on", label: t("footer.link.tryOn") },
-    { href: "/profile", label: t("footer.link.profile") },
-  ];
-
-  const supportLinks = [
-    { href: "/help", label: t("footer.link.help") },
-    { href: "/size-guide", label: t("footer.link.sizeGuide") },
-    { href: "/returns", label: t("footer.link.returns") },
-    { href: "/contact", label: t("footer.link.contact") },
-  ];
-
   const legalLinks = [
     { href: "/about", label: t("footer.link.about") },
     { href: "/contact", label: t("footer.link.contact") },
@@ -59,92 +45,76 @@ export default function Footer() {
       icon: Facebook,
       href: "https://www.facebook.com/nyambikadesign",
       label: "Facebook",
-      color: "hover:text-blue-500",
+      color: "hover:text-white",
     },
     {
       icon: Twitter,
       href: "https://x.com/Nyambika1/",
       label: "Twitter",
-      color: "hover:text-sky-500",
+      color: "hover:text-white",
     },
     {
       icon: Instagram,
       href: "https://www.instagram.com/nyambika_official/",
       label: "Instagram",
-      color: "hover:text-blue-500",
+      color: "hover:text-white",
     },
     {
       icon: Linkedin,
       href: "https://www.linkedin.com/in/nyambikaofficial/",
       label: "LinkedIn",
-      color: "hover:text-blue-600",
+      color: "hover:text-white",
     },
     {
       icon: MessageCircle,
       href: "https://wa.me/250782634364",
       label: "WhatsApp",
-      color: "hover:text-emerald-500",
+      color: "hover:text-white",
     },
   ];
 
   return (
-    <footer className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-slate-900 to-gray-900 mt-0">
-      {/* subtle top border glow */}
-      <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-
-      {/* AI-inspired animated gradient blobs */}
-      <div aria-hidden className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full blur-3xl opacity-25 bg-gradient-to-br from-blue-500/60 to-purple-600/60 animate-pulse" />
-        <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full blur-3xl opacity-20 bg-gradient-to-tr from-indigo-500/50 to-cyan-500/50 animate-pulse" />
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 h-56 w-56 rounded-full blur-2xl opacity-10 bg-gradient-to-br from-fuchsia-500/50 to-emerald-500/40" />
-      </div>
-
-      {/* subtle noise overlay for depth */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 mix-blend-soft-light opacity-20"
-        style={{
-          backgroundImage:
-            "url('data:image/svg+xml;utf8, %3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E')",
-        }}
-      />
+    <footer className="relative overflow-hidden bg-neutral-950 mt-0">
+      {/* subtle top border */}
+      <div className="absolute inset-x-0 -top-px h-px bg-white/10" />
 
       {/* AI CTA banner */}
-      <div className="container mx-auto px-2 sm:px-0 pt-12">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 backdrop-blur supports-[backdrop-filter]:bg-white/5">
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-fuchsia-500/10 to-cyan-500/10" />
-          <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-6 md:p-8">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="relative inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs text-white ring-1 ring-white/10">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+      <div className="container mx-auto px-4 sm:px-6 pt-14">
+        <div className="relative overflow-hidden rounded-2xl bg-white">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 p-8 md:p-12">
+            {/* Left: text */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-4">
+                <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500 tracking-wide">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neutral-400 opacity-60" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-neutral-800" />
                   </span>
                   {t("footer.liveBadge")}
                 </span>
-                <span className="text-xs text-gray-300">
+                <span className="text-xs text-neutral-400 hidden sm:block">
                   {t("footer.tryOutfits")}
                 </span>
               </div>
-              <h2 className="text-xl md:text-3xl font-bold text-white tracking-tight">
+              <h2 className="text-2xl md:text-4xl font-bold text-neutral-900 tracking-tight leading-tight">
                 {t("footer.ctaTitle")}
               </h2>
-              <p className="mt-2 text-gray-300 max-w-2xl text-sm">
+              <p className="mt-3 text-neutral-500 max-w-lg text-sm leading-relaxed">
                 {t("footer.ctaDesc")}
               </p>
             </div>
-            <div className="shrink-0 flex items-center gap-3">
+            {/* Right: CTAs */}
+            <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Button
                 asChild
-                className="bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-600/20 dark:text-white"
+                className="bg-neutral-900 hover:bg-neutral-800 text-white px-7 py-2.5 text-sm font-medium rounded-lg transition-colors"
               >
                 <Link href="/try-on">{t("footer.startTryOn")}</Link>
               </Button>
               <Button
                 asChild
-                variant="ghost"
-                className="text-white bg-gray-500/10 hover:bg-white/10 hover:text-white"
+                variant="outline"
+                className="border-neutral-200 text-neutral-700 hover:bg-neutral-50 px-7 py-2.5 text-sm font-medium rounded-lg transition-colors"
               >
                 <Link href="/products">{t("footer.browseProducts")}</Link>
               </Button>
@@ -153,22 +123,22 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="container mx-auto px-2 sm:px-0 py-10 md:py-14">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16">
+      <div className="container mx-auto px-4 sm:px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20">
           {/* Brand */}
           <div className="space-y-5">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 ring-1 ring-white/10">
-                <span className="text-white text-xl font-bold">N</span>
+              <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
+                <span className="text-neutral-900 text-lg font-bold tracking-tight">N</span>
               </div>
-              <span className="text-2xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-blue-200">
+              <span className="text-xl font-bold tracking-tight text-white">
                 Nyambika
               </span>
             </div>
-            <p className="text-gray-400 leading-relaxed text-sm">
+            <p className="text-neutral-400 leading-relaxed text-sm max-w-xs">
               {t("footer.brandTagline")}
             </p>
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1">
               {socialLinks.map((s, i) => {
                 const Icon = s.icon;
                 return (
@@ -177,11 +147,11 @@ export default function Footer() {
                     asChild
                     variant="ghost"
                     size="icon"
-                    className={`rounded-lg p-2.5 text-gray-300 hover:text-white hover:bg-white/10 transition ${s.color}`}
+                    className={`rounded-md p-2 text-neutral-500 hover:bg-white/8 transition-colors ${s.color}`}
                     aria-label={s.label}
                   >
                     <a href={s.href} target="_blank" rel="noreferrer noopener">
-                      <Icon className="h-5 w-5" />
+                      <Icon className="h-4 w-4" />
                     </a>
                   </Button>
                 );
@@ -189,14 +159,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Removed non-essential link lists to keep footer concise */}
-
           {/* Newsletter */}
           <div className="text-sm">
-            <h3 className="text-sm font-semibold text-white tracking-wider mb-5 uppercase">
+            <h3 className="text-xs font-semibold text-neutral-300 tracking-widest mb-4 uppercase">
               {t("footer.stayUpdated")}
             </h3>
-            <p className="text-gray-400 mb-4">{t("footer.subscribeDesc")}</p>
+            <p className="text-neutral-500 mb-4 text-sm">{t("footer.subscribeDesc")}</p>
             <form
               className="flex w-full items-center gap-2"
               onSubmit={async (e) => {
@@ -250,33 +218,34 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t("footer.emailPlaceholder")}
-                className="bg-white/10 text-white placeholder:text-gray-400 border-white/10"
+                className="bg-white/5 text-white placeholder:text-neutral-600 border-white/10 focus:border-white/30 rounded-lg"
                 required
                 aria-label={t("footer.emailAria")}
               />
               <Button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-500"
+                className="bg-white text-neutral-900 hover:bg-neutral-100 rounded-lg font-medium shrink-0"
                 disabled={submitting}
               >
                 {submitting ? t("footer.subscribing") : t("footer.subscribe")}
               </Button>
             </form>
 
-            <div className="mt-6 space-y-3 text-gray-400">
-              <div className="flex items-center">
-                <Phone className="mr-3 h-4 w-4" /> +250 782 634 364
+            <div className="mt-6 space-y-3 text-neutral-500">
+              <div className="flex items-center gap-3">
+                <Phone className="h-4 w-4 shrink-0" /> +250 782 634 364
               </div>
-              <div className="flex items-center">
-                <Mail className="mr-3 h-4 w-4" /> info@nyambika.com
+              <div className="flex items-center gap-3">
+                <Mail className="h-4 w-4 shrink-0" /> info@nyambika.com
               </div>
-              <div className="flex items-center">
-                <MapPin className="mr-3 h-4 w-4" /> Kigali, Rwanda
+              <div className="flex items-center gap-3">
+                <MapPin className="h-4 w-4 shrink-0" /> Kigali, Rwanda
               </div>
               <div className="pt-2">
                 <Button
                   asChild
-                  className="bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 text-white"
+                  variant="outline"
+                  className="border-white/15 text-neutral-300 hover:bg-white/5 hover:text-white rounded-lg text-sm"
                 >
                   <a
                     href="https://wa.me/250782634364"
@@ -292,9 +261,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <Separator className="my-10 bg-white/10" />
+        <Separator className="my-10 bg-white/8" />
 
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-3 text-gray-400">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-neutral-600 text-xs">
           <div className="text-center md:text-left">
             {t("footer.copyright").replace("{year}", String(year))}{" "}
             {t("footer.allRights")}
@@ -304,7 +273,7 @@ export default function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="hover:text-white transition-colors"
+                className="hover:text-neutral-300 transition-colors"
               >
                 {l.label}
               </Link>
@@ -317,13 +286,13 @@ export default function Footer() {
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label={t("footer.backToTop")}
-        className={`fixed bottom-6 right-6 z-40 rounded-full p-3 shadow-lg transition-all bg-blue-600 hover:bg-blue-500 text-white ${
+        className={`fixed bottom-6 right-6 z-40 rounded-full p-3 transition-all duration-300 bg-white hover:bg-neutral-100 text-neutral-900 shadow-lg ${
           showTop
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-3 pointer-events-none"
         }`}
       >
-        <ArrowUp className="h-5 w-5" />
+        <ArrowUp className="h-4 w-4" />
       </button>
     </footer>
   );

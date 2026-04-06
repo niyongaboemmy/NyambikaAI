@@ -65,12 +65,12 @@ export default function LoginForm({
           animate={{ opacity: 1, y: 0 }}
           // transition={{ duration: 0.7 }}
         >
-          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-blue-50/90 to-purple-50/85 dark:from-black/95 dark:via-blue-950/90 dark:to-black/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-blue-500/20 dark:shadow-blue-400/10 overflow-hidden rounded-2xl">
+          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-blue-50/90 to-blue-50/85 dark:from-black/95 dark:via-blue-950/90 dark:to-black/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-blue-500/20 dark:shadow-blue-400/10 overflow-hidden rounded-3xl">
             {/* Animated AI-inspired background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {/* Primary animated gradient orb */}
               <motion.div
-                className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/30 via-purple-400/25 to-cyan-400/20 rounded-full blur-2xl"
+                className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/30 via-blue-400/25 to-cyan-400/20 rounded-full blur-2xl"
                 animate={{
                   x: [0, 20, 0],
                   y: [0, -15, 0],
@@ -85,7 +85,7 @@ export default function LoginForm({
 
               {/* Secondary animated gradient orb */}
               <motion.div
-                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-purple-400/25 via-blue-400/20 to-indigo-400/15 rounded-full blur-xl"
+                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-blue-400/25 via-blue-400/20 to-blue-400/15 rounded-full blur-xl"
                 animate={{
                   x: [0, -15, 0],
                   y: [0, 10, 0],
@@ -113,7 +113,7 @@ export default function LoginForm({
                 }}
               />
               <motion.div
-                className="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-purple-400/40 rounded-full"
+                className="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-blue-400/40 rounded-full"
                 animate={{
                   opacity: [0.3, 0.7, 0.3],
                   scale: [1, 1.3, 1],
@@ -152,7 +152,7 @@ export default function LoginForm({
                 }}
               />
               <motion.div
-                className="absolute top-1/2 right-1/3 w-12 h-px bg-gradient-to-l from-purple-400/20 to-transparent rotate-45"
+                className="absolute top-1/2 right-1/3 w-12 h-px bg-gradient-to-l from-blue-400/20 to-transparent rotate-45"
                 animate={{
                   opacity: [0.1, 0.3, 0.1],
                 }}
@@ -170,7 +170,7 @@ export default function LoginForm({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
+                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
                   Welcome Back
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
@@ -252,7 +252,7 @@ export default function LoginForm({
                   <div className="flex items-center justify-end">
                     <button
                       type="button"
-                      className="text-sm text-indigo-600 hover:underline"
+                      className="text-sm text-blue-600 hover:underline"
                       onClick={onNavigateForgot}
                     >
                       Forgot password?
@@ -269,7 +269,7 @@ export default function LoginForm({
                   <Button
                     type="submit"
                     disabled={isActionLoading || submitting}
-                    className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-purple-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                    className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
                   >
                     {submitting ? (
                       <>
@@ -385,91 +385,6 @@ export default function LoginForm({
                     </Button>
                   </div>
                 </motion.div>
-
-                {/* Demo Users Section
-                <motion.div
-                  className="space-y-3"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.9, duration: 0.4 }}
-                >
-                  <div className="relative text-center text-xs text-gray-500 dark:text-gray-400">
-                    <span className="bg-white/90 dark:bg-gray-900/90 px-3 relative z-10 backdrop-blur-sm">
-                      or try demo accounts
-                    </span>
-                    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
-                  </div>
-
-                  <div className="grid gap-2">
-                    {[
-                      {
-                        role: "Customer",
-                        email: "customer@demo.com",
-                        password: "password",
-                        icon: "👤",
-                        color: "from-blue-500/10 to-cyan-500/10",
-                        borderColor:
-                          "border-blue-200/50 dark:border-blue-700/50",
-                      },
-                      {
-                        role: "Producer",
-                        email: "producer@demo.com",
-                        password: "password",
-                        icon: "🏭",
-                        color: "from-purple-500/10 to-blue-500/10",
-                        borderColor:
-                          "border-purple-200/50 dark:border-purple-700/50",
-                      },
-                      {
-                        role: "Agent",
-                        email: "agent@demo.com",
-                        password: "password",
-                        icon: "⚡",
-                        color: "from-orange-500/10 to-red-500/10",
-                        borderColor:
-                          "border-orange-200/50 dark:border-orange-700/50",
-                      },
-                    ].map((demo, index) => (
-                      <motion.button
-                        key={demo.role}
-                        type="button"
-                        onClick={() => {
-                          setEmail(demo.email);
-                          setPassword(demo.password);
-                        }}
-                        className={`p-3 rounded-xl border ${demo.borderColor} bg-gradient-to-r ${demo.color} backdrop-blur-sm hover:scale-[1.02] transition-all duration-200 text-left group`}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 1.0 + index * 0.1, duration: 0.3 }}
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="text-lg">{demo.icon}</div>
-                            <div>
-                              <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                {demo.role} Demo
-                              </div>
-                              <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {demo.email}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-xs text-gray-400 dark:text-gray-500 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                            Click to fill
-                          </div>
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
-
-                  <div className="text-center">
-                    <p className="text-xs text-gray-400 dark:text-gray-500">
-                      💡 Click any demo account to auto-fill login credentials
-                    </p>
-                  </div>
-                </motion.div> */}
 
                 {showRegisterLink && (
                   <motion.div

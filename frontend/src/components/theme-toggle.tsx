@@ -26,7 +26,7 @@ export function ThemeToggle() {
       }`}
     >
       {/* Enhanced background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-cyan-500/10 dark:from-blue-400/10 dark:via-purple-400/10 dark:to-cyan-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-blue-500/10 to-cyan-500/10 dark:from-blue-400/10 dark:via-blue-400/10 dark:to-cyan-400/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full" />
 
       {/* Light mode icon */}
       <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0 text-amber-500 dark:text-amber-400" />
@@ -36,7 +36,7 @@ export function ThemeToggle() {
 
       {/* System mode indicator */}
       {theme === "system" && (
-        <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" />
+        <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full animate-pulse" />
       )}
 
       <span className="sr-only">

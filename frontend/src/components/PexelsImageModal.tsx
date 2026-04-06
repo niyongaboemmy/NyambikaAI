@@ -264,14 +264,14 @@ export function PexelsImageModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent
         hideClose
-        className="z-[9999] bg-gradient-to-br from-white/95 via-slate-50/95 to-blue-50/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-purple-900/95 backdrop-blur-xl border-0 p-0 m-0 max-w-none w-screen h-screen min-h-screen overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 rounded-none"
+        className="z-[9999] bg-gradient-to-br from-white/95 via-slate-50/95 to-blue-50/95 dark:from-slate-900/95 dark:via-slate-800/95 dark:to-blue-900/95 backdrop-blur-xl border-0 p-0 m-0 max-w-none w-screen h-screen min-h-screen overflow-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 rounded-none"
       >
         <div className="relative w-full h-full flex flex-col">
           {/* Enhanced AI-Inspired Background Effects */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Animated Holographic Orbs */}
             <div
-              className="absolute top-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-400/15 via-cyan-400/10 to-purple-400/15 rounded-full blur-3xl"
+              className="absolute top-20 left-20 w-80 h-80 bg-gradient-to-r from-blue-400/15 via-cyan-400/10 to-blue-400/15 rounded-full blur-3xl"
               style={{
                 animationName: "pulse",
                 animationDuration: "4s",
@@ -279,7 +279,7 @@ export function PexelsImageModal({
               }}
             />
             <div
-              className="absolute bottom-32 right-32 w-64 h-64 bg-gradient-to-r from-purple-400/15 via-blue-400/10 to-rose-400/15 rounded-full blur-2xl"
+              className="absolute bottom-32 right-32 w-64 h-64 bg-gradient-to-r from-blue-400/15 via-blue-400/10 to-blue-400/15 rounded-full blur-2xl"
               style={{
                 animationName: "pulse",
                 animationDuration: "6s",
@@ -297,7 +297,7 @@ export function PexelsImageModal({
               }}
             />
             <div
-              className="absolute top-1/4 right-1/4 w-56 h-56 bg-gradient-to-r from-indigo-400/10 via-purple-400/15 to-blue-400/10 rounded-full blur-2xl"
+              className="absolute top-1/4 right-1/4 w-56 h-56 bg-gradient-to-r from-blue-400/10 via-blue-400/15 to-blue-400/10 rounded-full blur-2xl"
               style={{
                 animationName: "pulse",
                 animationDuration: "7s",
@@ -308,7 +308,7 @@ export function PexelsImageModal({
 
             {/* Enhanced Neural Network Grid */}
             <div className="absolute inset-0 opacity-40 dark:opacity-25">
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-blue-500/8 to-purple-500/8" />
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-blue-500/8 to-blue-500/8" />
               <div
                 className="absolute inset-0"
                 style={{
@@ -336,7 +336,7 @@ export function PexelsImageModal({
               }}
             />
             <div
-              className="absolute top-3/4 left-3/4 w-1.5 h-1.5 bg-purple-400/60 rounded-full"
+              className="absolute top-3/4 left-3/4 w-1.5 h-1.5 bg-blue-400/60 rounded-full"
               style={{
                 animationName: "bounce",
                 animationDuration: "4s",
@@ -363,10 +363,10 @@ export function PexelsImageModal({
                 {/* Mobile Logo */}
                 <div className="flex items-center gap-1.5 xs:gap-2">
                   <div className="relative">
-                    {/* <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-2 rounded-md shadow-sm"> */}
+                    {/* <div className="bg-gradient-to-r from-blue-500 to-blue-700 p-2 rounded-md shadow-sm"> */}
                     <FileImage className="h-5 w-5 xs:h-5 xs:w-5 text-blue-600 dark:text-blue-500" />
                     {/* </div> */}
-                    <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 xs:w-2 xs:h-2 bg-green-400 rounded-full animate-pulse" />
+                    <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 xs:w-2 xs:h-2 bg-blue-400 rounded-full animate-pulse" />
                   </div>
                   <h1 className="text-sm xs:text-base font-semibold text-slate-900 dark:text-white">
                     <span className="hidden xs:inline">Image Studio</span>
@@ -407,15 +407,15 @@ export function PexelsImageModal({
                   onClick={() => handleTabChange("upload")}
                   className={`flex items-center justify-center gap-1 xs:gap-1.5 py-1.5 xs:py-2 px-2 xs:px-3 sm:px-4 font-medium text-xs transition-all duration-300 rounded-sm xs:rounded-md min-h-[32px] xs:min-h-[36px] sm:min-h-[40px] ${
                     activeTab === "upload"
-                      ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-md shadow-purple-500/25"
-                      : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-600 hover:text-purple-600 dark:hover:text-purple-400"
+                      ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md shadow-blue-500/25"
+                      : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-600 hover:text-blue-600 dark:hover:text-blue-400"
                   }`}
                 >
                   <Upload
                     className={`h-3 w-3 xs:h-3.5 xs:w-3.5 sm:h-4 sm:w-4 transition-all duration-300 ${
                       activeTab === "upload"
                         ? "text-white"
-                        : "text-purple-500 dark:text-purple-400"
+                        : "text-blue-500 dark:text-blue-400"
                     }`}
                   />
                   <span className="text-xs sm:text-sm">Upload</span>
@@ -429,10 +429,10 @@ export function PexelsImageModal({
                 {/* Desktop Logo */}
                 <div className="flex items-center gap-2 md:gap-3 flex-shrink-0">
                   <div className="relative">
-                    <div className="bg-gradient-to-r from-blue-500 to-purple-500 p-1.5 md:p-2 rounded-lg md:rounded-xl shadow-sm">
+                    <div className="bg-gradient-to-r from-blue-500 to-blue-700 p-1.5 md:p-2 rounded-lg md:rounded-xl shadow-sm">
                       <FileImage className="h-4 w-4 md:h-5 md:w-5 text-white" />
                     </div>
-                    <div className="absolute -top-0.5 md:-top-1 -right-0.5 md:-right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-green-400 rounded-full animate-pulse" />
+                    <div className="absolute -top-0.5 md:-top-1 -right-0.5 md:-right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-blue-400 rounded-full animate-pulse" />
                   </div>
                   <div>
                     <h1 className="text-base md:text-lg font-semibold text-slate-900 dark:text-white">
@@ -473,15 +473,15 @@ export function PexelsImageModal({
                           onClick={() => handleTabChange("upload")}
                           className={`flex items-center gap-1.5 md:gap-2 py-2 md:py-2.5 px-3 md:px-4 lg:px-5 font-medium text-xs md:text-sm transition-all duration-300 rounded-sm md:rounded-md min-h-[36px] md:min-h-[42px] group ${
                             activeTab === "upload"
-                              ? "bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/30"
-                              : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-600 hover:text-purple-600 dark:hover:text-purple-400"
+                              ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30"
+                              : "bg-white dark:bg-slate-700 text-slate-600 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-600 hover:text-blue-600 dark:hover:text-blue-400"
                           }`}
                         >
                           <Upload
                             className={`h-3.5 w-3.5 md:h-4 md:w-4 transition-all duration-300 ${
                               activeTab === "upload"
                                 ? "text-white"
-                                : "text-purple-500 dark:text-purple-400 group-hover:scale-105"
+                                : "text-blue-500 dark:text-blue-400 group-hover:scale-105"
                             }`}
                           />
                           <span className="font-medium">Upload</span>
@@ -562,7 +562,7 @@ export function PexelsImageModal({
                 {/* Enhanced Loading Progress Bar */}
                 {isLoading && (
                   <div className="absolute bottom-0 left-0 right-0 h-1 bg-slate-200 dark:bg-slate-700 overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 animate-pulse"></div>
+                    <div className="h-full bg-gradient-to-r from-blue-500 to-blue-700 animate-pulse"></div>
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
                   </div>
                 )}
@@ -573,7 +573,7 @@ export function PexelsImageModal({
           {/* Floating Image Preview */}
           {selectedImage && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-              <div className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
+              <div className="relative max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden">
                 {/* Image */}
                 <div className="relative">
                   <div className="relative min-h-[400px] xs:min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center justify-center bg-slate-100 dark:bg-slate-800">
@@ -589,7 +589,7 @@ export function PexelsImageModal({
                             Loading high-quality image...
                           </p>
                           <div className="mt-2 w-32 xs:w-40 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                            <div className="h-full bg-gradient-to-r from-blue-500 to-blue-700 rounded-full animate-pulse"></div>
                           </div>
                         </div>
                       </div>
@@ -657,7 +657,7 @@ export function PexelsImageModal({
                       </>
                     ) : (
                       <>
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
                         <span className="text-sm text-slate-600 dark:text-slate-400">
                           AI-curated image
                         </span>
@@ -673,7 +673,7 @@ export function PexelsImageModal({
                           onSelect(selectedImage.url);
                           onClose();
                         }}
-                        className="px-4 xs:px-6 py-2 text-sm xs:text-base bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0 shadow-lg"
+                        className="px-4 xs:px-6 py-2 text-sm xs:text-base bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white border-0 shadow-lg"
                       >
                         <Sparkles className="h-4 w-4 mr-2" />
                         Use This Image
@@ -905,7 +905,7 @@ export function PexelsImageModal({
                                   </div>
                                 )}
                                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 px-2 py-1 rounded-md text-xs text-white font-medium">
+                                  <div className="bg-gradient-to-r from-blue-500 to-blue-700 px-2 py-1 rounded-md text-xs text-white font-medium">
                                     AI
                                   </div>
                                 </div>
@@ -921,7 +921,7 @@ export function PexelsImageModal({
                               <Button
                                 onClick={handleLoadMore}
                                 disabled={isLoading}
-                                className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white px-4 xs:px-6 py-2 xs:py-2.5 rounded-lg font-medium transition-all duration-300 hover:scale-105 text-sm xs:text-base"
+                                className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white px-4 xs:px-6 py-2 xs:py-2.5 rounded-lg font-medium transition-all duration-300 hover:scale-105 text-sm xs:text-base"
                               >
                                 <Sparkles className="mr-1.5 xs:mr-2 h-3.5 w-3.5 xs:h-4 xs:w-4" />
                                 Load More
@@ -935,7 +935,7 @@ export function PexelsImageModal({
                                   </span>
                                 </div>
                                 <div className="w-32 xs:w-48 h-1 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                                  <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse"></div>
+                                  <div className="h-full bg-gradient-to-r from-blue-500 to-blue-700 rounded-full animate-pulse"></div>
                                 </div>
                               </div>
                             )}
@@ -954,14 +954,14 @@ export function PexelsImageModal({
               >
                 <div className="flex-1 flex items-start sm:items-center justify-center sm:pt-0 p-8">
                   <div className="w-full max-w-2xl">
-                    <div className="relative rounded-2xl border-2 border-dashed border-purple-300/50 dark:border-purple-500/30 bg-gradient-to-br from-purple-50/30 to-blue-50/20 dark:from-purple-950/20 dark:to-blue-950/10 p-12 text-center transition-all duration-300 hover:border-purple-400/70">
+                    <div className="relative rounded-3xl border-2 border-dashed border-blue-300/50 dark:border-blue-500/30 bg-gradient-to-br from-blue-50/30 to-blue-50/20 dark:from-blue-950/20 dark:to-blue-950/10 p-12 text-center transition-all duration-300 hover:border-blue-400/70">
                       <div className="relative mb-6">
-                        <div className="bg-gradient-to-r from-purple-500 to-blue-500 p-4 rounded-xl mx-auto w-fit shadow-lg">
+                        <div className="bg-gradient-to-r from-blue-500 to-blue-700 p-4 rounded-xl mx-auto w-fit shadow-lg">
                           <FileImage className="h-8 w-8 text-white" />
                         </div>
                       </div>
 
-                      <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                      <h3 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent mb-2">
                         Image Upload
                       </h3>
                       <p className="text-slate-600 dark:text-slate-400 mb-6">
@@ -970,7 +970,7 @@ export function PexelsImageModal({
 
                       <label
                         htmlFor="file-upload"
-                        className="inline-flex items-center gap-2 cursor-pointer rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 px-6 py-3 font-medium text-white hover:from-purple-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 shadow-lg"
+                        className="inline-flex items-center gap-2 cursor-pointer rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 px-6 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-600 transition-all duration-300 hover:scale-105 shadow-lg"
                       >
                         <Upload className="h-4 w-4" />
                         Choose File
@@ -993,7 +993,7 @@ export function PexelsImageModal({
                         <div className="mt-6">
                           <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                             <div
-                              className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-blue-500 to-blue-700 h-2 rounded-full transition-all duration-300"
                               style={{ width: `${uploadProgress}%` }}
                             />
                           </div>

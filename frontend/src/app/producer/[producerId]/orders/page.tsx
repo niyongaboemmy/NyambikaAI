@@ -46,11 +46,11 @@ interface Order {
 }
 
 const statusColors = {
-  pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400",
+  pending: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
   confirmed: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-  processing: "bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400",
-  shipped: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400",
-  delivered: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-400",
+  processing: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+  shipped: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+  delivered: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
   cancelled: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
 };
 
@@ -154,7 +154,7 @@ function ProducerOrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
         <div className="container mx-auto max-w-6xl">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
@@ -171,7 +171,7 @@ function ProducerOrdersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center py-12">
             <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
@@ -185,7 +185,7 @@ function ProducerOrdersPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:via-blue-900/20 dark:to-indigo-900/30">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 dark:from-gray-900 dark:via-blue-900/20 dark:to-blue-900/30">
         <div className="container mx-auto max-w-6xl">
           {/* Header */}
           <div className="mb-8">
@@ -213,27 +213,27 @@ function ProducerOrdersPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.pending")}</p>
-                  <p className="text-2xl font-bold text-yellow-600">{orders.filter(o => o.status === 'pending').length}</p>
+                  <p className="text-2xl font-bold text-blue-600">{orders.filter(o => o.status === 'pending').length}</p>
                 </div>
-                <Clock className="h-8 w-8 text-yellow-500" />
+                <Clock className="h-8 w-8 text-blue-500" />
               </div>
             </div>
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.processing")}</p>
-                  <p className="text-2xl font-bold text-purple-600">{orders.filter(o => o.status === 'processing').length}</p>
+                  <p className="text-2xl font-bold text-blue-600">{orders.filter(o => o.status === 'processing').length}</p>
                 </div>
-                <Package className="h-8 w-8 text-purple-500" />
+                <Package className="h-8 w-8 text-blue-500" />
               </div>
             </div>
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.completed")}</p>
-                  <p className="text-2xl font-bold text-green-600">{orders.filter(o => o.status === 'delivered').length}</p>
+                  <p className="text-2xl font-bold text-blue-600">{orders.filter(o => o.status === 'delivered').length}</p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-500" />
+                <CheckCircle className="h-8 w-8 text-blue-500" />
               </div>
             </div>
           </div>
@@ -294,7 +294,7 @@ function ProducerOrdersPage() {
                             setUpdateStatus(order.status);
                             setUpdateNotes(order.notes || "");
                           }}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
                         >
                           <Edit3 className="h-4 w-4" />
                           {t("producer.update")}

@@ -138,10 +138,10 @@ export function ProducerSubscriptionGuard({
         <div className="w-full max-w-6xl mx-auto">
           <Card className="shadow-xl border-0 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm">
             <CardHeader className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+              <div className="mx-auto w-16 h-16 bg-gradient-to-r from-cyan-500 to-red-500 rounded-full flex items-center justify-center">
                 <UserCheck className="h-8 w-8 text-white" />
               </div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-cyan-600 to-red-600 bg-clip-text text-transparent">
                 Activate Your Producer Account
               </CardTitle>
               <p className="text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
@@ -153,7 +153,7 @@ export function ProducerSubscriptionGuard({
             <CardContent className="space-y-6">
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center justify-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purple-600" />
+                  <Sparkles className="w-5 h-5 text-blue-600" />
                   Choose Your Plan
                 </h3>
 
@@ -177,7 +177,7 @@ export function ProducerSubscriptionGuard({
                 <Button
                   onClick={handleSubscriptionActivation}
                   disabled={subscriptionLoading || !selectedPlanId}
-                  className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                  className="bg-gradient-to-r from-cyan-600 to-red-600 hover:from-cyan-700 hover:to-red-700 text-white"
                   size="lg"
                 >
                   {subscriptionLoading ? (

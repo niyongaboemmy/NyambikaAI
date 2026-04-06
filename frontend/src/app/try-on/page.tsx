@@ -236,7 +236,7 @@ export default function TryOn() {
           <main className="pt-10 sm:pt-10">
             {/* Compact Hero Header for Categories */}
             <div className="text-center mb-4 sm:mb-6">
-              <div className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
+              <div className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
                 AI Try-On
               </div>
               <div className="text-sm sm:text-base text-gray-600 dark:text-gray-300 max-w-md mx-auto px-4">
@@ -247,8 +247,8 @@ export default function TryOn() {
             {/* Category Search Skeleton */}
             <div className="mb-3">
               <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-2xl blur-xl opacity-50" />
-                <div className="relative bg-white/90 dark:bg-violet-800/10 backdrop-blur-sm rounded-2xl border border-blue-200/30 shadow-xl shadow-blue-500/10">
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-blue-500/10 to-blue-500/10 rounded-2xl blur-xl opacity-50" />
+                <div className="relative bg-white/90 dark:bg-blue-800/10 backdrop-blur-sm rounded-2xl border border-blue-200/30 shadow-xl shadow-blue-500/10">
                   <Skeleton className="h-12 w-full rounded-2xl" />
                 </div>
               </div>
@@ -262,12 +262,12 @@ export default function TryOn() {
                   className="group relative p-3 rounded-2xl bg-gradient-to-br from-white/90 dark:from-black/50 to-blue-50/50 dark:to-black/50 border border-blue-200/30 dark:border-none backdrop-blur-sm overflow-hidden"
                 >
                   {/* AI Glow Effect */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-blue-400/10 animate-pulse rounded-2xl" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-blue-400/10 to-blue-400/10 animate-pulse rounded-2xl" />
 
                   {/* Neural Network Pattern */}
-                  <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-30 animate-pulse" />
+                  <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full opacity-30 animate-pulse" />
                   <div
-                    className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 animate-pulse"
+                    className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full opacity-20 animate-pulse"
                     style={{ animationDelay: "0.5s" }}
                   />
 
@@ -287,8 +287,8 @@ export default function TryOn() {
 
                     {/* AI Ready Badge Skeleton */}
                     <div className="mt-1 flex justify-center">
-                      <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-purple-100/50 dark:from-blue-800/50 dark:to-purple-800/50 rounded-full animate-pulse">
-                        <div className="h-3 w-12 bg-gradient-to-r from-blue-200 to-purple-200 dark:from-blue-600 dark:to-purple-600 rounded" />
+                      <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-blue-100/50 dark:from-blue-800/50 dark:to-blue-800/50 rounded-full animate-pulse">
+                        <div className="h-3 w-12 bg-gradient-to-r from-blue-200 to-blue-200 dark:from-blue-600 dark:to-blue-600 rounded" />
                       </div>
                     </div>
                   </div>
@@ -345,7 +345,7 @@ export default function TryOn() {
                 transition={{ duration: 0.4 }}
               >
                 <motion.h1
-                  className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent mb-2"
+                  className="text-xl sm:text-2xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-2"
                   whileHover={{ scale: 1.02 }}
                 >
                   AI Try-On
@@ -374,7 +374,7 @@ export default function TryOn() {
                     style={{ animationDelay: "0s" }}
                   />
                   <div
-                    className="absolute top-4 right-1/3 w-1 h-1 bg-purple-400 rounded-full animate-ping opacity-60"
+                    className="absolute top-4 right-1/3 w-1 h-1 bg-blue-400 rounded-full animate-ping opacity-60"
                     style={{ animationDelay: "1s" }}
                   />
                   <div
@@ -441,7 +441,7 @@ export default function TryOn() {
 
                 {/* Main Header Container */}
                 <motion.div
-                  className="relative bg-gradient-to-r from-white/95 via-blue-50/90 to-purple-50/95 dark:from-gray-800/95 dark:via-indigo-900/90 dark:to-purple-900/95 backdrop-blur-xl rounded-2xl border border-blue-200/30 dark:border-indigo-500/30 shadow-2xl shadow-blue-500/20 dark:shadow-indigo-500/20 p-3 sm:p-4"
+                  className="relative bg-gradient-to-r from-white/95 via-blue-50/90 to-blue-50/95 dark:from-gray-800/95 dark:via-blue-900/90 dark:to-blue-900/95 backdrop-blur-xl rounded-2xl border border-blue-200/30 dark:border-blue-500/30 shadow-2xl shadow-blue-500/20 dark:shadow-blue-500/20 p-3 sm:p-4"
                   whileHover={{ scale: 1.01, y: -2 }}
                   transition={{ type: "spring", stiffness: 300 }}
                 >
@@ -449,7 +449,7 @@ export default function TryOn() {
                     {/* Interactive Back Button with AI Glow */}
                     <motion.button
                       onClick={() => setCurrentStep("categories")}
-                      className="group relative bg-gradient-to-r from-blue-500/10 to-purple-500/10 hover:from-blue-500/20 hover:to-purple-500/20 dark:from-indigo-500/20 dark:to-purple-500/20 dark:hover:from-indigo-500/30 dark:hover:to-purple-500/30 text-xs sm:text-sm flex items-center gap-1 sm:gap-2 text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-400 px-2 sm:px-4 py-2 rounded-xl border border-blue-200/50 hover:border-blue-400/60 dark:border-indigo-400/50 dark:hover:border-indigo-400/70 transition-all duration-300 overflow-hidden"
+                      className="group relative bg-gradient-to-r from-blue-500/10 to-blue-500/10 hover:from-blue-500/20 hover:to-blue-500/20 dark:from-blue-500/20 dark:to-blue-500/20 dark:hover:from-blue-500/30 dark:hover:to-blue-500/30 text-xs sm:text-sm flex items-center gap-1 sm:gap-2 text-gray-700 hover:text-blue-700 dark:text-gray-300 dark:hover:text-blue-400 px-2 sm:px-4 py-2 rounded-xl border border-blue-200/50 hover:border-blue-400/60 dark:border-blue-400/50 dark:hover:border-blue-400/70 transition-all duration-300 overflow-hidden"
                       whileHover={{ x: -5, scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -472,7 +472,7 @@ export default function TryOn() {
                       <div className="relative inline-block">
                         {/* AI Brain Icon with Pulsing Effect */}
                         <motion.div
-                          className="absolute -top-1 sm:-top-2 -left-6 sm:-left-8 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 rounded-full opacity-80"
+                          className="absolute -top-1 sm:-top-2 -left-6 sm:-left-8 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-blue-500 to-blue-700 dark:from-blue-400 dark:to-blue-400 rounded-full opacity-80"
                           animate={{
                             scale: [1, 1.2, 1],
                             rotate: [0, 180, 360],
@@ -487,7 +487,7 @@ export default function TryOn() {
                         </motion.div>
 
                         <motion.h1
-                          className="text-sm sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent relative truncate"
+                          className="text-sm sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent relative truncate"
                           animate={{
                             backgroundPosition: [
                               "0% 50%",
@@ -534,19 +534,19 @@ export default function TryOn() {
                       (c: Category) => String(c.id) === categoryId,
                     ) && (
                       <motion.div
-                        className="group relative bg-gradient-to-r from-blue-50/80 to-purple-50/80 hover:from-blue-100/90 hover:to-purple-100/90 dark:from-indigo-900/40 dark:to-purple-900/40 dark:hover:from-indigo-800/50 dark:hover:to-purple-800/50 px-2 sm:px-4 py-2 rounded-xl border border-blue-200/50 hover:border-blue-400/70 dark:border-indigo-400/30 dark:hover:border-indigo-400/50 shadow-lg hover:shadow-xl shadow-blue-500/10 hover:shadow-blue-500/20 dark:shadow-indigo-500/10 dark:hover:shadow-indigo-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
+                        className="group relative bg-gradient-to-r from-blue-50/80 to-blue-50/80 hover:from-blue-100/90 hover:to-blue-100/90 dark:from-blue-900/40 dark:to-blue-900/40 dark:hover:from-blue-800/50 dark:hover:to-blue-800/50 px-2 sm:px-4 py-2 rounded-xl border border-blue-200/50 hover:border-blue-400/70 dark:border-blue-400/30 dark:hover:border-blue-400/50 shadow-lg hover:shadow-xl shadow-blue-500/10 hover:shadow-blue-500/20 dark:shadow-blue-500/10 dark:hover:shadow-blue-500/20 transition-all duration-300 cursor-pointer overflow-hidden"
                         initial={{ opacity: 0, scale: 0.9, x: 20 }}
                         animate={{ opacity: 1, scale: 1, x: 0 }}
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.98 }}
                       >
                         {/* Processing Animation Background */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/10 to-purple-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/10 to-blue-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
                         <div className="flex items-center gap-2 sm:gap-3 relative z-10">
                           {/* Enhanced Category Image with AI Border */}
                           <div className="relative">
-                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 shadow-lg border-2 border-blue-200/50 group-hover:border-blue-400/70 dark:border-indigo-400/30 dark:group-hover:border-indigo-400/50 transition-colors">
+                            <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-xl overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 shadow-lg border-2 border-blue-200/50 group-hover:border-blue-400/70 dark:border-blue-400/30 dark:group-hover:border-blue-400/50 transition-colors">
                               {allCategories.find(
                                 (c: Category) => String(c.id) === categoryId,
                               )?.imageUrl ? (
@@ -561,7 +561,7 @@ export default function TryOn() {
                                   className="w-full h-full object-cover"
                                 />
                               ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-blue-400/20 dark:from-blue-500/30 dark:via-purple-500/30 dark:to-blue-500/30 flex items-center justify-center">
+                                <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-blue-400/20 to-blue-400/20 dark:from-blue-500/30 dark:via-blue-500/30 dark:to-blue-500/30 flex items-center justify-center">
                                   <Sparkles
                                     className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400 animate-spin"
                                     style={{ animationDuration: "2s" }}
@@ -572,7 +572,7 @@ export default function TryOn() {
 
                             {/* AI Processing Indicator */}
                             <motion.div
-                              className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-green-400 to-emerald-500 dark:from-green-500 dark:to-emerald-400 rounded-full shadow-lg"
+                              className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-400 rounded-full shadow-lg"
                               animate={{
                                 scale: [1, 1.3, 1],
                                 opacity: [0.7, 1, 0.7],
@@ -589,7 +589,7 @@ export default function TryOn() {
 
                           {/* Category Info with AI Context */}
                           <div className="hidden sm:block">
-                            <h2 className="font-semibold text-sm bg-gradient-to-r from-blue-700 to-purple-700 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+                            <h2 className="font-semibold text-sm bg-gradient-to-r from-blue-700 to-blue-700 dark:from-blue-400 dark:to-blue-400 bg-clip-text text-transparent">
                               {
                                 allCategories.find(
                                   (c: Category) => String(c.id) === categoryId,
@@ -628,7 +628,7 @@ export default function TryOn() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5 }}
                     >
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 rounded-2xl blur-xl opacity-50" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-blue-500/10 to-blue-500/10 rounded-2xl blur-xl opacity-50" />
                       <div className="relative rounded-xl bg-white dark:bg-gray-800">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-blue-500" />
                         <Input
@@ -679,10 +679,10 @@ export default function TryOn() {
                           transition={{ delay: index * 0.1 }}
                         >
                           {/* AI Glow Effect */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-purple-400/10 to-blue-400/10 animate-pulse rounded-2xl" />
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-blue-400/10 to-blue-400/10 animate-pulse rounded-2xl" />
 
                           {/* Neural Network Pattern */}
-                          <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500/30 to-purple-500/30 rounded-full animate-pulse" />
+                          <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500/30 to-blue-500/30 rounded-full animate-pulse" />
 
                           <div className="relative z-10">
                             {/* Image Skeleton */}
@@ -700,8 +700,8 @@ export default function TryOn() {
 
                             {/* AI Indicator Skeleton */}
                             <div className="mt-1 flex justify-center">
-                              <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-purple-100/50 rounded-full animate-pulse">
-                                <div className="h-3 w-12 bg-gradient-to-r from-blue-200 to-purple-200 rounded" />
+                              <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-blue-100/50 rounded-full animate-pulse">
+                                <div className="h-3 w-12 bg-gradient-to-r from-blue-200 to-blue-200 rounded" />
                               </div>
                             </div>
                           </div>
@@ -725,7 +725,7 @@ export default function TryOn() {
                         </p>
                         <motion.button
                           onClick={() => window.location.reload()}
-                          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
+                          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:from-blue-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -738,7 +738,7 @@ export default function TryOn() {
                           <motion.button
                             key={c.id}
                             onClick={() => handleCategorySelect(String(c.id))}
-                            className="group relative p-3 rounded-2xl bg-gradient-to-br from-white/90 dark:from-blue-900/50 to-white dark:to-violet-900/50 dark:text-white border border-blue-200/30 dark:border-none hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/20 hover:from-blue-50/80 hover:to-purple-50/60 transition-all duration-500 backdrop-blur-sm overflow-hidden"
+                            className="group relative p-3 rounded-2xl bg-gradient-to-br from-white/90 dark:from-blue-900/50 to-white dark:to-blue-900/50 dark:text-white border border-blue-200/30 dark:border-none hover:border-blue-400/60 hover:shadow-2xl hover:shadow-blue-500/20 hover:from-blue-50/80 hover:to-blue-50/60 transition-all duration-500 backdrop-blur-sm overflow-hidden"
                             whileHover={{ scale: 1.08, y: -8, rotateY: 5 }}
                             whileTap={{ scale: 0.95 }}
                             initial={{ opacity: 0, y: 20, rotateX: -10 }}
@@ -751,12 +751,12 @@ export default function TryOn() {
                             }}
                           >
                             {/* AI Glow Effect */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 via-purple-400/0 to-blue-400/0 group-hover:from-blue-400/10 group-hover:via-purple-400/10 group-hover:to-blue-400/10 transition-all duration-500 rounded-2xl" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/0 via-blue-400/0 to-blue-400/0 group-hover:from-blue-400/10 group-hover:via-blue-400/10 group-hover:to-blue-400/10 transition-all duration-500 rounded-2xl" />
 
                             {/* Neural Network Pattern */}
-                            <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full opacity-30 group-hover:opacity-60 animate-pulse" />
+                            <div className="absolute top-1 right-1 w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full opacity-30 group-hover:opacity-60 animate-pulse" />
                             <div
-                              className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full opacity-20 group-hover:opacity-40 animate-pulse"
+                              className="absolute bottom-1 left-1 w-1 h-1 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full opacity-20 group-hover:opacity-40 animate-pulse"
                               style={{ animationDelay: "0.5s" }}
                             />
 
@@ -770,19 +770,19 @@ export default function TryOn() {
                                     loading="lazy"
                                   />
                                 ) : (
-                                  <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-purple-400/20 to-blue-400/20 flex items-center justify-center group-hover:from-blue-400/30 group-hover:via-purple-400/30 group-hover:to-blue-400/30 transition-all duration-300">
-                                    <Sparkles className="h-5 w-5 text-blue-600 group-hover:text-purple-600 animate-pulse group-hover:animate-spin transition-all duration-300" />
+                                  <div className="w-full h-full bg-gradient-to-br from-blue-400/20 via-blue-400/20 to-blue-400/20 flex items-center justify-center group-hover:from-blue-400/30 group-hover:via-blue-400/30 group-hover:to-blue-400/30 transition-all duration-300">
+                                    <Sparkles className="h-5 w-5 text-blue-600 group-hover:text-blue-600 animate-pulse group-hover:animate-spin transition-all duration-300" />
                                   </div>
                                 )}
                               </div>
-                              <h3 className="font-semibold text-sm text-gray-800 dark:text-white group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 text-center leading-tight">
+                              <h3 className="font-semibold text-sm text-gray-800 dark:text-white group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-blue-600 group-hover:bg-clip-text group-hover:text-transparent transition-all duration-300 text-center leading-tight">
                                 {c.name}
                               </h3>
 
                               {/* AI Indicator */}
                               <div className="mt-1 flex justify-center">
-                                <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-purple-100/50 group-hover:from-blue-200/70 group-hover:to-purple-200/70 rounded-full transition-all duration-300">
-                                  <span className="text-xs font-medium bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                <div className="px-2 py-0.5 bg-gradient-to-r from-blue-100/50 to-blue-100/50 group-hover:from-blue-200/70 group-hover:to-blue-200/70 rounded-full transition-all duration-300">
+                                  <span className="text-xs font-medium bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                                     AI Ready
                                   </span>
                                 </div>
@@ -801,7 +801,7 @@ export default function TryOn() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                     >
-                      <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                      <div className="w-20 h-20 mx-auto mb-4 rounded-3xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                         <Search className="h-10 w-10 text-blue-500" />
                       </div>
                       <h3 className="text-gray-700 font-semibold text-lg mb-2">
@@ -812,7 +812,7 @@ export default function TryOn() {
                       </p>
                       <motion.button
                         onClick={() => setCategorySearch("")}
-                        className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-full hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
+                        className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-full hover:from-blue-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -840,25 +840,25 @@ export default function TryOn() {
                     {/* Compact Brand Filter Toggle */}
                     <motion.button
                       onClick={() => setShowCompanyFilter(!showCompanyFilter)}
-                      className="group relative flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500/8 to-purple-500/8 hover:from-blue-500/15 hover:to-purple-500/15 border border-blue-200/40 hover:border-blue-300/60 rounded-lg transition-all duration-300 overflow-hidden"
+                      className="group relative flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-blue-500/8 to-blue-500/8 hover:from-blue-500/15 hover:to-blue-500/15 border border-blue-200/40 hover:border-blue-300/60 rounded-lg transition-all duration-300 overflow-hidden"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
                       {/* AI Glow Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/5 to-purple-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-400/0 via-blue-400/5 to-blue-400/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
 
                       {/* AI Icon */}
-                      <div className="relative w-5 h-5 rounded-md bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center shadow-sm">
+                      <div className="relative w-5 h-5 rounded-md bg-gradient-to-r from-blue-500 to-blue-700 flex items-center justify-center shadow-sm">
                         <Filter className="h-2.5 w-2.5 text-white" />
-                        <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+                        <div className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-blue-400 rounded-full animate-pulse" />
                       </div>
 
                       {/* Compact Text */}
                       <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                        <span className="font-medium text-xs bg-gradient-to-r from-blue-700 to-purple-700 bg-clip-text text-transparent">
+                        <span className="font-medium text-xs bg-gradient-to-r from-blue-700 to-blue-700 bg-clip-text text-transparent">
                           Brands
                         </span>
-                        <div className="w-px h-3 bg-gradient-to-b from-blue-300 to-purple-300 opacity-50" />
+                        <div className="w-px h-3 bg-gradient-to-b from-blue-300 to-blue-300 opacity-50" />
                         <span className="text-xs text-gray-500 truncate">
                           {selectedCompanyId
                             ? displayCompanies.find(
@@ -943,8 +943,8 @@ export default function TryOn() {
                                 }}
                                 className={`group p-3 rounded-xl transition-all duration-300 relative ${
                                   !selectedCompanyId
-                                    ? "bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-xl shadow-blue-500/30"
-                                    : "bg-white/90 hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 border border-gray-200/50 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/10"
+                                    ? "bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl shadow-blue-500/30"
+                                    : "bg-white/90 hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-50 border border-gray-200/50 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/10"
                                 } overflow-hidden`}
                                 whileHover={{ scale: 1.02, y: -2 }}
                                 whileTap={{ scale: 0.98 }}
@@ -952,7 +952,7 @@ export default function TryOn() {
                                 animate={{ opacity: 1, y: 0 }}
                               >
                                 {/* All Brands Logo */}
-                                <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-blue-100 to-purple-100 shadow-lg overflow-hidden flex items-center justify-center">
+                                <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 shadow-lg overflow-hidden flex items-center justify-center">
                                   <Sparkles
                                     className={`h-6 w-6 ${
                                       !selectedCompanyId
@@ -985,7 +985,7 @@ export default function TryOn() {
                                 </div>
 
                                 {/* AI Ready Badge */}
-                                <div className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg">
+                                <div className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center shadow-lg">
                                   <Sparkles className="h-2 w-2 text-white" />
                                 </div>
                               </motion.button>
@@ -1047,8 +1047,8 @@ export default function TryOn() {
                                       }}
                                       className={`group p-3 rounded-xl transition-all duration-300 relative ${
                                         selectedCompanyId === String(company.id)
-                                          ? "bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-xl shadow-blue-500/30"
-                                          : "bg-white/90 dark:bg-gray-700/60 dark:border-none dark:text-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-purple-50 border border-gray-200/50 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/10"
+                                          ? "bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-xl shadow-blue-500/30"
+                                          : "bg-white/90 dark:bg-gray-700/60 dark:border-none dark:text-white hover:bg-gradient-to-br hover:from-blue-50 hover:to-blue-50 border border-gray-200/50 hover:border-blue-400/60 hover:shadow-lg hover:shadow-blue-500/10"
                                       }`}
                                       whileHover={{ scale: 1.02, y: -2 }}
                                       whileTap={{ scale: 0.98 }}
@@ -1123,7 +1123,7 @@ export default function TryOn() {
                               <div className="flex justify-center mt-6">
                                 <motion.button
                                   onClick={loadMoreCompanies}
-                                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 text-blue-600 hover:from-blue-500/20 hover:to-purple-500/20 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
+                                  className="flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-medium bg-gradient-to-r from-blue-500/10 to-blue-500/10 border border-blue-200/50 text-blue-600 hover:from-blue-500/20 hover:to-blue-500/20 hover:border-blue-300/50 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
                                   whileHover={{ scale: 1.05, y: -2 }}
                                   whileTap={{ scale: 0.95 }}
                                 >
@@ -1186,7 +1186,7 @@ export default function TryOn() {
                               setSearchInput("");
                               setSelectedCompanyId("");
                             }}
-                            className="px-3 py-1 bg-gradient-to-r from-blue-500/10 to-purple-500/10 text-blue-600 hover:from-blue-500/20 hover:to-purple-500/20 text-sm font-medium rounded-lg transition-all duration-300 border border-blue-200/50"
+                            className="px-3 py-1 bg-gradient-to-r from-blue-500/10 to-blue-500/10 text-blue-600 hover:from-blue-500/20 hover:to-blue-500/20 text-sm font-medium rounded-lg transition-all duration-300 border border-blue-200/50"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
@@ -1215,11 +1215,11 @@ export default function TryOn() {
                                 />
                               </div>
                               {/* AI Try-on indicator skeleton */}
-                              <div className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-blue-300 to-purple-300 rounded-full animate-pulse opacity-60" />
+                              <div className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-blue-300 to-blue-300 rounded-full animate-pulse opacity-60" />
                             </div>
                             <div className="p-2">
                               <div className="h-3 bg-gradient-to-r from-gray-200 to-blue-100 rounded animate-pulse mb-1" />
-                              <div className="h-3 w-16 bg-gradient-to-r from-blue-200 to-purple-200 rounded animate-pulse" />
+                              <div className="h-3 w-16 bg-gradient-to-r from-blue-200 to-blue-200 rounded animate-pulse" />
                             </div>
                           </motion.div>
                         ))
@@ -1241,7 +1241,7 @@ export default function TryOn() {
                           </p>
                           <motion.button
                             onClick={() => window.location.reload()}
-                            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
+                            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:from-blue-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
@@ -1283,7 +1283,7 @@ export default function TryOn() {
                                   />
                                 )}
                                 {/* AI Try-on indicator */}
-                                <div className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center opacity-80">
+                                <div className="absolute top-1 right-1 w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center opacity-80">
                                   <Sparkles className="h-2 w-2 text-white" />
                                 </div>
                               </div>
@@ -1292,7 +1292,7 @@ export default function TryOn() {
                                   {product.name}
                                 </h3>
                                 {product.price && (
-                                  <p className="text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text font-semibold text-xs mt-1">
+                                  <p className="text-transparent bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text font-semibold text-xs mt-1">
                                     RF {product.price}
                                   </p>
                                 )}
@@ -1309,7 +1309,7 @@ export default function TryOn() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                       >
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
                           <Search className="h-8 w-8 text-blue-500" />
                         </div>
                         <h3 className="text-gray-700 font-semibold text-lg mb-2">
@@ -1323,7 +1323,7 @@ export default function TryOn() {
                             setSearchInput("");
                             setSelectedCompanyId("");
                           }}
-                          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
+                          className="px-6 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:from-blue-600 hover:to-blue-600 transition-all duration-300 shadow-lg shadow-blue-500/25"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >

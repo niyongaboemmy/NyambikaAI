@@ -186,7 +186,7 @@ function ProductCard({
                 size={showBoostLabel ? "sm" : "icon"}
                 variant="default"
                 className={cn(
-                  "rounded-full bg-green-600 hover:bg-green-700 text-white shadow-lg",
+                  "rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg",
                   showBoostLabel ? "h-8 px-2" : "h-8 w-8"
                 )}
                 onClick={(e) => {
@@ -227,7 +227,7 @@ function ProductCard({
                 e.stopPropagation();
                 onViewDetails(product.id);
               }}
-              className="pointer-events-auto bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-2 rounded-full font-medium shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105"
+              className="pointer-events-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 rounded-full font-medium shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105"
               aria-label="View details"
               title="View details"
             >
@@ -271,7 +271,7 @@ function ProductCard({
           <div className="text-center">
             <span
               className={cn(
-                "font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent",
+                "font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent",
                 compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
               )}
             >

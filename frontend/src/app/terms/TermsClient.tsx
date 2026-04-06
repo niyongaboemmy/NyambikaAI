@@ -10,7 +10,7 @@ export default function TermsClient() {
     <div className="py-10">
       <PageHeader
         badge="Legal"
-        badgeTone="purple"
+        badgeTone="blue"
         titleKey="terms.title"
         subtitleKey="terms.subtitle"
       />

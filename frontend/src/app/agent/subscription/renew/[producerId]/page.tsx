@@ -308,7 +308,7 @@ export default function SubscriptionRenewal() {
         <Card className="w-96">
           <CardContent className="pt-6">
             <div className="text-center">
-              <CheckCircle2 className="mx-auto h-12 w-12 text-green-500 mb-4" />
+              <CheckCircle2 className="mx-auto h-12 w-12 text-blue-500 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 Payment Successful!
               </h3>
@@ -353,7 +353,7 @@ export default function SubscriptionRenewal() {
           Back
         </Button>
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
             Subscription Renewal
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -373,7 +373,7 @@ export default function SubscriptionRenewal() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold text-lg">
                 {producer.name
                   .split(" ")
                   .map((n) => n[0])
@@ -425,7 +425,7 @@ export default function SubscriptionRenewal() {
                     className={
                       producer.subscriptionStatus === "expired"
                         ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
-                        : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                        : "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
                     }
                   >
                     {producer.subscriptionStatus === "expired"
@@ -627,7 +627,7 @@ export default function SubscriptionRenewal() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Your Commission (40%):</span>
-                  <span className="font-medium text-green-600 dark:text-green-400">
+                  <span className="font-medium text-blue-600 dark:text-blue-400">
                     {commissionAmount.toLocaleString()} RWF
                   </span>
                 </div>
@@ -646,7 +646,7 @@ export default function SubscriptionRenewal() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white"
                 disabled={isProcessing}
               >
                 {isProcessing ? (

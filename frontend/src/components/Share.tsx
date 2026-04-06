@@ -213,14 +213,14 @@ export default function Share({
           >
             {/* Backdrop with subtle gradient and grain */}
             <div
-              className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-purple-900/30 to-indigo-900/30 backdrop-blur-sm"
+              className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-blue-900/30 to-blue-900/30 backdrop-blur-sm"
               onClick={() => setOpen(false)}
             />
 
             {/* Floating particles / aurora layers */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
               <span className="absolute -top-16 -left-10 w-72 h-72 bg-blue-500/30 rounded-full blur-3xl animate-[pulse_6s_ease-in-out_infinite]" />
-              <span className="absolute bottom-0 -right-10 w-80 h-80 bg-purple-500/25 rounded-full blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
+              <span className="absolute bottom-0 -right-10 w-80 h-80 bg-blue-500/25 rounded-full blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
             </div>
 
             {/* Panel (bottom-sheet on mobile, centered on desktop) */}
@@ -234,11 +234,11 @@ export default function Share({
                 animate={{ y: 0, opacity: 1, scale: 1 }}
                 exit={{ y: 20, opacity: 0, scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 22 }}
-                className="relative w-full md:w-[600px] rounded-t-2xl md:rounded-2xl border border-white/20 dark:border-white/10 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl shadow-2xl overflow-hidden"
+                className="relative w-full md:w-[600px] rounded-t-3xl md:rounded-3xl border border-white/20 dark:border-white/10 bg-white/90 dark:bg-gray-900/90 backdrop-blur-2xl overflow-hidden"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Decorative gradient top border */}
-                <div className="hidden md:block absolute -top-px left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-500" />
+                <div className="hidden md:block absolute -top-px left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500" />
 
                 {/* Grabber for mobile bottom sheet */}
                 <div className="md:hidden flex justify-center pt-2">
@@ -255,7 +255,7 @@ export default function Share({
                         className="w-7 h-7 rounded-full object-cover ring-2 ring-white/40"
                       />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-purple-500" />
+                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-500" />
                     )}
                     <div>
                       <div className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -309,7 +309,7 @@ export default function Share({
                       label="WhatsApp"
                       onClick={() => setSelected("whatsapp")}
                       icon={<MessageCircle className="w-4 h-4" />}
-                      color="from-emerald-600 to-emerald-400"
+                      color="from-blue-600 to-blue-400"
                     />
                     <PlatformCard
                       selected={selected === "telegram"}
@@ -323,14 +323,14 @@ export default function Share({
                       label="Email"
                       onClick={() => setSelected("email")}
                       icon={<Mail className="w-4 h-4" />}
-                      color="from-rose-500 to-rose-300"
+                      color="from-blue-500 to-blue-300"
                     />
                     <PlatformCard
                       selected={selected === "instagram"}
                       label="Instagram"
                       onClick={() => setSelected("instagram")}
                       icon={<Instagram className="w-4 h-4" />}
-                      color="from-blue-500 to-purple-500"
+                      color="from-blue-500 to-blue-700"
                     />
                     {u.pinterest && (
                       <PlatformCard
@@ -338,7 +338,7 @@ export default function Share({
                         label="Pinterest"
                         onClick={() => setSelected("pinterest")}
                         icon={<Bookmark className="w-4 h-4" />}
-                        color="from-rose-600 to-blue-500"
+                        color="from-blue-600 to-blue-500"
                       />
                     )}
                   </div>
@@ -346,7 +346,7 @@ export default function Share({
                   {/* Actions */}
                   <div className="mt-6 flex flex-col sm:flex-row gap-3 mb-9">
                     <Button
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg shadow-blue-500/20 h-12 md:h-11 text-base md:text-sm"
+                      className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700-blue-500/20 h-12 md:h-11 text-base md:text-sm"
                       onClick={() => {
                         const href =
                           selected === "twitter"
@@ -422,7 +422,7 @@ function PlatformCard({
       onClick={onClick}
       className={`group relative flex flex-col items-center justify-center gap-2 py-4 rounded-xl border transition overflow-hidden ${
         selected
-          ? "scale-[1.04] border-transparent bg-gradient-to-br from-white/85 to-white/60 dark:from-gray-800/95 dark:to-gray-800/70 shadow-xl ring-4 ring-offset-0 ring-blue-400/80"
+          ? "scale-[1.04] border-transparent bg-gradient-to-br from-white/85 to-white/60 dark:from-gray-800/95 dark:to-gray-800/70 ring-4 ring-offset-0 ring-blue-400/80"
           : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 hover:bg-white/80 dark:hover:bg-gray-800/80"
       }`}
     >
@@ -434,7 +434,7 @@ function PlatformCard({
         className={`absolute inset-x-10 -bottom-10 h-16 rounded-full blur-xl opacity-30 group-hover:opacity-60 transition bg-gradient-to-r ${color}`}
       />
       <span
-        className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-xl text-white bg-gradient-to-br ${color} shadow-lg shadow-black/20 ${
+        className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-xl text-white bg-gradient-to-br ${color}-black/20 ${
           selected ? "scale-110" : ""
         }`}
       >
@@ -452,7 +452,7 @@ function PlatformCard({
       {selected && (
         <>
           <span className="pointer-events-none absolute inset-0 rounded-xl ring-4 ring-blue-400/80" />
-          <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white text-[11px] font-bold shadow ring-1 ring-white/80">
+          <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white text-[11px] font-bold ring-1 ring-white/80">
             ✓
           </span>
         </>

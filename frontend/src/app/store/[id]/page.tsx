@@ -83,7 +83,7 @@ export default function StorePage() {
   const [isDark, setIsDark] = useState<boolean>(() =>
     typeof document !== "undefined"
       ? document.documentElement.classList.contains("dark")
-      : false
+      : false,
   );
 
   useEffect(() => {
@@ -136,7 +136,7 @@ export default function StorePage() {
 
       const ensureLink = (rel: string, attrs: Record<string, string>) => {
         let link = document.querySelector<HTMLLinkElement>(
-          `link[rel="${rel}"]`
+          `link[rel="${rel}"]`,
         );
         if (!link) {
           link = document.createElement("link");
@@ -252,7 +252,7 @@ export default function StorePage() {
   // Use a safe products list for rendering
   const productsList: Product[] = React.useMemo(
     () => (subscriptionBlocked || !producerVerified ? [] : products || []),
-    [subscriptionBlocked, producerVerified, products]
+    [subscriptionBlocked, producerVerified, products],
   );
 
   // Fetch all categories with images
@@ -341,7 +341,7 @@ export default function StorePage() {
         label: c.categoryName,
       })),
     ],
-    [categories]
+    [categories],
   );
 
   const priceOptions = useMemo(
@@ -351,7 +351,7 @@ export default function StorePage() {
       { value: "medium", label: "50K - 200K" },
       { value: "high", label: "Over 200K" },
     ],
-    []
+    [],
   );
 
   const sortOptions = useMemo(
@@ -361,7 +361,7 @@ export default function StorePage() {
       { value: "price-low", label: "Price: Low to High" },
       { value: "price-high", label: "Price: High to Low" },
     ],
-    []
+    [],
   );
 
   // react-select styles for light/dark modes
@@ -372,7 +372,7 @@ export default function StorePage() {
     const bg = isDark ? darkBg : lightBg;
     const baseBorder = "transparent"; // matches input's default border-2 border-transparent
     const hoverBorder = "#BFDBFE"; // blue-200
-    const focusBorder = isDark ? "#6366F1" : "#60A5FA"; // indigo-500 (dark) / blue-400 (light)
+    const focusBorder = isDark ? "#6366F1" : "#60A5FA"; // blue-500 (dark) / blue-400 (light)
     const text = isDark ? "#E5E7EB" : "#111827";
     const muted = isDark ? "#9CA3AF" : "#6B7280";
     const hoverBg = isDark ? "#111827" : "#F9FAFB";
@@ -403,10 +403,10 @@ export default function StorePage() {
         backgroundColor: state.isSelected
           ? focusBorder
           : state.isFocused
-          ? hoverBg
-          : isDark
-          ? "#111827"
-          : "#fff",
+            ? hoverBg
+            : isDark
+              ? "#111827"
+              : "#fff",
         color: state.isSelected ? "#fff" : text,
         ":active": {
           backgroundColor: state.isSelected ? focusBorder : hoverBg,
@@ -427,7 +427,7 @@ export default function StorePage() {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredAndSortedProducts.slice(
       startIndex,
-      startIndex + itemsPerPage
+      startIndex + itemsPerPage,
     );
   }, [filteredAndSortedProducts, currentPage, itemsPerPage]);
 
@@ -496,9 +496,9 @@ export default function StorePage() {
       <div className="min-h-screen bg-transparent -mt-12">
         {/* Hero skeleton (logo, name, location/phone, actions) */}
         {/* Store Header Skeleton */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 dark:from-blue-900 dark:via-purple-900 dark:to-indigo-900 pt-8">
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-900 dark:via-blue-900 dark:to-blue-900 pt-8">
           <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-transparent to-purple-500/30 animate-pulse" />
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 via-transparent to-blue-500/30 animate-pulse" />
           <div className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative">
             <div className="max-w-4xl mx-auto text-center space-y-4">
               {/* Logo and Title */}
@@ -673,9 +673,9 @@ export default function StorePage() {
 
   if (!company) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto px-6">
-          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+          <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
             <Package className="w-12 h-12 text-white" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -684,7 +684,7 @@ export default function StorePage() {
           <p className="text-gray-600 dark:text-gray-400 mb-6">
             The store you're looking for doesn't exist or may have been moved.
           </p>
-          <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+          <Button className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600">
             Browse All Stores
           </Button>
         </div>
@@ -702,7 +702,7 @@ export default function StorePage() {
       acc[categoryId].push(product);
       return acc;
     },
-    {} as GroupedProducts
+    {} as GroupedProducts,
   );
 
   return (
@@ -714,21 +714,21 @@ export default function StorePage() {
         />
       )}
       {/* Enhanced Hero Section */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 dark:from-blue-950 via-purple-600 dark:via-purple-900 to-indigo-600 dark:to-indigo-900 pt-8">
+      <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 dark:from-blue-950 via-blue-600 dark:via-blue-900 to-blue-600 dark:to-blue-900 pt-8">
         <div className="absolute inset-0 bg-black/20 dark:bg-black" />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 dark:from-blue-950 via-transparent to-blue-500/30 dark:to-violet-950/60 animate-pulse dark:animate-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/30 dark:from-blue-950 via-transparent to-blue-500/30 dark:to-blue-950/60 animate-pulse dark:animate-none" />
         <div
-          className="absolute inset-0 bg-gradient-to-l from-blue-500/20 dark:from-blue-950/40 via-transparent to-yellow-500/20 dark:to-blue-950/70 animate-pulse dark:animate-none"
+          className="absolute inset-0 bg-gradient-to-l from-blue-500/20 dark:from-blue-950/40 via-transparent to-blue-500/20 dark:to-blue-950/70 animate-pulse dark:animate-none"
           style={{ animationDelay: "2s" }}
         />
         <div className="absolute inset-0">
-          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full opacity-20 dark:opacity-5 animate-float" />
+          <div className="absolute top-10 left-10 w-32 h-32 bg-gradient-to-r from-blue-400 to-blue-400 rounded-full opacity-20 dark:opacity-5 animate-float" />
           <div
-            className="absolute top-20 right-20 w-24 h-24 bg-gradient-to-r from-purple-400 to-blue-400 rounded-full opacity-20 dark:opacity-5 animate-float"
+            className="absolute top-20 right-20 w-24 h-24 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full opacity-20 dark:opacity-5 animate-float"
             style={{ animationDelay: "1s" }}
           />
           <div
-            className="absolute bottom-10 left-1/3 w-20 h-20 bg-gradient-to-r from-indigo-400 to-blue-400 rounded-full opacity-20 dark:opacity-5 animate-float"
+            className="absolute bottom-10 left-1/3 w-20 h-20 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full opacity-20 dark:opacity-5 animate-float"
             style={{ animationDelay: "3s" }}
           />
         </div>
@@ -749,19 +749,19 @@ export default function StorePage() {
                     <Package className="w-8 h-8 sm:w-10 sm:h-10 text-white" />
                   </div>
                 )}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-purple-400 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 opacity-0 group-hover:opacity-30 transition-opacity duration-300" />
               </div>
               <div className="flex flex-col sm:flex-row items-center sm:space-x-2 space-y-2 sm:space-y-0">
                 <h1 className="text-xl sm:text-2xl md:text-4xl font-bold bg-gradient-to-r from-white to-blue-100 bg-clip-text text-transparent text-center sm:text-left">
                   {company.name}
                 </h1>
                 {producerVerified ? (
-                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white border-0 shadow-lg animate-pulse">
+                  <Badge className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-0 shadow-lg animate-pulse">
                     <CheckCircle className="w-3 h-3 mr-1" />
                     Verified
                   </Badge>
                 ) : (
-                  <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0 shadow-lg animate-pulse">
+                  <Badge className="bg-gradient-to-r from-blue-500 to-blue-700 text-white border-0 shadow-lg animate-pulse">
                     <Clock className="w-3 h-3 mr-1" />
                     Pending Verification
                   </Badge>
@@ -804,7 +804,7 @@ export default function StorePage() {
                     window.open(
                       company.websiteUrl || "#",
                       "_blank",
-                      "noopener,noreferrer"
+                      "noopener,noreferrer",
                     )
                   }
                 >
@@ -826,7 +826,7 @@ export default function StorePage() {
           <div className="flex justify-center">
             <div className="flex items-center gap-3 sm:gap-6 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-4 sm:px-6 py-3 shadow-lg overflow-x-auto">
               <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-500 rounded-full flex items-center justify-center">
                   <Package className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
@@ -842,7 +842,7 @@ export default function StorePage() {
               <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
 
               <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
                   <Grid className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
@@ -858,7 +858,7 @@ export default function StorePage() {
               <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
 
               <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
@@ -874,7 +874,7 @@ export default function StorePage() {
               <div className="w-px h-6 sm:h-8 bg-gray-200 dark:bg-gray-600" />
 
               <div className="flex items-center gap-1 sm:gap-2 group hover:scale-105 transition-transform flex-shrink-0">
-                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center">
+                <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
                   <Star className="w-3 h-3 sm:w-4 sm:h-4 text-white" />
                 </div>
                 <div className="text-center">
@@ -917,7 +917,7 @@ export default function StorePage() {
                   onClick={() => setSelectedCategory("all")}
                   className={`group flex flex-col items-center space-y-2 p-2 rounded-xl transition-all duration-300 hover:scale-105 ${
                     selectedCategory === "all"
-                      ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
+                      ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
                       : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:shadow-lg"
                   }`}
                 >
@@ -925,7 +925,7 @@ export default function StorePage() {
                     className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
                       selectedCategory === "all"
                         ? "bg-white/20 backdrop-blur-sm"
-                        : "bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30"
+                        : "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/30"
                     }`}
                   >
                     <Grid3X3
@@ -953,7 +953,7 @@ export default function StorePage() {
                 {/* Category Buttons */}
                 {categories.map((category) => {
                   const categoryData = allCategories.find(
-                    (c) => c.id === category.categoryId
+                    (c) => c.id === category.categoryId,
                   );
                   return (
                     <button
@@ -961,7 +961,7 @@ export default function StorePage() {
                       onClick={() => setSelectedCategory(category.categoryId)}
                       className={`group flex flex-col items-center space-y-2 p-2 rounded-xl transition-all duration-300 hover:scale-105 ${
                         selectedCategory === category.categoryId
-                          ? "bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/25"
+                          ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/25"
                           : "bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700 hover:shadow-lg"
                       }`}
                     >
@@ -1025,7 +1025,7 @@ export default function StorePage() {
           <div className="flex flex-col gap-4">
             {/* Comparison Bar */}
             {compareList.size > 0 && (
-              <div className="w-full mb-4 p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg text-white">
+              <div className="w-full mb-4 p-4 bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg text-white">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <GitCompare className="w-5 h-5" />
@@ -1064,7 +1064,7 @@ export default function StorePage() {
                   <ReactSelect
                     options={categoryOptions}
                     value={categoryOptions.find(
-                      (o) => o.value === selectedCategory
+                      (o) => o.value === selectedCategory,
                     )}
                     onChange={(opt) =>
                       opt && setSelectedCategory((opt as any).value.categoryId)
@@ -1106,7 +1106,7 @@ export default function StorePage() {
           {/* Enhanced Search with Gradient Border */}
           <div className="flex-1 w-full">
             <div className="relative group w-full">
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity" />
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 " />
               <Input
                 placeholder="Search products ..."
@@ -1138,7 +1138,7 @@ export default function StorePage() {
       <div className="container mx-auto px-3 md:px-0 py-5">
         {filteredAndSortedProducts.length === 0 ? (
           <div className="text-center py-16">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+            <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
               {searchQuery ? (
                 <Search className="w-12 h-12 text-white" />
               ) : (
@@ -1319,7 +1319,7 @@ export default function StorePage() {
                     <div className="flex items-center gap-3 mb-2">
                       <Badge variant="outline">{selectedProduct.name}</Badge>
                       {selectedProduct.inStock ? (
-                        <Badge className="bg-green-500">
+                        <Badge className="bg-blue-500">
                           <CheckCircle className="w-3 h-3 mr-1" />
                           In Stock
                         </Badge>
@@ -1480,7 +1480,7 @@ export default function StorePage() {
                             key={product.id}
                             className="p-2 sm:p-3 text-center"
                           >
-                            <div className="font-bold text-sm sm:text-lg bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            <div className="font-bold text-sm sm:text-lg bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                               {product.name.length > 20
                                 ? product.name.substring(0, 20) + "..."
                                 : product.name}
@@ -1490,7 +1490,7 @@ export default function StorePage() {
                       </tr>
 
                       {/* Prices */}
-                      <tr className="border-b bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+                      <tr className="border-b bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20">
                         <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
                           Price
                         </td>
@@ -1499,9 +1499,9 @@ export default function StorePage() {
                             key={product.id}
                             className="p-2 sm:p-3 text-center"
                           >
-                            <div className="text-sm sm:text-xl font-bold text-green-600">
+                            <div className="text-sm sm:text-xl font-bold text-blue-600">
                               {parseFloat(
-                                String(product.price)
+                                String(product.price),
                               ).toLocaleString()}{" "}
                               RWF
                             </div>
@@ -1522,7 +1522,7 @@ export default function StorePage() {
                             <Badge
                               className={
                                 product.inStock
-                                  ? "bg-green-500 text-xs"
+                                  ? "bg-blue-500 text-xs"
                                   : "bg-red-500 text-xs"
                               }
                             >
@@ -1549,7 +1549,7 @@ export default function StorePage() {
                       </tr>
 
                       {/* Categories */}
-                      <tr className="border-b bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20">
+                      <tr className="border-b bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20">
                         <td className="font-semibold text-gray-600 p-2 sm:p-3 text-xs sm:text-sm">
                           Category
                         </td>
@@ -1648,7 +1648,7 @@ export default function StorePage() {
                             <div className="flex flex-col gap-1 sm:gap-2">
                               <Button
                                 size="sm"
-                                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white text-xs px-2 py-1"
+                                className="bg-gradient-to-r from-blue-500 to-blue-500 hover:from-blue-600 hover:to-blue-600 text-white text-xs px-2 py-1"
                                 onClick={() => {
                                   openQuickView(product);
                                   setIsCompareModalOpen(false);

@@ -78,8 +78,8 @@ Alternative method:
                 onClick={() => setSelectedVariant(variant.key)}
                 className={`px-6 py-3 rounded-lg font-medium transition-all ${
                   selectedVariant === variant.key
-                    ? "bg-purple-600 text-white shadow-lg"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-purple-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                    ? "bg-blue-600 text-white shadow-lg"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
                 }`}
               >
                 <div className="text-sm font-semibold">{variant.name}</div>
@@ -98,7 +98,7 @@ Alternative method:
             </h2>
             <button
               onClick={copyInstructions}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
               {copied ? (
                 <Check className="h-4 w-4" />
@@ -135,8 +135,8 @@ Alternative method:
             </div>
           </div>
 
-          <div className="mt-4 p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-            <p className="text-sm text-purple-800 dark:text-purple-200">
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <p className="text-sm text-blue-800 dark:text-blue-200">
               <strong>Tip:</strong> The banner is optimized for{" "}
               {variants
                 .find((v) => v.key === selectedVariant)
@@ -173,7 +173,7 @@ Alternative method:
         </div>
 
         {/* Usage Tips */}
-        <div className="bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 rounded-2xl p-6">
+        <div className="bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 rounded-2xl p-6">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
             Social Media Usage Tips
           </h3>

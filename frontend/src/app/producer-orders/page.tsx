@@ -98,19 +98,19 @@ const STATUS_CONFIG = {
   },
   processing: {
     color:
-      "bg-purple-100/80 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400 border border-purple-200 dark:border-purple-800/50",
+      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
     label: "Processing",
     icon: "⚙️",
   },
   shipped: {
     color:
-      "bg-indigo-100/80 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800/50",
+      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
     label: "Shipped",
     icon: "🚚",
   },
   delivered: {
     color:
-      "bg-emerald-100/80 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50",
+      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
     label: "Delivered",
     icon: "✅",
   },
@@ -432,7 +432,7 @@ export default function ProducerOrders() {
   // Loading state
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800">
         <div className="container mx-auto px-4 py-8">
           <div className="space-y-6">
             <Skeleton className="h-12 w-80" />
@@ -526,7 +526,7 @@ export default function ProducerOrders() {
                 className="relative flex-shrink-0"
               >
                 <Package className="h-5 w-5 sm:h-6 sm:w-6 md:h-7 md:w-7 text-blue-600" />
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-cyan-500/20 rounded-lg blur-lg animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-blue-500/20 to-cyan-500/20 rounded-lg blur-lg animate-pulse"></div>
               </motion.div>
               <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold truncate">
                 Order Management
@@ -558,7 +558,7 @@ export default function ProducerOrders() {
               </div>
               <motion.span
                 whileHover={{ scale: 1.05 }}
-                className="px-2 py-1 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium shadow-sm"
+                className="px-2 py-1 bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-xs font-medium shadow-sm"
               >
                 {user?.role === "admin" ? "Admin" : "Producer"}
               </motion.span>
@@ -624,7 +624,7 @@ export default function ProducerOrders() {
             >
               <Button
                 size="sm"
-                className="w-full sm:w-auto bg-gradient-to-r from-violet-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 text-white shadow-lg transition-all duration-200 text-xs sm:text-sm"
+                className="w-full sm:w-auto bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 text-white shadow-lg transition-all duration-200 text-xs sm:text-sm"
                 onClick={() => router.push("/product-registration")}
               >
                 <Package className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />

@@ -94,7 +94,7 @@ export default function AdminAgentPaymentsPage() {
         <div className="px-2 md:px-0">
           <div className="mb-8 flex items-center justify-between">
             <div className="space-y-2">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-indigo-700 dark:from-white dark:to-indigo-300 bg-clip-text text-transparent">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-blue-700 dark:from-white dark:to-blue-300 bg-clip-text text-transparent">
                 Agent Payments Dashboard
               </h1>
               <div className="flex items-center gap-2">
@@ -111,7 +111,7 @@ export default function AdminAgentPaymentsPage() {
                 href={csvUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 <svg
                   className="w-4 h-4"
@@ -152,7 +152,7 @@ export default function AdminAgentPaymentsPage() {
 
           <div className="rounded-2xl border border-white/20 dark:border-gray-700/50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl shadow-xl p-6 mb-8">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
-              <div className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse"></div>
+              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
               Filters & Search
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -164,7 +164,7 @@ export default function AdminAgentPaymentsPage() {
                   type="date"
                   value={from}
                   onChange={(e) => setFrom(e.target.value)}
-                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-indigo-300"
+                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-blue-300"
                 />
               </div>
               <div className="group">
@@ -175,7 +175,7 @@ export default function AdminAgentPaymentsPage() {
                   type="date"
                   value={to}
                   onChange={(e) => setTo(e.target.value)}
-                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-indigo-300"
+                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-blue-300"
                 />
               </div>
               <div className="group">
@@ -185,7 +185,7 @@ export default function AdminAgentPaymentsPage() {
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-indigo-300"
+                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-blue-300"
                 >
                   <option value="">All Payments</option>
                   <option value="completed">✅ Completed</option>
@@ -200,7 +200,7 @@ export default function AdminAgentPaymentsPage() {
                 <select
                   value={payoutStatus}
                   onChange={(e) => setPayoutStatus(e.target.value)}
-                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 group-hover:border-indigo-300"
+                  className="w-full mt-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 group-hover:border-blue-300"
                 >
                   <option value="">All Payouts</option>
                   <option value="pending">⏳ Pending</option>
@@ -211,7 +211,7 @@ export default function AdminAgentPaymentsPage() {
             <div className="mt-6">
               <button
                 onClick={onApplyFilters}
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white px-6 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
+                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2.5 text-sm font-medium transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
               >
                 <svg
                   className="w-4 h-4"
@@ -235,7 +235,7 @@ export default function AdminAgentPaymentsPage() {
             {loading ? (
               <div className="p-12 text-center">
                 <div className="inline-flex items-center gap-3">
-                  <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                   <span className="text-gray-600 dark:text-gray-400">
                     Loading payments...
                   </span>
@@ -282,7 +282,7 @@ export default function AdminAgentPaymentsPage() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full">
-                  <thead className="bg-gradient-to-r from-gray-50 to-indigo-50 dark:from-gray-800 dark:to-indigo-900">
+                  <thead className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-800 dark:to-blue-900">
                     <tr className="text-left">
                       <th className="py-4 px-6 text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider">
                         Date
@@ -328,7 +328,7 @@ export default function AdminAgentPaymentsPage() {
                           {p.amount} RWF
                         </td>
                         <td className="py-4 px-6">
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-green-100 dark:from-emerald-900/30 dark:to-green-900/30 text-emerald-800 dark:text-emerald-300">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/30 text-blue-800 dark:text-blue-300">
                             {p.agentCommission || "—"} RWF
                           </span>
                         </td>
@@ -336,9 +336,9 @@ export default function AdminAgentPaymentsPage() {
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
                               p.status === "completed"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
                                 : p.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                  ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
                                   : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
                             }`}
                           >
@@ -349,11 +349,11 @@ export default function AdminAgentPaymentsPage() {
                         </td>
                         <td className="py-4 px-6">
                           {p.agentPayoutStatus === "paid" ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-sm">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-sm">
                               💰 Paid
                             </span>
                           ) : (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-sm animate-pulse">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-400 to-cyan-400 text-white shadow-sm animate-pulse">
                               ⏳ Pending
                             </span>
                           )}

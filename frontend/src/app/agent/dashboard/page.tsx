@@ -151,30 +151,30 @@ export default function AgentDashboard() {
   const getStatusIcon = (status: string | undefined) => {
     switch (status) {
       case "active":
-        return <CheckCircle className="h-4 w-4 text-green-400" />;
+        return <CheckCircle className="h-4 w-4 text-blue-400" />;
       case "expired":
         return <AlertCircle className="h-4 w-4 text-red-400" />;
       default:
-        return <Clock className="h-4 w-4 text-orange-400" />;
+        return <Clock className="h-4 w-4 text-cyan-400" />;
     }
   };
 
   const getStatusColor = (status: string | undefined) => {
     switch (status) {
       case "active":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       case "expired":
         return "bg-red-500/20 text-red-400 border-red-500/30";
       default:
-        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+        return "bg-cyan-500/20 text-cyan-400 border-cyan-500/30";
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-purple-400 mx-auto mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin text-blue-400 mx-auto mb-4" />
           <p className="text-white">Loading dashboard...</p>
         </div>
       </div>
@@ -182,10 +182,10 @@ export default function AgentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
@@ -208,7 +208,7 @@ export default function AgentDashboard() {
               <Users className="h-5 w-5 mr-2" />
               View Referrals
             </button>
-            <button className="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center">
+            <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center">
               <Plus className="h-5 w-5 mr-2" />
               Add Producer
             </button>
@@ -237,7 +237,7 @@ export default function AgentDashboard() {
                   {stats.activeSubscriptions}
                 </p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-400" />
+              <CheckCircle className="h-8 w-8 text-blue-400" />
             </div>
           </div>
 
@@ -249,7 +249,7 @@ export default function AgentDashboard() {
                   {stats.totalEarnings.toLocaleString()} RWF
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-yellow-400" />
+              <DollarSign className="h-8 w-8 text-blue-400" />
             </div>
           </div>
 
@@ -261,7 +261,7 @@ export default function AgentDashboard() {
                   {stats.expiringSoon}
                 </p>
               </div>
-              <AlertCircle className="h-8 w-8 text-orange-400" />
+              <AlertCircle className="h-8 w-8 text-cyan-400" />
             </div>
           </div>
         </div>
@@ -275,7 +275,7 @@ export default function AgentDashboard() {
               placeholder="Search producers by name, business, or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
             />
           </div>
 
@@ -284,7 +284,7 @@ export default function AgentDashboard() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-purple-500 appearance-none"
+              className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-blue-500 appearance-none"
             >
               <option value="all">All Producers</option>
               <option value="active">Active</option>
@@ -307,7 +307,7 @@ export default function AgentDashboard() {
                   <h3 className="text-lg font-semibold text-white mb-1">
                     {producer.fullName}
                   </h3>
-                  <p className="text-purple-300 text-sm font-medium mb-2">
+                  <p className="text-blue-300 text-sm font-medium mb-2">
                     {producer.businessName}
                   </p>
                   <p className="text-gray-400 text-sm">{producer.email}</p>
@@ -350,8 +350,8 @@ export default function AgentDashboard() {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <AlertCircle className="h-8 w-8 text-orange-400 mx-auto mb-2" />
-                    <p className="text-orange-300 text-sm">
+                    <AlertCircle className="h-8 w-8 text-cyan-400 mx-auto mb-2" />
+                    <p className="text-cyan-300 text-sm">
                       No active subscription
                     </p>
                   </div>
@@ -382,7 +382,7 @@ export default function AgentDashboard() {
                     onClick={() =>
                       router.push(`/agent/producers/${producer.id}/renew`)
                     }
-                    className="flex-1 py-2 px-4 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center justify-center text-sm"
+                    className="flex-1 py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center justify-center text-sm"
                   >
                     <CreditCard className="h-4 w-4 mr-2" />
                     {producer.subscription ? "Renew" : "Subscribe"}

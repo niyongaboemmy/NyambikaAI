@@ -16,7 +16,7 @@ export default function SizeGuideClient() {
         subtitleKey="sizeGuide.subtitle"
       />
       
-      <div className="prose dark:prose-invert">
+      <div className="pblue dark:pblue-invert">
         <section className="mb-12">
           <h2 className="text-2xl font-semibold mb-6">
             {t('sizeGuide.howToMeasure.title')}
@@ -97,7 +97,7 @@ export default function SizeGuideClient() {
           </div>
         </section>
 
-        <section className="bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-lg">
+        <section className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-lg">
           <h2 className="text-xl font-semibold mb-3">
             {t('sizeGuide.needHelp.title')}
           </h2>
@@ -106,7 +106,7 @@ export default function SizeGuideClient() {
           </p>
           <a 
             href="/contact" 
-            className="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
           >
             {t('sizeGuide.needHelp.button')}
           </a>

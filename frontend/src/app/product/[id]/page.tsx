@@ -472,17 +472,17 @@ export default function ProductDetail() {
       <div className="">
         {/* AI-Motivated Animated Background */}
         <div className="fixed inset-0 pointer-events-none">
-          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-blue-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
           <div
             className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-slate-400/15 via-gray-400/10 to-slate-400/15 dark:from-slate-600/20 dark:via-gray-600/15 dark:to-slate-600/20 rounded-full blur-3xl animate-bounce"
             style={{ animationDuration: "6s" }}
           />
           <div
-            className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-emerald-400/15 via-sky-400/15 to-blue-400/20 rounded-full blur-2xl animate-ping"
+            className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-blue-400/15 via-sky-400/15 to-blue-400/20 rounded-full blur-2xl animate-ping"
             style={{ animationDuration: "5s" }}
           />
           <div
-            className="absolute top-1/4 left-1/3 w-28 h-28 bg-gradient-to-r from-violet-400/10 via-purple-400/15 to-indigo-400/10 rounded-full blur-2xl animate-pulse"
+            className="absolute top-1/4 left-1/3 w-28 h-28 bg-gradient-to-r from-blue-400/10 via-blue-400/15 to-blue-400/10 rounded-full blur-2xl animate-pulse"
             style={{ animationDuration: "6s" }}
           />
         </div>
@@ -601,17 +601,17 @@ export default function ProductDetail() {
     <div className="">
       {/* AI-Motivated Animated Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-purple-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-blue-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
         <div
           className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-slate-400/15 via-gray-400/10 to-slate-400/15 dark:from-slate-600/20 dark:via-gray-600/15 dark:to-slate-600/20 rounded-full blur-3xl animate-bounce"
           style={{ animationDuration: "6s" }}
         />
         <div
-          className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-emerald-400/15 via-sky-400/15 to-blue-400/20 rounded-full blur-2xl animate-ping"
+          className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-blue-400/15 via-sky-400/15 to-blue-400/20 rounded-full blur-2xl animate-ping"
           style={{ animationDuration: "5s" }}
         />
         <div
-          className="absolute top-1/4 left-1/3 w-28 h-28 bg-gradient-to-r from-violet-400/10 via-purple-400/15 to-indigo-400/10 rounded-full blur-2xl animate-pulse"
+          className="absolute top-1/4 left-1/3 w-28 h-28 bg-gradient-to-r from-blue-400/10 via-blue-400/15 to-blue-400/10 rounded-full blur-2xl animate-pulse"
           style={{ animationDuration: "6s" }}
         />
       </div>
@@ -633,7 +633,7 @@ export default function ProductDetail() {
                   onClick={handleBack}
                   className="group relative overflow-hidden bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-2.5 hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <div className="relative flex items-center gap-1.5 sm:gap-2">
                     <ArrowLeft className="h-4 w-4 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300" />
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
@@ -683,10 +683,10 @@ export default function ProductDetail() {
                           variant="ghost"
                           size="icon"
                           onClick={() => router.push(`/product-edit/${id}`)}
-                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-900/30 dark:to-teal-900/30 border border-emerald-200/50 dark:border-emerald-700/50 hover:from-emerald-100 hover:to-teal-100 dark:hover:from-emerald-800/40 dark:hover:to-teal-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/20"
+                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-teal-50 dark:from-blue-900/30 dark:to-teal-900/30 border border-blue-200/50 dark:border-blue-700/50 hover:from-blue-100 hover:to-teal-100 dark:hover:from-blue-800/40 dark:hover:to-teal-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20"
                           title={t("product.edit")}
                         >
-                          <Edit3 className="h-4 w-4 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform duration-200" />
+                          <Edit3 className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
                         </Button>
                       </motion.div>
 
@@ -699,7 +699,7 @@ export default function ProductDetail() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setBoostOpen(true)}
-                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border border-amber-200/50 dark:border-amber-700/50 hover:from-amber-100 hover:to-orange-100 dark:hover:from-amber-800/40 dark:hover:to-orange-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20"
+                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-amber-50 to-cyan-50 dark:from-amber-900/30 dark:to-cyan-900/30 border border-amber-200/50 dark:border-amber-700/50 hover:from-amber-100 hover:to-cyan-100 dark:hover:from-amber-800/40 dark:hover:to-cyan-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-amber-500/20"
                           title={t("product.boost")}
                         >
                           <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform duration-200" />
@@ -716,10 +716,10 @@ export default function ProductDetail() {
                           size="icon"
                           disabled={deleteMutation.isPending}
                           onClick={handleDelete}
-                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-rose-50 to-red-50 dark:from-rose-900/30 dark:to-red-900/30 border border-rose-200/50 dark:border-rose-700/50 hover:from-rose-100 hover:to-red-100 dark:hover:from-rose-800/40 dark:hover:to-red-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-rose-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="group relative w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-red-50 dark:from-blue-900/30 dark:to-red-900/30 border border-blue-200/50 dark:border-blue-700/50 hover:from-blue-100 hover:to-red-100 dark:hover:from-blue-800/40 dark:hover:to-red-800/40 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
                           title={t("product.delete")}
                         >
-                          <Trash2 className="h-4 w-4 text-rose-600 dark:text-rose-400 group-hover:scale-110 transition-transform duration-200" />
+                          <Trash2 className="h-4 w-4 text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform duration-200" />
                         </Button>
                       </motion.div>
                     </div>
@@ -732,7 +732,7 @@ export default function ProductDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
             {/* Product Images */}
             <div className="space-y-2 sm:space-y-4">
-              <div className="aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border border-blue-200/30 dark:border-indigo-700/30 relative group shadow-2xl shadow-blue-500/10 dark:shadow-indigo-500/20">
+              <div className="aspect-square rounded-xl sm:rounded-2xl overflow-hidden bg-gradient-to-br from-blue-50/80 via-blue-50/60 to-blue-50/80 dark:from-slate-800/90 dark:via-blue-900/80 dark:to-blue-900/90 border border-blue-200/30 dark:border-blue-700/30 relative group shadow-2xl shadow-blue-500/10 dark:shadow-blue-500/20">
                 <Image
                   src={product.images?.[currentImageIndex] || product.imageUrl}
                   alt={product.name}
@@ -745,7 +745,7 @@ export default function ProductDetail() {
                   className="object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {/* AI Badge */}
-                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium flex items-center gap-1 shadow-lg shadow-purple-500/30 backdrop-blur-sm border border-white/20">
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 text-white px-1.5 py-0.5 sm:px-2 sm:py-1 rounded-md sm:rounded-lg text-xs font-medium flex items-center gap-1 shadow-lg shadow-blue-500/30 backdrop-blur-sm border border-white/20">
                   <Wand2 className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                   {t("product.aiReady")}
                 </div>
@@ -756,10 +756,10 @@ export default function ProductDetail() {
                     <button
                       key={index}
                       onClick={() => setCurrentImageIndex(index)}
-                      className={`aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border-2 transition-all duration-300 ${
+                      className={`aspect-square rounded-xl overflow-hidden bg-gradient-to-br from-blue-50/80 via-blue-50/60 to-blue-50/80 dark:from-slate-800/90 dark:via-blue-900/80 dark:to-blue-900/90 border-2 transition-all duration-300 ${
                         currentImageIndex === index
-                          ? "border-blue-500 ring-2 ring-blue-200/50 dark:ring-indigo-600/50 scale-105 shadow-lg shadow-blue-500/20 dark:shadow-indigo-500/30"
-                          : "border-transparent hover:border-blue-300/60 hover:scale-105 hover:shadow-md hover:shadow-blue-500/10 dark:hover:shadow-indigo-500/20"
+                          ? "border-blue-500 ring-2 ring-blue-200/50 dark:ring-blue-600/50 scale-105 shadow-lg shadow-blue-500/20 dark:shadow-blue-500/30"
+                          : "border-transparent hover:border-blue-300/60 hover:scale-105 hover:shadow-md hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20"
                       }`}
                     >
                       <Image
@@ -803,7 +803,7 @@ export default function ProductDetail() {
                           key={i}
                           className={`h-3 w-3 ${
                             i < Math.floor(product.rating || 0)
-                              ? "text-yellow-400 fill-current"
+                              ? "text-blue-400 fill-current"
                               : "text-gray-300 dark:text-gray-600"
                           }`}
                         />
@@ -823,7 +823,7 @@ export default function ProductDetail() {
                   </Badge>
                 </div>
                 <div className="flex items-center gap-1 sm:gap-2 mb-1">
-                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mb-1 sm:mb-2">
+                  <p className="text-lg sm:text-xl md:text-2xl font-bold text-blue-600 dark:text-blue-400 mb-1 sm:mb-2">
                     RF {parseFloat(String(product.price)).toLocaleString()}
                   </p>
                   {product.originalPrice && (
@@ -863,7 +863,7 @@ export default function ProductDetail() {
                       onClick={() => setSelectedSize(size)}
                       className={`p-1 sm:p-1.5 text-center border-3 rounded-full transition-all duration-300 font-bold text-xs min-h-[32px] sm:min-h-auto flex items-center justify-center relative ${
                         selectedSize === size
-                          ? "border-blue-500 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white scale-110 dark:shadow-xl dark:shadow-blue-500/40 ring-4 ring-blue-200 dark:ring-blue-800 z-10"
+                          ? "border-blue-500 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 text-white scale-110 dark:shadow-xl dark:shadow-blue-500/40 ring-4 ring-blue-200 dark:ring-blue-800 z-10"
                           : "border-gray-400 dark:border-gray-600 hover:border-blue-400 hover:scale-105 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:hover:shadow-md"
                       }`}
                     >
@@ -913,8 +913,8 @@ export default function ProductDetail() {
                       onClick={() => setSelectedColor(color)}
                       className={`px-1.5 sm:px-2 py-1 sm:py-1.5 border-3 rounded-full transition-all duration-300 font-bold text-xs min-h-[28px] sm:min-h-auto flex items-center justify-center relative ${
                         selectedColor === color
-                          ? "border-purple-500 bg-gradient-to-r from-purple-600 via-blue-600 to-rose-600 text-white scale-110 dark:shadow-xl dark:shadow-purple-500/40 ring-4 ring-purple-200 dark:ring-purple-800 z-10"
-                          : "border-gray-400 dark:border-gray-600 hover:border-purple-400 hover:scale-105 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:hover:shadow-md"
+                          ? "border-blue-500 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 text-white scale-110 dark:shadow-xl dark:shadow-blue-500/40 ring-4 ring-blue-200 dark:ring-blue-800 z-10"
+                          : "border-gray-400 dark:border-gray-600 hover:border-blue-400 hover:scale-105 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 dark:hover:shadow-md"
                       }`}
                     >
                       {color}
@@ -930,7 +930,7 @@ export default function ProductDetail() {
                   <Button
                     onClick={() => setIsChatOpen(true)}
                     disabled={!producerContact?.phone}
-                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-500/30 dark:border-emerald-400/40 min-h-[44px]"
+                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm flex items-center justify-center gap-2 border border-blue-500/30 dark:border-blue-400/40 min-h-[44px]"
                     title={
                       producerContact?.phone
                         ? "Chat on WhatsApp"
@@ -940,7 +940,7 @@ export default function ProductDetail() {
                     <span
                       className={`inline-block w-2 h-2 rounded-full ${
                         presence?.isOnline
-                          ? "bg-emerald-300 animate-pulse"
+                          ? "bg-blue-300 animate-pulse"
                           : "bg-gray-300"
                       }`}
                     />
@@ -952,7 +952,7 @@ export default function ProductDetail() {
                     onClick={handleAddToCart}
                     disabled={!selectedSize || !selectedColor}
                     variant="outline"
-                    className="flex-1 border-2 border-blue-400/60 bg-gradient-to-r from-white/95 via-blue-50/80 to-indigo-50/95 dark:from-slate-800/95 dark:via-blue-900/80 dark:to-indigo-900/95 text-blue-600 dark:text-blue-400 hover:from-blue-50 hover:via-indigo-50 hover:to-purple-50 dark:hover:from-blue-900/30 dark:hover:via-indigo-900/20 dark:hover:to-purple-900/30 py-2 sm:py-2 rounded-md sm:rounded-lg backdrop-blur-md transition-all duration-300 hover:scale-105 text-xs sm:text-sm min-h-[44px] sm:min-h-[44px] shadow-lg shadow-blue-500/10 dark:shadow-blue-500/20 hover:shadow-blue-500/20 dark:hover:shadow-blue-500/30 dark:border-blue-600/50"
+                    className="flex-1 border-2 border-blue-400/60 bg-gradient-to-r from-white/95 via-blue-50/80 to-blue-50/95 dark:from-slate-800/95 dark:via-blue-900/80 dark:to-blue-900/95 text-blue-600 dark:text-blue-400 hover:from-blue-50 hover:via-blue-50 hover:to-blue-50 dark:hover:from-blue-900/30 dark:hover:via-blue-900/20 dark:hover:to-blue-900/30 py-2 sm:py-2 rounded-md sm:rounded-lg backdrop-blur-md transition-all duration-300 hover:scale-105 text-xs sm:text-sm min-h-[44px] sm:min-h-[44px] shadow-lg shadow-blue-500/10 dark:shadow-blue-500/20 hover:shadow-blue-500/20 dark:hover:shadow-blue-500/30 dark:border-blue-600/50"
                   >
                     <ShoppingCart className="h-3.5 w-3.5 mr-1" />
                     Add to Cart
@@ -961,7 +961,7 @@ export default function ProductDetail() {
                   <Button
                     onClick={handleBuyNow}
                     disabled={!selectedSize || !selectedColor}
-                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm flex items-center justify-center gap-2 border border-blue-500/30 dark:border-blue-400/40 min-h-[44px]"
+                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl text-xs sm:text-sm flex items-center justify-center gap-2 border border-blue-500/30 dark:border-blue-400/40 min-h-[44px]"
                   >
                     Buy Now
                   </Button>
@@ -971,7 +971,7 @@ export default function ProductDetail() {
                 <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-lg sm:rounded-xl p-3 sm:p-4 border border-gray-200/60 dark:border-none dark:border-gray-700/60 shadow-gray-500/10 dark:shadow-black/30">
                   <div className="grid grid-cols-3 gap-1 sm:gap-2 text-center">
                     <div className="flex flex-col items-center gap-1">
-                      <Truck className="h-3 w-3 text-emerald-500 dark:text-emerald-400" />
+                      <Truck className="h-3 w-3 text-blue-500 dark:text-blue-400" />
                       <span className="text-xs text-gray-600 dark:text-gray-400">
                         Free Ship
                       </span>
@@ -1009,7 +1009,7 @@ export default function ProductDetail() {
           >
             <Button
               onClick={() => router.push(`/try-on-widget/${product.id}`)}
-              className="w-full py-4 px-6 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 text-white font-bold rounded-full shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 text-lg flex items-center justify-center gap-3 border-2 border-white/20"
+              className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 hover:from-blue-700 hover:via-blue-700 hover:to-blue-700 text-white font-bold rounded-full shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 text-lg flex items-center justify-center gap-3 border-2 border-white/20"
             >
               <Wand2 className="h-6 w-6" />
               Try On with AI

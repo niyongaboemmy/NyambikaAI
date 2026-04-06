@@ -401,7 +401,7 @@ export default function SessionDetailsPage({
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center flex-shrink-0">
                     {user?.profileImage ? (
                       <Image
                         src={user.profileImage}
@@ -590,7 +590,7 @@ export default function SessionDetailsPage({
                     {/* Comment Input - Facebook Style */}
                     {user && (
                       <div className="flex gap-2 sm:gap-3">
-                        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center flex-shrink-0">
+                        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center flex-shrink-0">
                           {user?.profileImage ? (
                             <Image
                               src={user.profileImage}
@@ -650,7 +650,7 @@ export default function SessionDetailsPage({
                               animate={{ opacity: 1, y: 0 }}
                               className="flex gap-1.5 sm:gap-2"
                             >
-                              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                                 <User className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                               </div>
                               <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1.5 sm:p-2">

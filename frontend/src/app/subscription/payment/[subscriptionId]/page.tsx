@@ -72,26 +72,26 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
   if (paymentComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <CheckCircle className="h-16 w-16 text-green-400 mx-auto mb-6" />
+          <CheckCircle className="h-16 w-16 text-blue-400 mx-auto mb-6" />
           <h1 className="text-3xl font-bold text-white mb-4">
             Payment Successful!
           </h1>
           <p className="text-gray-300 mb-6">
             Your subscription has been activated.
           </p>
-          <div className="animate-pulse text-purple-400">Redirecting...</div>
+          <div className="animate-pulse text-blue-400">Redirecting...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
@@ -129,11 +129,11 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                     onClick={() => setPaymentMethod("mobile_money")}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
                       paymentMethod === "mobile_money"
-                        ? "border-purple-500 bg-purple-500/20"
+                        ? "border-blue-500 bg-blue-500/20"
                         : "border-white/20 bg-white/5 hover:border-white/30"
                     }`}
                   >
-                    <Smartphone className="h-8 w-8 mx-auto mb-2 text-yellow-400" />
+                    <Smartphone className="h-8 w-8 mx-auto mb-2 text-blue-400" />
                     <div className="text-white font-semibold">
                       MTN Mobile Money
                     </div>
@@ -145,7 +145,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                     onClick={() => setPaymentMethod("airtel_money")}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
                       paymentMethod === "airtel_money"
-                        ? "border-purple-500 bg-purple-500/20"
+                        ? "border-blue-500 bg-blue-500/20"
                         : "border-white/20 bg-white/5 hover:border-white/30"
                     }`}
                   >
@@ -170,7 +170,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="07XXXXXXXX"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   required
                 />
                 <p className="text-gray-400 text-sm mt-2">
@@ -200,7 +200,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
               <button
                 type="submit"
                 disabled={processing || !phoneNumber}
-                className="w-full py-4 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {processing ? (
                   <>

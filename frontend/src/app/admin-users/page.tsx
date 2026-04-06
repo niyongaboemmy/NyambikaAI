@@ -90,7 +90,7 @@ const AdminUsersPage: React.FC = () => {
   >("monthly");
   const [activationLoading, setActivationLoading] = useState(false);
   const [activationMessage, setActivationMessage] = useState<string | null>(
-    null
+    null,
   );
 
   // Payment state for producer payments
@@ -113,7 +113,7 @@ const AdminUsersPage: React.FC = () => {
     } | null;
   }
   const [subInfo, setSubInfo] = useState<AdminProducerSubscription | null>(
-    null
+    null,
   );
   const [subLoading, setSubLoading] = useState(false);
   const [subError, setSubError] = useState<string | null>(null);
@@ -137,7 +137,7 @@ const AdminUsersPage: React.FC = () => {
   const [agentPayments, setAgentPayments] = useState<AgentPaymentItem[]>([]);
   const [agentPaymentsLoading, setAgentPaymentsLoading] = useState(false);
   const [agentPaymentsError, setAgentPaymentsError] = useState<string | null>(
-    null
+    null,
   );
   const [payoutLoadingId, setPayoutLoadingId] = useState<string | null>(null);
 
@@ -182,7 +182,7 @@ const AdminUsersPage: React.FC = () => {
       setCompanyError(null);
       try {
         const res = await apiClient.get<ProducerCompany>(
-          API_ENDPOINTS.ADMIN_PRODUCER_COMPANY(producerId)
+          API_ENDPOINTS.ADMIN_PRODUCER_COMPANY(producerId),
         );
         if (!ignore) setCompany(res.data);
       } catch (e) {
@@ -207,7 +207,7 @@ const AdminUsersPage: React.FC = () => {
       setAgentPaymentsError(null);
       try {
         const res = await apiClient.get<AgentPaymentItem[]>(
-          API_ENDPOINTS.ADMIN_AGENT_PAYMENTS(agentId)
+          API_ENDPOINTS.ADMIN_AGENT_PAYMENTS(agentId),
         );
         if (!ignore) setAgentPayments(res.data || []);
       } catch (e) {
@@ -232,7 +232,7 @@ const AdminUsersPage: React.FC = () => {
       setSubError(null);
       try {
         const res = await apiClient.get<AdminProducerSubscription>(
-          API_ENDPOINTS.ADMIN_PRODUCER_SUBSCRIPTION(producerId)
+          API_ENDPOINTS.ADMIN_PRODUCER_SUBSCRIPTION(producerId),
         );
         if (!ignore) setSubInfo(res.data);
       } catch (e) {
@@ -252,7 +252,7 @@ const AdminUsersPage: React.FC = () => {
 
   const listAll = useMemo(
     () => [...producers, ...agents, ...customers, ...admins],
-    [producers, agents, customers, admins]
+    [producers, agents, customers, admins],
   );
 
   // Stats for summary boxes
@@ -278,12 +278,12 @@ const AdminUsersPage: React.FC = () => {
       activeTab === "producers"
         ? producers
         : activeTab === "agents"
-        ? agents
-        : activeTab === "customers"
-        ? customers
-        : activeTab === "admins"
-        ? admins
-        : listAll;
+          ? agents
+          : activeTab === "customers"
+            ? customers
+            : activeTab === "admins"
+              ? admins
+              : listAll;
     const q = searchTerm.trim().toLowerCase();
     // First filter by status if applicable
     const byStatus = base.filter((u) => {
@@ -354,16 +354,24 @@ const AdminUsersPage: React.FC = () => {
       await apiClient.post(API_ENDPOINTS.ADMIN_VERIFY_USER(selected.id));
       // update local lists optimistically
       setProducers((prev) =>
-        prev.map((u) => (u.id === selected.id ? { ...u, isVerified: true } : u))
+        prev.map((u) =>
+          u.id === selected.id ? { ...u, isVerified: true } : u,
+        ),
       );
       setAgents((prev) =>
-        prev.map((u) => (u.id === selected.id ? { ...u, isVerified: true } : u))
+        prev.map((u) =>
+          u.id === selected.id ? { ...u, isVerified: true } : u,
+        ),
       );
       setCustomers((prev) =>
-        prev.map((u) => (u.id === selected.id ? { ...u, isVerified: true } : u))
+        prev.map((u) =>
+          u.id === selected.id ? { ...u, isVerified: true } : u,
+        ),
       );
       setAdmins((prev) =>
-        prev.map((u) => (u.id === selected.id ? { ...u, isVerified: true } : u))
+        prev.map((u) =>
+          u.id === selected.id ? { ...u, isVerified: true } : u,
+        ),
       );
       // reflect in selected
       setSelected((prev) => (prev ? { ...prev, isVerified: true } : prev));
@@ -392,7 +400,7 @@ const AdminUsersPage: React.FC = () => {
     <ProtectedRoute>
       {/* <div className="min-h-screen py-4 pt-10"> */}
       <div className="py-4 pt-10">
-        <div className="mb-3 rounded-2xl bg-gradient-to-r from-indigo-600/10 via-fuchsia-500/10 to-cyan-500/10 dark:from-indigo-400/10 dark:via-fuchsia-400/10 dark:to-cyan-400/10 p-5 border dark:border-none border-gray-200/60 dark:border-gray-700/60">
+        <div className="mb-3 rounded-3xl bg-gradient-to-r from-blue-600/10 via-blue-500/10 to-cyan-500/10 dark:from-blue-400/10 dark:via-blue-400/10 dark:to-cyan-400/10 p-5 border dark:border-none border-gray-200/60 dark:border-gray-700/60">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
             Admin • Users
           </h1>
@@ -404,8 +412,8 @@ const AdminUsersPage: React.FC = () => {
 
         {/* Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
-          <div className="relative overflow-hidden rounded-2xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20" />
+          <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Total Users
             </div>
@@ -413,8 +421,8 @@ const AdminUsersPage: React.FC = () => {
               {stats.total}
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-2xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-emerald-500/20 to-cyan-500/20" />
+          <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Verified (Producers & Agents)
             </div>
@@ -422,8 +430,8 @@ const AdminUsersPage: React.FC = () => {
               {stats.verified}
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-2xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-yellow-500/20 to-amber-500/20" />
+          <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Pending Verifications
             </div>
@@ -431,8 +439,8 @@ const AdminUsersPage: React.FC = () => {
               {stats.pendingVerifications}
             </div>
           </div>
-          <div className="relative overflow-hidden rounded-2xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-sky-500/20 to-violet-500/20" />
+          <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-sky-500/20 to-blue-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Producers • Agents
             </div>
@@ -452,7 +460,7 @@ const AdminUsersPage: React.FC = () => {
             <div className="mb-6 space-y-3">
               {/* Role tabs - horizontal scroll on small screens */}
               <div className="overflow-x-auto pb-1">
-                <div className="inline-flex whitespace-nowrap gap-1 px-0 rounded-full border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 overflow-hidden shadow-sm">
+                <div className="inline-flex whitespace-nowrap gap-1 px-1 py-1 rounded-full border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 overflow-hidden">
                   <button
                     onClick={() => setActiveTab("all")}
                     className={`px-4 py-2 text-sm font-medium transition ${
@@ -514,7 +522,7 @@ const AdminUsersPage: React.FC = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by name or email..."
                     aria-label="Search users"
-                    className="w-full rounded-lg border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full rounded-2xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
                 <div className="flex w-full sm:w-auto items-center gap-3">
@@ -529,7 +537,7 @@ const AdminUsersPage: React.FC = () => {
                       id="status-filter"
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value as any)}
-                      className="w-full sm:w-auto rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-2 py-1 text-sm"
+                      className="w-full sm:w-auto rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-2 py-1 text-sm"
                     >
                       <option value="pending">Pending</option>
                       <option value="verified">Verified</option>
@@ -547,7 +555,7 @@ const AdminUsersPage: React.FC = () => {
                       id="rows-select"
                       value={pageSize}
                       onChange={(e) => setPage(1)} // Reset to first page when changing page size
-                      className="w-full sm:w-auto rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-2 py-1 text-sm"
+                      className="w-full sm:w-auto rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-2 py-1 text-sm"
                     >
                       {[10, 20, 50].map((n) => (
                         <option key={n} value={n}>
@@ -561,7 +569,7 @@ const AdminUsersPage: React.FC = () => {
             </div>
 
             {/* Create User (Admin only) */}
-            <div className="mb-6 rounded-2xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
+            <div className="mb-6 rounded-3xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -595,7 +603,7 @@ const AdminUsersPage: React.FC = () => {
                       };
                       const res = await apiClient.post<AdminUserItem>(
                         API_ENDPOINTS.ADMIN_CREATE_USER,
-                        payload
+                        payload,
                       );
                       const created = res.data;
                       // Append to corresponding list
@@ -627,7 +635,7 @@ const AdminUsersPage: React.FC = () => {
                     onChange={(e) => setFormName(e.target.value)}
                     required
                     placeholder="Full name"
-                    className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                   />
                   <input
                     type="email"
@@ -635,7 +643,7 @@ const AdminUsersPage: React.FC = () => {
                     onChange={(e) => setFormEmail(e.target.value)}
                     required
                     placeholder="Email"
-                    className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                   />
                   <input
                     type="password"
@@ -644,12 +652,12 @@ const AdminUsersPage: React.FC = () => {
                     required
                     minLength={6}
                     placeholder="Password"
-                    className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                   />
                   <select
                     value={formRole}
                     onChange={(e) => setFormRole(e.target.value as Role)}
-                    className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                   >
                     <option value="customer">Customer</option>
                     <option value="producer">Producer</option>
@@ -661,12 +669,12 @@ const AdminUsersPage: React.FC = () => {
                       value={formPhone}
                       onChange={(e) => setFormPhone(e.target.value)}
                       placeholder="Phone (optional)"
-                      className="flex-1 rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm"
+                      className="flex-1 rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
                     />
                     <button
                       type="submit"
                       disabled={creating}
-                      className="px-4 py-2 rounded-md bg-gray-900 text-white dark:bg-white dark:text-gray-900 disabled:opacity-60"
+                      className="px-4 py-2 rounded-xl bg-gray-900 text-white dark:bg-white dark:text-gray-900 disabled:opacity-60 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
                       {creating ? "Creating..." : "Create User"}
                     </button>
@@ -695,11 +703,11 @@ const AdminUsersPage: React.FC = () => {
                 paginatedRows.map((u) => (
                   <div
                     key={u.id}
-                    className="rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 p-4"
+                    className="rounded-3xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 p-4 transition-all hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500/70 to-fuchsia-500/70 text-white flex items-center justify-center text-sm font-semibold">
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500/70 to-blue-500/70 text-white flex items-center justify-center text-sm font-semibold">
                           {(u.fullName || u.username || u.email || "?")
                             .split(" ")
                             .map((p) => p[0])
@@ -719,12 +727,12 @@ const AdminUsersPage: React.FC = () => {
                       <span
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                           u.role === "producer"
-                            ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
                             : u.role === "agent"
-                            ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
-                            : u.role === "customer"
-                            ? "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-200"
-                            : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200"
+                              ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
+                              : u.role === "customer"
+                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
                         }`}
                       >
                         {u.role}
@@ -739,8 +747,8 @@ const AdminUsersPage: React.FC = () => {
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                               u.isVerified
-                                ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200"
-                                : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
+                                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200"
+                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
                             }`}
                           >
                             {u.isVerified ? "✅ Verified" : "🕒 Pending"}
@@ -755,7 +763,7 @@ const AdminUsersPage: React.FC = () => {
                     <div className="mt-3">
                       <button
                         onClick={() => openDetails(u)}
-                        className="w-full rounded-md border dark:border-none border-gray-200 dark:border-gray-700 px-3 py-2 text-sm"
+                        className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                       >
                         View
                       </button>
@@ -766,7 +774,7 @@ const AdminUsersPage: React.FC = () => {
             </div>
 
             {/* Data view: table for md+ */}
-            <div className="hidden md:block rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 overflow-hidden shadow-sm">
+            <div className="hidden md:block rounded-3xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                   <thead className="bg-gray-50/70 dark:bg-gray-900/40 sticky top-0 z-10">
@@ -816,7 +824,7 @@ const AdminUsersPage: React.FC = () => {
                         >
                           <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                             <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-indigo-500/70 to-fuchsia-500/70 dark:from-indigo-400/60 dark:to-fuchsia-400/60 text-white flex items-center justify-center text-xs font-medium">
+                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500/70 to-blue-500/70 dark:from-blue-400/60 dark:to-blue-400/60 text-white flex items-center justify-center text-xs font-medium">
                                 {(u.fullName || u.username || u.email || "?")
                                   .split(" ")
                                   .map((p) => p[0])
@@ -842,12 +850,12 @@ const AdminUsersPage: React.FC = () => {
                               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium 
                                 ${
                                   u.role === "producer"
-                                    ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200"
+                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
                                     : u.role === "agent"
-                                    ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
-                                    : u.role === "customer"
-                                    ? "bg-violet-100 text-violet-800 dark:bg-violet-900/30 dark:text-violet-200"
-                                    : "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200"
+                                      ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
+                                      : u.role === "customer"
+                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                        : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
                                 }`}
                             >
                               {u.role}
@@ -862,8 +870,8 @@ const AdminUsersPage: React.FC = () => {
                                 <span
                                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                     u.isVerified
-                                      ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-200"
-                                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
+                                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200"
+                                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
                                   }`}
                                 >
                                   {u.isVerified ? "✅ Verified" : "🕒 Pending"}
@@ -877,7 +885,7 @@ const AdminUsersPage: React.FC = () => {
                           </td>
                           <td className="px-4 py-3 text-right text-sm">
                             <button
-                              className="rounded-md border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-1.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-700/60"
+                              className="rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-1.5 text-gray-700 dark:text-gray-200 hover:bg-gray-100/80 dark:hover:bg-gray-700/60 transition-all"
                               onClick={() => openDetails(u)}
                             >
                               View
@@ -902,7 +910,7 @@ const AdminUsersPage: React.FC = () => {
                   <button
                     disabled={page <= 1}
                     onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    className="px-3 py-1.5 rounded-md border dark:border-none border-gray-200 dark:border-gray-700 disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
                   >
                     Prev
                   </button>
@@ -912,7 +920,7 @@ const AdminUsersPage: React.FC = () => {
                   <button
                     disabled={page >= totalPages}
                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    className="px-3 py-1.5 rounded-md border dark:border-none border-gray-200 dark:border-gray-700 disabled:opacity-50"
+                    className="px-3 py-1.5 rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 disabled:opacity-50 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all"
                   >
                     Next
                   </button>
@@ -933,17 +941,17 @@ const AdminUsersPage: React.FC = () => {
                     selected.role === "producer"
                       ? "max-w-5xl"
                       : selected.role === "agent"
-                      ? "max-w-3xl"
-                      : "max-w-md"
+                        ? "max-w-3xl"
+                        : "max-w-md"
                   } ${
                     selected.role === "producer" ? "h-[calc(100vh-160px)]" : ""
-                  } bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200/50 dark:border-gray-700/50 overflow-y-auto`}
+                  } bg-white dark:bg-gray-900 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 overflow-y-auto`}
                 >
                   {/* Header */}
-                  <div className="p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/30 dark:to-purple-950/30 border-b border-gray-200/50 dark:border-gray-700/50">
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-950/30 dark:to-blue-950/30 border-b border-gray-200/50 dark:border-gray-700/50">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center text-sm font-semibold">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold">
                           {(
                             selected.fullName ||
                             selected.username ||
@@ -969,12 +977,12 @@ const AdminUsersPage: React.FC = () => {
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                             selected.role === "admin"
-                              ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                              : selected.role === "producer"
                               ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                              : selected.role === "agent"
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300"
-                              : "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300"
+                              : selected.role === "producer"
+                                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                : selected.role === "agent"
+                                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                  : "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300"
                           }`}
                         >
                           {selected.role}
@@ -1005,12 +1013,12 @@ const AdminUsersPage: React.FC = () => {
                     {/* Tabs for Producer */}
                     {selected.role === "producer" && (
                       <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50">
-                        <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-lg">
+                        <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-full">
                           <button
                             onClick={() => setModalTab("info")}
-                            className={`flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all duration-200 ${
+                            className={`flex-1 py-2 px-3 text-xs font-medium rounded-full transition-all duration-300 ${
                               modalTab === "info"
-                                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                             }`}
                           >
@@ -1018,9 +1026,9 @@ const AdminUsersPage: React.FC = () => {
                           </button>
                           <button
                             onClick={() => setModalTab("subscription")}
-                            className={`flex-1 py-2 px-3 text-xs font-medium rounded-md transition-all duration-200 ${
+                            className={`flex-1 py-2 px-3 text-xs font-medium rounded-full transition-all duration-300 ${
                               modalTab === "subscription"
-                                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm"
+                                ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                                 : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                             }`}
                           >
@@ -1073,15 +1081,15 @@ const AdminUsersPage: React.FC = () => {
                                   <div
                                     className={`w-2 h-2 rounded-full ${
                                       selected.isVerified
-                                        ? "bg-emerald-500"
-                                        : "bg-amber-500"
+                                        ? "bg-blue-500"
+                                        : "bg-blue-500"
                                     }`}
                                   ></div>
                                   <p
                                     className={`text-xs font-medium ${
                                       selected.isVerified
-                                        ? "text-emerald-600 dark:text-emerald-400"
-                                        : "text-amber-600 dark:text-amber-400"
+                                        ? "text-blue-600 dark:text-blue-400"
+                                        : "text-blue-600 dark:text-blue-400"
                                     }`}
                                   >
                                     {selected.isVerified
@@ -1098,7 +1106,7 @@ const AdminUsersPage: React.FC = () => {
                             <div className="mb-4">
                               <Link
                                 href={`/admin/agent/${selected.id}`}
-                                className="inline-flex items-center gap-2 text-xs bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 px-3 py-2 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/30 transition-colors"
+                                className="inline-flex items-center gap-2 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-3 py-2 rounded-2xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all active:scale-95"
                               >
                                 <svg
                                   className="w-4 h-4"
@@ -1138,13 +1146,13 @@ const AdminUsersPage: React.FC = () => {
                                 </div>
                               ) : (
                                 <div className="space-y-2">
-                                  <div className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                                  <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
                                     Total Earned:{" "}
                                     {agentPayments.reduce(
                                       (sum, p) =>
                                         sum +
                                         (parseFloat(p.agentCommission) || 0),
-                                      0
+                                      0,
                                     )}{" "}
                                     RWF
                                   </div>
@@ -1175,11 +1183,11 @@ const AdminUsersPage: React.FC = () => {
                                             <td className="py-1">
                                               {payment.createdAt
                                                 ? new Date(
-                                                    payment.createdAt
+                                                    payment.createdAt,
                                                   ).toLocaleDateString()
                                                 : "—"}
                                             </td>
-                                            <td className="py-1 font-medium text-emerald-600">
+                                            <td className="py-1 font-medium text-blue-600">
                                               {payment.agentCommission} RWF
                                             </td>
                                             <td className="py-1">
@@ -1187,8 +1195,8 @@ const AdminUsersPage: React.FC = () => {
                                                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                                   payment.agentPayoutStatus ===
                                                   "paid"
-                                                    ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                                    : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                                    : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
                                                 }`}
                                               >
                                                 {payment.agentPayoutStatus ===
@@ -1209,39 +1217,39 @@ const AdminUsersPage: React.FC = () => {
                                                     if (!selected) return;
                                                     const reference =
                                                       window.prompt(
-                                                        "Enter payout reference:"
+                                                        "Enter payout reference:",
                                                       ) || undefined;
                                                     try {
                                                       setPayoutLoadingId(
-                                                        payment.id
+                                                        payment.id,
                                                       );
                                                       await apiClient.put(
                                                         API_ENDPOINTS.ADMIN_AGENT_MARK_PAYOUT(
                                                           selected.id,
-                                                          payment.id
+                                                          payment.id,
                                                         ),
-                                                        { reference }
+                                                        { reference },
                                                       );
                                                       const res =
                                                         await apiClient.get<
                                                           AgentPaymentItem[]
                                                         >(
                                                           API_ENDPOINTS.ADMIN_AGENT_PAYMENTS(
-                                                            selected.id
-                                                          )
+                                                            selected.id,
+                                                          ),
                                                         );
                                                       setAgentPayments(
-                                                        res.data || []
+                                                        res.data || [],
                                                       );
                                                     } catch (e) {
                                                       setAgentPaymentsError(
-                                                        handleApiError(e)
+                                                        handleApiError(e),
                                                       );
                                                     } finally {
                                                       setPayoutLoadingId(null);
                                                     }
                                                   }}
-                                                  className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded disabled:opacity-60"
+                                                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-xl disabled:opacity-60 transition-all"
                                                 >
                                                   {payoutLoadingId ===
                                                   payment.id
@@ -1264,7 +1272,7 @@ const AdminUsersPage: React.FC = () => {
                     </div>
                     {selected.role === "producer" && modalTab === "info" && (
                       <div className="px-3">
-                        <div className="mt-6 rounded-xl border border-blue-200/50 dark:border-blue-700/30 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 p-4 backdrop-blur-sm">
+                        <div className="mt-6 rounded-2xl border border-blue-200/50 dark:border-blue-700/30 bg-gradient-to-br from-blue-50/50 to-blue-50/50 dark:from-blue-950/20 dark:to-blue-950/20 p-4 backdrop-blur-sm">
                           <div className="flex items-center justify-between mb-3">
                             <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
                               <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -1342,7 +1350,7 @@ const AdminUsersPage: React.FC = () => {
                             </h4>
                             {subInfo ? (
                               <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                                <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-gradient-to-r from-green-100 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30 text-green-800 dark:text-green-300">
+                                <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-gradient-to-r from-blue-100 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/30 text-blue-800 dark:text-blue-300">
                                   {subInfo.subscription.status}
                                 </span>
                                 <span>{subInfo.plan?.name || "—"}</span>
@@ -1353,7 +1361,7 @@ const AdminUsersPage: React.FC = () => {
                                   Ends:{" "}
                                   {subInfo.subscription.endDate
                                     ? new Date(
-                                        subInfo.subscription.endDate
+                                        subInfo.subscription.endDate,
                                       ).toLocaleDateString()
                                     : "—"}
                                 </span>
@@ -1366,9 +1374,9 @@ const AdminUsersPage: React.FC = () => {
                           </div>
 
                           {/* Activate New Subscription */}
-                          <div className="border border-emerald-200/50 dark:border-emerald-700/30 bg-gradient-to-br from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20 p-4 backdrop-blur-sm">
-                            <h4 className="text-sm font-semibold text-emerald-900 dark:text-emerald-100 mb-3 flex items-center gap-2">
-                              <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                          <div className="border border-blue-200/50 dark:border-blue-700/30 bg-gradient-to-br from-blue-50/50 to-blue-50/50 dark:from-blue-950/20 dark:to-blue-950/20 p-4 backdrop-blur-sm">
+                            <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
+                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                               Activate New Subscription
                             </h4>
                             <div className="space-y-3">
@@ -1383,7 +1391,7 @@ const AdminUsersPage: React.FC = () => {
                                     }
                                     className={`px-3 py-1 text-xs rounded ${
                                       activationBilling === "monthly"
-                                        ? "bg-emerald-500 text-white"
+                                        ? "bg-blue-500 text-white"
                                         : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                                     }`}
                                   >
@@ -1395,7 +1403,7 @@ const AdminUsersPage: React.FC = () => {
                                     }
                                     className={`px-3 py-1 text-xs rounded ${
                                       activationBilling === "annual"
-                                        ? "bg-emerald-500 text-white"
+                                        ? "bg-blue-500 text-white"
                                         : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                                     }`}
                                   >
@@ -1423,7 +1431,7 @@ const AdminUsersPage: React.FC = () => {
                                 <div
                                   className={`text-xs p-2 rounded ${
                                     activationMessage.includes("successfully")
-                                      ? "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20"
+                                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
                                       : "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
                                   }`}
                                 >
@@ -1441,23 +1449,23 @@ const AdminUsersPage: React.FC = () => {
                                   try {
                                     await apiClient.post(
                                       API_ENDPOINTS.ADMIN_ACTIVATE_SUBSCRIPTION(
-                                        selected.id
+                                        selected.id,
                                       ),
                                       {
                                         planId: activationPlanId,
                                         billingCycle: activationBilling,
-                                      }
+                                      },
                                     );
                                     setActivationMessage(
-                                      "Subscription activated successfully!"
+                                      "Subscription activated successfully!",
                                     );
                                     // Refresh subscription info
                                     try {
                                       const subRes =
                                         await apiClient.get<AdminProducerSubscription>(
                                           API_ENDPOINTS.ADMIN_PRODUCER_SUBSCRIPTION(
-                                            selected.id
-                                          )
+                                            selected.id,
+                                          ),
                                         );
                                       setSubInfo(subRes.data);
                                     } catch (_) {}
@@ -1470,16 +1478,16 @@ const AdminUsersPage: React.FC = () => {
                                         admRes,
                                       ] = await Promise.all([
                                         apiClient.get<AdminUserItem[]>(
-                                          API_ENDPOINTS.ADMIN_PRODUCERS
+                                          API_ENDPOINTS.ADMIN_PRODUCERS,
                                         ),
                                         apiClient.get<AdminUserItem[]>(
-                                          API_ENDPOINTS.ADMIN_AGENTS
+                                          API_ENDPOINTS.ADMIN_AGENTS,
                                         ),
                                         apiClient.get<AdminUserItem[]>(
-                                          API_ENDPOINTS.ADMIN_CUSTOMERS
+                                          API_ENDPOINTS.ADMIN_CUSTOMERS,
                                         ),
                                         apiClient.get<AdminUserItem[]>(
-                                          API_ENDPOINTS.ADMIN_ADMINS
+                                          API_ENDPOINTS.ADMIN_ADMINS,
                                         ),
                                       ]);
                                       setProducers(prodRes.data || []);
@@ -1493,7 +1501,7 @@ const AdminUsersPage: React.FC = () => {
                                     setActivationLoading(false);
                                   }
                                 }}
-                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-colors"
+                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-colors"
                               >
                                 {activationLoading ? (
                                   <>
@@ -1536,7 +1544,7 @@ const AdminUsersPage: React.FC = () => {
                             <button
                               disabled={isVerifying}
                               onClick={verifySelected}
-                              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-all duration-200 hover:scale-105 shadow-lg hover:shadow-xl"
+                              className="inline-flex items-center gap-2 rounded-3xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-blue-500/20"
                             >
                               {isVerifying ? (
                                 <>

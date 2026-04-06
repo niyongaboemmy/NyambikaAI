@@ -158,10 +158,10 @@ export default function TryOnHistoryPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-green-100 text-green-800">Completed</Badge>;
+        return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
       case "processing":
         return (
-          <Badge className="bg-yellow-100 text-yellow-800">Processing</Badge>
+          <Badge className="bg-blue-100 text-blue-800">Processing</Badge>
         );
       case "failed":
         return <Badge className="bg-red-100 text-red-800">Failed</Badge>;

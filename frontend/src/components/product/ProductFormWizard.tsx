@@ -247,7 +247,7 @@ export function ProductFormWizard({
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50/30 via-purple-50/20 to-blue-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20 rounded-2xl">
+    <div className="bg-gradient-to-br from-blue-50/30 via-blue-50/20 to-blue-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-blue-900/20 rounded-3xl">
       <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-4">
         {/* Header */}
         <div className="mb-1">
@@ -279,7 +279,7 @@ export function ProductFormWizard({
                     <img
                       src={formData.imageUrl}
                       alt="Product thumbnail"
-                      className="h-9 w-9 sm:h-12 sm:w-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700 shadow-md"
+                      className="h-9 w-9 sm:h-12 sm:w-12 rounded-lg object-cover border border-gray-200 dark:border-gray-700"
                       onError={(e) =>
                         ((e.target as HTMLImageElement).style.display = "none")
                       }
@@ -288,10 +288,10 @@ export function ProductFormWizard({
                 ) : (
                   <>
                     <div
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 blur-sm opacity-30"
+                      className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 blur-sm opacity-30"
                       aria-hidden
                     />
-                    <div className="relative inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-purple-500 shadow-md">
+                    <div className="relative inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-700">
                       {currentStep === 1 && (
                         <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                       )}
@@ -307,12 +307,12 @@ export function ProductFormWizard({
               </div>
               <div className="min-w-0">
                 <div className="flex flex-row items-center gap-2 min-w-0">
-                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent truncate max-w-[60vw] sm:max-w-none">
+                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent truncate max-w-[60vw] sm:max-w-none">
                     {formData.name?.trim()
                       ? `${title}: ${formData.name}`
                       : title}
                   </h1>
-                  <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-500/70 hidden xs:block" />
+                  <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500/70 hidden xs:block" />
                 </div>
 
                 {/* Subtle subtitle with step name */}
@@ -334,7 +334,7 @@ export function ProductFormWizard({
         {/* Current Step Content */}
         <div className="mb-3 mt-2 md:mt-4">{renderCurrentStep()}</div>
         {/* Navigation */}
-        <div className="fixed bottom-0 pb-6 sm:pb-3 md:pb-1 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50 shadow-2xl">
+        <div className="fixed bottom-0 pb-6 sm:pb-3 md:pb-1 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-gray-200/50 dark:border-gray-700/50">
           <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3">
             <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
               {/* Back Button */}
@@ -374,7 +374,7 @@ export function ProductFormWizard({
                     type="button"
                     onClick={nextStep}
                     disabled={!canProceed(currentStep)}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white shadow-lg transition-all duration-200 hover:scale-105 disabled:hover:scale-100 px-3 py-2 w-full sm:w-auto"
+                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white transition-all duration-200 hover:scale-105 disabled:hover:scale-100 px-3 py-2 w-full sm:w-auto"
                   >
                     <span className="pl-3">Next</span>
                     <ChevronRight className="h-4 w-4" />
@@ -384,7 +384,7 @@ export function ProductFormWizard({
                   type="button"
                   onClick={submitOrFocusInvalid}
                   disabled={loading || !canSubmitForm()}
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white shadow-lg transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 px-4 sm:px-6 py-2 w-full sm:w-auto"
+                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 px-4 sm:px-6 py-2 w-full sm:w-auto"
                 >
                   {loading ? `${submitLabel}...` : submitLabel}
                 </Button>

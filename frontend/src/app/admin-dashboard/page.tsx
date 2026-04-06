@@ -66,24 +66,24 @@ function AdminDashboard() {
         value: s.totalProducers ?? 0,
         change: "",
         icon: UserCheck,
-        color: "text-purple-600",
-        bgColor: "bg-purple-100 dark:bg-purple-900/20",
+        color: "text-blue-600",
+        bgColor: "bg-blue-100 dark:bg-blue-900/20",
       },
       {
         title: t("admin.stats.orders"),
         value: s.totalOrders ?? 0,
         change: "",
         icon: Package,
-        color: "text-orange-600",
-        bgColor: "bg-orange-100 dark:bg-orange-900/20",
+        color: "text-cyan-600",
+        bgColor: "bg-cyan-100 dark:bg-cyan-900/20",
       },
       {
         title: t("admin.stats.revenue"),
         value: formatCurrency(s.totalRevenue ?? 0),
         change: "",
         icon: DollarSign,
-        color: "text-green-600",
-        bgColor: "bg-green-100 dark:bg-green-900/20",
+        color: "text-blue-600",
+        bgColor: "bg-blue-100 dark:bg-blue-900/20",
       },
     ];
   })();
@@ -100,7 +100,7 @@ function AdminDashboard() {
         role: t("admin.roles.producers"),
         count: producers,
         percentage: pct(producers),
-        color: "bg-purple-500",
+        color: "bg-blue-500",
       },
       {
         role: t("admin.roles.agents"),
@@ -112,7 +112,7 @@ function AdminDashboard() {
         role: t("admin.roles.customers"),
         count: customers,
         percentage: pct(customers),
-        color: "bg-green-500",
+        color: "bg-blue-500",
       },
     ];
   })();
@@ -191,9 +191,9 @@ function AdminDashboard() {
       case "high":
         return "bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100";
       case "medium":
-        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100";
       case "low":
-        return "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100";
+        return "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100";
       default:
         return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100";
     }
@@ -202,9 +202,9 @@ function AdminDashboard() {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case "success":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
+        return <CheckCircle className="h-4 w-4 text-blue-500" />;
       case "warning":
-        return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+        return <AlertTriangle className="h-4 w-4 text-blue-500" />;
       case "info":
         return <Clock className="h-4 w-4 text-blue-500" />;
       default:
@@ -369,7 +369,7 @@ function AdminDashboard() {
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-4">
-                                <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-full flex items-center justify-center">
+                                <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900 dark:to-blue-900 rounded-full flex items-center justify-center">
                                   <Users className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                                 </div>
                                 <div>
@@ -388,8 +388,8 @@ function AdminDashboard() {
                                 <span
                                   className={`px-2 py-1 rounded-full text-xs ${
                                     producer.isVerified
-                                      ? "bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100"
-                                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-800 dark:text-yellow-100"
+                                      ? "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
+                                      : "bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100"
                                   }`}
                                 >
                                   {producer.isVerified ? t("admin.verified") : t("admin.pending")}
@@ -428,8 +428,8 @@ function AdminDashboard() {
                         <div key={agent.id} className="glassmorphism rounded-xl p-4">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-4">
-                              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-blue-100 dark:from-green-900 dark:to-blue-900 rounded-full flex items-center justify-center">
-                                <UserCheck className="h-6 w-6 text-green-600 dark:text-green-400" />
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-blue-100 dark:from-blue-900 dark:to-blue-900 rounded-full flex items-center justify-center">
+                                <UserCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                               </div>
                               <div>
                                 <h3 className="font-semibold text-gray-900 dark:text-gray-100">

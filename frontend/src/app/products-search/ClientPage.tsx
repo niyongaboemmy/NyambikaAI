@@ -423,7 +423,7 @@ export default function ClientProductsSearchPage() {
   // Show error state
   if ((categoriesError || productsError) && !productsPages) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <div className="container mx-auto px-4 py-8">
           <ErrorFallback
             error={new Error("Failed to load products")}
@@ -449,15 +449,15 @@ export default function ClientProductsSearchPage() {
           </Button>
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative">
-              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 via-purple-600 to-blue-500 flex items-center justify-center shadow-lg animate-pulse">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-500 flex items-center justify-center shadow-lg animate-pulse">
                 <ShoppingBag className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-white" />
               </div>
-              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full border border-white dark:border-gray-900 animate-bounce">
+              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full border border-white dark:border-gray-900 animate-bounce">
                 <Sparkles className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-white ml-0.5 mt-0.5" />
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400 bg-clip-text text-transparent truncate">
+              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent truncate">
                 {t("search.title")}
               </h1>
               <div className="hidden md:inline-block text-xs sm:text-sm text-gray-600 dark:text-gray-400 w-full">
@@ -472,12 +472,12 @@ export default function ClientProductsSearchPage() {
           {/* Enhanced search stats with animation */}
           {debouncedSearchQuery && (
             <div className="mt-4 text-center animate-slide-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-2xl backdrop-blur-sm">
-                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-spin" />
-                <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-2xl backdrop-blur-sm">
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full animate-spin" />
+                <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-400 bg-clip-text text-transparent">
                   {t("search.searchingFor")} "{debouncedSearchQuery}"
                 </span>
-                <Sparkles className="h-4 w-4 text-purple-500 animate-pulse" />
+                <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
               </div>
             </div>
           )}
@@ -511,7 +511,7 @@ export default function ClientProductsSearchPage() {
                   onClick={() => handleCategoryChange("all")}
                 >
                   {/* Background with gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-600 to-blue-500">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-500">
                     <div className="absolute inset-0 bg-black/20" />
                   </div>
 
@@ -554,7 +554,7 @@ export default function ClientProductsSearchPage() {
                     <div
                       className={`relative rounded-2xl transition-all duration-300 ${
                         selectedCategoryId === category.id
-                          ? "p-1 bg-gradient-to-r from-blue-500 via-purple-600 to-blue-500 shadow-2xl"
+                          ? "p-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 shadow-2xl"
                           : "p-0"
                       }`}
                     >
@@ -623,7 +623,7 @@ export default function ClientProductsSearchPage() {
               {/* Left side - Product count and filters */}
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-700"></div>
                   <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                     {products.length}
                   </span>
@@ -635,7 +635,7 @@ export default function ClientProductsSearchPage() {
                 </div>
 
                 {selectedCategoryId !== "all" && (
-                  <div className="flex items-center gap-1 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50 px-2 sm:px-3 py-1 rounded-full">
+                  <div className="flex items-center gap-1 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/30 border border-blue-200/50 dark:border-blue-700/50 px-2 sm:px-3 py-1 rounded-full">
                     <span className="text-xs font-medium text-blue-700 dark:text-blue-300 truncate max-w-[80px] sm:max-w-[120px]">
                       {categories.find((c) => c.id === selectedCategoryId)
                         ?.name || t("search.category")}
@@ -719,7 +719,7 @@ export default function ClientProductsSearchPage() {
                   <div className="flex flex-col items-center gap-3 animate-pulse">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
                       <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
                     </div>
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider uppercase">

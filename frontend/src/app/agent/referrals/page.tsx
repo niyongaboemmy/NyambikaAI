@@ -244,7 +244,7 @@ export default function AgentReferralsPage() {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-foreground/10 to-foreground/5 flex items-center justify-center border border-border/30">
                 <NetworkIcon className="h-5 w-5 text-foreground" />
               </div>
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-gradient-to-br from-blue-500/40 to-purple-500/40 rounded-full animate-pulse"></div>
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-gradient-to-br from-blue-500/40 to-blue-500/40 rounded-full animate-pulse"></div>
             </div>
             <div>
               <h1 className="text-xl font-semibold text-foreground">
@@ -272,7 +272,7 @@ export default function AgentReferralsPage() {
               Sync
             </Button>
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-foreground/5 border border-border/30">
-              <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
+              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
               <span className="text-xs text-muted-foreground">Live</span>
             </div>
           </div>
@@ -282,7 +282,7 @@ export default function AgentReferralsPage() {
       <div className="px-2 md:px-0">
         {/* Compact Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-">
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-indigo-500/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-blue-500/15 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
               <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span className="text-xs font-medium text-muted-foreground">
@@ -294,26 +294,26 @@ export default function AgentReferralsPage() {
             </div>
           </div>
 
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/20 hover:from-purple-500/15 hover:to-blue-500/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-blue-500/15 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
-              <Network className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+              <Network className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span className="text-xs font-medium text-muted-foreground">
                 L2 Nodes
               </span>
             </div>
-            <div className="text-xl font-semibold text-purple-700 dark:text-purple-400">
+            <div className="text-xl font-semibold text-blue-700 dark:text-blue-400">
               {summary?.indirectCount ?? 0}
             </div>
           </div>
 
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20 hover:from-green-500/15 hover:to-emerald-500/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-blue-500/15 transition-all duration-300">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
               <span className="text-xs font-medium text-muted-foreground">
                 Total Yield
               </span>
             </div>
-            <div className="text-xl font-semibold text-green-700 dark:text-green-400">
+            <div className="text-xl font-semibold text-blue-700 dark:text-blue-400">
               {summary ? `${summary.totalEarnings.toLocaleString()}` : "0"}
               <span className="text-xs text-muted-foreground ml-1">RWF</span>
             </div>
@@ -339,7 +339,7 @@ export default function AgentReferralsPage() {
               <Network className="h-4 w-4 text-foreground" />
               Share Your Referral Link
               {!referralCode && (
-                <span className="text-xs text-yellow-600 dark:text-yellow-400 font-normal">
+                <span className="text-xs text-blue-600 dark:text-blue-400 font-normal">
                   (Pending Activation)
                 </span>
               )}
@@ -368,7 +368,7 @@ export default function AgentReferralsPage() {
                         aria-label="Copy Referral Link"
                       >
                         {copied ? (
-                          <Check className="h-4 w-4 text-green-600" />
+                          <Check className="h-4 w-4 text-blue-600" />
                         ) : (
                           <Copy className="h-4 w-4" />
                         )}
@@ -404,7 +404,7 @@ export default function AgentReferralsPage() {
                         aria-label="Copy Referral Code"
                       >
                         {copiedCode ? (
-                          <Check className="h-4 w-4 text-green-600" />
+                          <Check className="h-4 w-4 text-blue-600" />
                         ) : (
                           <Copy className="h-4 w-4" />
                         )}
@@ -474,7 +474,7 @@ export default function AgentReferralsPage() {
                     <div className="p-2 rounded-xl bg-gradient-to-br from-foreground/10 to-foreground/5 border border-border/30">
                       <Network className="h-5 w-5 text-foreground" />
                     </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-green-500/40 to-blue-500/40 rounded-full animate-pulse"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-blue-500/40 to-blue-500/40 rounded-full animate-pulse"></div>
                   </div>
                   <div>
                     <span className="text-foreground">Network Topology</span>
@@ -641,8 +641,8 @@ export default function AgentReferralsPage() {
                                         <span
                                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
                                             agent.isVerified
-                                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                              : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
                                           }`}
                                         >
                                           {agent.isVerified
@@ -713,8 +713,8 @@ export default function AgentReferralsPage() {
                                                         <span
                                                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
                                                             indirectAgent.isVerified
-                                                              ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                                              : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                                              : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
                                                           }`}
                                                         >
                                                           {indirectAgent.isVerified
@@ -773,8 +773,8 @@ export default function AgentReferralsPage() {
                                                 <span
                                                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
                                                     indirectAgent.isVerified
-                                                      ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                                                      : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                                      : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
                                                   }`}
                                                 >
                                                   {indirectAgent.isVerified
@@ -807,7 +807,7 @@ export default function AgentReferralsPage() {
                     <div className="p-2 rounded-xl bg-gradient-to-br from-foreground/10 to-foreground/5 border border-border/30">
                       <TrendingUp className="h-5 w-5 text-foreground" />
                     </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-green-500/40 to-purple-500/40 rounded-full animate-pulse"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-blue-500/40 to-blue-500/40 rounded-full animate-pulse"></div>
                   </div>
                   <div>
                     <span className="text-foreground">Yield Analytics</span>
@@ -842,7 +842,7 @@ export default function AgentReferralsPage() {
                         </th>
                         <th className="text-left p-4 font-semibold text-sm text-foreground">
                           <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                             Status
                           </div>
                         </th>
@@ -892,7 +892,7 @@ export default function AgentReferralsPage() {
                           </td>
                           <td className="p-4 font-semibold text-sm text-foreground">
                             <div className="flex items-center gap-2">
-                              <TrendingUp className="w-3 h-3 text-green-600 dark:text-green-400" />
+                              <TrendingUp className="w-3 h-3 text-blue-600 dark:text-blue-400" />
                               {Number(row.amount).toLocaleString()} RWF
                             </div>
                           </td>
@@ -900,18 +900,18 @@ export default function AgentReferralsPage() {
                             <span
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium capitalize ${
                                 row.status === "completed"
-                                  ? "bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 text-green-700 dark:text-green-400"
+                                  ? "bg-gradient-to-r from-blue-500/10 to-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400"
                                   : row.status === "pending"
-                                  ? "bg-gradient-to-r from-yellow-500/10 to-amber-500/10 border border-yellow-500/20 text-yellow-700 dark:text-yellow-400"
+                                  ? "bg-gradient-to-r from-blue-500/10 to-amber-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400"
                                   : "bg-gradient-to-r from-foreground/5 to-foreground/10 border border-border/30 text-muted-foreground"
                               }`}
                             >
                               <div
                                 className={`w-1.5 h-1.5 rounded-full ${
                                   row.status === "completed"
-                                    ? "bg-green-500 animate-pulse"
+                                    ? "bg-blue-500 animate-pulse"
                                     : row.status === "pending"
-                                    ? "bg-yellow-500 animate-pulse"
+                                    ? "bg-blue-500 animate-pulse"
                                     : "bg-muted-foreground"
                                 }`}
                               ></div>

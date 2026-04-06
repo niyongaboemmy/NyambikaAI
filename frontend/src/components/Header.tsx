@@ -128,7 +128,7 @@ export default function HeaderOld() {
                   >
                     <Avatar className="h-9 w-9">
                       <AvatarImage src="" alt={user.name || user.email} />
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
                         {user.name?.charAt(0)?.toUpperCase() ||
                           user.email?.charAt(0)?.toUpperCase() ||
                           "U"}

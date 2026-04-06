@@ -32,12 +32,12 @@ export default function ProducerPendingVerificationModal({
     >
       {open && <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />}
       <DialogContent
-        className="p-0 overflow-hidden border-0 shadow-2xl max-h-[95vh] rounded-2xl bg-white dark:bg-gray-900"
+        className="p-0 overflow-hidden border border-slate-200/50 dark:border-slate-700/50 shadow-2xl max-h-[95vh] rounded-3xl bg-white dark:bg-gray-900"
         hideClose
       >
         <div className="p-6 sm:p-8">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-semibold">
+            <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
               {isProducer
                 ? "Your producer account is pending verification"
                 : "Your agent account is pending verification"}
@@ -52,15 +52,15 @@ export default function ProducerPendingVerificationModal({
           <div className="mt-6 space-y-4">
             <ul className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
               <li className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full bg-amber-500" />
+                <span className="mt-1 h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                 Contact the platform admin to complete your verification.
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full bg-amber-500" />
+                <span className="mt-1 h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                 You will receive an email notification once verified.
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-1 h-2 w-2 rounded-full bg-amber-500" />
+                <span className="mt-1 h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
                 {isProducer
                   ? "Until then, producer-only pages are locked for your account."
                   : "Until then, agent-only pages are locked for your account."}
@@ -70,7 +70,7 @@ export default function ProducerPendingVerificationModal({
 
           <div className="mt-8 flex justify-end">
             <Button
-              className="bg-gray-900 hover:bg-black text-white dark:bg-white dark:text-gray-900 dark:hover:bg-gray-200"
+              className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
               onClick={() => {
                 logout();
                 router.push("/");

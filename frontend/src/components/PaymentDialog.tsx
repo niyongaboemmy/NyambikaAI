@@ -456,7 +456,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       <defs>
         <linearGradient id="cardGradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#3B82F6" />
-          <stop offset="100%" stopColor="#8B5CF6" />
+          <stop offset="100%" stopColor="#0EA5E9" />
         </linearGradient>
       </defs>
     </motion.svg>
@@ -504,7 +504,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       />
       <motion.path
         d="M10 9l2 2 4-4"
-        stroke="#10B981"
+        stroke="#3B82F6"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -515,8 +515,8 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       />
       <defs>
         <linearGradient id="phoneGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#059669" />
-          <stop offset="100%" stopColor="#10B981" />
+          <stop offset="0%" stopColor="#0EA5E9" />
+          <stop offset="100%" stopColor="#3B82F6" />
         </linearGradient>
       </defs>
     </motion.svg>
@@ -558,8 +558,8 @@ export default function PaymentDialog(props: PaymentDialogProps) {
       />
       <defs>
         <linearGradient id="walletGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#059669" />
-          <stop offset="100%" stopColor="#34D399" />
+          <stop offset="0%" stopColor="#0284C7" />
+          <stop offset="100%" stopColor="#0EA5E9" />
         </linearGradient>
       </defs>
     </motion.svg>
@@ -604,8 +604,8 @@ export default function PaymentDialog(props: PaymentDialogProps) {
           y2="100%"
         >
           <stop offset="0%" stopColor="#3B82F6" />
-          <stop offset="50%" stopColor="#8B5CF6" />
-          <stop offset="100%" stopColor="#EC4899" />
+          <stop offset="50%" stopColor="#0EA5E9" />
+          <stop offset="100%" stopColor="#06B6D4" />
         </linearGradient>
       </defs>
     </motion.svg>
@@ -626,7 +626,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
             key={i}
             className="w-1.5 h-1.5 rounded-full"
             style={{
-              background: "linear-gradient(45deg, #3B82F6, #8B5CF6, #EC4899)",
+              background: "linear-gradient(45deg, #3B82F6, #0EA5E9, #06B6D4)",
             }}
             animate={{
               scale: [1, 1.5, 1],
@@ -654,11 +654,11 @@ export default function PaymentDialog(props: PaymentDialogProps) {
             background: `linear-gradient(45deg, ${
               [
                 "#3B82F6",
-                "#8B5CF6",
-                "#EC4899",
-                "#10B981",
-                "#F59E0B",
-                "#EF4444",
+                "#0EA5E9",
+                "#06B6D4",
+                "#2563EB",
+                "#60A5FA",
+                "#0891B2",
               ][i]
             }, transparent)`,
             left: `${10 + i * 15}%`,
@@ -692,7 +692,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
         >
           {/* Enhanced backdrop with AI-inspired gradient */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-black/60 via-purple-900/20 to-blue-900/20 backdrop-blur-sm"
+            className="absolute inset-0 bg-gradient-to-br from-black/60 via-blue-900/20 to-blue-900/20 backdrop-blur-sm"
             onClick={handleClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -708,21 +708,21 @@ export default function PaymentDialog(props: PaymentDialogProps) {
           >
             {/* Enhanced holographic background with floating particles */}
             <FloatingParticles />
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 via-purple-500/30 to-cyan-500/30 blur-2xl animate-pulse" />
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-blue-500/20 via-emerald-500/10 to-blue-500/20 blur-xl" />
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-500/30 via-blue-500/30 to-cyan-500/30 blur-2xl animate-pulse" />
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-blue-500/20 via-blue-500/10 to-blue-500/20 blur-xl" />
             <motion.div
-              className="absolute inset-0 rounded-3xl bg-gradient-to-br from-yellow-400/10 via-transparent to-purple-600/10"
+              className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-400/10 via-transparent to-blue-600/10"
               animate={{
                 background: [
-                  "linear-gradient(45deg, rgba(251, 191, 36, 0.1), transparent, rgba(147, 51, 234, 0.1))",
-                  "linear-gradient(135deg, rgba(59, 130, 246, 0.1), transparent, rgba(236, 72, 153, 0.1))",
-                  "linear-gradient(225deg, rgba(16, 185, 129, 0.1), transparent, rgba(139, 92, 246, 0.1))",
+                  "linear-gradient(45deg, rgba(59, 130, 246, 0.1), transparent, rgba(6, 182, 212, 0.1))",
+                  "linear-gradient(135deg, rgba(14, 165, 233, 0.1), transparent, rgba(37, 99, 235, 0.1))",
+                  "linear-gradient(225deg, rgba(56, 189, 248, 0.1), transparent, rgba(2, 132, 199, 0.1))",
                 ],
               }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             />
 
-            <Card className="relative overflow-hidden shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-gray-700/20">
+            <Card className="relative overflow-hidden bg-white/95 dark:bg-gray-900/95 backdrop-blur-2xl rounded-3xl border border-white/20 dark:border-gray-700/20">
               {/* Close button */}
               <button
                 onClick={handleClose}
@@ -735,7 +735,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-3">
                   <motion.div
-                    className="p-3 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg"
+                    className="p-3 rounded-full bg-gradient-to-br from-blue-500 to-blue-600"
                     animate={{
                       rotate: [0, 360],
                       scale: [1, 1.05, 1],
@@ -752,12 +752,12 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                     <CreditCardSVG className="h-6 w-6 text-white" />
                   </motion.div>
                   <div>
-                    <CardTitle className="text-xl bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+                    <CardTitle className="text-xl bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent">
                       {title || "Smart Payment Hub"}
                     </CardTitle>
                     <div className="text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
                       <motion.div
-                        className="w-2 h-2 rounded-full bg-green-500"
+                        className="w-2 h-2 rounded-full bg-blue-500"
                         animate={{ opacity: [0.5, 1, 0.5] }}
                         transition={{ duration: 2, repeat: Infinity }}
                       />
@@ -768,7 +768,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
 
                 {/* Amount display with AI styling */}
                 <motion.div
-                  className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/30 dark:to-purple-900/30 border border-blue-200/50 dark:border-blue-700/50"
+                  className="mt-4 p-4 rounded-3xl bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/30 border border-blue-200/50 dark:border-blue-700/50"
                   initial={{ scale: 0.95 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.2 }}
@@ -778,8 +778,8 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                       Amount
                     </span>
                     <div className="flex items-center gap-2">
-                      <Sparkles className="h-4 w-4 text-yellow-500" />
-                      <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                      <Sparkles className="h-4 w-4 text-blue-500" />
+                      <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
                         {Number(amount).toLocaleString()} RWF
                       </span>
                     </div>
@@ -796,7 +796,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 {/* Payment Status - Awaiting */}
                 {awaiting?.refid && (
                   <motion.div
-                    className="p-4 rounded-2xl border border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30"
+                    className="p-4 rounded-3xl border border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
@@ -865,7 +865,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 {(errors.momo || errors.wallet || errors.general) &&
                   !awaiting?.refid && (
                     <motion.div
-                      className="p-4 rounded-2xl border border-red-200 dark:border-red-700 bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/30 dark:to-blue-900/30"
+                      className="p-4 rounded-3xl border border-red-200 dark:border-red-700 bg-gradient-to-r from-red-50 to-blue-50 dark:from-red-900/30 dark:to-blue-900/30"
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                     >
@@ -907,17 +907,17 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                 {/* Insufficient Balance Warning */}
                 {walletInsufficient && active === "wallet" && (
                   <motion.div
-                    className="p-4 rounded-2xl border border-yellow-200 dark:border-yellow-700 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/30 dark:to-orange-900/30"
+                    className="p-4 rounded-3xl border border-blue-200 dark:border-blue-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                   >
                     <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
+                      <AlertCircle className="h-5 w-5 text-blue-500 mt-0.5" />
                       <div className="flex-1">
-                        <div className="font-medium text-yellow-800 dark:text-yellow-200 mb-2">
+                        <div className="font-medium text-blue-800 dark:text-blue-200 mb-2">
                           Insufficient Wallet Balance
                         </div>
-                        <div className="space-y-2 text-sm text-yellow-700 dark:text-yellow-300">
+                        <div className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
                           <div className="flex justify-between">
                             <span>Required:</span>
                             <span className="font-medium">
@@ -930,9 +930,9 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                               {walletInsufficient.balance.toLocaleString()} RWF
                             </span>
                           </div>
-                          <div className="flex justify-between border-t border-yellow-200 dark:border-yellow-700 pt-2">
+                          <div className="flex justify-between border-t border-blue-200 dark:border-blue-700 pt-2">
                             <span>Need to add:</span>
-                            <span className="font-bold text-yellow-800 dark:text-yellow-200">
+                            <span className="font-bold text-blue-800 dark:text-blue-200">
                               {walletInsufficient.shortfall.toLocaleString()}{" "}
                               RWF
                             </span>
@@ -945,7 +945,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                             }
                             disabled={submitting}
                             size="sm"
-                            className="flex-1 bg-yellow-600 hover:bg-yellow-700"
+                            className="flex-1 bg-blue-600 hover:bg-blue-700"
                           >
                             <Zap className="h-3 w-3 mr-1" />
                             Top Up via MoMo
@@ -954,7 +954,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                             onClick={() => openWalletDialog()}
                             variant="outline"
                             size="sm"
-                            className="flex-1 border-yellow-300 dark:border-yellow-700 hover:bg-yellow-50 dark:hover:bg-yellow-900/30"
+                            className="flex-1 border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                           >
                             <Wallet className="h-3 w-3 mr-1" />
                             Open Wallet
@@ -967,17 +967,17 @@ export default function PaymentDialog(props: PaymentDialogProps) {
 
                 {/* Payment Method Tabs - Enhanced */}
                 <Tabs value={active} onValueChange={(v: any) => setActive(v)}>
-                  <TabsList className="grid grid-cols-2 w-full mb-6 p-1 bg-gradient-to-r from-gray-100/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 rounded-2xl border border-gray-200/50 dark:border-gray-700/50">
+                  <TabsList className="grid grid-cols-2 w-full mb-6 p-1 bg-gradient-to-r from-gray-100/80 to-gray-50/80 dark:from-gray-800/80 dark:to-gray-900/80 rounded-3xl border border-gray-200/50 dark:border-gray-700/50">
                     <TabsTrigger
                       value="momo"
-                      className="flex items-center gap-2 justify-center rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-105"
+                      className="flex items-center gap-2 justify-center rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-105"
                     >
                       <MobilePaySVG className="h-4 w-4" />
                       Mobile Money
                     </TabsTrigger>
                     <TabsTrigger
                       value="wallet"
-                      className="flex items-center gap-2 justify-center rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-105"
+                      className="flex items-center gap-2 justify-center rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 hover:scale-105"
                     >
                       <WalletSVG className="h-4 w-4" />
                       Smart Wallet
@@ -1011,7 +1011,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                         </div>
                       </div>
                       <Button
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all"
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium hover:shadow-xl transition-all"
                         disabled={disabled}
                         onClick={payWithMomo}
                       >
@@ -1038,16 +1038,16 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                       transition={{ delay: 0.1 }}
                     >
                       {/* Wallet Balance Display */}
-                      <div className="p-4 rounded-xl bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/30 dark:to-emerald-900/30 border border-green-200 dark:border-green-700">
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/30 border border-blue-200 dark:border-blue-700">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
-                            <Wallet className="h-5 w-5 text-green-600" />
-                            <span className="font-medium text-green-800 dark:text-green-200">
+                            <Wallet className="h-5 w-5 text-blue-600" />
+                            <span className="font-medium text-blue-800 dark:text-blue-200">
                               Wallet Balance
                             </span>
                           </div>
                           <div className="text-right">
-                            <div className="text-2xl font-bold text-green-800 dark:text-green-200">
+                            <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">
                               {wallet ? wallet.balance.toLocaleString() : "—"}{" "}
                               RWF
                             </div>
@@ -1063,7 +1063,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                       {/* Wallet Shortcut Button */}
                       <Button
                         variant="outline"
-                        className="w-full rounded-xl border-dashed border-green-300 dark:border-green-700 hover:bg-green-50 dark:hover:bg-green-900/30"
+                        className="w-full rounded-xl border-dashed border-blue-300 dark:border-blue-700 hover:bg-blue-50 dark:hover:bg-blue-900/30"
                         onClick={() => {
                           openWalletDialog();
                         }}
@@ -1073,7 +1073,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                       </Button>
 
                       <Button
-                        className="w-full h-12 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full h-12 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={walletDisabled}
                         onClick={payWithWallet}
                       >

@@ -187,11 +187,11 @@ export default function ProducerDashboard() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "pending":
-        return <Clock className="h-4 w-4 text-orange-400" />;
+        return <Clock className="h-4 w-4 text-cyan-400" />;
       case "processing":
         return <Package className="h-4 w-4 text-blue-400" />;
       case "handled":
-        return <CheckCircle className="h-4 w-4 text-green-400" />;
+        return <CheckCircle className="h-4 w-4 text-blue-400" />;
       default:
         return <AlertTriangle className="h-4 w-4 text-gray-400" />;
     }
@@ -200,11 +200,11 @@ export default function ProducerDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "pending":
-        return "bg-orange-500/20 text-orange-400 border-orange-500/30";
+        return "bg-cyan-500/20 text-cyan-400 border-cyan-500/30";
       case "processing":
         return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       case "handled":
-        return "bg-green-500/20 text-green-400 border-green-500/30";
+        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
       default:
         return "bg-gray-500/20 text-gray-400 border-gray-500/30";
     }
@@ -212,9 +212,9 @@ export default function ProducerDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-400 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
           <p className="text-white">Loading dashboard...</p>
         </div>
       </div>
@@ -223,10 +223,10 @@ export default function ProducerDashboard() {
 
   return (
     <SubscriptionGuard requiredForRoles={["producer"]}>
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         {/* Animated background */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
           <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
         </div>
 
@@ -242,7 +242,7 @@ export default function ProducerDashboard() {
 
             <button
               onClick={() => router.push("/producer/products")}
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center"
+              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center"
             >
               <Package className="h-5 w-5 mr-2" />
               Manage Products
@@ -271,7 +271,7 @@ export default function ProducerDashboard() {
                     {stats?.pendingOrders}
                   </p>
                 </div>
-                <Clock className="h-8 w-8 text-orange-400" />
+                <Clock className="h-8 w-8 text-cyan-400" />
               </div>
             </div>
 
@@ -283,7 +283,7 @@ export default function ProducerDashboard() {
                     {stats?.completedOrders}
                   </p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-green-400" />
+                <CheckCircle className="h-8 w-8 text-blue-400" />
               </div>
             </div>
 
@@ -295,7 +295,7 @@ export default function ProducerDashboard() {
                     {stats?.monthlyRevenue.toLocaleString()} RWF
                   </p>
                 </div>
-                <DollarSign className="h-8 w-8 text-yellow-400" />
+                <DollarSign className="h-8 w-8 text-blue-400" />
               </div>
             </div>
           </div>
@@ -315,7 +315,7 @@ export default function ProducerDashboard() {
                   onClick={() => setFilterStatus(key as any)}
                   className={`px-4 py-2 rounded-xl transition-all duration-300 ${
                     filterStatus === key
-                      ? "bg-purple-500 text-white"
+                      ? "bg-blue-500 text-white"
                       : "bg-white/10 text-gray-300 hover:bg-white/20"
                   }`}
                 >
@@ -348,7 +348,7 @@ export default function ProducerDashboard() {
                           order.status.slice(1)}
                       </span>
                       {order.isConfirmedByCustomer && (
-                        <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-xs flex items-center gap-1">
+                        <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded-full text-xs flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" />
                           Confirmed by Customer
                         </span>
@@ -370,7 +370,7 @@ export default function ProducerDashboard() {
                         <p className="text-white">
                           {new Date(order.createdAt).toLocaleDateString()}
                         </p>
-                        <p className="text-purple-300 font-semibold">
+                        <p className="text-blue-300 font-semibold">
                           {order.total} RWF
                         </p>
                       </div>
@@ -407,7 +407,7 @@ export default function ProducerDashboard() {
                     {order.sizeEvidenceImages.length > 0 && (
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-2">
-                          <Camera className="h-4 w-4 text-purple-400" />
+                          <Camera className="h-4 w-4 text-blue-400" />
                           <p className="text-gray-400 text-sm">
                             Size Evidence Photos (
                             {order.sizeEvidenceImages.length})
@@ -483,7 +483,7 @@ export default function ProducerDashboard() {
                       {order.status === "processing" && (
                         <button
                           onClick={() => updateOrderStatus(order.id, "handled")}
-                          className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
                         >
                           Mark as Handled
                         </button>

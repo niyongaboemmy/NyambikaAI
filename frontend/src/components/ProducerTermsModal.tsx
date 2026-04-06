@@ -105,11 +105,11 @@ export default function ProducerTermsModal() {
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4">
       <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
       <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-white/80 dark:bg-gray-900/80 shadow-2xl backdrop-blur-xl overflow-hidden flex flex-col max-h-[99vh]">
-        <div className="sticky top-0 z-10 px-4 sm:px-8 pt-4 pb-3 sm:pt-6 sm:pb-4 bg-gradient-to-r from-indigo-500/20 via-blue-500/10 to-cyan-500/20 border-b border-white/10">
+        <div className="sticky top-0 z-10 px-4 sm:px-8 pt-4 pb-3 sm:pt-6 sm:pb-4 bg-gradient-to-r from-blue-500/20 via-blue-500/10 to-cyan-500/20 border-b border-white/10">
           <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <div className="hidden md:inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-indigo-500 to-cyan-500 animate-pulse" />
+            <div className="hidden md:inline-block h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-tr from-blue-500 to-cyan-500 animate-pulse" />
             <div className="flex-1">
-              <h2 className="text-xl sm:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-blue-600">
+              <h2 className="text-xl sm:text-2xl font-semibold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-400">
                 {terms?.title || t("producerTermsTitle")}
               </h2>
               <p className="hidden md:block text-xs text-gray-600 dark:text-gray-300">
@@ -147,7 +147,7 @@ export default function ProducerTermsModal() {
           {terms?.sections?.map((s) => (
             <div
               key={s.id}
-              className="p-4 rounded-2xl bg-white/60 dark:bg-gray-800/60 border border-black/5 dark:border-white/5"
+              className="p-4 rounded-3xl bg-white/60 dark:bg-gray-800/60 border border-black/5 dark:border-white/5"
             >
               <h3 className="font-medium text-gray-900 dark:text-gray-100 mb-1">
                 {s.heading}
@@ -159,13 +159,13 @@ export default function ProducerTermsModal() {
           ))}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-indigo-500/10 to-blue-500/10 border border-indigo-500/20">
+            <div className="p-3 rounded-3xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20">
               <div className="text-sm font-medium">{t("verifiedBusiness")}</div>
               <div className="text-xs text-gray-600 dark:text-gray-300">
                 {t("verifiedBusinessDesc")}
               </div>
             </div>
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-500/10 to-teal-500/10 border border-emerald-500/20">
+            <div className="p-3 rounded-3xl bg-gradient-to-br from-blue-500/10 to-teal-500/10 border border-blue-500/20">
               <div className="text-sm font-medium">
                 {t("timelyFulfillment")}
               </div>
@@ -194,7 +194,7 @@ export default function ProducerTermsModal() {
             type="button"
             disabled={loading}
             onClick={accept}
-            className="w-full sm:w-auto inline-flex justify-center items-center rounded-full bg-gradient-to-r from-indigo-600 to-blue-600 px-5 py-3 text-sm font-medium text-white shadow hover:from-indigo-500 hover:to-blue-500 disabled:opacity-60"
+            className="w-full sm:w-auto inline-flex justify-center items-center rounded-full bg-gradient-to-r from-blue-600 to-blue-400 px-5 py-3 text-sm font-medium text-white shadow hover:from-blue-500 hover:to-blue-500 disabled:opacity-60"
           >
             {loading ? t("confirming") : t("agreeAndContinue")}
           </button>

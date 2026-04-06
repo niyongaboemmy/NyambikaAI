@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PageHeaderProps {
   badge?: string;
-  badgeTone?: "blue" | "purple" | "pink" | "cyan";
+  badgeTone?: "blue" | "blue" | "blue" | "cyan";
   titleKey: string;
   subtitleKey?: string;
 }
@@ -13,23 +13,23 @@ const toneMap = {
   blue: {
     badge: "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
     gradient:
-      "bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400",
+      "bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400",
   },
-  purple: {
+  blue: {
     badge:
-      "bg-purple-600/10 text-purple-700 dark:text-purple-300 ring-purple-600/20",
+      "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
     gradient:
-      "bg-gradient-to-r from-purple-600 via-blue-600 to-blue-600 dark:from-purple-400 dark:via-blue-400 dark:to-blue-400",
+      "bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400",
   },
-  pink: {
+  blue: {
     badge: "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
     gradient:
-      "bg-gradient-to-r from-blue-600 via-purple-600 to-blue-600 dark:from-blue-400 dark:via-purple-400 dark:to-blue-400",
+      "bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400",
   },
   cyan: {
     badge: "bg-cyan-600/10 text-cyan-700 dark:text-cyan-300 ring-cyan-600/20",
     gradient:
-      "bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 dark:from-cyan-400 dark:via-blue-400 dark:to-indigo-400",
+      "bg-gradient-to-r from-cyan-600 via-blue-600 to-blue-600 dark:from-cyan-400 dark:via-blue-400 dark:to-blue-400",
   },
 };
 

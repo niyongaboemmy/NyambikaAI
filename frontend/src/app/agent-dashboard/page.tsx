@@ -189,9 +189,9 @@ export default function AgentDashboard() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
       case "pending":
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-blue-500" />;
       case "failed":
         return <AlertCircle className="h-4 w-4 text-red-500" />;
       default:
@@ -204,12 +204,12 @@ export default function AgentDashboard() {
       {/* Holographic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
           animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-purple-400/20 to-blue-600/20 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -243,7 +243,7 @@ export default function AgentDashboard() {
               i % 3 === 0
                 ? "bg-blue-400/40"
                 : i % 3 === 1
-                ? "bg-purple-400/40"
+                ? "bg-blue-400/40"
                 : "bg-blue-400/40"
             }`}
             style={{ left: `${20 + i * 15}%`, top: `${30 + i * 10}%` }}
@@ -273,7 +273,7 @@ export default function AgentDashboard() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
                 <motion.div
@@ -282,12 +282,12 @@ export default function AgentDashboard() {
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -inset-1 rounded-2xl border border-purple-500/30"
+                  className="absolute -inset-1 rounded-2xl border border-blue-500/30"
                   animate={{ rotate: -360 }}
                   transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full flex items-center justify-center"
                   animate={{ rotate: 360, scale: [1, 1.2, 1] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
@@ -318,7 +318,7 @@ export default function AgentDashboard() {
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button
                 onClick={() => router.push("/agent/producers-management")}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white hover:shadow-xl transition-all duration-300"
+                className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white hover:shadow-xl transition-all duration-300"
               >
                 <Users className="h-4 w-4 mr-2" />
                 Manage Producers
@@ -361,19 +361,19 @@ export default function AgentDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-gradient-to-br from-green-50/80 to-green-100/80 dark:from-green-900/30 dark:to-green-800/30 border-green-200/50 dark:border-green-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-200/50 dark:border-blue-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-green-600 dark:text-green-400 text-sm font-medium">
+                    <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                       Active Subscriptions
                     </p>
-                    <p className="text-3xl font-bold text-green-900 dark:text-green-100">
+                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
                       {stats.activeSubscriptions}
                     </p>
                   </div>
                   <motion.div
-                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-lg"
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg"
                     whileHover={{ rotate: 5 }}
                   >
                     <CheckCircle2 className="h-6 w-6 text-white" />
@@ -415,19 +415,19 @@ export default function AgentDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <Card className="bg-gradient-to-br from-purple-50/80 to-purple-100/80 dark:from-purple-900/30 dark:to-purple-800/30 border-purple-200/50 dark:border-purple-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-200/50 dark:border-blue-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-purple-600 dark:text-purple-400 text-sm font-medium">
+                    <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                       Total Commissions
                     </p>
-                    <p className="text-2xl sm:text-3xl font-bold text-purple-900 dark:text-purple-100">
+                    <p className="text-2xl sm:text-3xl font-bold text-blue-900 dark:text-blue-100">
                       {stats.totalCommissions.toLocaleString()} RWF
                     </p>
                   </div>
                   <motion.div
-                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center"
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center"
                     whileHover={{ rotate: 5 }}
                   >
                     <DollarSign className="h-6 w-6 text-white" />
@@ -442,19 +442,19 @@ export default function AgentDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
           >
-            <Card className="bg-gradient-to-br from-orange-50/80 to-orange-100/80 dark:from-orange-900/30 dark:to-orange-800/30 border-orange-200/50 dark:border-orange-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="bg-gradient-to-br from-cyan-50/80 to-cyan-100/80 dark:from-cyan-900/30 dark:to-cyan-800/30 border-cyan-200/50 dark:border-cyan-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-orange-600 dark:text-orange-400 text-sm font-medium">
+                    <p className="text-cyan-600 dark:text-cyan-400 text-sm font-medium">
                       Monthly Commissions
                     </p>
-                    <p className="text-3xl font-bold text-orange-900 dark:text-orange-100">
+                    <p className="text-3xl font-bold text-cyan-900 dark:text-cyan-100">
                       {stats.monthlyCommissions.toLocaleString()} RWF
                     </p>
                   </div>
                   <motion.div
-                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center shadow-lg"
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center shadow-lg"
                     whileHover={{ rotate: 5 }}
                   >
                     <TrendingUp className="h-6 w-6 text-white" />
@@ -469,19 +469,19 @@ export default function AgentDashboard() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
           >
-            <Card className="bg-gradient-to-br from-yellow-50/80 to-yellow-100/80 dark:from-yellow-900/30 dark:to-yellow-800/30 border-yellow-200/50 dark:border-yellow-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-200/50 dark:border-blue-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-yellow-600 dark:text-yellow-400 text-sm font-medium">
+                    <p className="text-blue-600 dark:text-blue-400 text-sm font-medium">
                       Pending Payments
                     </p>
-                    <p className="text-3xl font-bold text-yellow-900 dark:text-yellow-100">
+                    <p className="text-3xl font-bold text-blue-900 dark:text-blue-100">
                       {stats.pendingPayments}
                     </p>
                   </div>
                   <motion.div
-                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center"
+                    className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center"
                     whileHover={{ rotate: 5 }}
                   >
                     <Clock className="h-6 w-6 text-white" />
@@ -523,7 +523,7 @@ export default function AgentDashboard() {
           <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-purple-600" />
+                <Calendar className="h-5 w-5 text-blue-600" />
                 Recent Activity
               </CardTitle>
             </CardHeader>
@@ -557,7 +557,7 @@ export default function AgentDashboard() {
                             {new Date(activity.date).toLocaleDateString()}
                           </span>
                           {activity.amount && (
-                            <span className="font-medium text-green-600 dark:text-green-400">
+                            <span className="font-medium text-blue-600 dark:text-blue-400">
                               {activity.amount.toLocaleString()} RWF
                             </span>
                           )}

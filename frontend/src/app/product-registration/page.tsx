@@ -185,7 +185,7 @@ function ProductRegistration() {
         <div className="max-w-4xl mx-auto">
           {/* Block UI while loading plan or products info */}
           {(subLoading || plansLoading || productsLoading) && (
-            <div className="rounded-2xl border border-purple-200/20 bg-purple-500/10 p-6 text-purple-100">
+            <div className="rounded-2xl border border-blue-200/20 bg-blue-500/10 p-6 text-blue-100">
               {t("loading")}
             </div>
           )}
@@ -201,7 +201,7 @@ function ProductRegistration() {
                 <p className="opacity-90">{t("needActiveSubscription")}</p>
                 <button
                   onClick={() => router.push("/producer-subscription")}
-                  className="mt-4 inline-flex items-center rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 text-white hover:opacity-90"
+                  className="mt-4 inline-flex items-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 px-4 py-2 text-white hover:opacity-90"
                 >
                   {t("manageSubscription")}
                 </button>
@@ -223,7 +223,7 @@ function ProductRegistration() {
               <div className="mt-4 flex gap-3">
                 <button
                   onClick={() => router.push("/producer-subscription")}
-                  className="inline-flex items-center rounded-xl bg-gradient-to-r from-purple-500 to-blue-500 px-4 py-2 text-white hover:opacity-90"
+                  className="inline-flex items-center rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 px-4 py-2 text-white hover:opacity-90"
                 >
                   {t("upgradePlan")}
                 </button>

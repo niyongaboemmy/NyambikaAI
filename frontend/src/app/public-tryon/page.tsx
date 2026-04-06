@@ -500,7 +500,7 @@ export default function PublicTryOn() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-indigo-700 to-blue-600 dark:from-blue-950 dark:via-blue-900 dark:to-gray-950 pt-12"
+        className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-700 to-blue-600 dark:from-blue-950 dark:via-blue-900 dark:to-gray-950 pt-12"
       >
         {/* Animated Background Elements */}
         <div className="absolute inset-0">
@@ -527,7 +527,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute bottom-20 right-10 w-40 h-40 bg-purple-300/10 rounded-full blur-2xl"
+            className="absolute bottom-20 right-10 w-40 h-40 bg-blue-300/10 rounded-full blur-2xl"
           />
           <motion.div
             animate={{
@@ -539,7 +539,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute top-1/2 left-1/3 w-24 h-24 bg-indigo-300/8 rounded-full blur-lg"
+            className="absolute top-1/2 left-1/3 w-24 h-24 bg-blue-300/8 rounded-full blur-lg"
           />
 
           {/* Geometric patterns */}
@@ -575,7 +575,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute top-4 left-4 w-20 h-24 bg-gradient-to-br from-blue-200/20 via-rose-200/20 to-purple-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
+            className="absolute top-4 left-4 w-20 h-24 bg-gradient-to-br from-blue-200/20 via-blue-200/20 to-blue-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
           />
           <motion.div
             animate={{
@@ -588,7 +588,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-blue-200/20 via-indigo-200/20 to-purple-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
+            className="absolute top-4 right-4 w-20 h-20 bg-gradient-to-br from-blue-200/20 via-blue-200/20 to-blue-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
             style={{
               clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
             }}
@@ -604,7 +604,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute bottom-4 left-4 w-18 h-18 bg-gradient-to-br from-green-200/20 via-teal-200/20 to-cyan-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
+            className="absolute bottom-4 left-4 w-18 h-18 bg-gradient-to-br from-blue-200/20 via-teal-200/20 to-cyan-200/20 shadow-xl backdrop-blur-sm border-2 border-white/10"
           />
           <motion.div
             animate={{
@@ -617,7 +617,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute top-1/2 left-4 w-20 h-16 bg-gradient-to-br from-blue-300/20 via-indigo-300/20 to-purple-300/20 rounded-[50%] shadow-xl backdrop-blur-sm border-2 border-white/10"
+            className="absolute top-1/2 left-4 w-20 h-16 bg-gradient-to-br from-blue-300/20 via-blue-300/20 to-blue-300/20 rounded-[50%] shadow-xl backdrop-blur-sm border-2 border-white/10"
           />
           <motion.div
             animate={{
@@ -630,7 +630,7 @@ export default function PublicTryOn() {
               repeat: Infinity,
               ease: "easeInOut",
             }}
-            className="absolute top-1/2 right-4 w-24 h-24 bg-gradient-to-br from-violet-200/20 via-purple-200/20 to-blue-200/20 rounded-full shadow-xl backdrop-blur-sm border-2 border-white/10"
+            className="absolute top-1/2 right-4 w-24 h-24 bg-gradient-to-br from-blue-200/20 via-blue-200/20 to-blue-200/20 rounded-full shadow-xl backdrop-blur-sm border-2 border-white/10"
           />
         </div>
 
@@ -672,11 +672,11 @@ export default function PublicTryOn() {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-6 leading-tight"
             >
-              <span className="bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white via-blue-100 to-blue-100 bg-clip-text text-transparent">
                 AI Try-On
               </span>
               <br />
-              <span className="bg-gradient-to-r from-blue-300 via-purple-300 to-purple-300 bg-clip-text text-transparent text-4xl sm:text-5xl lg:text-6xl xl:text-7xl">
+              <span className="bg-gradient-to-r from-blue-300 via-blue-300 to-blue-300 bg-clip-text text-transparent text-4xl sm:text-5xl lg:text-6xl xl:text-7xl">
                 Gallery
               </span>
             </motion.h1>
@@ -838,7 +838,7 @@ export default function PublicTryOn() {
         
                   <div className="">
                     <div className="relative w-full max-w-sm mx-auto lg:mx-0">
-                      <div className="aspect-square rounded-xl h-[130px] overflow-hidden bg-gradient-to-br from-blue-50/80 via-indigo-50/60 to-purple-50/80 dark:from-slate-800/90 dark:via-indigo-900/80 dark:to-purple-900/90 border border-blue-200/30 dark:border-indigo-700/30 relative group shadow-xl">
+                      <div className="aspect-square rounded-xl h-[130px] overflow-hidden bg-gradient-to-br from-blue-50/80 via-blue-50/60 to-blue-50/80 dark:from-slate-800/90 dark:via-blue-900/80 dark:to-blue-900/90 border border-blue-200/30 dark:border-blue-700/30 relative group shadow-xl">
                         <Image
                           src={product.imageUrl}
                           alt={product.name}
@@ -855,11 +855,11 @@ export default function PublicTryOn() {
 
                   <div className="space-y-3">
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                      <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent mb-2">
                         {product.name}
                       </h2>
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
                           RF{" "}
                           {parseFloat(String(product.price)).toLocaleString()}
                         </span>
@@ -869,7 +869,7 @@ export default function PublicTryOn() {
                     <div className="flex flex-wrap gap-3">
                       <Button
                         onClick={() => router.push(`/product/${product.id}`)}
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-600 hover:to-green-700 text-white px-4 py-2 rounded-full transition-all duration-300"
+                        className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-full transition-all duration-300"
                       >
                         <ShoppingBag className="w-4 h-4" />
                         View Product
@@ -917,7 +917,7 @@ export default function PublicTryOn() {
 
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <motion.div
-                    className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0"
+                    className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0"
                     animate={{ rotate: 360 }}
                     transition={{
                       duration: 8,
@@ -928,7 +928,7 @@ export default function PublicTryOn() {
                     <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </motion.div>
                   <div className="min-w-0">
-                    <h1 className="font-bold bg-gradient-to-r text-base md:text-lg lg:text-xl from-blue-600 to-purple-600 bg-clip-text text-transparent truncate">
+                    <h1 className="font-bold bg-gradient-to-r text-base md:text-lg lg:text-xl from-blue-600 to-blue-400 bg-clip-text text-transparent truncate">
                       Public Try-On Gallery
                     </h1>
                     <div className="hidden sm:flex items-center gap-2">
@@ -1062,7 +1062,7 @@ export default function PublicTryOn() {
                 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full" />
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full" />
               </motion.div>
             </div>
 
@@ -1097,7 +1097,7 @@ export default function PublicTryOn() {
                     delay: i * 0.2,
                     ease: "easeInOut",
                   }}
-                  className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full"
+                  className="w-2 h-2 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full"
                 />
               ))}
             </motion.div>
@@ -1116,7 +1116,7 @@ export default function PublicTryOn() {
                 className="relative"
               >
                 {/* Background decoration */}
-                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 rounded-3xl blur-2xl opacity-50" />
+                <div className="absolute -inset-4 bg-gradient-to-r from-blue-500/5 via-blue-500/5 to-blue-500/5 rounded-3xl blur-2xl opacity-50" />
 
                 <div className="relative bg-white/80 dark:bg-gray-900/50 backdrop-blur-xl rounded-3xl p-2 sm:p-4 md:p-10 border border-white/20 dark:border-slate-700/50">
                   {/* Product Header with enhanced design */}
@@ -1134,7 +1134,7 @@ export default function PublicTryOn() {
                             fill
                             className="object-cover"
                           />
-                          <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-purple-500/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/20 to-blue-500/20 opacity-0 hover:opacity-100 transition-opacity duration-300" />
                         </motion.div>
                         {/* Floating badge */}
                         <motion.div
@@ -1147,7 +1147,7 @@ export default function PublicTryOn() {
                             repeat: Infinity,
                             ease: "easeInOut",
                           }}
-                          className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
+                          className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full flex items-center justify-center"
                         >
                           <Star className="w-4 h-4 text-white fill-current" />
                         </motion.div>
@@ -1175,9 +1175,9 @@ export default function PublicTryOn() {
                               {product.sessions.length !== 1 ? "s" : ""}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 px-3 py-1 bg-yellow-50 dark:bg-yellow-900/30 rounded-full">
-                            <Star className="w-4 h-4 text-yellow-600 fill-current" />
-                            <span className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-blue-50 dark:bg-blue-900/30 rounded-full">
+                            <Star className="w-4 h-4 text-blue-600 fill-current" />
+                            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
                               {Math.floor(Math.random() * 2) + 4}.
                               {Math.floor(Math.random() * 9) + 1}
                             </span>
@@ -1199,7 +1199,7 @@ export default function PublicTryOn() {
                       >
                         <Button
                           onClick={() => router.push(`/product/${product.id}`)}
-                          className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 py-2 rounded-full transition-all duration-300"
+                          className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-full transition-all duration-300"
                         >
                           <ShoppingBag className="w-5 h-5" />
                           Order <span className="hidden sm:block">Now</span>
@@ -1340,7 +1340,7 @@ export default function PublicTryOn() {
                           </motion.div>
 
                           {/* Hover glow effect */}
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                          <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 via-blue-500/20 to-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
                         </div>
                       </motion.div>
                     ))}
@@ -1360,7 +1360,7 @@ export default function PublicTryOn() {
             className="relative text-center py-16 sm:py-20"
           >
             {/* Background decoration */}
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-purple-500/5 to-blue-500/5 rounded-3xl blur-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-blue-500/5 to-blue-500/5 rounded-3xl blur-3xl" />
 
             <div className="relative">
               {/* Animated illustration */}
@@ -1375,7 +1375,7 @@ export default function PublicTryOn() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="w-24 h-24 bg-gradient-to-br from-blue-100 via-purple-100 to-blue-100 dark:from-blue-900/40 dark:via-purple-900/40 dark:to-blue-900/40 rounded-3xl flex items-center justify-center mx-auto"
+                  className="w-24 h-24 bg-gradient-to-br from-blue-100 via-blue-100 to-blue-100 dark:from-blue-900/40 dark:via-blue-900/40 dark:to-blue-900/40 rounded-3xl flex items-center justify-center mx-auto"
                 >
                   <Sparkles className="w-12 h-12 text-blue-600 dark:text-blue-400" />
                 </motion.div>
@@ -1391,7 +1391,7 @@ export default function PublicTryOn() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="absolute top-0 right-8 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full opacity-60"
+                  className="absolute top-0 right-8 w-6 h-6 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full opacity-60"
                 />
                 <motion.div
                   animate={{
@@ -1404,7 +1404,7 @@ export default function PublicTryOn() {
                     ease: "easeInOut",
                     delay: 0.5,
                   }}
-                  className="absolute bottom-2 left-6 w-4 h-4 bg-gradient-to-r from-purple-400 to-blue-500 rounded-full opacity-70"
+                  className="absolute bottom-2 left-6 w-4 h-4 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full opacity-70"
                 />
               </div>
 
@@ -1412,7 +1412,7 @@ export default function PublicTryOn() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-lg sm:text-xl font-bold bg-gradient-to-r from-slate-900 via-blue-600 to-purple-600 dark:from-slate-100 dark:via-blue-400 dark:to-purple-400 bg-clip-text text-transparent mb-4"
+                className="text-lg sm:text-xl font-bold bg-gradient-to-r from-slate-900 via-blue-600 to-blue-600 dark:from-slate-100 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-4"
               >
                 Ready to Create Magic?
               </motion.h3>
@@ -1463,7 +1463,7 @@ export default function PublicTryOn() {
                 whileTap={{ scale: 0.95 }}
               >
                 <Link href="/try-on">
-                  <Button className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 text-white px-6 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20">
+                  <Button className="bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 text-white px-6 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20">
                     <Zap className="w-6 h-6 mr-3" />
                     Start Your First Try-On
                     <motion.div
@@ -1490,7 +1490,7 @@ export default function PublicTryOn() {
               <Button
                 onClick={loadMore}
                 disabled={loading}
-                className="bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 hover:from-blue-600 hover:via-purple-600 hover:to-blue-600 text-white px-8 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 text-white px-8 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
                   <motion.div
@@ -1593,11 +1593,11 @@ export default function PublicTryOn() {
                   {/* Right: Details */}
                   <div className="space-y-4 sm:space-y-5">
                     <div>
-                      <h3 className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
+                      <h3 className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent mb-3">
                         {selectedSession.productName}
                       </h3>
                       <div className="flex items-center gap-3 mb-4 flex-wrap">
-                        <div className="px-3 py-1.5 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-sm font-medium">
+                        <div className="px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-sm font-medium">
                           ✓ Completed
                         </div>
                         <span className="text-sm text-slate-500 dark:text-slate-400">
@@ -1692,7 +1692,7 @@ export default function PublicTryOn() {
                         onClick={() => handleSave(selectedSession.id)}
                         className={`flex-1 rounded-full text-sm py-3 ${
                           savedSessions.has(selectedSession.id)
-                            ? "bg-purple-500 hover:bg-purple-600 text-white"
+                            ? "bg-blue-500 hover:bg-blue-600 text-white"
                             : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
                         }`}
                       >
@@ -1745,7 +1745,7 @@ export default function PublicTryOn() {
                         <Link
                           href={`/try-on-widget/${selectedSession.productId}`}
                         >
-                          <Button className="w-full rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white text-sm py-2 font-semibold transition-all duration-300">
+                          <Button className="w-full rounded-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white text-sm py-2 font-semibold transition-all duration-300">
                             <ShoppingBag className="h-4 w-4 mr-2 flex-shrink-0" />
                             Try This Product
                           </Button>
