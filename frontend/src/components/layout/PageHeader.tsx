@@ -4,23 +4,12 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 interface PageHeaderProps {
   badge?: string;
-  badgeTone?: "blue" | "blue" | "blue" | "cyan";
+  badgeTone?: "blue" | "cyan";
   titleKey: string;
   subtitleKey?: string;
 }
 
 const toneMap = {
-  blue: {
-    badge: "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
-    gradient:
-      "bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400",
-  },
-  blue: {
-    badge:
-      "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
-    gradient:
-      "bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400",
-  },
   blue: {
     badge: "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
     gradient:

@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+build
+
+# Environment variables (never commit)
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+
+# TypeScript build info
+*.tsbuildinfo
+
+# Uploads / generated files
+public/uploads/
