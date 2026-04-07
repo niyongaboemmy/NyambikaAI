@@ -29,8 +29,21 @@ jobs:
       - name: Build Frontend
         working-directory: ./frontend
         run: |
-          # Inject your API URL so Next.js builds it into the frontend
-          echo "NEXT_PUBLIC_API_URL=https://api.nyambika.com" > .env.production
+          # Build NEXT_PUBLIC_* into the bundle at compile time
+          cat > .env.production <<EOF
+          NEXT_PUBLIC_API_BASE_URL=https://api.nyambika.com
+          NEXT_PUBLIC_FILE_SERVER_URL=https://cdn.nyambika.com
+          NEXT_PUBLIC_SITE_URL=https://nyambika.com
+          NEXT_PUBLIC_CONTACT_TO=${{ secrets.NEXT_PUBLIC_CONTACT_TO }}
+          NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID }}
+          NEXT_PUBLIC_PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}
+          NEXT_PUBLIC_PAY_DEBUG=false
+          TRYON_API_BASE_URL=${{ secrets.TRYON_API_BASE_URL }}
+          TRYON_API_KEY=${{ secrets.TRYON_API_KEY }}
+          NEXT_TRYON_API_KEY=${{ secrets.TRYON_API_KEY }}
+          RESEND_API_KEY=${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM=${{ secrets.RESEND_FROM }}
+          EOF
           npm install
           npm run build
 
