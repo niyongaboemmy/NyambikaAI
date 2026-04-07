@@ -1,5 +1,4 @@
-const PEXELS_API_KEY = process.env.NEXT_PUBLIC_PEXELS_API_KEY;
-const PEXELS_API_URL = "https://api.pexels.com/v1";
+const PROXY_URL = "/api/pexels/search";
 
 export interface PexelsPhoto {
   id: number;
@@ -38,52 +37,35 @@ export const searchImages = async (
   page: number = 1,
   perPage: number = 12
 ): Promise<PexelsSearchResponse> => {
-  try {
-    const response = await fetch(
-      `${PEXELS_API_URL}/search?query=${encodeURIComponent(
-        query
-      )}&page=${page}&per_page=${perPage}`,
-      {
-        headers: {
-          Authorization: PEXELS_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  const params = new URLSearchParams({
+    query,
+    page: String(page),
+    per_page: String(perPage),
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch images from Pexels");
-    }
+  const response = await fetch(`${PROXY_URL}?${params}`);
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error searching Pexels images:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to fetch images from Pexels");
   }
+
+  return response.json();
 };
 
 export const getPopularImages = async (
   page: number = 1,
   perPage: number = 12
 ): Promise<PexelsSearchResponse> => {
-  try {
-    const response = await fetch(
-      `${PEXELS_API_URL}/curated?page=${page}&per_page=${perPage}`,
-      {
-        headers: {
-          Authorization: PEXELS_API_KEY || "",
-          "Content-Type": "application/json",
-        },
-      }
-    );
+  const params = new URLSearchParams({
+    page: String(page),
+    per_page: String(perPage),
+  });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch popular images from Pexels");
-    }
+  const response = await fetch(`${PROXY_URL}?${params}`);
 
-    return await response.json();
-  } catch (error) {
-    console.error("Error fetching popular Pexels images:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error("Failed to fetch popular images from Pexels");
   }
+
+  return response.json();
 };

@@ -3378,39 +3378,100 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return sendError(res, 400, "Email permission required");
       }
 
-      // Upsert user
-      let user = await storage.getUserByEmail(email);
-      if (!user) {
-        const randomPassword = crypto.randomBytes(16).toString("hex");
-        const hashed = await bcrypt.hash(randomPassword, 10);
-        user = await storage.createUser({
-          username: email,
-          email,
-          password: hashed,
-          fullName: name,
-          role: "customer",
-        } as any);
-      }
-
-      // Issue JWT
-      const token = jwt.sign({ userId: user.id, role: user.role }, jwtSecret, {
-        expiresIn: "7d",
-      });
-
-      // Determine frontend base URL - if FRONTEND_URL is set, use it; otherwise use current request origin
       const frontendBase =
         process.env.FRONTEND_URL || `${req.protocol}://${req.get("host")}`;
 
-      // Return HTML that sets localStorage and redirects
-      const html = `<!doctype html>
+      // Check if user already exists
+      let user = await storage.getUserByEmail(email);
+
+      if (!user) {
+        // New user — issue a short-lived pending token and redirect to
+        // the register page so the user can choose their role.
+        const pendingToken = jwt.sign(
+          {
+            kind: "oauth_pending",
+            provider: "facebook",
+            email,
+            name,
+          },
+          jwtSecret,
+          { expiresIn: "15m" }
+        );
+
+        const registerUrl = `${frontendBase}/register?oauth=facebook&email=${encodeURIComponent(
+          email
+        )}&name=${encodeURIComponent(name)}&oauthToken=${encodeURIComponent(
+          pendingToken
+        )}`;
+
+        const html = `<!doctype html>
 <html><head><meta charset="utf-8"><script>
-try {
-  localStorage.setItem('auth_token', ${JSON.stringify(token)});
-  window.location.replace(${JSON.stringify(frontendBase)});
-} catch (e) {
-  document.write('Login successful. Please return to the app.');
-}
+  window.location.replace(${JSON.stringify(registerUrl)});
 </script></head><body></body></html>`;
+
+        res.setHeader("Content-Type", "text/html");
+        return res.send(html);
+      }
+
+      // Existing user — issue a 7-day JWT and redirect to oauth-complete
+      const displayName = user.fullName || user.email.split("@")[0];
+
+      const token = jwt.sign(
+        {
+          userId: user.id,
+          role: user.role || "customer",
+          email: user.email,
+          name: displayName,
+        },
+        jwtSecret,
+        { expiresIn: "7d" }
+      );
+
+      res.cookie("auth_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+        path: "/",
+        domain:
+          process.env.NODE_ENV === "production" ? ".nyambika.com" : undefined,
+      });
+
+      const frontendUserData = {
+        id: user.id,
+        email: user.email,
+        fullName: displayName,
+        role: user.role || "customer",
+        isVerified: user.isVerified || false,
+      };
+
+      const redirectUrl = new URL(`${frontendBase}/auth/oauth-complete`);
+      redirectUrl.searchParams.set(
+        "user",
+        encodeURIComponent(JSON.stringify(frontendUserData))
+      );
+      redirectUrl.hash = `#token=${encodeURIComponent(token)}`;
+
+      const html = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+      const userData = ${JSON.stringify(frontendUserData)};
+      sessionStorage.setItem('user', JSON.stringify(userData));
+      window.location.href = ${JSON.stringify(redirectUrl.toString())};
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to Nyambika...</p>
+    <script>
+      setTimeout(function() {
+        window.location.href = ${JSON.stringify(redirectUrl.toString())};
+      }, 1000);
+    </script>
+  </body>
+</html>`;
       res.setHeader("Content-Type", "text/html");
       res.send(html);
     } catch (error) {
