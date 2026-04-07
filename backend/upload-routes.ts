@@ -195,10 +195,13 @@ router.delete(
   }
 );
 
-// Serve uploaded files (public route)
+// Serve uploaded files (legacy fallback — primary serving is via file-server on port 3004)
 router.get("/uploads/:filename", (req: Request, res: Response) => {
   const { filename } = req.params;
-  const filePath = path.join(process.cwd(), "public", "uploads", filename);
+  const uploadsBase = process.env.UPLOADS_DIR
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.join(process.cwd(), "..", "file-server", "uploads");
+  const filePath = path.join(uploadsBase, path.basename(filename));
 
   // Check if file exists
   if (!fs.existsSync(filePath)) {

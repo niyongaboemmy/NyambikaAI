@@ -793,12 +793,14 @@ router.post(
               return;
             }
 
-            // Handle local uploads that start with /api/uploads/
+            // Handle local uploads that start with /api/uploads/ (legacy paths)
             if (imageUrl.startsWith("/api/uploads/")) {
+              const uploadsBase = process.env.UPLOADS_DIR
+                ? path.resolve(process.env.UPLOADS_DIR)
+                : path.join(process.cwd(), "..", "file-server", "uploads");
               const localPath = path.join(
-                process.cwd(),
-                "public",
-                imageUrl.replace("/api/uploads/", "uploads/")
+                uploadsBase,
+                imageUrl.replace("/api/uploads/", "")
               );
 
               if (fs.existsSync(localPath)) {

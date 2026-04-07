@@ -1,8 +1,6 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import cors from "cors";
-import path from "path";
-import fs from "fs";
 import { registerRoutes } from "./routes";
 import uploadRoutes from "./upload-routes";
 
@@ -45,63 +43,9 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 // Register upload routes
 app.use("/api", uploadRoutes);
 
-// Serve uploaded files directly (public access)
-const uploadsDir = path.join(process.cwd(), "public", "uploads");
-console.log("Serving static files from:", uploadsDir);
-
-// Ensure uploads directory exists
-if (!fs.existsSync(uploadsDir)) {
-  console.log("Creating uploads directory at:", uploadsDir);
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Serve static files with proper headers
-app.use(
-  "/uploads",
-  express.static(uploadsDir, {
-    setHeaders: (res, path) => {
-      const ext = path.split(".").pop()?.toLowerCase();
-      const mimeTypes: Record<string, string> = {
-        jpg: "image/jpeg",
-        jpeg: "image/jpeg",
-        png: "image/png",
-        gif: "image/gif",
-        webp: "image/webp",
-        pdf: "application/pdf",
-      };
-
-      if (ext && mimeTypes[ext]) {
-        res.setHeader("Content-Type", mimeTypes[ext]);
-      }
-
-      // Allow any origin for static files
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
-      );
-      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    },
-  })
-);
-
-// Also keep the API endpoint for backward compatibility
-app.use(
-  "/api/uploads",
-  express.static(uploadsDir, {
-    setHeaders: (res, _path) => {
-      // Allow any origin for static files
-      res.setHeader("Access-Control-Allow-Origin", "*");
-      res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept"
-      );
-      res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
-    },
-  })
-);
+// Static file serving has been moved to the dedicated file-server (port 3004).
+// Files are served at: http://localhost:3004/files/<filename>
+// The file-server project lives at: /file-server/
 
 app.use((req, res, next) => {
   const start = Date.now();

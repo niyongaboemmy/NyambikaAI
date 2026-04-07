@@ -14,6 +14,8 @@ const nextConfig = withPWA({
     NEXT_PUBLIC_API_BASE_URL:
       process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001",
     NEXT_PUBLIC_PEXELS_API_KEY: process.env.NEXT_PUBLIC_PEXELS_API_KEY,
+    NEXT_PUBLIC_FILE_SERVER_URL:
+      process.env.NEXT_PUBLIC_FILE_SERVER_URL || "http://localhost:3004",
   },
 
   // ✅ Enable React strict mode for better debugging
@@ -24,6 +26,9 @@ const nextConfig = withPWA({
     remotePatterns: [
       { protocol: "http", hostname: "localhost" },
       { protocol: "http", hostname: "127.0.0.1" },
+      // File server (production)
+      { protocol: "https", hostname: "files.nyambika.com" },
+      { protocol: "https", hostname: "nyambikav2.vms.rw", pathname: "/files/**" },
       { protocol: "https", hostname: "nyambika.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "images.pexels.com" },

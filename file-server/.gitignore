@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.env
+*.log
+
+# Keep uploads folder structure but ignore content
+uploads/*
+!uploads/.gitkeep

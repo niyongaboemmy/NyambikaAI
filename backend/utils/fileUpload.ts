@@ -47,14 +47,18 @@ declare module "express-serve-static-core" {
   }
 }
 
-// Use process.cwd() for more reliable path resolution in both dev and prod
+// ── Upload directory ─────────────────────────────────────────────────────────
+// New uploads go directly to the dedicated file-server/uploads/ folder so that
+// the backend no longer serves static assets.  Fall back to the legacy
+// backend/public/uploads when UPLOADS_DIR is not set (e.g. CI / tests).
 const rootDir = process.cwd();
-const uploadDir = path.join(rootDir, "public", "uploads");
+const uploadDir = process.env.UPLOADS_DIR
+  ? path.resolve(process.env.UPLOADS_DIR)
+  : path.join(rootDir, "..", "file-server", "uploads");
 
 // Ensure upload directory exists
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
-  console.log(`Created uploads directory at: ${uploadDir}`);
 }
 
 // Configure storage
@@ -109,7 +113,15 @@ const upload = multer({
 export { upload };
 
 // Function to generate public URL
+// Points to the dedicated file-server so the backend is no longer in the
+// static-serving business.  Falls back to the legacy /api/uploads path when
+// FILE_SERVER_BASE_URL is not configured (e.g. local dev without file-server).
 export function getPublicUrl(filename: string): string {
+  const base = process.env.FILE_SERVER_BASE_URL;
+  if (base) {
+    return `${base.replace(/\/$/, "")}/files/${filename}`;
+  }
+  // Legacy fallback — keep backward compatibility
   return `/api/uploads/${filename}`;
 }
 

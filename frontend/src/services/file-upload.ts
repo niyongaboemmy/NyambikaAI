@@ -91,9 +91,11 @@ export const uploadFile = async (
     // Ensure the response URL is a full URL
     const responseData = response.data;
     if (responseData.url && !responseData.url.startsWith("http")) {
-      responseData.url = `${API_BASE_URL.replace("/api", "")}${
-        responseData.url
-      }`;
+      // URL came back as a relative path — prepend the file-server base if available,
+      // otherwise fall back to the API base (legacy behaviour)
+      const fileServerBase = process.env.NEXT_PUBLIC_FILE_SERVER_URL;
+      const base = fileServerBase ?? API_BASE_URL.replace("/api", "");
+      responseData.url = `${base}${responseData.url}`;
     }
 
     // Add preview URL to response
@@ -150,9 +152,29 @@ export const revokePreviewUrl = (url: string): void => {
   }
 };
 
-// Helper function to get the full URL for an uploaded file
-export const getFileUrl = (filename: string): string => {
-  // Use the base domain without /api for direct file access
-  const baseUrl = API_BASE_URL.replace("/api", "");
-  return `${baseUrl}/uploads/${filename}`;
+// Helper function to get the full URL for an uploaded file.
+// Handles three input forms:
+//   1. Full URL already (new DB format)  → pass through
+//   2. Legacy relative path /api/uploads/ or /uploads/ → map to file-server
+//   3. Plain filename                    → prepend file-server base
+const FILE_SERVER_BASE =
+  (process.env.NEXT_PUBLIC_FILE_SERVER_URL || "http://localhost:3004").replace(
+    /\/$/,
+    ""
+  );
+
+export const getFileUrl = (filePathOrUrl: string): string => {
+  if (
+    filePathOrUrl.startsWith("http://") ||
+    filePathOrUrl.startsWith("https://")
+  ) {
+    return filePathOrUrl;
+  }
+  if (filePathOrUrl.startsWith("/api/uploads/")) {
+    return `${FILE_SERVER_BASE}/files/${filePathOrUrl.replace("/api/uploads/", "")}`;
+  }
+  if (filePathOrUrl.startsWith("/uploads/")) {
+    return `${FILE_SERVER_BASE}/files/${filePathOrUrl.replace("/uploads/", "")}`;
+  }
+  return `${FILE_SERVER_BASE}/files/${filePathOrUrl}`;
 };
