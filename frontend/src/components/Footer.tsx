@@ -41,65 +41,38 @@ export default function Footer() {
   ];
 
   const socialLinks = [
-    {
-      icon: Facebook,
-      href: "https://www.facebook.com/nyambikadesign",
-      label: "Facebook",
-      color: "hover:text-white",
-    },
-    {
-      icon: Twitter,
-      href: "https://x.com/Nyambika1/",
-      label: "Twitter",
-      color: "hover:text-white",
-    },
-    {
-      icon: Instagram,
-      href: "https://www.instagram.com/nyambika_official/",
-      label: "Instagram",
-      color: "hover:text-white",
-    },
-    {
-      icon: Linkedin,
-      href: "https://www.linkedin.com/in/nyambikaofficial/",
-      label: "LinkedIn",
-      color: "hover:text-white",
-    },
-    {
-      icon: MessageCircle,
-      href: "https://wa.me/250782634364",
-      label: "WhatsApp",
-      color: "hover:text-white",
-    },
+    { icon: Facebook, href: "https://www.facebook.com/nyambikadesign", label: "Facebook" },
+    { icon: Twitter, href: "https://x.com/Nyambika1/", label: "Twitter" },
+    { icon: Instagram, href: "https://www.instagram.com/nyambika_official/", label: "Instagram" },
+    { icon: Linkedin, href: "https://www.linkedin.com/in/nyambikaofficial/", label: "LinkedIn" },
+    { icon: MessageCircle, href: "https://wa.me/250782634364", label: "WhatsApp" },
   ];
 
   return (
-    <footer className="relative overflow-hidden bg-neutral-950 mt-0">
-      {/* subtle top border */}
-      <div className="absolute inset-x-0 -top-px h-px bg-white/10" />
+    <footer className="relative bg-muted/40 border-t border-border mt-0">
 
       {/* AI CTA banner */}
-      <div className="container mx-auto px-4 sm:px-6 pt-14">
-        <div className="relative overflow-hidden rounded-2xl bg-white">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 p-8 md:p-12">
+      <div className="container mx-auto px-4 sm:px-6 pt-12">
+        <div className="rounded-2xl bg-card border border-border overflow-hidden">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-8 md:p-10">
             {/* Left: text */}
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1 text-xs font-medium text-neutral-500 tracking-wide">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground tracking-wide">
                   <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-neutral-400 opacity-60" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-neutral-800" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
                   </span>
                   {t("footer.liveBadge")}
                 </span>
-                <span className="text-xs text-neutral-400 hidden sm:block">
+                <span className="text-xs text-muted-foreground hidden sm:block">
                   {t("footer.tryOutfits")}
                 </span>
               </div>
-              <h2 className="text-2xl md:text-4xl font-bold text-neutral-900 tracking-tight leading-tight">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">
                 {t("footer.ctaTitle")}
               </h2>
-              <p className="mt-3 text-neutral-500 max-w-lg text-sm leading-relaxed">
+              <p className="mt-2 text-muted-foreground max-w-lg text-sm leading-relaxed">
                 {t("footer.ctaDesc")}
               </p>
             </div>
@@ -107,14 +80,14 @@ export default function Footer() {
             <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Button
                 asChild
-                className="bg-neutral-900 hover:bg-neutral-800 text-white px-7 py-2.5 text-sm font-medium rounded-lg transition-colors"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 text-sm font-medium rounded-lg transition-colors"
               >
                 <Link href="/try-on">{t("footer.startTryOn")}</Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="border-neutral-200 text-neutral-700 hover:bg-neutral-50 px-7 py-2.5 text-sm font-medium rounded-lg transition-colors"
+                className="px-6 py-2.5 text-sm font-medium rounded-lg transition-colors"
               >
                 <Link href="/products">{t("footer.browseProducts")}</Link>
               </Button>
@@ -123,22 +96,22 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 sm:px-6 py-12 md:py-16">
+      <div className="container mx-auto px-4 sm:px-6 py-12 md:py-14">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20">
           {/* Brand */}
           <div className="space-y-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center">
-                <span className="text-neutral-900 text-lg font-bold tracking-tight">N</span>
+              <div className="w-9 h-9 rounded-lg bg-foreground flex items-center justify-center">
+                <span className="text-background text-base font-bold tracking-tight">N</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-white">
+              <span className="text-lg font-bold tracking-tight text-foreground">
                 Nyambika
               </span>
             </div>
-            <p className="text-neutral-400 leading-relaxed text-sm max-w-xs">
+            <p className="text-muted-foreground leading-relaxed text-sm max-w-xs">
               {t("footer.brandTagline")}
             </p>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {socialLinks.map((s, i) => {
                 const Icon = s.icon;
                 return (
@@ -147,7 +120,7 @@ export default function Footer() {
                     asChild
                     variant="ghost"
                     size="icon"
-                    className={`rounded-md p-2 text-neutral-500 hover:bg-white/8 transition-colors ${s.color}`}
+                    className="rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                     aria-label={s.label}
                   >
                     <a href={s.href} target="_blank" rel="noreferrer noopener">
@@ -159,12 +132,12 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Newsletter */}
+          {/* Newsletter + Contact */}
           <div className="text-sm">
-            <h3 className="text-xs font-semibold text-neutral-300 tracking-widest mb-4 uppercase">
+            <h3 className="text-xs font-semibold text-muted-foreground tracking-widest mb-4 uppercase">
               {t("footer.stayUpdated")}
             </h3>
-            <p className="text-neutral-500 mb-4 text-sm">{t("footer.subscribeDesc")}</p>
+            <p className="text-muted-foreground mb-4 text-sm">{t("footer.subscribeDesc")}</p>
             <form
               className="flex w-full items-center gap-2"
               onSubmit={async (e) => {
@@ -218,34 +191,34 @@ export default function Footer() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={t("footer.emailPlaceholder")}
-                className="bg-white/5 text-white placeholder:text-neutral-600 border-white/10 focus:border-white/30 rounded-lg"
+                className="bg-background border-input text-foreground placeholder:text-muted-foreground rounded-lg"
                 required
                 aria-label={t("footer.emailAria")}
               />
               <Button
                 type="submit"
-                className="bg-white text-neutral-900 hover:bg-neutral-100 rounded-lg font-medium shrink-0"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-medium shrink-0"
                 disabled={submitting}
               >
                 {submitting ? t("footer.subscribing") : t("footer.subscribe")}
               </Button>
             </form>
 
-            <div className="mt-6 space-y-3 text-neutral-500">
-              <div className="flex items-center gap-3">
+            <div className="mt-6 space-y-3 text-muted-foreground">
+              <div className="flex items-center gap-3 text-sm">
                 <Phone className="h-4 w-4 shrink-0" /> +250 782 634 364
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 text-sm">
                 <Mail className="h-4 w-4 shrink-0" /> info@nyambika.com
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 text-sm">
                 <MapPin className="h-4 w-4 shrink-0" /> Kigali, Rwanda
               </div>
               <div className="pt-2">
                 <Button
                   asChild
                   variant="outline"
-                  className="border-white/15 text-neutral-300 hover:bg-white/5 hover:text-white rounded-lg text-sm"
+                  className="text-sm rounded-lg"
                 >
                   <a
                     href="https://wa.me/250782634364"
@@ -261,9 +234,9 @@ export default function Footer() {
           </div>
         </div>
 
-        <Separator className="my-10 bg-white/8" />
+        <Separator className="my-10 bg-border" />
 
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-neutral-600 text-xs">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-muted-foreground text-xs">
           <div className="text-center md:text-left">
             {t("footer.copyright").replace("{year}", String(year))}{" "}
             {t("footer.allRights")}
@@ -273,7 +246,7 @@ export default function Footer() {
               <Link
                 key={l.href}
                 href={l.href}
-                className="hover:text-neutral-300 transition-colors"
+                className="hover:text-foreground transition-colors"
               >
                 {l.label}
               </Link>
@@ -286,7 +259,7 @@ export default function Footer() {
       <button
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         aria-label={t("footer.backToTop")}
-        className={`fixed bottom-6 right-6 z-40 rounded-full p-3 transition-all duration-300 bg-white hover:bg-neutral-100 text-neutral-900 shadow-lg ${
+        className={`fixed bottom-6 right-6 z-40 rounded-full p-3 transition-all duration-300 bg-foreground text-background hover:opacity-90 shadow-md ${
           showTop
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-3 pointer-events-none"
