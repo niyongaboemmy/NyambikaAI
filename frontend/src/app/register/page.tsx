@@ -23,7 +23,7 @@ import { Label } from "../../components/custom-ui/label";
 import { useAuth } from "../../contexts/AuthContext";
 import { useLoginPrompt } from "../../contexts/LoginPromptContext";
 import { Checkbox } from "../../components/custom-ui/checkbox";
-import { useToast } from "../../hooks/use-toast";
+import { toast } from "@/hooks/use-safe-toast";
 import {
   Tabs,
   TabsTrigger,
@@ -39,7 +39,6 @@ export default function Register() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { open } = useLoginPrompt();
-  const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
