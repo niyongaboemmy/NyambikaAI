@@ -36,7 +36,7 @@ jobs:
           NEXT_PUBLIC_SITE_URL=https://nyambika.com
           NEXT_PUBLIC_CONTACT_TO=${{ secrets.NEXT_PUBLIC_CONTACT_TO }}
           NEXT_PUBLIC_GA_MEASUREMENT_ID=${{ secrets.GA_MEASUREMENT_ID }}
-          NEXT_PUBLIC_PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}
+          PEXELS_API_KEY=${{ secrets.PEXELS_API_KEY }}
           NEXT_PUBLIC_PAY_DEBUG=false
           TRYON_API_BASE_URL=${{ secrets.TRYON_API_BASE_URL }}
           TRYON_API_KEY=${{ secrets.TRYON_API_KEY }}
@@ -62,7 +62,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           # We only grab the compiled folders, package files, and server scripts
-          source: "backend/dist/,backend/package.json,frontend/.next/,frontend/public/,frontend/package.json,frontend/next.config.js,file-server/dist/,file-server/package.json"
+          source: "backend/dist/,backend/package.json,frontend/.next/,frontend/public/,frontend/package.json,frontend/next.config.js,frontend/.env.production,file-server/dist/,file-server/package.json"
           target: "/home/ubuntu/production/"
           strip_components: 0 # Maintains the folder structure
 
