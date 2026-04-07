@@ -1,0 +1,67 @@
+name: Build and Deploy Artifacts to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # 1. BUILD BACKEND
+      - name: Build Backend
+        working-directory: ./backend
+        run: |
+          npm install
+          npm run build
+
+      # 2. BUILD FRONTEND
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: |
+          # Inject your API URL so Next.js builds it into the frontend
+          echo "NEXT_PUBLIC_API_URL=https://api.nyambika.com" > .env.production
+          npm install
+          npm run build
+
+      # 3. COPY ARTIFACTS TO EC2
+      - name: Copy Build Folders to Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          # We only grab the compiled folders, package files, and server scripts
+          source: "backend/dist/,backend/package.json,frontend/.next/,frontend/public/,frontend/package.json,frontend/next.config.js,file-server/index.js,file-server/package.json"
+          target: "/home/ubuntu/production/"
+          strip_components: 0 # Maintains the folder structure
+
+      # 4. INSTALL PROD DEPENDENCIES AND START PM2
+      - name: Start Applications on Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Backend Setup
+            cd /home/ubuntu/production/backend
+            npm install --omit=dev # Only installs production packages
+            pm2 restart api || pm2 start dist/index.js --name "api" --env PORT=4000
+
+            # Frontend Setup
+            cd /home/ubuntu/production/frontend
+            npm install --omit=dev
+            pm2 restart frontend || pm2 start npm --name "frontend" -- start -- -p 3000
+
+            # File Server Setup
+            cd /home/ubuntu/production/file-server
+            npm install --omit=dev
+            pm2 restart cdn || pm2 start index.js --name "cdn" --env PORT=5000
+            
+            pm2 save
