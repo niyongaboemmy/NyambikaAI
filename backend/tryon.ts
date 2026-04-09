@@ -4,10 +4,16 @@ import fs from "fs";
 import { db } from "./db";
 import { tryOnSessions } from "./shared/schema.dialect";
 import { eq } from "drizzle-orm";
+import Replicate from "replicate";
 
-// Prefer VIRTUAL_TRYON_URL if provided, backward compatibility
-const VIRTUAL_TRYON_URL =
-  process.env.VIRTUAL_TRYON_URL || "https://tryon-api.com";
+// ─── Provider config ────────────────────────────────────────────────────────
+// Phase 1 (free): PixelAPI — 100 free credits on signup, no credit card.
+//   Sign up at https://pixelapi.dev/app and set PIXELAPI_KEY in backend/.env
+// Phase 2 (paid fallback): Replicate IDM-VTON — ~$0.023/image
+//   Sign up at https://replicate.com and set REPLICATE_API_TOKEN in backend/.env
+const PIXELAPI_BASE = "https://api.pixelapi.dev/v1";
+const REPLICATE_MODEL =
+  "cuuupid/idm-vton:c871bb9b046607b680449ecbae55fd8c6d945e0a1948644bf2361b3d021d3ff4";
 
 interface VirtualTryOnResult {
   success: boolean;
@@ -35,14 +41,38 @@ async function toBase64FromUrl(url: string): Promise<string> {
   return Buffer.from(arrayBuffer).toString("base64");
 }
 
-// Normalize for ClothFlow service: prefer sending data URLs to avoid remote fetch issues.
-async function toClothFlowInput(val: string): Promise<string> {
+// Convert any input (URL, data URL, raw base64) to a plain base64 string
+async function toBase64(val: string): Promise<string> {
   if (/^https?:\/\//i.test(val)) {
-    const b64 = await toBase64FromUrl(val);
-    return `data:image/jpeg;base64,${b64}`;
+    return toBase64FromUrl(val);
   }
-  // If already a data URL, pass through; if it's raw base64, let the service decode it.
-  return val;
+  if (val.startsWith("data:")) {
+    const match = val.match(/^data:image\/(?:png|jpe?g|webp);base64,(.+)$/i);
+    if (!match) throw new Error("Invalid data URL");
+    return match[1];
+  }
+  return val; // already raw base64
+}
+
+// Convert any input to a publicly reachable URL (Replicate requires URLs, not base64)
+async function toPublicUrl(val: string): Promise<string> {
+  if (/^https?:\/\//i.test(val)) return val;
+  // Convert raw base64 to data URL
+  const b64 = await toBase64(val);
+  const buf = Buffer.from(b64, "base64");
+  
+  // Upload to highly-available image host (catbox.moe)
+  const formData = new FormData();
+  formData.append("reqtype", "fileupload");
+  formData.append("fileToUpload", new Blob([buf], { type: "image/jpeg" }), "image.jpg");
+
+  const resp = await fetch("https://catbox.moe/user/api.php", {
+    method: "POST",
+    body: formData as any,
+  });
+  
+  if (!resp.ok) throw new Error(`Catbox upload failed: ${resp.status}`);
+  return (await resp.text()).trim();
 }
 
 // Crop product image for try-on by downloading, processing, and returning as data URL
@@ -128,277 +158,174 @@ async function cropProductImageForTryOn(
   }
 }
 
-// Python virtual_tryon service integration (supports engines: viton_hd, stable_viton)
+// ─── Phase 1: PixelAPI (free tier — 100 credits on signup, no credit card) ───
+// Docs: https://pixelapi.dev/docs  |  API base: https://api.pixelapi.dev/v1
+// Virtual try-on is async: POST → job_id → poll GET until status=completed.
+async function tryWithPixelAPI(
+  personBase64: string,
+  clothBase64: string
+): Promise<VirtualTryOnResult> {
+  const apiKey = process.env.PIXELAPI_KEY;
+  if (!apiKey) throw new Error("PIXELAPI_KEY not set");
+
+  const authHeader = { Authorization: `Bearer ${apiKey}` };
+
+  // ── Step 1: Submit the job ────────────────────────────────────────────────
+  const submitResp = await fetch(`${PIXELAPI_BASE}/virtual-tryon`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeader },
+    body: JSON.stringify({
+      garment_image: personBase64,   // base64 string (no data: prefix)
+      person_image: clothBase64,     // base64 string
+      category: "upperbody",
+    }),
+  });
+
+  if (!submitResp.ok) {
+    const text = await submitResp.text();
+    throw new Error(`PixelAPI submit error (${submitResp.status}): ${text || submitResp.statusText}`);
+  }
+
+  const submitData: any = await submitResp.json();
+  const jobId: string | undefined = submitData.job_id;
+  if (!jobId) throw new Error("PixelAPI did not return a job_id");
+
+  // ── Step 2: Poll for result ───────────────────────────────────────────────
+  const pollUrl = `${PIXELAPI_BASE}/virtual-tryon/jobs/${jobId}`;
+  const timeoutMs = 120_000; // 2 min max
+  const intervalMs = 3_000;
+  const start = Date.now();
+
+  while (Date.now() - start < timeoutMs) {
+    await new Promise((r) => setTimeout(r, intervalMs));
+
+    const pollResp = await fetch(pollUrl, { headers: authHeader });
+    if (!pollResp.ok) {
+      const text = await pollResp.text();
+      throw new Error(`PixelAPI poll error (${pollResp.status}): ${text}`);
+    }
+
+    const pollData: any = await pollResp.json();
+
+    if (pollData.status === "completed") {
+      console.log("PixelAPI completed payload:", JSON.stringify(pollData).substring(0, 500));
+      // Try multiple common property names
+      const b64: string | undefined = pollData.result_image_b64 || pollData.result_b64 || pollData.image_b64;
+      const url: string | undefined = pollData.result_url || pollData.image_url || pollData.url || pollData.output_url || pollData.output;
+      
+      if (b64) {
+        return {
+          success: true,
+          tryOnImageUrl: `data:image/jpeg;base64,${b64}`,
+          recommendations: { fit: "perfect", confidence: 0.9, notes: "Virtual try-on completed via PixelAPI (base64)" },
+        };
+      } else if (url) {
+        return {
+          success: true,
+          tryOnImageUrl: url,
+          recommendations: { fit: "perfect", confidence: 0.9, notes: "Virtual try-on completed via PixelAPI (url)" },
+        };
+      }
+      
+      throw new Error(`PixelAPI completed but no image found. Keys: ${Object.keys(pollData).join(",")}`);
+    }
+
+    if (pollData.status === "failed" || pollData.status === "error") {
+      throw new Error(`PixelAPI job failed: ${pollData.error || pollData.message || "unknown"}`);
+    }
+    // status === "processing" | "queued" → keep polling
+  }
+
+  throw new Error("PixelAPI job timed out after 2 minutes");
+}
+
+// ─── Phase 2: Replicate IDM-VTON (~$0.023/image, cheapest commercial option) ──
+async function tryWithReplicate(
+  personUrl: string,
+  clothUrl: string
+): Promise<VirtualTryOnResult> {
+  const token = process.env.REPLICATE_API_TOKEN;
+  if (!token) throw new Error("REPLICATE_API_TOKEN not set");
+
+  const replicate = new Replicate({ auth: token });
+
+  const output = await replicate.run(REPLICATE_MODEL as `${string}/${string}:${string}`, {
+    input: {
+      human_img: personUrl,
+      garm_img: clothUrl,
+      garment_des: "clothing item",
+      is_checked: true,
+      is_checked_crop: false,
+      denoise_steps: 30,
+      seed: 42,
+    },
+  });
+
+  // IDM-VTON returns a URL string or array of URL strings
+  const rawOutput = output as unknown;
+  const imageUrl: string | undefined = Array.isArray(rawOutput)
+    ? (rawOutput[0] as string)
+    : (rawOutput as string);
+
+  if (!imageUrl) throw new Error("Replicate returned no image");
+
+  return {
+    success: true,
+    tryOnImageUrl: imageUrl,
+    recommendations: {
+      fit: "perfect",
+      confidence: 0.9,
+      notes: "Virtual try-on completed via Replicate IDM-VTON",
+    },
+  };
+}
+
+// ─── Orchestrator: Phase 1 → Phase 2 fallback ────────────────────────────────
 async function generateWithVirtualTryOnService(
   customerImageBase64OrUrl: string,
   productImageBase64OrUrl: string
 ): Promise<VirtualTryOnResult> {
+  // Crop product image if possible
+  let processedProductImage = productImageBase64OrUrl;
   try {
-    // Crop the product image before processing
-    let processedProductImage = productImageBase64OrUrl;
+    const cropped = await cropProductImageForTryOn(productImageBase64OrUrl);
+    if (cropped) processedProductImage = cropped;
+  } catch (cropError) {
+    console.error("Error cropping product image:", cropError);
+  }
+
+  // ── Phase 1: PixelAPI (free) ────────────────────────────────────────────────
+  if (process.env.PIXELAPI_KEY) {
     try {
-      const croppedImage = await cropProductImageForTryOn(
-        productImageBase64OrUrl
-      );
-      if (croppedImage) {
-        processedProductImage = croppedImage;
-      }
-    } catch (cropError) {
-      console.error("Error cropping product image:", cropError);
-      // Continue with original image
-    }
-
-    const person = await toClothFlowInput(customerImageBase64OrUrl);
-    const cloth = await toClothFlowInput(processedProductImage);
-
-    if (!person || !cloth) {
-      return {
-        success: false,
-        error: `Missing inputs for virtual_tryon: person=${Boolean(
-          person
-        )}, cloth=${Boolean(cloth)}`,
-      };
-    }
-
-    const baseUrl = VIRTUAL_TRYON_URL.replace(/\/$/, "");
-    const TRYON_API_KEY =
-      process.env.TRYON_API_KEY || "ta_26b4774d501b4fa6a03158754bcf4ba0";
-
-    // Create FormData for tryon-api.com
-    const formData = new FormData();
-
-    // Convert data URLs to Blobs for FormData
-    const personBlob = dataURLtoBlob(person);
-    const clothBlob = dataURLtoBlob(cloth);
-
-    formData.append("person_images", personBlob, "person.jpg");
-    formData.append("garment_images", clothBlob, "garment.jpg");
-    formData.append("fast_mode", "true");
-
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${TRYON_API_KEY}`,
-      "x-api-key": TRYON_API_KEY,
-    };
-
-    const resp = await fetch(`${baseUrl}/api/v1/tryon`, {
-      method: "POST",
-      headers,
-      body: formData,
-    });
-
-    if (!resp.ok) {
-      const text = await resp.text();
-      console.error("TryOn API Error Response:", text);
-      return {
-        success: false,
-        error: `virtual_tryon error (${resp.status}): ${
-          text || resp.statusText
-        }`,
-      };
-    }
-
-    const data = await resp.json();
-
-    // Parse the submit response (202 accepted)
-    const submitResponse = parseTryOnSubmitResponse(data);
-
-    // Ensure absolute status URL
-    const absoluteStatusUrl = /^https?:\/\//i.test(submitResponse.statusUrl)
-      ? `${baseUrl}${submitResponse.statusUrl}`
-      : `${baseUrl}${submitResponse.statusUrl.startsWith("/") ? "" : "/"}${
-          submitResponse.statusUrl
-        }`;
-
-    // Poll for completion
-    const totalTimeoutMs = Number(process.env.TRYON_POLL_TIMEOUT_MS || 900000); // Increased to 15 minutes for processing_from_queue
-    const status = await pollTryOnStatus(
-      absoluteStatusUrl,
-      headers,
-      totalTimeoutMs
-    );
-
-    // Handle the final status
-    if (status.status === "completed") {
-      return {
-        success: true,
-        tryOnImageUrl: status.imageUrl || status.imageBase64,
-        recommendations: {
-          fit: "perfect" as const,
-          confidence: 0.9,
-          notes: "AI-generated virtual try-on completed successfully",
-        },
-      };
-    } else if (status.status === "failed") {
-      return {
-        success: false,
-        error: status.error || status.message || "Try-on generation failed",
-      };
-    } else {
-      // Still processing or timeout - return processing status for frontend to handle
-      return {
-        success: false,
-        error: `Try-on status: ${status.status}`,
-        processingStatus: status.status,
-        jobId: status.jobId,
-        requiresPolling: true,
-      };
-    }
-  } catch (e: any) {
-    console.error("Virtual try-on request failed:", e);
-    console.error("Error details:", {
-      message: e?.message,
-      cause: e?.cause,
-      code: e?.code,
-      stack: e?.stack,
-    });
-    return {
-      success: false,
-      error: e?.message || "virtual_tryon request failed",
-    };
-  }
-}
-
-// Helper function to convert data URL to Blob
-function dataURLtoBlob(dataURL: string): Blob {
-  const arr = dataURL.split(",");
-  const mime = arr[0].match(/:(.*?);/)![1];
-  const bstr = atob(arr[1]);
-  let n = bstr.length;
-  const u8arr = new Uint8Array(n);
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new Blob([u8arr], { type: mime });
-}
-
-// Helper for parsing JSON response from TryOn API call
-interface TryOnApiResponse {
-  status:
-    | "completed"
-    | "failed"
-    | "processing"
-    | "queued"
-    | "processing_from_queue"
-    | "timeout";
-  imageUrl?: string;
-  imageBase64?: string;
-  provider?: string;
-  jobId?: string;
-  error?: string;
-  message?: string;
-  errorCode?: string;
-  result?: any;
-}
-
-interface TryOnSubmitResponse {
-  jobId: string;
-  statusUrl: string;
-  perfSessionId?: string;
-}
-
-function parseTryOnApiResponse(data: unknown): TryOnApiResponse {
-  const response = data as TryOnApiResponse;
-
-  // Validate required fields
-  if (!response.status) {
-    throw new Error("Invalid TryOn API response: missing status field");
-  }
-
-  // Validate status is one of the expected values
-  const validStatuses = [
-    "completed",
-    "failed",
-    "processing",
-    "queued",
-    "processing_from_queue",
-    "timeout",
-  ];
-  if (!validStatuses.includes(response.status)) {
-    throw new Error(
-      `Invalid TryOn API response: unknown status '${response.status}'`
-    );
-  }
-
-  return response;
-}
-
-function parseTryOnSubmitResponse(data: unknown): TryOnSubmitResponse {
-  const response = data as TryOnSubmitResponse;
-
-  if (!response.jobId || !response.statusUrl) {
-    throw new Error(
-      "Invalid TryOn API submit response: missing jobId or statusUrl"
-    );
-  }
-
-  return response;
-}
-
-// Poll status function similar to frontend implementation
-async function pollTryOnStatus(
-  statusUrl: string,
-  headers: Record<string, string>,
-  timeoutMs = 60000,
-  intervalMs = 2000,
-  maxIntervalMs = 5000,
-  backoffFactor = 1.5
-): Promise<TryOnApiResponse> {
-  const start = Date.now();
-  let last: any = null;
-  let currentInterval = intervalMs;
-
-  while (Date.now() - start < timeoutMs) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(
-      () => controller.abort(),
-      Math.min(8000, currentInterval + 3000)
-    );
-
-    try {
-      const r = await fetch(statusUrl, {
-        headers,
-        // @ts-ignore - cache option is valid but not in RequestInit type
-        cache: "no-store",
-        signal: controller.signal,
-      });
-      const j = await r.json();
-      last = j;
-
-      // Parse and validate the response
-      const parsedResponse = parseTryOnApiResponse(j);
-
-      if (
-        parsedResponse.status &&
-        parsedResponse.status !== "processing" &&
-        parsedResponse.status !== "queued" &&
-        parsedResponse.status !== "processing_from_queue"
-      ) {
-        return parsedResponse;
-      }
+      const personB64 = await toBase64(customerImageBase64OrUrl);
+      const clothB64 = await toBase64(processedProductImage);
+      const result = await tryWithPixelAPI(personB64, clothB64);
+      if (result.success) return result;
     } catch (err: any) {
-      // Swallow fetch aborts/timeouts and keep last known state
-      last = last || {
-        status: "processing",
-        message: String(err?.message || err),
-      };
-    } finally {
-      clearTimeout(timeoutId);
+      // Quota exhausted (402) or any other error → fall through to Phase 2
+      console.error("PixelAPI failed, falling back to Replicate:", err?.message);
     }
-
-    await new Promise((res) => setTimeout(res, currentInterval));
-    currentInterval = Math.min(
-      maxIntervalMs,
-      Math.floor(currentInterval * backoffFactor)
-    );
   }
 
-  return (
-    last ||
-    ({
-      status: "timeout",
-      message: "Timed out waiting for result",
-    } as TryOnApiResponse)
-  );
+  // ── Phase 2: Replicate IDM-VTON (paid, ~$0.023/image) ──────────────────────
+  if (process.env.REPLICATE_API_TOKEN) {
+    try {
+      // Replicate requires public URLs, not base64 blobs
+      const personUrl = await toPublicUrl(customerImageBase64OrUrl);
+      const clothUrl = await toPublicUrl(processedProductImage);
+      const result = await tryWithReplicate(personUrl, clothUrl);
+      if (result.success) return result;
+    } catch (err: any) {
+      console.error("Replicate try-on failed:", err?.message);
+      return { success: false, error: err?.message || "Replicate try-on failed" };
+    }
+  }
+
+  return {
+    success: false,
+    error:
+      "No try-on provider configured. Set PIXELAPI_KEY (free) or REPLICATE_API_TOKEN in backend/.env",
+  };
 }
 
 export async function generateVirtualTryOn(

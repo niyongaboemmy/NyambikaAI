@@ -89,7 +89,7 @@ router.post(
   ]),
   async (req: any, res: Response) => {
     try {
-      const { product_type = "general", productId, productName } = req.body;
+      const { product_type = "general", productId } = req.body;
 
       // Check if files were uploaded
       const files = req.files as { [fieldname: string]: Express.Multer.File[] };
@@ -100,21 +100,17 @@ router.post(
         return sendError(res, 400, "Both person_image and garment_image are required");
       }
 
-      if (!productId || !productName) {
-        return sendError(res, 400, "productId and productName are required");
-      }
-
       // Convert buffer to base64 for processing
       const personImageBase64 = personImage.buffer.toString("base64");
       const garmentImageBase64 = garmentImage.buffer.toString("base64");
 
-      // Create try-on session
+      // Create try-on session (productId is optional — session may already exist)
       const sessionId = randomUUID();
       await db.insert(tryOnSessions).values({
         id: sessionId,
         userId: req.user?.id || null, // Allow anonymous try-ons
         customerImageUrl: `data:${personImage.mimetype};base64,${personImageBase64}`,
-        productId,
+        productId: productId || null,
         status: "processing",
         isFavorite: false,
       });
@@ -127,7 +123,15 @@ router.post(
         product_type
       );
 
-      sendSuccess(res, { sessionId }, "Try-on session created. Processing in background.");
+      // Return flat JSON matching frontend expectations in TryOnWidget.tsx
+      return res.status(200).json({
+        success: true,
+        message: "Try-on session created. Processing in background.",
+        requiresPolling: true,
+        processingStatus: "processing",
+        jobId: sessionId,
+        sessionId: sessionId,
+      });
     } catch (error) {
       console.error("Error in POST /api/try-on:", error);
       sendError(res, 500, "Internal server error", error);
@@ -203,6 +207,8 @@ router.get("/sessions", async (req: Request, res: Response) => {
 
     if (status) {
       whereConditions.push(eq(tryOnSessions.status, status as any));
+    } else {
+      whereConditions.push(eq(tryOnSessions.status, "completed"));
     }
 
     if (productId) {

@@ -3,18 +3,36 @@ import path from "path";
 import fs from "fs";
 import { OpenAI } from "openai";
 
-// Initialize OpenAI client only if API key is available
+// Initialize OpenAI client only if API key is available and appears valid.
+// An invalid-but-set key produces noisy 401 errors on every call; we catch
+// that at startup so the rest of the process degrades silently.
 let openai: OpenAI | null = null;
-try {
-  if (process.env.OPENAI_API_KEY) {
-    openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-    });
+(async () => {
+  const key = process.env.OPENAI_API_KEY;
+  if (!key) return; // not configured — skip silently
+  try {
+    const client = new OpenAI({ apiKey: key });
+    // Lightweight probe: list models (returns fast, minimal cost)
+    await client.models.list();
+    openai = client; // key is valid
+  } catch (err: any) {
+    const status = err?.status ?? err?.statusCode;
+    if (status === 401 || status === 403) {
+      console.warn(
+        "[imageProcessor] OpenAI API key is set but invalid (HTTP " +
+          status +
+          ") — AI-based image cropping disabled. Update OPENAI_API_KEY in .env."
+      );
+    } else {
+      // Network error etc. — still disable to avoid repeated failures
+      console.warn(
+        "[imageProcessor] OpenAI client probe failed — AI cropping disabled:",
+        err?.message ?? err
+      );
+    }
+    openai = null;
   }
-} catch (error) {
-  console.warn("OpenAI client initialization failed:", error);
-  openai = null;
-}
+})();
 
 export interface CompressionOptions {
   quality?: number;
@@ -64,9 +82,9 @@ export async function compressImage(
 
     const image = await Jimp.read(inputPath);
 
-    // Resize if needed
+    // Resize to fit within bounds while preserving aspect ratio
     if (image.bitmap.width > maxWidth || image.bitmap.height > maxHeight) {
-      image.resize(maxWidth, maxHeight);
+      image.scaleToFit(maxWidth, maxHeight);
     }
 
     // Compress based on format
