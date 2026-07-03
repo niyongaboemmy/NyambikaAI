@@ -184,6 +184,22 @@ app.delete(
   }
 );
 
+// ─── ERROR HANDLING ─────────────────────────────────────────────────────────
+// Catches Multer errors (bad file type, size limit) and CORS rejections so
+// clients get a clean JSON response instead of Express's default HTML/stack trace.
+app.use(
+  (err: Error, _req: Request, res: Response, _next: NextFunction) => {
+    if (err instanceof multer.MulterError) {
+      res.status(400).json({ success: false, message: err.message });
+      return;
+    }
+    if (err) {
+      res.status(400).json({ success: false, message: err.message });
+      return;
+    }
+  }
+);
+
 // ─── START ───────────────────────────────────────────────────────────────────
 
 app.listen(PORT, () => {

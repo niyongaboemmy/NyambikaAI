@@ -11,6 +11,7 @@ import {
 import { Eye, EyeOff, Loader2, Mail, Lock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { handleApiError } from "@/config/api";
 import { motion } from "framer-motion";
 
 export interface LoginFormProps {
@@ -49,7 +50,7 @@ export default function LoginForm({
       onSuccess?.();
       return;
     } catch (err: any) {
-      setError(err?.message || "Invalid email or password");
+      setError(handleApiError(err));
       setPassword("");
       return;
     } finally {

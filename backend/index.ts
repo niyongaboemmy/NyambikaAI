@@ -4,6 +4,16 @@ import cors from "cors";
 import { registerRoutes } from "./routes";
 import uploadRoutes from "./upload-routes";
 
+// Since Node 15+, an unhandled promise rejection terminates the process by
+// default. Log instead of crashing so one bad async route can't take down
+// the whole server.
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled promise rejection:", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception:", err);
+});
+
 const app = express();
 
 // CORS configuration using cors middleware

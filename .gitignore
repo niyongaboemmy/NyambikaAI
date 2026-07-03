@@ -33,6 +33,7 @@ Thumbs.db
 *.swo
 
 # Misc
+.refact/
 server/public
 vite.config.ts.*
 *.tar.gz

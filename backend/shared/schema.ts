@@ -4,6 +4,7 @@ import {
   text,
   varchar,
   integer,
+  serial,
   decimal,
   timestamp,
   boolean,
@@ -371,10 +372,7 @@ export const walletPayments = pgTable("wallet_payments", {
 });
 
 export const paymentSettings = pgTable("payment_settings", {
-  id: integer("id")
-    .primaryKey()
-    .notNull()
-    .default(sql`nextval('payment_settings_id_seq'::regclass)`),
+  id: serial("id").primaryKey().notNull(),
   name: text("name").notNull().unique(),
   description: text("description"),
   amountInRwf: integer("amount_in_rwf").notNull(),

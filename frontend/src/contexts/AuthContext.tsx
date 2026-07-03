@@ -292,7 +292,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setTimeout(() => {
         toast({
           title: "Registration failed",
-          description: error.message,
+          description: handleApiError(error),
           variant: "destructive",
         });
       }, 0);
@@ -321,7 +321,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setTimeout(() => {
         toast({
           title: "Password reset failed",
-          description: error.message,
+          description: handleApiError(error),
           variant: "destructive",
         });
       }, 0);
