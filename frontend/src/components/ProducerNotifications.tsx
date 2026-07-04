@@ -90,7 +90,7 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
 
       {/* Notifications Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50">
+        <div className="absolute right-0 top-full mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 z-50">
           <div className="p-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
@@ -133,13 +133,13 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
                   <div
                     key={notification.id}
                     className={`p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors ${
-                      !notification.isRead ? "bg-blue-50 dark:bg-blue-900/20" : ""
+                      !notification.isRead ? "bg-gray-50 dark:bg-gray-800/20" : ""
                     }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 mt-1">
                         {notification.type === "new_order" ? (
-                          <Package className="h-5 w-5 text-blue-500" />
+                          <Package className="h-5 w-5 text-gray-800" />
                         ) : (
                           <Bell className="h-5 w-5 text-gray-500" />
                         )}
@@ -166,7 +166,7 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
                           {!notification.isRead && (
                             <button
                               onClick={() => handleMarkAsRead(notification.id)}
-                              className="ml-2 p-1 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                              className="ml-2 p-1 text-gray-900 hover:text-black dark:text-white dark:hover:text-gray-500"
                               title={t("notifications.markAsRead")}
                             >
                               <CheckCircle className="h-4 w-4" />
@@ -185,7 +185,7 @@ export default function ProducerNotifications({ producerId }: ProducerNotificati
             <div className="p-3 border-t border-gray-200 dark:border-gray-700">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-full text-center text-sm text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-medium"
+                className="w-full text-center text-sm text-gray-900 dark:text-white hover:text-black dark:hover:text-gray-500 font-medium"
               >
                 {t("notifications.viewAll")}
               </button>

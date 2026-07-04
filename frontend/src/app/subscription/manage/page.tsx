@@ -181,11 +181,11 @@ export default function SubscriptionManagePage() {
   const getPlanIcon = (planName: string) => {
     switch (planName.toLowerCase()) {
       case "starter":
-        return <Sparkles className="h-6 w-6 text-blue-400" />;
+        return <Sparkles className="h-6 w-6 text-gray-700" />;
       case "professional":
-        return <Zap className="h-6 w-6 text-blue-400" />;
+        return <Zap className="h-6 w-6 text-gray-700" />;
       case "enterprise":
-        return <Crown className="h-6 w-6 text-cyan-400" />;
+        return <Crown className="h-6 w-6 text-gray-500" />;
       default:
         return <Sparkles className="h-6 w-6 text-gray-400" />;
     }
@@ -207,9 +207,9 @@ export default function SubscriptionManagePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-400 mx-auto mb-4"></div>
           <p className="text-white">Loading subscription details...</p>
         </div>
       </div>
@@ -218,9 +218,9 @@ export default function SubscriptionManagePage() {
 
   if (!currentSubscription) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center max-w-md">
-          <AlertTriangle className="h-16 w-16 text-cyan-400 mx-auto mb-4" />
+          <AlertTriangle className="h-16 w-16 text-gray-500 mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white mb-4">
             No Active Subscription
           </h1>
@@ -229,7 +229,7 @@ export default function SubscriptionManagePage() {
           </p>
           <button
             onClick={() => router.push("/subscription")}
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+            className="px-6 py-3 text-white rounded-xl transition-all duration-300 bg-gold-500"
           >
             Choose a Plan
           </button>
@@ -239,11 +239,11 @@ export default function SubscriptionManagePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-slate-900">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gold-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gold-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-16">
@@ -293,9 +293,9 @@ export default function SubscriptionManagePage() {
               <div className="text-center p-4 bg-white/5 rounded-xl">
                 <div className="flex items-center justify-center mb-2">
                   {currentSubscription.status === "active" ? (
-                    <CheckCircle className="h-6 w-6 text-blue-400" />
+                    <CheckCircle className="h-6 w-6 text-gray-700" />
                   ) : (
-                    <AlertTriangle className="h-6 w-6 text-cyan-400" />
+                    <AlertTriangle className="h-6 w-6 text-gray-500" />
                   )}
                 </div>
                 <p className="text-white font-semibold capitalize">
@@ -305,7 +305,7 @@ export default function SubscriptionManagePage() {
               </div>
 
               <div className="text-center p-4 bg-white/5 rounded-xl">
-                <Calendar className="h-6 w-6 text-blue-400 mx-auto mb-2" />
+                <Calendar className="h-6 w-6 text-gray-700 mx-auto mb-2" />
                 <p className="text-white font-semibold">
                   {new Date(currentSubscription.endDate).toLocaleDateString()}
                 </p>
@@ -317,7 +317,7 @@ export default function SubscriptionManagePage() {
               </div>
 
               <div className="text-center p-4 bg-white/5 rounded-xl">
-                <RefreshCw className="h-6 w-6 text-blue-400 mx-auto mb-2" />
+                <RefreshCw className="h-6 w-6 text-gray-700 mx-auto mb-2" />
                 <p className="text-white font-semibold">
                   {currentSubscription.autoRenew ? "Enabled" : "Disabled"}
                 </p>
@@ -327,14 +327,14 @@ export default function SubscriptionManagePage() {
 
             {/* Expiry Warning */}
             {isExpiringSoon() && (
-              <div className="mb-6 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl">
+              <div className="mb-6 p-4 bg-gold-300/10 border border-gray-300/30 rounded-xl">
                 <div className="flex items-start">
-                  <AlertTriangle className="h-5 w-5 text-cyan-400 mr-3 mt-0.5 flex-shrink-0" />
+                  <AlertTriangle className="h-5 w-5 text-gray-500 mr-3 mt-0.5 flex-shrink-0" />
                   <div>
-                    <h4 className="text-cyan-300 font-medium mb-1">
+                    <h4 className="text-gray-500 font-medium mb-1">
                       Subscription Expiring Soon
                     </h4>
-                    <p className="text-cyan-200 text-sm">
+                    <p className="text-gray-500 text-sm">
                       Your subscription expires in {getDaysUntilExpiry()} days.
                       {!currentSubscription.autoRenew &&
                         " Enable auto-renewal or renew manually to avoid service interruption."}
@@ -348,7 +348,7 @@ export default function SubscriptionManagePage() {
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={toggleAutoRenew}
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl transition-colors"
+                className="px-6 py-3 bg-gold-500 hover:bg-gold-600 text-white rounded-xl transition-colors"
               >
                 {currentSubscription.autoRenew ? "Disable" : "Enable"}{" "}
                 Auto-Renewal
@@ -356,7 +356,7 @@ export default function SubscriptionManagePage() {
 
               <button
                 onClick={() => setShowUpgradeDialog(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+                className="px-6 py-3 text-white rounded-xl transition-all duration-300 bg-gold-500"
               >
                 Upgrade Plan
               </button>
@@ -473,11 +473,11 @@ export default function SubscriptionManagePage() {
                           <span className="text-gray-400 ml-2">/month</span>
                         </div>
                         <div className="flex items-baseline">
-                          <span className="text-lg font-semibold text-blue-400">
+                          <span className="text-lg font-semibold text-gray-700">
                             {parseInt(plan.annualPrice).toLocaleString()} RWF
                           </span>
                           <span className="text-gray-400 ml-2">/year</span>
-                          <span className="text-blue-400 text-xs ml-2">
+                          <span className="text-gray-700 text-xs ml-2">
                             Save 17%
                           </span>
                         </div>
@@ -489,7 +489,7 @@ export default function SubscriptionManagePage() {
                             key={index}
                             className="flex items-start text-sm text-gray-300"
                           >
-                            <CheckCircle className="h-4 w-4 text-blue-400 mr-2 mt-0.5 flex-shrink-0" />
+                            <CheckCircle className="h-4 w-4 text-gray-700 mr-2 mt-0.5 flex-shrink-0" />
                             {feature}
                           </li>
                         ))}
@@ -506,7 +506,7 @@ export default function SubscriptionManagePage() {
                         <button
                           onClick={() => handleUpgradePlan(plan, "annual")}
                           disabled={processing}
-                          className="w-full py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300 text-sm disabled:opacity-50"
+                          className="w-full py-2 text-white rounded-xl transition-all duration-300 text-sm disabled:opacity-50 bg-gold-500"
                         >
                           Upgrade Annual
                         </button>

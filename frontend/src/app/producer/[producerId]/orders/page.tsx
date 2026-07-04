@@ -46,11 +46,11 @@ interface Order {
 }
 
 const statusColors = {
-  pending: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-  confirmed: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-  processing: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-  shipped: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
-  delivered: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400",
+  pending: "bg-gray-100 text-black dark:bg-gray-800/20 dark:text-white",
+  confirmed: "bg-gray-100 text-black dark:bg-gray-800/20 dark:text-white",
+  processing: "bg-gray-100 text-black dark:bg-gray-800/20 dark:text-white",
+  shipped: "bg-gray-100 text-black dark:bg-gray-800/20 dark:text-white",
+  delivered: "bg-gray-100 text-black dark:bg-gray-800/20 dark:text-white",
   cancelled: "bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400",
 };
 
@@ -154,7 +154,7 @@ function ProducerOrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
+      <div className="min-h-screen p-6 bg-gold-50 dark:bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <div className="animate-pulse space-y-6">
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-64"></div>
@@ -171,7 +171,7 @@ function ProducerOrdersPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-6">
+      <div className="min-h-screen p-6 bg-gold-50 dark:bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center py-12">
             <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
@@ -185,7 +185,7 @@ function ProducerOrdersPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 dark:from-gray-900 dark:via-blue-900/20 dark:to-blue-900/30">
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           {/* Header */}
           <div className="mb-8">
@@ -206,34 +206,34 @@ function ProducerOrdersPage() {
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.totalOrders")}</p>
                   <p className="text-2xl font-bold text-gray-900 dark:text-white">{orders.length}</p>
                 </div>
-                <Package className="h-8 w-8 text-blue-500" />
+                <Package className="h-8 w-8 text-gray-800" />
               </div>
             </div>
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.pending")}</p>
-                  <p className="text-2xl font-bold text-blue-600">{orders.filter(o => o.status === 'pending').length}</p>
+                  <p className="text-2xl font-bold text-gray-900">{orders.filter(o => o.status === 'pending').length}</p>
                 </div>
-                <Clock className="h-8 w-8 text-blue-500" />
+                <Clock className="h-8 w-8 text-gray-800" />
               </div>
             </div>
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.processing")}</p>
-                  <p className="text-2xl font-bold text-blue-600">{orders.filter(o => o.status === 'processing').length}</p>
+                  <p className="text-2xl font-bold text-gray-900">{orders.filter(o => o.status === 'processing').length}</p>
                 </div>
-                <Package className="h-8 w-8 text-blue-500" />
+                <Package className="h-8 w-8 text-gray-800" />
               </div>
             </div>
             <div className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 dark:text-gray-400">{t("producer.stats.completed")}</p>
-                  <p className="text-2xl font-bold text-blue-600">{orders.filter(o => o.status === 'delivered').length}</p>
+                  <p className="text-2xl font-bold text-gray-900">{orders.filter(o => o.status === 'delivered').length}</p>
                 </div>
-                <CheckCircle className="h-8 w-8 text-blue-500" />
+                <CheckCircle className="h-8 w-8 text-gray-800" />
               </div>
             </div>
           </div>
@@ -252,7 +252,7 @@ function ProducerOrdersPage() {
                 return (
                   <div
                     key={order.id}
-                    className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30 hover:shadow-lg transition-all duration-200"
+                    className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl p-6 border border-white/20 dark:border-gray-700/30 transition-all duration-200"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex-1">
@@ -283,7 +283,7 @@ function ProducerOrdersPage() {
                       <div className="flex gap-2">
                         <button
                           onClick={() => setSelectedOrder(order)}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gold-600 hover:bg-gold-700 text-white rounded-lg transition-colors"
                         >
                           <Eye className="h-4 w-4" />
                           {t("producer.viewDetails")}
@@ -294,7 +294,7 @@ function ProducerOrdersPage() {
                             setUpdateStatus(order.status);
                             setUpdateNotes(order.notes || "");
                           }}
-                          className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-gold-600 hover:bg-gold-700 text-white rounded-lg transition-colors"
                         >
                           <Edit3 className="h-4 w-4" />
                           {t("producer.update")}
@@ -427,7 +427,7 @@ function ProducerOrdersPage() {
                           <button
                             onClick={handleUpdateOrder}
                             disabled={updateOrderMutation.isPending}
-                            className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-2 rounded-lg transition-colors"
+                            className="flex-1 bg-gold-600 hover:bg-gold-700 disabled:bg-gold-400 text-white px-4 py-2 rounded-lg transition-colors"
                           >
                             {updateOrderMutation.isPending ? t("producer.updating") : t("producer.updateOrder")}
                           </button>

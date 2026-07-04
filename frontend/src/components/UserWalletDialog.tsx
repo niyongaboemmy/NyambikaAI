@@ -63,7 +63,7 @@ export default function UserWalletDialog() {
           className={`${
             isMobile
               ? "mobile-wallet-fullscreen bg-white dark:bg-gray-900 z-[100] overflow-hidden"
-              : "max-w-4xl p-0 gap-0 border-0 bg-transparent shadow-none rounded-3xl overflow-hidden"
+              : "max-w-4xl p-0 gap-0 border-0 bg-transparent rounded-3xl overflow-hidden"
           } transition-all duration-300`}
           hideClose
           title="Wallet"
@@ -77,9 +77,9 @@ export default function UserWalletDialog() {
           <div className="sticky top-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 px-4 py-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-1 h-6 bg-gradient-to-b from-blue-500 to-blue-700 rounded-full" />
+                <div className="w-1 h-6 rounded-full bg-gold-500" />
                 <div>
-                  <h2 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                  <h2 className="text-lg font-bold text-foreground">
                     My Wallet
                   </h2>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -106,7 +106,7 @@ export default function UserWalletDialog() {
         {!isMobile && (
           <DialogClose
             onClick={close}
-            className="fixed top-4 right-4 z-50 rounded-full p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-900 transition-all duration-200 hover:scale-110 shadow-lg"
+            className="fixed top-4 right-4 z-50 rounded-full p-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-900 transition-all duration-200 hover:scale-110"
           >
             <X className="h-5 w-5 text-gray-600 dark:text-gray-400" />
             <span className="sr-only">Close</span>

@@ -29,12 +29,12 @@ type OrderStatus =
   | "confirmed";
 
 const statusColors: Record<OrderStatus, string> = {
-  pending: "bg-blue-100 text-blue-800",
-  processing: "bg-blue-100 text-blue-800",
-  handled: "bg-blue-100 text-blue-800",
-  shipped: "bg-blue-100 text-blue-800",
-  delivered: "bg-blue-100 text-blue-800",
-  confirmed: "bg-blue-100 text-blue-800",
+  pending: "bg-gray-100 text-black",
+  processing: "bg-gray-100 text-black",
+  handled: "bg-gray-100 text-black",
+  shipped: "bg-gray-100 text-black",
+  delivered: "bg-gray-100 text-black",
+  confirmed: "bg-gray-100 text-black",
   cancelled: "bg-red-100 text-red-800",
 };
 
@@ -270,8 +270,8 @@ export default function ProducerOrderDetailsPage() {
                     )
                   )}
                 </div>
-                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
-                  <p className="text-sm text-blue-700 dark:text-blue-300">
+                <div className="mt-4 p-3 bg-gray-50 dark:bg-gold-950/20 rounded-lg">
+                  <p className="text-sm text-gray-900 dark:text-gray-300">
                     {t("producer.details.photosHelp")}
                   </p>
                 </div>
@@ -440,15 +440,15 @@ export default function ProducerOrderDetailsPage() {
             )}
 
             {(order.status === "delivered" || order.status === "confirmed") && (
-              <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-center">
-                <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+              <div className="p-3 bg-gray-50 dark:bg-gold-950/20 rounded-lg text-center">
+                <p className="text-sm text-gray-900 dark:text-gray-300 font-medium">
                   {order.status === "confirmed"
                     ? t("producer.details.confirmedByCustomer")
                     : t("producer.details.orderDelivered")}
                 </p>
                 {order.isConfirmedByCustomer &&
                   order.customerConfirmationDate && (
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                    <p className="text-xs text-gray-900 dark:text-white mt-1">
                       {t("producer.details.confirmedOn")} {" "}
                       {format(new Date(order.customerConfirmationDate), "PPP")}
                     </p>

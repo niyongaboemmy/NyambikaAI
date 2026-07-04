@@ -86,30 +86,30 @@ const statusConfig: Record<
 > = {
   pending: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: Clock,
     label: "Pending",
   },
   confirmed: {
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    color: "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: Package,
     label: "Confirmed",
   },
   processing: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: Package,
     label: "Processing",
   },
   shipped: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: Truck,
     label: "Shipped",
   },
   delivered: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: CheckCircle,
     label: "Delivered",
   },
@@ -120,7 +120,7 @@ const statusConfig: Record<
   },
   completed: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: CheckCircle,
     label: "Completed",
   },
@@ -288,14 +288,14 @@ function OrdersPage() {
               </Button>
               <div className="flex items-center gap-3">
                 <div className="relative">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-500 via-blue-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center bg-gold-500">
                     <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full animate-bounce" />
-                  <Zap className="absolute -bottom-1 -left-1 h-3 w-3 text-blue-400 animate-pulse" />
+                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-bounce bg-gold-400" />
+                  <Zap className="absolute -bottom-1 -left-1 h-3 w-3 text-gray-700 animate-pulse" />
                 </div>
                 <div>
-                  <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent">
+                  <h1 className="text-base sm:text-lg md:text-xl font-bold text-foreground">
                     {t("orders.title")}
                   </h1>
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -305,8 +305,8 @@ function OrdersPage() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="px-3 py-0.5 bg-gradient-to-r from-blue-500/10 to-blue-500/10 rounded-full border border-blue-200/50 dark:border-blue-700/50">
-                  <span className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                <div className="px-3 py-0.5 rounded-full border border-gray-200/50 dark:border-gray-700/50 bg-gray-500/10">
+                  <span className="text-xs font-medium text-gray-900 dark:text-white">
                     {orders.length} {t("orders.count")}
                   </span>
                 </div>
@@ -319,15 +319,15 @@ function OrdersPage() {
           {orders.length === 0 ? (
             <div className="flex items-center justify-center min-h-[60vh]">
               <Card className="relative overflow-hidden bg-white/60 dark:bg-black/60 backdrop-blur-xl p-12 text-center max-w-md mx-auto">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 via-blue-400/10 to-blue-400/10" />
+                <div className="absolute inset-0 bg-gray-400/10" />
                 <div className="relative z-10">
                   <div className="relative mb-6">
                     <ShoppingBag className="h-20 w-20 text-gray-400 mx-auto" />
-                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center">
+                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center bg-gold-500">
                       <Sparkles className="h-4 w-4 text-white" />
                     </div>
                   </div>
-                  <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-gray-800 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                  <h2 className="text-3xl font-bold mb-4 text-foreground">
                     {t("orders.empty.title")}
                   </h2>
                   <p className="text-gray-600 dark:text-gray-400 mb-8 text-lg">
@@ -335,7 +335,7 @@ function OrdersPage() {
                   </p>
                   <Button
                     onClick={() => router.push("/products")}
-                    className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white px-8 py-3 rounded-xl font-semibold hover:shadow-md transition-all duration-300 transform hover:scale-105"
+                    className="text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 bg-gold-600 hover:bg-gold-700"
                   >
                     <Zap className="h-5 w-5 mr-2" />
                     {t("orders.empty.cta")}
@@ -362,19 +362,19 @@ function OrdersPage() {
                 return (
                   <Card
                     key={order.id}
-                    className="group relative rounded-2xl overflow-hidden bg-white/70 dark:bg-slate-800/40 backdrop-blur-xl border border-white/20 dark:border-none transition-all duration-500 hover:scale-[1.02] hover:border-blue-200/50"
+                    className="group relative rounded-2xl overflow-hidden bg-white/70 dark:bg-slate-800/40 backdrop-blur-xl border border-white/20 dark:border-none transition-all duration-500 hover:scale-[1.02] hover:border-gray-200/50"
                     style={{
                       animationDelay: `${index * 100}ms`,
                       animation: "fadeInUp 0.6s ease-out forwards",
                     }}
                   >
                     {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-blue-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gray-500/5" />
 
                     {/* AI Progress indicator */}
                     <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-700">
                       <div
-                        className="h-full bg-gradient-to-r from-blue-500 to-blue-700 transition-all duration-1000 ease-out"
+                        className="h-full transition-all duration-1000 ease-out bg-gold-500"
                         style={{ width: `${progress}%` }}
                       />
                     </div>
@@ -384,11 +384,11 @@ function OrdersPage() {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                         <div className="flex items-start gap-3">
                           <div className="relative flex-shrink-0">
-                            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-gold-500">
                               <StatusIcon className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                             </div>
-                            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full animate-pulse" />
-                            <Sparkles className="absolute -bottom-1 -left-1 h-2 w-2 sm:h-3 sm:w-3 text-blue-400 animate-pulse" />
+                            <div className="absolute -top-1 -right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full animate-pulse bg-gold-400" />
+                            <Sparkles className="absolute -bottom-1 -left-1 h-2 w-2 sm:h-3 sm:w-3 text-gray-700 animate-pulse" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="flex flex-col gap-0 mb-1">
@@ -405,8 +405,8 @@ function OrdersPage() {
                                   {t(`orders.status.${order.status}` as any)}
                                 </Badge>
                               </div>
-                              <div className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent flex items-center gap-1">
-                                <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400" />
+                              <div className="text-lg sm:text-xl font-bold flex items-center gap-1 text-foreground">
+                                <Zap className="h-3 w-3 sm:h-4 sm:w-4 text-gray-700" />
                                 {formatPrice(order.total)}
                               </div>
                             </div>
@@ -450,7 +450,7 @@ function OrdersPage() {
                               />
                             ))}
                             {order.items.length > 4 && (
-                              <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-sm font-bold text-white">
+                              <div className="w-10 h-10 rounded-full border-2 border-white dark:border-gray-800 flex items-center justify-center text-sm font-bold text-white bg-gold-500">
                                 +{order.items.length - 4}
                               </div>
                             )}
@@ -500,7 +500,7 @@ function OrdersPage() {
                         <Button
                           onClick={() => router.push(`/orders/${order.id}`)}
                           variant="outline"
-                          className="flex-1 border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full hover:shadow-md transition-all duration-300 transform hover:scale-105 text-sm"
+                          className="flex-1 border-gray-200 text-gray-900 hover:bg-gray-50 hover:border-gray-300 dark:border-gray-700 dark:text-white dark:hover:bg-gold-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 text-sm"
                         >
                           <Eye className="h-4 w-4" />
                           {t("orders.viewDetails")}
@@ -531,7 +531,7 @@ function OrdersPage() {
                           <Button
                             onClick={() => handleDownloadReceipt(order)}
                             variant="outline"
-                            className="flex-1 border-blue-500 text-blue-600 hover:bg-blue-50 hover:border-blue-600 dark:border-blue-800 dark:text-blue-400 dark:hover:bg-blue-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full hover:shadow-md transition-all duration-300 transform hover:scale-105 text-sm"
+                            className="flex-1 border-gray-400 text-gray-900 hover:bg-gray-50 hover:border-gray-500 dark:border-gray-700 dark:text-white dark:hover:bg-gold-950 font-semibold py-2 sm:py-3 px-3 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 text-sm"
                           >
                             <Download className="h-4 w-4" />
                             {t("orders.receipt")}
@@ -544,7 +544,7 @@ function OrdersPage() {
                             onClick={() => handleCancelOrder(order.id)}
                             disabled={cancellingOrderId === order.id}
                             variant="outline"
-                            className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-full hover:shadow-md transition-all duration-300 transform hover:scale-105 text-sm"
+                            className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 dark:border-red-800 dark:text-red-400 dark:hover:bg-red-950 font-semibold py-2 sm:py-3 px-4 sm:px-6 rounded-full transition-all duration-300 transform hover:scale-105 text-sm"
                           >
                             <X className="h-4 w-4" />
                             {cancellingOrderId === order.id
@@ -562,10 +562,10 @@ function OrdersPage() {
         </div>
 
         {/* AI-inspired floating elements */}
-        <div className="fixed top-20 right-8 w-2 h-2 bg-blue-400 rounded-full animate-ping" />
-        <div className="fixed top-32 right-12 w-1 h-1 bg-blue-400 rounded-full animate-pulse" />
+        <div className="fixed top-20 right-8 w-2 h-2 bg-gold-400 rounded-full animate-ping" />
+        <div className="fixed top-32 right-12 w-1 h-1 bg-gold-400 rounded-full animate-pulse" />
         <div
-          className="fixed bottom-20 left-8 w-3 h-3 bg-blue-400 rounded-full animate-bounce"
+          className="fixed bottom-20 left-8 w-3 h-3 bg-gold-400 rounded-full animate-bounce"
           style={{ animationDelay: "1s" }}
         />
 

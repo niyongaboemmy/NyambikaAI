@@ -575,7 +575,7 @@ export default function ProducersManagement() {
     switch (status) {
       case "active":
         return (
-          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <Badge className="bg-gray-100 text-black dark:bg-gold-900 dark:text-gray-200">
             Active
           </Badge>
         );
@@ -587,7 +587,7 @@ export default function ProducersManagement() {
         );
       case "pending":
         return (
-          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <Badge className="bg-gray-100 text-black dark:bg-gold-900 dark:text-gray-200">
             Pending
           </Badge>
         );
@@ -599,11 +599,11 @@ export default function ProducersManagement() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "active":
-        return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-gray-800" />;
       case "expired":
         return <AlertCircle className="h-4 w-4 text-red-500" />;
       case "pending":
-        return <Clock className="h-4 w-4 text-blue-500" />;
+        return <Clock className="h-4 w-4 text-gray-800" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
     }
@@ -614,36 +614,20 @@ export default function ProducersManagement() {
       {/* Holographic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl bg-gray-400/20"
           animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl bg-gray-400/20"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-400/10 to-blue-600/10 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl bg-gray-300/10"
           animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
-
-        {/* Neural Network Grid Pattern */}
-        <div className="absolute inset-0 opacity-10 dark:opacity-5">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `
-              linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px),
-              linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px),
-              radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.4) 2px, transparent 2px),
-              radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.4) 2px, transparent 2px)
-            `,
-              backgroundSize: "50px 50px, 50px 50px, 100px 100px, 100px 100px",
-            }}
-          />
-        </div>
 
         {/* Floating AI Particles */}
         {[...Array(6)].map((_, i) => (
@@ -651,10 +635,10 @@ export default function ProducersManagement() {
             key={i}
             className={`absolute w-2 h-2 rounded-full ${
               i % 3 === 0
-                ? "bg-blue-400/40"
+                ? "bg-gold-400/40"
                 : i % 3 === 1
-                ? "bg-blue-400/40"
-                : "bg-blue-400/40"
+                ? "bg-gold-400/40"
+                : "bg-gold-400/40"
             }`}
             style={{
               left: `${20 + i * 15}%`,
@@ -690,21 +674,21 @@ export default function ProducersManagement() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-2xl flex items-center justify-center bg-gold-500">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
                 <motion.div
-                  className="absolute -inset-2 rounded-2xl border-2 border-blue-500/30"
+                  className="absolute -inset-2 rounded-2xl border-2 border-gray-400/30"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -inset-1 rounded-2xl border border-blue-500/30"
+                  className="absolute -inset-1 rounded-2xl border border-gray-400/30"
                   animate={{ rotate: -360 }}
                   transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full flex items-center justify-center"
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center bg-gold-400"
                   animate={{ rotate: 360, scale: [1, 1.2, 1] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
@@ -716,7 +700,7 @@ export default function ProducersManagement() {
                   Producers Hub
                 </h1>
                 <p className="text-gray-600 dark:text-gray-400 flex items-center gap-2 text-sm">
-                  <Zap className="w-4 h-4 text-blue-500" />
+                  <Zap className="w-4 h-4 text-gray-800" />
                   Intelligent producer portfolio management
                 </p>
               </div>
@@ -731,7 +715,7 @@ export default function ProducersManagement() {
                   await fetchAvailableProducers();
                   setAvailableLoading(false);
                 }}
-                className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white hover:shadow-xl transition-all duration-300 group rounded-full"
+                className="text-white transition-all duration-300 group rounded-full bg-gold-600 hover:bg-gold-700"
                 size="lg"
               >
                 <UserPlus className="h-4 w-4 mr-2 group-hover:scale-110 transition-transform" />
@@ -760,16 +744,16 @@ export default function ProducersManagement() {
           transition={{ delay: 0.1 }}
         >
           <motion.div whileHover={{ scale: 1.02, y: -2 }} className="group">
-            <Card className="bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-200/50 dark:border-blue-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl transition-all duration-300 bg-gray-50/80 dark:bg-gray-900/30">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center gap-2">
+                    <p className="text-gray-900 dark:text-white text-sm font-medium flex items-center gap-2">
                       <TrendingUp className="w-4 h-4" />
                       Total Managed Producers
                     </p>
                     <motion.p
-                      className="text-3xl font-bold text-blue-900 dark:text-blue-100"
+                      className="text-3xl font-bold text-black dark:text-gray-100"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.3, type: "spring" }}
@@ -779,7 +763,7 @@ export default function ProducersManagement() {
                   </div>
                   <div>
                     <motion.div
-                      className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center group-hover:shadow-blue-500/25 transition-all duration-300"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 bg-gold-500"
                       whileHover={{ rotate: 5 }}
                     >
                       <Users className="h-6 w-6 text-white" />
@@ -791,16 +775,16 @@ export default function ProducersManagement() {
           </motion.div>
 
           <motion.div whileHover={{ scale: 1.02, y: -2 }} className="group">
-            <Card className="bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-200/50 dark:border-blue-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl transition-all duration-300 bg-gray-50/80 dark:bg-gray-900/30">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center gap-2">
+                    <p className="text-gray-900 dark:text-white text-sm font-medium flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4" />
                       Active Subscriptions
                     </p>
                     <motion.p
-                      className="text-3xl font-bold text-blue-900 dark:text-blue-100"
+                      className="text-3xl font-bold text-black dark:text-gray-100"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.4, type: "spring" }}
@@ -810,7 +794,7 @@ export default function ProducersManagement() {
                   </div>
                   <div>
                     <motion.div
-                      className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center group-hover:shadow-blue-500/25 transition-all duration-300"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 bg-gold-500"
                       whileHover={{ rotate: 5 }}
                     >
                       <CheckCircle2 className="h-6 w-6 text-white" />
@@ -822,7 +806,7 @@ export default function ProducersManagement() {
           </motion.div>
 
           <motion.div whileHover={{ scale: 1.02, y: -2 }} className="group">
-            <Card className="bg-gradient-to-br from-red-50/80 to-red-100/80 dark:from-red-900/30 dark:to-red-800/30 border-red-200/50 dark:border-red-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="border-red-200/50 dark:border-red-700/50 backdrop-blur-xl transition-all duration-300 bg-red-50/80 dark:bg-red-900/30">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
@@ -841,7 +825,7 @@ export default function ProducersManagement() {
                   </div>
                   <div>
                     <motion.div
-                      className="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center group-hover:shadow-red-500/25 transition-all duration-300"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 bg-red-500"
                       whileHover={{ rotate: 5 }}
                     >
                       <AlertCircle className="h-6 w-6 text-white" />
@@ -853,16 +837,16 @@ export default function ProducersManagement() {
           </motion.div>
 
           <motion.div whileHover={{ scale: 1.02, y: -2 }} className="group">
-            <Card className="bg-gradient-to-br from-blue-50/80 to-blue-100/80 dark:from-blue-900/30 dark:to-blue-800/30 border-blue-200/50 dark:border-blue-700/50 backdrop-blur-xl hover:shadow-xl transition-all duration-300">
+            <Card className="border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl transition-all duration-300 bg-gray-50/80 dark:bg-gray-900/30">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="space-y-1">
-                    <p className="text-blue-600 dark:text-blue-400 text-sm font-medium flex items-center gap-2">
+                    <p className="text-gray-900 dark:text-white text-sm font-medium flex items-center gap-2">
                       <DollarSign className="w-4 h-4" />
                       Total Commissions
                     </p>
                     <motion.p
-                      className="text-2xl sm:text-2xl font-bold text-blue-900 dark:text-blue-100"
+                      className="text-2xl sm:text-2xl font-bold text-black dark:text-gray-100"
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ delay: 0.6, type: "spring" }}
@@ -872,7 +856,7 @@ export default function ProducersManagement() {
                   </div>
                   <div>
                     <motion.div
-                      className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center group-hover:shadow-blue-500/25 transition-all duration-300"
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 bg-gold-500"
                       whileHover={{ rotate: 5 }}
                     >
                       <DollarSign className="h-6 w-6 text-white" />
@@ -897,7 +881,7 @@ export default function ProducersManagement() {
               placeholder="Search producers by name, company, or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="pl-10 bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 focus:ring-2 focus:ring-gold-500/20 transition-all"
             />
           </div>
           <div className="flex flex-wrap gap-2">
@@ -908,7 +892,7 @@ export default function ProducersManagement() {
                 size="sm"
                 className={
                   statusFilter === "all"
-                    ? "bg-gradient-to-r from-blue-600 to-blue-400 text-white"
+                    ? "text-white bg-gold-600"
                     : "bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl"
                 }
               >
@@ -923,7 +907,7 @@ export default function ProducersManagement() {
                 size="sm"
                 className={
                   statusFilter === "active"
-                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white"
+                    ? "text-white bg-gold-600"
                     : "bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl"
                 }
               >
@@ -938,7 +922,7 @@ export default function ProducersManagement() {
                 size="sm"
                 className={
                   statusFilter === "expired"
-                    ? "bg-gradient-to-r from-red-600 to-red-700 text-white"
+                    ? "text-white bg-red-600"
                     : "bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl"
                 }
               >
@@ -953,7 +937,7 @@ export default function ProducersManagement() {
                 size="sm"
                 className={
                   statusFilter === "pending"
-                    ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white"
+                    ? "text-white bg-gold-600"
                     : "bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl"
                 }
               >
@@ -973,8 +957,8 @@ export default function ProducersManagement() {
         >
           <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50">
             <CardHeader className="pb-4">
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
-                <Activity className="w-6 h-6 text-blue-500" />
+              <CardTitle className="text-2xl font-bold flex items-center gap-2 text-foreground">
+                <Activity className="w-6 h-6 text-gray-800" />
                 Producer Portfolio
               </CardTitle>
             </CardHeader>
@@ -986,7 +970,7 @@ export default function ProducersManagement() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="flex flex-col items-center gap-4"
                   >
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                       <Users className="w-8 h-8 text-gray-400" />
                     </div>
                     <div className="space-y-2">
@@ -1012,7 +996,7 @@ export default function ProducersManagement() {
                       className="rounded-xl border border-gray-200/60 dark:border-gray-700/60 bg-white/80 dark:bg-gray-900/70 backdrop-blur-xl p-3 sm:p-4"
                     >
                       <div className="flex items-start gap-3">
-                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold overflow-hidden">
+                        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl text-white flex items-center justify-center text-sm font-semibold overflow-hidden bg-gold-500">
                           {p.companyLogoUrl ? (
                             <img
                               src={p.companyLogoUrl}
@@ -1070,7 +1054,7 @@ export default function ProducersManagement() {
                           <div className="mt-3 flex items-center justify-between">
                             <div className="flex items-center gap-3 text-xs">
                               <div className="text-center">
-                                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                <span className="font-semibold text-gray-900 dark:text-white">
                                   {p.productsCount}
                                 </span>
                                 <span className="ml-1 text-gray-500 dark:text-gray-400">
@@ -1078,7 +1062,7 @@ export default function ProducersManagement() {
                                 </span>
                               </div>
                               <div className="text-center">
-                                <span className="font-semibold text-blue-600 dark:text-blue-400">
+                                <span className="font-semibold text-gray-900 dark:text-white">
                                   {p.commissionEarned.toLocaleString()}
                                 </span>
                                 <span className="ml-1 text-gray-500 dark:text-gray-400">
@@ -1111,7 +1095,7 @@ export default function ProducersManagement() {
                                   <Button
                                     size="sm"
                                     onClick={() => assignProducer(p.id)}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    className="bg-gold-600 hover:bg-gold-700 text-white"
                                   >
                                     <UserPlus className="h-4 w-4 mr-1" /> Assign
                                   </Button>
@@ -1166,13 +1150,13 @@ export default function ProducersManagement() {
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
                 <motion.div
-                  className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-sm font-bold"
+                  className="h-8 w-8 rounded-full flex items-center justify-center text-white text-sm font-bold bg-gold-500"
                   animate={{ rotate: [0, 360] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                 >
                   <Brain className="w-4 h-4" />
                 </motion.div>
-                <span className="bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                <span className="text-foreground">
                   AI Producer Assignment
                 </span>
               </DialogTitle>
@@ -1195,7 +1179,7 @@ export default function ProducersManagement() {
                 {availableLoading ? (
                   <div className="h-40 flex items-center justify-center">
                     <motion.div
-                      className="h-6 w-6 rounded-full border-2 border-blue-500 border-t-transparent"
+                      className="h-6 w-6 rounded-full border-2 border-gray-400 border-t-transparent"
                       animate={{ rotate: 360 }}
                       transition={{
                         duration: 1,
@@ -1211,7 +1195,7 @@ export default function ProducersManagement() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="flex flex-col items-center gap-4"
                     >
-                      <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                         <Users className="w-8 h-8 text-gray-400" />
                       </div>
                       <p className="text-gray-600 dark:text-gray-400">
@@ -1228,10 +1212,10 @@ export default function ProducersManagement() {
                           initial={{ opacity: 0, y: 20 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: index * 0.05 }}
-                          className="flex items-start gap-3 rounded-lg border border-border/50 p-3 sm:p-4 bg-gradient-to-br from-gray-50/60 to-white/60 dark:from-gray-800/40 dark:to-gray-900/40 hover:shadow-md transition-all duration-200"
+                          className="flex items-start gap-3 rounded-lg border border-border/50 p-3 sm:p-4 transition-all duration-200 bg-gray-50/60 dark:bg-gray-800/40"
                         >
                           <motion.div
-                            className="shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold"
+                            className="shrink-0 w-10 h-10 rounded-full text-white flex items-center justify-center text-sm font-semibold bg-gold-500"
                             whileHover={{ scale: 1.1 }}
                           >
                             {p.companyLogoUrl ? (
@@ -1299,7 +1283,7 @@ export default function ProducersManagement() {
                               >
                                 <Button
                                   size="sm"
-                                  className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white"
+                                  className="text-white bg-gold-600 hover:bg-gold-700"
                                   onClick={async () => {
                                     await assignProducer(p.id);
                                     setAvailableLoading(true);
@@ -1332,7 +1316,7 @@ export default function ProducersManagement() {
           <DialogContent className="max-w-4xl bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <UserPlus className="w-5 h-5 text-blue-600" />
+                <UserPlus className="w-5 h-5 text-gray-900" />
                 Assign Producer with Subscription
               </DialogTitle>
               <DialogDescription>
@@ -1348,7 +1332,7 @@ export default function ProducersManagement() {
             >
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-blue-600" />
+                  <Sparkles className="w-5 h-5 text-gray-900" />
                   Choose Subscription Plan
                 </h3>
 
@@ -1378,7 +1362,7 @@ export default function ProducersManagement() {
                   <Button
                     type="submit"
                     disabled={assignmentLoading || !assignmentPlanId}
-                    className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white"
+                    className="text-white bg-gold-600 hover:bg-gold-700"
                   >
                     {assignmentLoading ? (
                       <>

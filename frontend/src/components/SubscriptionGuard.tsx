@@ -70,9 +70,9 @@ export default function SubscriptionGuard({
 
   if (status === "loading" || subscriptionStatus === "loading") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400 mx-auto mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin text-gray-700 mx-auto mb-4" />
           <p className="text-white">Checking subscription status...</p>
         </div>
       </div>
@@ -81,14 +81,14 @@ export default function SubscriptionGuard({
 
   if (subscriptionStatus === "invalid") {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="max-w-2xl mx-auto text-center p-8">
           {/* Animated warning icon */}
           <div className="relative mb-8">
             <div className="absolute inset-0 animate-ping">
-              <AlertTriangle className="h-20 w-20 text-cyan-400 mx-auto opacity-75" />
+              <AlertTriangle className="h-20 w-20 text-gray-500 mx-auto opacity-75" />
             </div>
-            <AlertTriangle className="h-20 w-20 text-cyan-400 mx-auto relative" />
+            <AlertTriangle className="h-20 w-20 text-gray-500 mx-auto relative" />
           </div>
 
           <h1 className="text-4xl font-bold text-white mb-6">
@@ -115,7 +115,7 @@ export default function SubscriptionGuard({
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               onClick={() => router.push("/subscription")}
-              className="px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 flex items-center justify-center"
+              className="px-8 py-4 text-white font-semibold rounded-2xl transition-all duration-300 flex items-center justify-center bg-gold-500"
             >
               <Sparkles className="h-5 w-5 mr-2" />
               Choose a Plan
@@ -144,17 +144,17 @@ export default function SubscriptionGuard({
       <div>
         {/* Subscription status bar */}
         {daysLeft <= 7 && (
-          <div className="bg-gradient-to-r from-cyan-500/20 to-red-500/20 border-b border-cyan-500/30 p-3">
+          <div className="border-b border-gray-300/30 p-3 bg-gray-300/20">
             <div className="container mx-auto flex items-center justify-between">
               <div className="flex items-center">
-                <AlertTriangle className="h-5 w-5 text-cyan-400 mr-2" />
+                <AlertTriangle className="h-5 w-5 text-gray-500 mr-2" />
                 <span className="text-white">
                   Your {subscription.plan.name} plan expires in {daysLeft} days
                 </span>
               </div>
               <button
                 onClick={() => router.push("/subscription")}
-                className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+                className="px-4 py-2 bg-gold-300 text-white rounded-lg hover:bg-gold-300 transition-colors"
               >
                 Renew Now
               </button>

@@ -11,14 +11,10 @@ interface PageHeaderProps {
 
 const toneMap = {
   blue: {
-    badge: "bg-blue-600/10 text-blue-700 dark:text-blue-300 ring-blue-600/20",
-    gradient:
-      "bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400",
+    badge: "bg-gold-600/10 text-gray-900 dark:text-gray-300 ring-gold-600/20",
   },
   cyan: {
-    badge: "bg-cyan-600/10 text-cyan-700 dark:text-cyan-300 ring-cyan-600/20",
-    gradient:
-      "bg-gradient-to-r from-cyan-600 via-blue-600 to-blue-600 dark:from-cyan-400 dark:via-blue-400 dark:to-blue-400",
+    badge: "bg-gold-300/10 text-gray-500 dark:text-gray-200 ring-gold-300/20",
   },
 };
 
@@ -39,9 +35,7 @@ export default function PageHeader({
           {badge}
         </div>
       )}
-      <h1
-        className={`mt-3 text-2xl md:text-4xl font-bold ${tone.gradient} bg-clip-text text-transparent`}
-      >
+      <h1 className="mt-3 text-2xl md:text-4xl font-bold text-foreground">
         {t(titleKey)}
       </h1>
       {subtitleKey && (

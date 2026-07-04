@@ -8,6 +8,7 @@ import {
   Smartphone,
   CheckCircle,
   Loader2,
+  Lock,
 } from "lucide-react";
 
 interface PaymentPageProps {
@@ -72,27 +73,27 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
   if (paymentComplete) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
-          <CheckCircle className="h-16 w-16 text-blue-400 mx-auto mb-6" />
+          <CheckCircle className="h-16 w-16 text-gray-700 mx-auto mb-6" />
           <h1 className="text-3xl font-bold text-white mb-4">
             Payment Successful!
           </h1>
           <p className="text-gray-300 mb-6">
             Your subscription has been activated.
           </p>
-          <div className="animate-pulse text-blue-400">Redirecting...</div>
+          <div className="animate-pulse text-gray-700">Redirecting...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-slate-900">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gold-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gold-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-16">
@@ -129,11 +130,11 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                     onClick={() => setPaymentMethod("mobile_money")}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
                       paymentMethod === "mobile_money"
-                        ? "border-blue-500 bg-blue-500/20"
+                        ? "border-gray-400 bg-gold-500/20"
                         : "border-white/20 bg-white/5 hover:border-white/30"
                     }`}
                   >
-                    <Smartphone className="h-8 w-8 mx-auto mb-2 text-blue-400" />
+                    <Smartphone className="h-8 w-8 mx-auto mb-2 text-gray-700" />
                     <div className="text-white font-semibold">
                       MTN Mobile Money
                     </div>
@@ -145,7 +146,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                     onClick={() => setPaymentMethod("airtel_money")}
                     className={`p-4 rounded-2xl border-2 transition-all duration-300 ${
                       paymentMethod === "airtel_money"
-                        ? "border-blue-500 bg-blue-500/20"
+                        ? "border-gray-400 bg-gold-500/20"
                         : "border-white/20 bg-white/5 hover:border-white/30"
                     }`}
                   >
@@ -170,7 +171,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="07XXXXXXXX"
-                  className="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full p-4 bg-white/10 border border-white/20 rounded-2xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gold-500/20"
                   required
                 />
                 <p className="text-gray-400 text-sm mt-2">
@@ -180,7 +181,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
               </div>
 
               {/* Payment Instructions */}
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-6">
+              <div className="bg-gold-500/10 border border-gray-400/30 rounded-2xl p-6">
                 <h3 className="text-white font-semibold mb-3">
                   Payment Instructions:
                 </h3>
@@ -200,7 +201,7 @@ export default function PaymentPage({ params }: PaymentPageProps) {
               <button
                 type="submit"
                 disabled={processing || !phoneNumber}
-                className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-2xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className="w-full py-4 text-white font-semibold rounded-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-gold-500"
               >
                 {processing ? (
                   <>
@@ -216,8 +217,9 @@ export default function PaymentPage({ params }: PaymentPageProps) {
 
           {/* Security Notice */}
           <div className="text-center mt-8">
-            <p className="text-gray-400 text-sm">
-              🔒 Your payment is secured with end-to-end encryption
+            <p className="text-gray-400 text-sm flex items-center justify-center gap-1.5">
+              <Lock className="h-3.5 w-3.5" />
+              Your payment is secured with end-to-end encryption
             </p>
           </div>
         </div>

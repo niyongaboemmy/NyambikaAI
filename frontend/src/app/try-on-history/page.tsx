@@ -158,10 +158,10 @@ export default function TryOnHistoryPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "completed":
-        return <Badge className="bg-blue-100 text-blue-800">Completed</Badge>;
+        return <Badge className="bg-gray-100 text-black">Completed</Badge>;
       case "processing":
         return (
-          <Badge className="bg-blue-100 text-blue-800">Processing</Badge>
+          <Badge className="bg-gray-100 text-black">Processing</Badge>
         );
       case "failed":
         return <Badge className="bg-red-100 text-red-800">Failed</Badge>;
@@ -174,7 +174,7 @@ export default function TryOnHistoryPage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-center min-h-[400px]">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-500"></div>
         </div>
       </div>
     );
@@ -219,7 +219,7 @@ export default function TryOnHistoryPage() {
           {sessions.map((session) => (
             <Card
               key={session.id}
-              className="overflow-hidden hover:shadow-lg transition-shadow"
+              className="overflow-hidden transition-shadow"
             >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">

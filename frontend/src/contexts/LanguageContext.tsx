@@ -302,7 +302,7 @@ const translations = {
     "product.boost": "Boost product",
     "product.delete": "Delete product",
     "product.aiReady": "AI Ready",
-    "product.inStock": "✓ In Stock",
+    "product.inStock": "In Stock",
     "product.outOfStock": "Out of Stock",
     // Cart
     "cart.aiBadge": "AI-Powered Cart",
@@ -936,7 +936,7 @@ const translations = {
     "product.boost": "Teza imbere igicuruzwa",
     "product.delete": "Siba igicuruzwa",
     "product.aiReady": "AI Yiteguye",
-    "product.inStock": "✓ Kirahari",
+    "product.inStock": "Kirahari",
     "product.outOfStock": "Cyashize",
     // Footer
     "footer.liveBadge": "AI iri kuri ligne",
@@ -1291,7 +1291,7 @@ const translations = {
     "product.boost": "Booster le produit",
     "product.delete": "Supprimer le produit",
     "product.aiReady": "Prêt pour l'IA",
-    "product.inStock": "✓ En Stock",
+    "product.inStock": "En Stock",
     "product.outOfStock": "Rupture de stock",
     // Footer
     "footer.liveBadge": "IA en direct",

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Check,
+  X,
   Crown,
   Zap,
   Brain,
@@ -284,27 +285,27 @@ export default function ProducerSubscriptionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-blue-100 dark:from-gray-900 dark:via-blue-900/20 dark:to-blue-900/30 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-gray-900">
         <div className="relative">
           {/* AI Loading Animation */}
           <div className="w-16 h-16 relative">
             <div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-blue-500 to-cyan-500 animate-spin"
+              className="absolute inset-0 rounded-full animate-spin bg-gold-500"
               style={{ animationDuration: "2s" }}
             />
             <div
-              className="absolute inset-1 rounded-full bg-gradient-to-r from-cyan-400 via-blue-400 to-blue-400 animate-spin"
+              className="absolute inset-1 rounded-full animate-spin bg-gold-300"
               style={{
                 animationDuration: "1.5s",
                 animationDirection: "reverse",
               }}
             />
             <div className="absolute inset-3 rounded-full bg-white dark:bg-gray-900 flex items-center justify-center">
-              <Brain className="w-6 h-6 text-blue-600 dark:text-blue-400 animate-pulse" />
+              <Brain className="w-6 h-6 text-gray-900 dark:text-white animate-pulse" />
             </div>
           </div>
           <div className="text-center mt-4">
-            <div className="text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+            <div className="text-sm font-medium text-foreground">
               Loading AI Plans...
             </div>
           </div>
@@ -321,10 +322,10 @@ export default function ProducerSubscriptionPage() {
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -50 }}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-full px-4 py-2 shadow-lg border border-white/20"
+          className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl rounded-full px-4 py-2 border border-white/20"
         >
           <div className="flex items-center gap-2">
-            <RefreshCw className="w-4 h-4 text-blue-600 animate-spin" />
+            <RefreshCw className="w-4 h-4 text-gray-900 animate-spin" />
             <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Refreshing...
             </span>
@@ -335,43 +336,43 @@ export default function ProducerSubscriptionPage() {
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Floating AI Orbs */}
-        <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-blue-400/20 to-blue-400/20 rounded-full blur-xl animate-pulse" />
+        <div className="absolute top-20 left-10 w-32 h-32 rounded-full blur-xl animate-pulse bg-gray-400/20" />
         <div
-          className="absolute top-40 right-20 w-24 h-24 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-full blur-lg animate-bounce"
+          className="absolute top-40 right-20 w-24 h-24 rounded-full blur-lg animate-bounce bg-gray-300/20"
           style={{ animationDelay: "1s" }}
         />
         <div
-          className="absolute bottom-32 left-1/4 w-20 h-20 bg-gradient-to-r from-blue-400/20 to-blue-400/20 rounded-full blur-md animate-pulse"
+          className="absolute bottom-32 left-1/4 w-20 h-20 rounded-full blur-md animate-pulse bg-gray-400/20"
           style={{ animationDelay: "2s" }}
         />
         <div
-          className="absolute bottom-20 right-1/3 w-28 h-28 bg-gradient-to-r from-blue-400/20 to-cyan-400/20 rounded-full blur-lg animate-bounce"
+          className="absolute bottom-20 right-1/3 w-28 h-28 rounded-full blur-lg animate-bounce bg-gray-400/20"
           style={{ animationDelay: "0.5s" }}
         />
 
         {/* Neural Network Grid */}
         <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-1/4 left-1/4 w-px h-32 bg-gradient-to-b from-transparent via-blue-300/50 to-transparent" />
-          <div className="absolute top-1/3 right-1/4 w-px h-24 bg-gradient-to-b from-transparent via-blue-300/50 to-transparent" />
-          <div className="absolute bottom-1/3 left-1/3 w-24 h-px bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent" />
-          <div className="absolute bottom-1/4 right-1/3 w-32 h-px bg-gradient-to-r from-transparent via-blue-300/50 to-transparent" />
+          <div className="absolute top-1/4 left-1/4 w-px h-32 bg-transparent" />
+          <div className="absolute top-1/3 right-1/4 w-px h-24 bg-transparent" />
+          <div className="absolute bottom-1/3 left-1/3 w-24 h-px bg-transparent" />
+          <div className="absolute bottom-1/4 right-1/3 w-32 h-px bg-transparent" />
         </div>
 
         {/* Floating Particles */}
         <div
-          className="absolute top-1/4 left-1/2 w-2 h-2 bg-blue-400 rounded-full animate-ping"
+          className="absolute top-1/4 left-1/2 w-2 h-2 bg-gold-400 rounded-full animate-ping"
           style={{ animationDelay: "0s" }}
         />
         <div
-          className="absolute top-1/3 right-1/4 w-1.5 h-1.5 bg-blue-400 rounded-full animate-ping"
+          className="absolute top-1/3 right-1/4 w-1.5 h-1.5 bg-gold-400 rounded-full animate-ping"
           style={{ animationDelay: "1s" }}
         />
         <div
-          className="absolute bottom-1/2 left-1/4 w-1 h-1 bg-cyan-400 rounded-full animate-ping"
+          className="absolute bottom-1/2 left-1/4 w-1 h-1 bg-gold-300 rounded-full animate-ping"
           style={{ animationDelay: "2s" }}
         />
         <div
-          className="absolute bottom-1/3 right-1/2 w-2 h-2 bg-blue-400 rounded-full animate-ping"
+          className="absolute bottom-1/3 right-1/2 w-2 h-2 bg-gold-400 rounded-full animate-ping"
           style={{ animationDelay: "1.5s" }}
         />
       </div>
@@ -398,7 +399,7 @@ export default function ProducerSubscriptionPage() {
           <div
             className={`${
               isMobile
-                ? "sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-white/20 shadow-lg mb-4 p-3"
+                ? "sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl border border-white/20 mb-4 p-3"
                 : ""
             }`}
           >
@@ -422,17 +423,17 @@ export default function ProducerSubscriptionPage() {
                       {
                         icon: BarChart3,
                         text: "Analytics",
-                        color: "from-blue-500 to-blue-700",
+                        color: "gold-600",
                       },
                       {
                         icon: TrendingUp,
                         text: "Growth",
-                        color: "from-blue-500 to-blue-700",
+                        color: "gold-600",
                       },
                       {
                         icon: Users,
                         text: "Insights",
-                        color: "from-blue-600 to-blue-400",
+                        color: "gold-500",
                       },
                     ].map((pill, index) => (
                       <motion.div
@@ -440,7 +441,7 @@ export default function ProducerSubscriptionPage() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.3 + index * 0.1, duration: 0.4 }}
-                        className={`flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r ${pill.color} text-white text-xs font-medium shadow-md backdrop-blur-sm whitespace-nowrap flex-shrink-0`}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full bg-${pill.color} text-white text-xs font-medium backdrop-blur-sm whitespace-nowrap flex-shrink-0`}
                       >
                         <pill.icon className="w-2.5 h-2.5" />
                         <span>{pill.text}</span>
@@ -458,17 +459,17 @@ export default function ProducerSubscriptionPage() {
                       {
                         icon: BarChart3,
                         text: "Analytics",
-                        color: "from-blue-500 to-blue-700",
+                        color: "gold-600",
                       },
                       {
                         icon: TrendingUp,
                         text: "Growth",
-                        color: "from-blue-500 to-blue-700",
+                        color: "gold-600",
                       },
                       {
                         icon: Users,
                         text: "Insights",
-                        color: "from-blue-600 to-blue-400",
+                        color: "gold-500",
                       },
                     ].map((pill, index) => (
                       <motion.div
@@ -476,7 +477,7 @@ export default function ProducerSubscriptionPage() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.5 + index * 0.1, duration: 0.4 }}
-                        className={`flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r ${pill.color} text-white text-xs font-medium shadow-md backdrop-blur-sm`}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full bg-${pill.color} text-white text-xs font-medium backdrop-blur-sm`}
                       >
                         <pill.icon className="w-3 h-3" />
                         <span>{pill.text}</span>
@@ -495,7 +496,7 @@ export default function ProducerSubscriptionPage() {
                   transition={{ delay: 0.6, duration: 0.4 }}
                   onClick={handlePullToRefresh}
                   disabled={isRefreshing}
-                  className="p-2 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg active:scale-95 transition-transform duration-150"
+                  className="p-2 rounded-full text-white active:scale-95 transition-transform duration-150 bg-gold-500"
                 >
                   <RefreshCw
                     className={`w-4 h-4 ${isRefreshing ? "animate-spin" : ""}`}
@@ -516,15 +517,15 @@ export default function ProducerSubscriptionPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-4 sm:mb-6"
             >
-              <div className="relative overflow-hidden rounded-xl border border-amber-200/50 bg-gradient-to-r from-amber-50/80 to-cyan-50/80 dark:from-amber-900/20 dark:to-cyan-900/20 backdrop-blur-sm p-3 sm:p-4">
-                <div className="absolute inset-0 bg-gradient-to-r from-amber-400/10 to-cyan-400/10 animate-pulse" />
+              <div className="relative overflow-hidden rounded-xl border border-amber-200/50 backdrop-blur-sm p-3 sm:p-4 bg-amber-50/80 dark:bg-amber-900/20">
+                <div className="absolute inset-0 animate-pulse bg-amber-400/10" />
                 <div className="relative flex items-start gap-2 sm:gap-3">
                   <div className="flex-shrink-0 p-1.5 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
                     <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-amber-900 dark:text-amber-200 text-sm">
-                      ⚡ Expiring Soon!
+                      Expiring Soon!
                     </div>
                     <div className="text-xs text-amber-800 dark:text-amber-300">
                       {daysLeft} day{plural(daysLeft)} left. Renew now to keep
@@ -544,23 +545,23 @@ export default function ProducerSubscriptionPage() {
             transition={{ delay: 0.05 }}
             className="mb-6 sm:mb-8"
           >
-            <div className="relative overflow-hidden rounded-2xl borde border-white/20 bg-white dark:bg-gray-800/10 backdrop-blur-xl hover:shadow-md">
+            <div className="relative overflow-hidden rounded-2xl borde border-white/20 bg-white dark:bg-gray-800/10 backdrop-blur-xl">
               {/* Glassmorphism Background */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-blue-50/30 to-blue-50/20 dark:from-gray-800/20 dark:via-blue-900/30 dark:to-blue-900/20" />
+              <div className="absolute inset-0 bg-white/20 dark:bg-gray-800/20" />
 
               {/* Animated Border */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500/20 to-blue-500/20 animate-pulse" />
+              <div className="absolute inset-0 rounded-2xl animate-pulse bg-gray-500/20" />
               <div className="absolute inset-[1px] rounded-2xl bg-white dark:bg-gray-900/80 backdrop-blur-xl" />
 
               <div className="relative p-4 sm:p-6">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-gradient-to-r from-blue-500 to-blue-700 rounded-xl">
+                      <div className="p-2 rounded-xl bg-gold-500">
                         <Briefcase className="w-5 h-5 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                        <h3 className="text-base sm:text-lg font-bold text-foreground">
                           {currentPlan ? currentPlan.name : "Status"}
                         </h3>
                         <div className="text-xs text-gray-600 dark:text-gray-400 mt-1">
@@ -583,35 +584,41 @@ export default function ProducerSubscriptionPage() {
 
                     {currentPlan && (
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                        <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg">
-                          <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        <div className="text-center p-2 rounded-lg bg-gold-50 dark:bg-gray-900/30">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
                             {currentPlan.maxProducts}
                           </div>
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             Products
                           </div>
                         </div>
-                        <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/30 rounded-lg">
-                          <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        <div className="text-center p-2 rounded-lg bg-gold-50 dark:bg-gray-900/30">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
                             {currentPlan.maxOrders}
                           </div>
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             Orders
                           </div>
                         </div>
-                        <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/30 rounded-lg">
-                          <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                            {(currentPlan as any).hasAnalytics ? "✓" : "✗"}
+                        <div className="text-center p-2 rounded-lg bg-gold-50 dark:bg-gray-900/30">
+                          <div className="flex justify-center text-gray-900 dark:text-white">
+                            {(currentPlan as any).hasAnalytics ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <X className="h-4 w-4" />
+                            )}
                           </div>
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             Analytics
                           </div>
                         </div>
-                        <div className="text-center p-2 bg-gradient-to-br from-cyan-50 to-red-50 dark:from-cyan-900/30 dark:to-red-900/30 rounded-lg">
-                          <div className="text-sm font-bold text-cyan-600 dark:text-cyan-400">
-                            {(currentPlan as any).hasPrioritySupport
-                              ? "✓"
-                              : "✗"}
+                        <div className="text-center p-2 rounded-lg bg-gold-50 dark:bg-gray-300/30">
+                          <div className="flex justify-center text-gray-500 dark:text-gray-300">
+                            {(currentPlan as any).hasPrioritySupport ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <X className="h-4 w-4" />
+                            )}
                           </div>
                           <div className="text-xs text-gray-600 dark:text-gray-400">
                             Support
@@ -625,15 +632,15 @@ export default function ProducerSubscriptionPage() {
                     <Badge
                       className={`px-4 py-2 text-sm font-medium rounded-full w-max ${
                         subStatus.hasActiveSubscription
-                          ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg"
-                          : "bg-gradient-to-r from-red-500 to-blue-500 text-white shadow-lg"
+                          ? "text-white bg-gold-500"
+                          : "text-white bg-red-500"
                       }`}
                     >
                       {subStatus.hasActiveSubscription
-                        ? "🟢 Active"
+                        ? "Active"
                         : subStatus.status === "expired"
-                          ? "🔴 Expired"
-                          : "⚪ Inactive"}
+                          ? "Expired"
+                          : "Inactive"}
                     </Badge>
 
                     <div className="flex flex-col md:flex-row gap-2">
@@ -645,7 +652,7 @@ export default function ProducerSubscriptionPage() {
                             setDefaultMethod("momo");
                             setShowPayment(true);
                           }}
-                          className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
+                          className="text-white px-4 py-2 rounded-full transition-all duration-300 flex items-center gap-2 bg-gold-600 hover:bg-gold-700"
                           size="sm"
                         >
                           <Rocket className="w-4 h-4" />
@@ -678,7 +685,7 @@ export default function ProducerSubscriptionPage() {
                           }}
                           variant="outline"
                           size="sm"
-                          className="px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-all duration-300 flex items-center gap-2"
+                          className="px-4 py-2 rounded-full border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400 transition-all duration-300 flex items-center gap-2"
                         >
                           <ArrowRight className="w-4 h-4" />
                           Change Plan
@@ -703,13 +710,13 @@ export default function ProducerSubscriptionPage() {
             >
               <div className="relative">
                 {/* Glowing Background */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-blue-500/20 rounded-3xl blur-xl animate-pulse" />
+                <div className="absolute inset-0 rounded-3xl blur-xl animate-pulse bg-gray-500/20" />
 
-                <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl p-1.5 sm:p-2 rounded-3xl shadow-2xl border border-white/30">
+                <div className="relative bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl p-1.5 sm:p-2 rounded-3xl border border-white/30">
                   <div className="flex relative gap-1">
                     {/* Sliding Background */}
                     <div
-                      className={`absolute top-1.5 bottom-1.5 sm:top-2 sm:bottom-2 bg-gradient-to-r from-blue-600 to-blue-400 rounded-2xl shadow-lg transition-all duration-500 ease-out ${
+                      className={`absolute top-1.5 bottom-1.5 sm:top-2 sm:bottom-2 bg-gold-600 rounded-2xl transition-all duration-500 ease-out ${
                         billingCycle === "monthly"
                           ? "left-1.5 sm:left-2 right-1/2 mr-0.5"
                           : "left-1/2 right-1.5 sm:right-2 ml-0.5"
@@ -721,7 +728,7 @@ export default function ProducerSubscriptionPage() {
                       className={`relative z-10 px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 rounded-2xl font-medium text-sm sm:text-base transition-all duration-300 flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 justify-center ${
                         billingCycle === "monthly"
                           ? "text-white"
-                          : "text-gray-600 dark:text-gray-300 hover:text-blue-600"
+                          : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
                       }`}
                     >
                       <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
@@ -732,12 +739,12 @@ export default function ProducerSubscriptionPage() {
                       className={`relative z-10 px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 rounded-2xl font-medium text-sm sm:text-base transition-all duration-300 flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 justify-center ${
                         billingCycle === "annual"
                           ? "text-white"
-                          : "text-gray-600 dark:text-gray-300 hover:text-blue-600"
+                          : "text-gray-600 dark:text-gray-300 hover:text-gray-900"
                       }`}
                     >
                       <Crown className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                       <span className="whitespace-nowrap">Annual</span>
-                      <Badge className="bg-gradient-to-r from-blue-500 to-blue-700 text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-md ml-1 flex-shrink-0">
+                      <Badge className="text-white text-xs px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ml-1 flex-shrink-0 bg-gold-500">
                         30%
                       </Badge>
                     </button>
@@ -766,7 +773,7 @@ export default function ProducerSubscriptionPage() {
                   >
                     {isPopular && (
                       <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20">
-                        <Badge className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-2 py-0.5 text-xs shadow-md">
+                        <Badge className="text-white px-2 py-0.5 text-xs bg-gold-500">
                           Popular
                         </Badge>
                       </div>
@@ -784,30 +791,21 @@ export default function ProducerSubscriptionPage() {
                         setShowPayment(true);
                       }}
                     >
-                      {/* Animated Glow Effect */}
-                      <div
-                        className={`absolute inset-0 rounded-2xl bg-gradient-to-r opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl ${
-                          isPopular
-                            ? "from-blue-400/30 to-blue-400/30"
-                            : "from-blue-400/30 to-blue-400/30"
-                        }`}
-                      />
-
                       {/* Card Background */}
                       <div
-                        className={`relative overflow-hidden rounded-xl border backdrop-blur-xl shadow-lg ${
+                        className={`relative overflow-hidden rounded-xl border backdrop-blur-xl ${
                           selectedPlan === plan.id
-                            ? "border-blue-400/50 bg-blue-50/80 dark:bg-blue-900/20"
+                            ? "border-gray-400/50 bg-gray-50/80 dark:bg-gray-800/20"
                             : isPopular
-                              ? "border-blue-200/50 bg-white/80 dark:bg-gray-800/80"
+                              ? "border-gray-200/50 bg-white/80 dark:bg-gray-800/80"
                               : "border-white/20 bg-white/60 dark:bg-gray-800/60"
                         }`}
                       >
                         {/* Animated Background Pattern */}
                         <div className="absolute inset-0 opacity-30">
-                          <div className="absolute top-3 right-3 w-12 h-12 bg-gradient-to-br from-blue-400/20 to-blue-400/20 rounded-full blur-lg animate-pulse" />
+                          <div className="absolute top-3 right-3 w-12 h-12 rounded-full blur-lg animate-pulse bg-gray-400/20" />
                           <div
-                            className="absolute bottom-3 left-3 w-8 h-8 bg-gradient-to-br from-blue-400/20 to-blue-400/20 rounded-full blur-md animate-pulse"
+                            className="absolute bottom-3 left-3 w-8 h-8 rounded-full blur-md animate-pulse bg-gray-400/20"
                             style={{ animationDelay: "1s" }}
                           />
                         </div>
@@ -819,15 +817,15 @@ export default function ProducerSubscriptionPage() {
                               <div
                                 className={`mb-2 p-1.5 rounded-lg w-fit ${
                                   isPopular
-                                    ? "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-900/50"
-                                    : "bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/50 dark:to-blue-900/50"
+                                    ? "bg-gold-100 dark:bg-gray-900/50"
+                                    : "bg-gold-100 dark:bg-gray-900/50"
                                 }`}
                               >
                                 <IconComponent
                                   className={`h-5 w-5 ${
                                     isPopular
-                                      ? "text-blue-600 dark:text-blue-400"
-                                      : "text-blue-600 dark:text-blue-400"
+                                      ? "text-gray-900 dark:text-white"
+                                      : "text-gray-900 dark:text-white"
                                   }`}
                                 />
                               </div>
@@ -840,13 +838,7 @@ export default function ProducerSubscriptionPage() {
                             </div>
                             <div className="text-center lg:text-right mt-2 lg:mt-0">
                               <div className="mb-2">
-                                <span
-                                  className={`text-lg font-bold ${
-                                    isPopular
-                                      ? "bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
-                                      : "bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent"
-                                  }`}
-                                >
+                                <span className="text-lg font-bold text-foreground">
                                   {parseInt(price).toLocaleString()}
                                 </span>
                                 <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
@@ -866,7 +858,7 @@ export default function ProducerSubscriptionPage() {
                                   key={featureIndex}
                                   className="flex items-center text-xs"
                                 >
-                                  <div className="w-4 h-4 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center mr-2 flex-shrink-0">
+                                  <div className="w-4 h-4 rounded-full flex items-center justify-center mr-2 flex-shrink-0 bg-gold-400">
                                     <Check className="h-2.5 w-2.5 text-white" />
                                   </div>
                                   <span className="text-gray-600 dark:text-gray-300 leading-tight">
@@ -879,8 +871,8 @@ export default function ProducerSubscriptionPage() {
                           {/* Stats */}
                           <div className="grid grid-cols-2 gap-2 text-xs">
                             {plan.maxProducts > 0 && (
-                              <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/30 dark:to-cyan-900/30 rounded-lg">
-                                <div className="font-bold text-blue-600 dark:text-blue-400">
+                              <div className="text-center p-2 rounded-lg bg-gold-50 dark:bg-gray-900/30">
+                                <div className="font-bold text-gray-900 dark:text-white">
                                   {plan.maxProducts}
                                 </div>
                                 <div className="text-gray-600 dark:text-gray-400">
@@ -889,8 +881,8 @@ export default function ProducerSubscriptionPage() {
                               </div>
                             )}
                             {plan.maxOrders > 0 && (
-                              <div className="text-center p-2 bg-gradient-to-br from-blue-50 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/30 rounded-lg">
-                                <div className="font-bold text-blue-600 dark:text-blue-400">
+                              <div className="text-center p-2 rounded-lg bg-gold-50 dark:bg-gray-900/30">
+                                <div className="font-bold text-gray-900 dark:text-white">
                                   {plan.maxOrders}
                                 </div>
                                 <div className="text-gray-600 dark:text-gray-400">
@@ -905,8 +897,8 @@ export default function ProducerSubscriptionPage() {
                             <div
                               className={`w-full py-2 px-4 rounded-full text-center text-sm font-semibold transition-all duration-300 ${
                                 isPopular
-                                  ? "bg-gradient-to-r from-cyan-500 to-red-500 text-white shadow-lg hover:shadow-xl"
-                                  : "bg-gradient-to-r from-blue-500 to-blue-700 text-white shadow-lg hover:shadow-xl"
+                                  ? "text-white bg-gold-300"
+                                  : "text-white bg-gold-500"
                               }`}
                             >
                               Choose Plan

@@ -85,9 +85,9 @@ export default function HeaderOld() {
               onChange={(e) => setLanguage(e.target.value)}
               className="glassmorphism rounded-lg px-3 py-2 text-sm bg-transparent border-0 focus:ring-2 focus:ring-[rgb(var(--electric-blue-rgb))]"
             >
-              <option value="rw">🇷🇼 Kinyarwanda</option>
-              <option value="en">🇬🇧 English</option>
-              <option value="fr">🇫🇷 Français</option>
+              <option value="rw">Kinyarwanda</option>
+              <option value="en">English</option>
+              <option value="fr">Français</option>
             </select>
 
             {/* Theme Toggle */}
@@ -128,7 +128,7 @@ export default function HeaderOld() {
                   >
                     <Avatar className="h-9 w-9">
                       <AvatarImage src="" alt={user.name || user.email} />
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
+                      <AvatarFallback className="text-white bg-gold-500">
                         {user.name?.charAt(0)?.toUpperCase() ||
                           user.email?.charAt(0)?.toUpperCase() ||
                           "U"}

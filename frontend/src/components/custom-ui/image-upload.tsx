@@ -126,7 +126,7 @@ export function ImageUpload({
         className={cn(
           "relative border-2 border-dashed rounded-lg p-6 transition-colors cursor-pointer",
           dragActive
-            ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+            ? "border-gray-400 bg-gray-50 dark:bg-gold-950/20"
             : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500",
           disabled && "opacity-50 cursor-not-allowed",
           selectedFiles.length >= maxImages && "opacity-50 cursor-not-allowed"

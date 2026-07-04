@@ -247,7 +247,7 @@ export function ProductFormWizard({
   };
 
   return (
-    <div className="bg-gradient-to-br from-blue-50/30 via-blue-50/20 to-blue-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-blue-900/20 rounded-3xl">
+    <div className="rounded-3xl bg-gray-50/30 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-2.5 sm:py-4">
         {/* Header */}
         <div className="mb-1">
@@ -288,10 +288,10 @@ export function ProductFormWizard({
                 ) : (
                   <>
                     <div
-                      className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 blur-sm opacity-30"
+                      className="absolute inset-0 rounded-full blur-sm opacity-30 bg-gold-500"
                       aria-hidden
                     />
-                    <div className="relative inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-gradient-to-r from-blue-500 to-blue-700">
+                    <div className="relative inline-flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full bg-gold-500">
                       {currentStep === 1 && (
                         <ImageIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-white" />
                       )}
@@ -307,12 +307,12 @@ export function ProductFormWizard({
               </div>
               <div className="min-w-0">
                 <div className="flex flex-row items-center gap-2 min-w-0">
-                  <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent truncate max-w-[60vw] sm:max-w-none">
+                  <h1 className="text-lg sm:text-xl font-bold truncate max-w-[60vw] sm:max-w-none text-foreground">
                     {formData.name?.trim()
                       ? `${title}: ${formData.name}`
                       : title}
                   </h1>
-                  <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-blue-500/70 hidden xs:block" />
+                  <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-gray-800/70 hidden xs:block" />
                 </div>
 
                 {/* Subtle subtitle with step name */}
@@ -359,7 +359,7 @@ export function ProductFormWizard({
                       key={index}
                       className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all duration-200 ${
                         index + 1 <= currentStep
-                          ? "bg-blue-500"
+                          ? "bg-gold-500"
                           : "bg-gray-300 dark:bg-gray-600"
                       }`}
                     />
@@ -374,7 +374,7 @@ export function ProductFormWizard({
                     type="button"
                     onClick={nextStep}
                     disabled={!canProceed(currentStep)}
-                    className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white transition-all duration-200 hover:scale-105 disabled:hover:scale-100 px-3 py-2 w-full sm:w-auto"
+                    className="flex items-center justify-center gap-2 text-white transition-all duration-200 hover:scale-105 disabled:hover:scale-100 px-3 py-2 w-full sm:w-auto bg-gold-500 hover:bg-gold-600"
                   >
                     <span className="pl-3">Next</span>
                     <ChevronRight className="h-4 w-4" />
@@ -384,7 +384,7 @@ export function ProductFormWizard({
                   type="button"
                   onClick={submitOrFocusInvalid}
                   disabled={loading || !canSubmitForm()}
-                  className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 px-4 sm:px-6 py-2 w-full sm:w-auto"
+                  className="flex items-center justify-center gap-2 text-white transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:hover:scale-100 px-4 sm:px-6 py-2 w-full sm:w-auto bg-gold-500 hover:bg-gold-600"
                 >
                   {loading ? `${submitLabel}...` : submitLabel}
                 </Button>

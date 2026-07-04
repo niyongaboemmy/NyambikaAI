@@ -240,7 +240,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
           (reply && String(reply).toUpperCase() === "FAILED")
         ) {
           toast({
-            title: "⚠️ Payment not initiated",
+            title: "Payment not initiated",
             description:
               typeof retcode !== "undefined"
                 ? `Gateway returned code ${retcode}. Please verify your details and try again.`
@@ -255,7 +255,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
               : "Please complete the payment on the next screen.";
 
           toast({
-            title: "📲 Payment initiated",
+            title: "Payment initiated",
             description: description,
           });
         }
@@ -301,7 +301,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
       // Also show a toast notification
       toast({
-        title: `⚠️ ${errorTitle}`,
+        title: `${errorTitle}`,
         description: errorMessage,
         variant: "destructive",
       });
@@ -371,7 +371,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             resetStates();
 
             toast({
-              title: "❌ Payment failed",
+              title: "Payment failed",
               description:
                 "The payment could not be processed. Please try again.",
               variant: "destructive",
@@ -384,7 +384,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
           resetStates();
 
           toast({
-            title: "⏱️ Payment timed out",
+            title: "Payment timed out",
             description:
               "The payment took too long to process. Please check your transaction history.",
             variant: "destructive",
@@ -397,7 +397,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
           resetStates();
 
           toast({
-            title: "❌ Error",
+            title: "Error",
             description:
               "Failed to verify payment status. Please check your transaction history.",
             variant: "destructive",
@@ -432,7 +432,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
     }
     if (!phone || phone.trim().length < 8) {
       toast({
-        title: "📞 Phone required",
+        title: "Phone required",
         description: "Please enter your mobile number to initiate payment.",
         variant: "destructive",
       });
@@ -453,15 +453,15 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
-        return <CheckCircle className="h-3 w-3 text-blue-500" />;
+        return <CheckCircle className="h-3 w-3 text-gray-800" />;
       case "pending":
       case "processing":
-        return <Clock className="h-3 w-3 text-blue-500 animate-spin" />;
+        return <Clock className="h-3 w-3 text-gray-800 animate-spin" />;
       case "failed":
       case "error":
         return <AlertCircle className="h-3 w-3 text-red-500" />;
       case "timeout":
-        return <Clock className="h-3 w-3 text-blue-300" />;
+        return <Clock className="h-3 w-3 text-gray-500" />;
       default:
         return <Clock className="h-3 w-3 text-gray-400" />;
     }
@@ -475,18 +475,18 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
       processing: {
         title: "Processing Payment",
         description: "We're setting up your payment. Please wait...",
-        icon: <Clock className="h-5 w-5 text-blue-500 animate-spin" />,
+        icon: <Clock className="h-5 w-5 text-gray-800 animate-spin" />,
       },
       pending: {
         title: "Awaiting Confirmation",
         description:
           "Please complete the payment on your phone. This may take a moment...",
-        icon: <Clock className="h-5 w-5 text-blue-500 animate-pulse" />,
+        icon: <Clock className="h-5 w-5 text-gray-800 animate-pulse" />,
       },
       completed: {
         title: "Payment Successful!",
         description: `RWF ${activePayment.amount} has been added to your wallet.`,
-        icon: <CheckCircle className="h-5 w-5 text-blue-500" />,
+        icon: <CheckCircle className="h-5 w-5 text-gray-800" />,
       },
       failed: {
         title: "Payment Failed",
@@ -497,7 +497,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
         title: "Taking Longer Than Expected",
         description:
           "Your payment is still being processed. We'll update the status automatically.",
-        icon: <Clock className="h-5 w-5 text-blue-300" />,
+        icon: <Clock className="h-5 w-5 text-gray-500" />,
       },
       error: {
         title: "Connection Issue",
@@ -516,7 +516,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
     <div
       className={`relative overflow-hidden ${
         isMobile
-          ? "min-h-screen bg-gradient-to-br from-white via-blue-50/30 to-blue-50/20 dark:from-gray-900 dark:via-blue-950/20 dark:to-blue-950/10"
+          ? "min-h-screen bg-white dark:bg-gray-900"
           : ""
       }`}
     >
@@ -527,29 +527,29 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             isMobile ? "top-20 right-4" : "top-2 right-4"
           } w-16 h-16 opacity-10`}
         >
-          <AnimatedCoins className="w-full h-full text-blue-500" />
+          <AnimatedCoins className="w-full h-full text-gray-800" />
         </div>
         <div className="absolute bottom-4 left-2 w-12 h-12 opacity-5">
-          <Sparkles className="w-full h-full text-blue-500 animate-pulse" />
+          <Sparkles className="w-full h-full text-gray-800 animate-pulse" />
         </div>
         {/* Mobile-specific floating elements */}
         {isMobile && (
           <>
             <div className="absolute top-32 left-4 w-8 h-8 opacity-20">
-              <div className="w-full h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full animate-pulse" />
+              <div className="w-full h-full rounded-full animate-pulse bg-gold-400" />
             </div>
             <div className="absolute top-1/2 right-8 w-6 h-6 opacity-15">
-              <div className="w-full h-full bg-gradient-to-r from-blue-400 to-blue-600 rounded-full animate-bounce" />
+              <div className="w-full h-full rounded-full animate-bounce bg-gold-400" />
             </div>
           </>
         )}
       </div>
 
       <Card
-        className={`relative bg-gradient-to-br from-white via-blue-50/30 to-blue-50/20 dark:from-gray-900 dark:via-blue-950/20 dark:to-blue-950/10 ${
+        className={`relative bg-white dark:bg-gray-900 ${
           isMobile
             ? "border-0-none rounded-none bg-transparent"
-            : "border border-blue-200/50 dark:border-blue-800/30 hover:shadow-xl rounded-3xl"
+            : "border border-gray-200/50 dark:border-gray-700/30 rounded-3xl"
         } transition-all duration-500 backdrop-blur-sm`}
       >
         <CardContent className={isMobile ? "p-4 pb-8" : "p-3 sm:p-4 md:p-6"}>
@@ -557,12 +557,12 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
           {!isMobile && (
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2 sm:gap-3">
-                <div className="relative p-2 sm:p-3 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600">
+                <div className="relative p-2 sm:p-3 rounded-2xl sm:rounded-3xl bg-gold-500">
                   <AnimatedWalletIcon className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
-                  <div className="absolute inset-0 rounded-2xl sm:rounded-3xl bg-gradient-to-br from-blue-500 to-blue-600 animate-ping opacity-20"></div>
+                  <div className="absolute inset-0 rounded-2xl sm:rounded-3xl animate-ping opacity-20 bg-gold-500"></div>
                 </div>
                 <div>
-                  <h3 className="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                  <h3 className="text-sm sm:text-lg font-bold text-foreground">
                     My Wallet
                   </h3>
                   <p className="text-xs text-gray-500 dark:text-gray-400 hidden sm:block">
@@ -570,9 +570,9 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
+              <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800/30">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-gold-500 animate-pulse"></div>
+                <span className="text-xs font-medium text-gray-900 dark:text-white">
                   {wallet?.status || "Active"}
                 </span>
               </div>
@@ -626,9 +626,9 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
           {/* Pending Payment Banner */}
           {!backendError && hasPending && (
-            <div className="mb-4 sm:mb-6 p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-900/20 border border-blue-200/60 dark:border-blue-700/40 flex items-start gap-3">
-              <Clock className="h-4 w-4 text-blue-600 mt-0.5" />
-              <div className="text-xs sm:text-sm text-blue-800 dark:text-blue-200">
+            <div className="mb-4 sm:mb-6 p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-800/20 border border-gray-200/60 dark:border-gray-700/40 flex items-start gap-3">
+              <Clock className="h-4 w-4 text-gray-900 mt-0.5" />
+              <div className="text-xs sm:text-sm text-black dark:text-gray-200">
                 We're waiting for your payment confirmation. This can take up to
                 a few minutes depending on your provider. This page will
                 auto-refresh.
@@ -638,16 +638,16 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
           {/* Balance Display with Floating Animation */}
           <div
-            className={`relative mb-4 sm:mb-6 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gradient-to-r from-blue-600/10 via-blue-600/10 to-blue-600/10 dark:from-blue-500/20 dark:via-blue-500/20 dark:to-blue-500/20 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm ${
+            className={`relative mb-4 sm:mb-6 p-4 sm:p-6 rounded-2xl sm:rounded-3xl bg-gray-600/10 dark:bg-gray-500/20 border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm ${
               isMobile ? "mx-2 mt-2" : ""
             }`}
           >
             {/* Mobile status indicator */}
             {isMobile && (
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                  <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800/30">
+                  <div className="w-2 h-2 rounded-full bg-gold-500 animate-pulse"></div>
+                  <span className="text-xs font-medium text-gray-900 dark:text-white">
                     {wallet?.status || "Active"}
                   </span>
                 </div>
@@ -671,7 +671,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                 <div className="flex items-baseline gap-2">
                   {walletLoading ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 animate-spin"></div>
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full animate-spin bg-gold-400"></div>
                       <span
                         className={`${
                           isMobile
@@ -689,11 +689,11 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                           isMobile
                             ? "text-3xl"
                             : "text-xl sm:text-2xl md:text-3xl lg:text-4xl"
-                        } font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent animate-pulse`}
+                        } font-bold text-foreground`}
                       >
                         RWF {Number(wallet?.balance || 0).toLocaleString()}
                       </span>
-                      <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-blue-500 animate-bounce" />
+                      <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-gray-800 animate-bounce" />
                     </>
                   )}
                 </div>
@@ -706,7 +706,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                 <div
                   className={`${
                     isMobile ? "w-16 h-16" : "w-12 h-12 sm:w-16 sm:h-16"
-                  } rounded-full bg-gradient-to-r from-blue-400 to-blue-500 flex items-center justify-center animate-pulse`}
+                  } rounded-full bg-gold-500 flex items-center justify-center animate-pulse`}
                 >
                   <Wallet
                     className={`${
@@ -714,7 +714,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                     } text-white`}
                   />
                 </div>
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-400 to-blue-500 animate-ping opacity-20"></div>
+                <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-gold-400"></div>
               </div>
             </div>
           </div>
@@ -726,7 +726,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             }`}
           >
             <h4 className="text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-blue-500 animate-pulse" />
+              <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-gray-800 animate-pulse" />
               Quick Actions
             </h4>
             <div
@@ -740,13 +740,13 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => setAmount(quickAmount.toString())}
-                  className={`relative overflow-hidden group border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-all duration-300 hover:scale-105 ${
+                  className={`relative overflow-hidden group border-gray-200 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all duration-300 hover:scale-105 ${
                     isMobile
                       ? "p-4 h-auto flex flex-col gap-1"
                       : "p-2 sm:p-3 h-auto"
                   }`}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gray-500/10"></div>
                   {isMobile ? (
                     <>
                       <span className="relative text-lg font-bold">
@@ -771,11 +771,11 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
             <div
               className={`mb-4 sm:mb-6 mx-2 sm:mx-0 p-4 rounded-2xl ${
                 activePayment.status === "completed"
-                  ? "bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800/50"
+                  ? "bg-gray-50 dark:bg-gray-800/20 border border-gray-200 dark:border-gray-700/50"
                   : activePayment.status === "failed" ||
                       activePayment.status === "error"
                     ? "bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800/50"
-                    : "bg-blue-50/50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800/50"
+                    : "bg-gray-50/50 dark:bg-gray-800/10 border border-gray-200 dark:border-gray-700/50"
               }`}
             >
               <div className="flex items-start gap-3">
@@ -792,7 +792,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                     activePayment.status === "processing") && (
                     <div className="mt-2 flex items-center gap-2">
                       <div className="h-1.5 bg-white dark:bg-gray-800 rounded-full flex-1 overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-blue-500 to-blue-700 animate-pulse w-1/2"></div>
+                        <div className="h-full animate-pulse w-1/2 bg-gold-500"></div>
                       </div>
                       <span className="text-xs text-gray-500 dark:text-gray-400">
                         Processing...
@@ -864,7 +864,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                 activePayment.status === "processing" ||
                 activePayment.status === "pending"
               }
-              className={`w-full bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white font-medium rounded-2xl transition-all duration-300 hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${
+              className={`w-full bg-gold-600 hover:bg-gold-700 text-white font-medium rounded-2xl transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
                 isMobile
                   ? "py-4 text-base"
                   : "py-2.5 sm:py-3 text-sm sm:text-base"
@@ -899,8 +899,8 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
           {/* Recent Transactions */}
           <div className={`space-y-3 ${isMobile ? "mx-2 pb-4" : ""}`}>
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/30">
-                <Clock className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />
+              <div className="p-2 rounded-xl bg-gold-100 dark:bg-gray-900/30">
+                <Clock className="h-4 w-4 text-gray-900 dark:text-white animate-pulse" />
               </div>
               <div className="flex items-center gap-3 w-full justify-between">
                 <h4
@@ -912,7 +912,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                 </h4>
                 <a
                   href="/wallet/transactions"
-                  className={`text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline ${
+                  className={`text-gray-900 hover:text-gray-900 dark:text-white dark:hover:text-gray-500 underline ${
                     isMobile ? "text-sm" : "text-xs sm:text-sm"
                   }`}
                 >
@@ -923,11 +923,11 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
 
             {paymentsLoading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 animate-spin"></div>
+                <div className="w-8 h-8 rounded-full animate-spin bg-gold-400"></div>
               </div>
             ) : payments.length === 0 ? (
               <div className="text-center py-8 space-y-2">
-                <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
                   <Sparkles className="h-8 w-8 text-gray-400 animate-pulse" />
                 </div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -942,7 +942,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                 {payments.slice(0, isMobile ? 3 : 5).map((payment, index) => (
                   <div
                     key={payment.id}
-                    className={`group rounded-xl bg-white/60 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:scale-[1.02] hover:shadow-md ${
+                    className={`group rounded-xl bg-white/60 dark:bg-gray-800/60 border border-gray-200/50 dark:border-gray-700/50 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-300 hover:scale-[1.02] ${
                       isMobile ? "p-4" : "p-3"
                     }`}
                     style={{ animationDelay: `${index * 100}ms` }}
@@ -960,12 +960,12 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                         <div
                           className={`p-2 rounded-lg ${
                             payment.type === "topup"
-                              ? "bg-blue-100 dark:bg-blue-900/30"
+                              ? "bg-gray-100 dark:bg-gray-800/30"
                               : "bg-red-100 dark:bg-red-900/30"
                           }`}
                         >
                           {payment.type === "topup" ? (
-                            <ArrowUpRight className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            <ArrowUpRight className="h-4 w-4 text-gray-900 dark:text-white" />
                           ) : (
                             <ArrowDownLeft className="h-4 w-4 text-red-600 dark:text-red-400" />
                           )}
@@ -994,7 +994,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                               className={`text-base font-bold ${
                                 payment.type === "debit"
                                   ? "text-red-600 dark:text-red-400"
-                                  : "text-blue-600 dark:text-blue-400"
+                                  : "text-gray-900 dark:text-white"
                               }`}
                             >
                               {payment.type === "debit" ? "-" : "+"} RWF{" "}
@@ -1009,7 +1009,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                             className={`text-sm font-bold ${
                               payment.type === "debit"
                                 ? "text-red-600 dark:text-red-400"
-                                : "text-blue-600 dark:text-blue-400"
+                                : "text-gray-900 dark:text-white"
                             }`}
                           >
                             {payment.type === "debit" ? "-" : "+"} RWF{" "}
@@ -1026,7 +1026,7 @@ export default function UserWallet({ isMobile = false }: UserWalletProps) {
                   <div className="pt-2">
                     <a
                       href="/wallet/transactions"
-                      className="block w-full text-center py-3 px-4 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-xl text-blue-600 dark:text-blue-400 font-medium hover:from-blue-100 hover:to-blue-100 dark:hover:from-blue-900/30 dark:hover:to-blue-900/30 transition-all duration-300"
+                      className="block w-full text-center py-3 px-4 border border-gray-200/50 dark:border-gray-700/50 rounded-xl text-gray-900 dark:text-white font-medium transition-all duration-300 bg-gold-50 dark:bg-gray-900/20 hover:bg-gold-100 dark:hover:bg-gray-900/30"
                     >
                       View All Transactions ({payments.length})
                     </a>

@@ -151,30 +151,30 @@ export default function AgentDashboard() {
   const getStatusIcon = (status: string | undefined) => {
     switch (status) {
       case "active":
-        return <CheckCircle className="h-4 w-4 text-blue-400" />;
+        return <CheckCircle className="h-4 w-4 text-gray-700" />;
       case "expired":
         return <AlertCircle className="h-4 w-4 text-red-400" />;
       default:
-        return <Clock className="h-4 w-4 text-cyan-400" />;
+        return <Clock className="h-4 w-4 text-gray-500" />;
     }
   };
 
   const getStatusColor = (status: string | undefined) => {
     switch (status) {
       case "active":
-        return "bg-blue-500/20 text-blue-400 border-blue-500/30";
+        return "bg-gold-500/20 text-gray-700 border-gray-400/30";
       case "expired":
         return "bg-red-500/20 text-red-400 border-red-500/30";
       default:
-        return "bg-cyan-500/20 text-cyan-400 border-cyan-500/30";
+        return "bg-gold-300/20 text-gray-500 border-gray-300/30";
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400 mx-auto mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin text-gray-700 mx-auto mb-4" />
           <p className="text-white">Loading dashboard...</p>
         </div>
       </div>
@@ -182,11 +182,11 @@ export default function AgentDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-slate-900">
       {/* Animated background */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gold-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gold-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8">
@@ -203,12 +203,12 @@ export default function AgentDashboard() {
           <div className="flex gap-3">
             <button
               onClick={() => router.push("/agent/referrals")}
-              className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center"
+              className="px-6 py-3 text-white rounded-xl transition-all duration-300 flex items-center bg-gold-500"
             >
               <Users className="h-5 w-5 mr-2" />
               View Referrals
             </button>
-            <button className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center">
+            <button className="px-6 py-3 text-white rounded-xl transition-all duration-300 flex items-center bg-gold-500">
               <Plus className="h-5 w-5 mr-2" />
               Add Producer
             </button>
@@ -225,7 +225,7 @@ export default function AgentDashboard() {
                   {stats.totalProducers}
                 </p>
               </div>
-              <Users className="h-8 w-8 text-blue-400" />
+              <Users className="h-8 w-8 text-gray-700" />
             </div>
           </div>
 
@@ -237,7 +237,7 @@ export default function AgentDashboard() {
                   {stats.activeSubscriptions}
                 </p>
               </div>
-              <CheckCircle className="h-8 w-8 text-blue-400" />
+              <CheckCircle className="h-8 w-8 text-gray-700" />
             </div>
           </div>
 
@@ -249,7 +249,7 @@ export default function AgentDashboard() {
                   {stats.totalEarnings.toLocaleString()} RWF
                 </p>
               </div>
-              <DollarSign className="h-8 w-8 text-blue-400" />
+              <DollarSign className="h-8 w-8 text-gray-700" />
             </div>
           </div>
 
@@ -261,7 +261,7 @@ export default function AgentDashboard() {
                   {stats.expiringSoon}
                 </p>
               </div>
-              <AlertCircle className="h-8 w-8 text-cyan-400" />
+              <AlertCircle className="h-8 w-8 text-gray-500" />
             </div>
           </div>
         </div>
@@ -275,7 +275,7 @@ export default function AgentDashboard() {
               placeholder="Search producers by name, business, or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+              className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gold-500/20"
             />
           </div>
 
@@ -284,7 +284,7 @@ export default function AgentDashboard() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as any)}
-              className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-blue-500 appearance-none"
+              className="pl-10 pr-8 py-3 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-gray-400 appearance-none"
             >
               <option value="all">All Producers</option>
               <option value="active">Active</option>
@@ -307,7 +307,7 @@ export default function AgentDashboard() {
                   <h3 className="text-lg font-semibold text-white mb-1">
                     {producer.fullName}
                   </h3>
-                  <p className="text-blue-300 text-sm font-medium mb-2">
+                  <p className="text-gray-500 text-sm font-medium mb-2">
                     {producer.businessName}
                   </p>
                   <p className="text-gray-400 text-sm">{producer.email}</p>
@@ -350,8 +350,8 @@ export default function AgentDashboard() {
                   </div>
                 ) : (
                   <div className="text-center py-4">
-                    <AlertCircle className="h-8 w-8 text-cyan-400 mx-auto mb-2" />
-                    <p className="text-cyan-300 text-sm">
+                    <AlertCircle className="h-8 w-8 text-gray-500 mx-auto mb-2" />
+                    <p className="text-gray-500 text-sm">
                       No active subscription
                     </p>
                   </div>
@@ -382,7 +382,7 @@ export default function AgentDashboard() {
                     onClick={() =>
                       router.push(`/agent/producers/${producer.id}/renew`)
                     }
-                    className="flex-1 py-2 px-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300 flex items-center justify-center text-sm"
+                    className="flex-1 py-2 px-4 text-white rounded-xl transition-all duration-300 flex items-center justify-center text-sm bg-gold-500"
                   >
                     <CreditCard className="h-4 w-4 mr-2" />
                     {producer.subscription ? "Renew" : "Subscribe"}

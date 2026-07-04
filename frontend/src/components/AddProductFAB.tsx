@@ -27,8 +27,8 @@ export default function AddProductFAB() {
         aria-label="Add product"
       >
         <div className="relative">
-          <div className="absolute -inset-2 rounded-full bg-gradient-to-r from-blue-500/25 via-blue-500/25 to-blue-500/25 blur-xl opacity-60 group-hover:opacity-90 transition" />
-          <button className="relative inline-flex items-center gap-2 px-5 py-3 rounded-full text-white shadow-lg shadow-blue-500/20 bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 hover:from-blue-500 hover:via-blue-500 hover:to-blue-500 transition">
+          <div className="absolute -inset-2 rounded-full blur-xl opacity-60 group-hover:opacity-90 transition bg-gray-500/25" />
+          <button className="relative inline-flex items-center gap-2 px-5 py-3 rounded-full text-white transition bg-gold-600 hover:bg-gold-500">
             <Plus className="h-5 w-5" />
             <span className="hidden sm:block text-sm font-semibold">
               Add Product

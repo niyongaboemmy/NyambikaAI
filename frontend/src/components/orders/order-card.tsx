@@ -7,7 +7,16 @@ import {
 } from "@/components/custom-ui/card";
 import { Badge } from "@/components/custom-ui/badge";
 import { format } from "date-fns";
-import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Clock,
+  Check,
+  Settings,
+  Truck,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatPrice } from "@/lib/format";
 import { ProducerOrder } from "@/types/order";
@@ -15,39 +24,39 @@ import { ProducerOrder } from "@/types/order";
 const STATUS_CONFIG = {
   pending: {
     color:
-      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
+      "bg-gray-100/80 text-black dark:bg-gray-800/30 dark:text-white border border-gray-200 dark:border-gray-700/50",
     label: "Pending",
-    icon: "⏳",
+    icon: Clock,
   },
   confirmed: {
     color:
-      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
+      "bg-gray-100/80 text-black dark:bg-gray-800/30 dark:text-white border border-gray-200 dark:border-gray-700/50",
     label: "Confirmed",
-    icon: "✓",
+    icon: Check,
   },
   processing: {
     color:
-      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
+      "bg-gray-100/80 text-black dark:bg-gray-800/30 dark:text-white border border-gray-200 dark:border-gray-700/50",
     label: "Processing",
-    icon: "⚙️",
+    icon: Settings,
   },
   shipped: {
     color:
-      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
+      "bg-gray-100/80 text-black dark:bg-gray-800/30 dark:text-white border border-gray-200 dark:border-gray-700/50",
     label: "Shipped",
-    icon: "🚚",
+    icon: Truck,
   },
   delivered: {
     color:
-      "bg-blue-100/80 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400 border border-blue-200 dark:border-blue-800/50",
+      "bg-gray-100/80 text-black dark:bg-gray-800/30 dark:text-white border border-gray-200 dark:border-gray-700/50",
     label: "Delivered",
-    icon: "✓",
+    icon: Check,
   },
   cancelled: {
     color:
       "bg-red-100/80 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800/50",
     label: "Cancelled",
-    icon: "✕",
+    icon: X,
   },
 } as const;
 
@@ -96,7 +105,9 @@ export function OrderCard({
                   statusConfig.color
                 )}
               >
-                <span className="hidden sm:inline">{statusConfig.icon} </span>
+                <span className="hidden sm:inline-flex items-center">
+                  <statusConfig.icon className="h-3 w-3 mr-1" />
+                </span>
                 {statusConfig.label}
               </Badge>
             </div>
@@ -193,7 +204,9 @@ export function OrderCard({
                   )}
                   onClick={() => onStatusUpdate(status)}
                 >
-                  <span className="hidden sm:inline">{config.icon} </span>
+                  <span className="hidden sm:inline-flex items-center">
+                    <config.icon className="h-3 w-3 mr-1" />
+                  </span>
                   {config.label}
                 </Button>
               ))}

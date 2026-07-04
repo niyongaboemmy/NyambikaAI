@@ -6,7 +6,7 @@ export default function PaymentMethods() {
       name: "MTN MoMo",
       description: "Mobile Money",
       icon: Smartphone,
-      color: "bg-blue-500",
+      color: "bg-gold-500",
     },
     {
       name: "Airtel Money",
@@ -18,18 +18,18 @@ export default function PaymentMethods() {
       name: "PayPal",
       description: "International",
       icon: Wallet,
-      color: "bg-blue-500",
+      color: "bg-gold-500",
     },
     {
       name: "Bank Cards",
       description: "Visa, Mastercard",
       icon: CreditCard,
-      color: "bg-blue-500",
+      color: "bg-gold-500",
     },
   ];
 
   return (
-    <section className="py-20 px-4 md:px-6 bg-gradient-to-br from-slate-100 to-white dark:from-slate-800 dark:to-background">
+    <section className="py-20 px-4 md:px-6 bg-slate-100 dark:bg-slate-800">
       <div className=" ">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-6 gradient-text">

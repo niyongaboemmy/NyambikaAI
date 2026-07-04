@@ -53,7 +53,7 @@ export function OrderConfirmationButton({
       <Button
         variant="outline"
         disabled
-        className="bg-blue-50 border-blue-200 text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300"
+        className="bg-gray-50 border-gray-200 text-gray-900 dark:bg-gray-800/20 dark:border-gray-700 dark:text-gray-300"
       >
         <CheckCircle className="h-4 w-4 mr-2" />
         Order Confirmed
@@ -65,7 +65,7 @@ export function OrderConfirmationButton({
     <Button
       onClick={handleConfirmation}
       disabled={isLoading}
-      className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white"
+      className="text-white bg-gold-600 hover:bg-gold-700"
     >
       {isLoading ? (
         <>

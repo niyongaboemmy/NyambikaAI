@@ -82,7 +82,7 @@ export async function compressImage(
       error: "Compression failed, using original file",
     };
   } catch (error) {
-    console.error(`❌ Compression error:`, error);
+    console.error(`Compression error:`, error);
     return {
       file,
       originalSize,

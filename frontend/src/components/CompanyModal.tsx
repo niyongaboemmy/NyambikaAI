@@ -110,7 +110,7 @@ export default function CompanyModal() {
       }}
     >
       <DialogContent
-        className="max-w-2xl rounded-3xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 p-3 flex flex-col shadow-2xl"
+        className="max-w-2xl rounded-3xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 p-3 flex flex-col"
         style={{ maxHeight: "100dvh" }}
         onInteractOutside={(e) => {
           // Disallow dismiss while company is missing or loading
@@ -123,12 +123,12 @@ export default function CompanyModal() {
       >
         <DialogHeader className="relative px-2 md:px-3 mb-3">
           {/* AI-themed header decoration */}
-          {/* <div className="absolute -top-2 -right-2 w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+          {/* <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full flex items-center justify-center bg-gold-500">
             <Sparkles className="w-4 h-4 text-white" />
           </div> */}
 
-          <DialogTitle className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-            <Building2 className="w-5 h-5 text-blue-600" />
+          <DialogTitle className="flex items-center gap-2 text-xl font-semibold text-foreground">
+            <Building2 className="w-5 h-5 text-gray-900" />
             {isEdit ? "Edit Company Details" : "Set Up Your Company"}
           </DialogTitle>
           <DialogDescription className="text-gray-600 dark:text-gray-300 italic text-xs">
@@ -142,23 +142,23 @@ export default function CompanyModal() {
           <div className="px-3 absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm rounded-3xl flex items-center justify-center z-50">
             <div className="flex flex-col items-center gap-3">
               <div className="relative">
-                <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-                <div className="absolute inset-0 w-8 h-8 border-2 border-blue-200 dark:border-blue-800 rounded-full animate-pulse" />
+                <Loader2 className="w-8 h-8 text-gray-900 animate-spin" />
+                <div className="absolute inset-0 w-8 h-8 border-2 border-gray-200 dark:border-gray-700 rounded-full animate-pulse" />
               </div>
               <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {isEdit ? "Updating company..." : "Creating company..."}
               </p>
               <div className="flex gap-1">
                 <div
-                  className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gold-600 rounded-full animate-bounce"
                   style={{ animationDelay: "0ms" }}
                 />
                 <div
-                  className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gold-600 rounded-full animate-bounce"
                   style={{ animationDelay: "150ms" }}
                 />
                 <div
-                  className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"
+                  className="w-2 h-2 bg-gold-600 rounded-full animate-bounce"
                   style={{ animationDelay: "300ms" }}
                 />
               </div>
@@ -316,7 +316,7 @@ export default function CompanyModal() {
                 <Button
                   type="submit"
                   disabled={!isFormValid || isLoading}
-                  className="min-w-[140px] bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white font-medium transition-all duration-200 transform hover:scale-105"
+                  className="min-w-[140px] text-white font-medium transition-all duration-200 transform hover:scale-105 bg-gold-600 hover:bg-gold-700"
                 >
                   {isLoading ? (
                     <div className="flex items-center gap-2">

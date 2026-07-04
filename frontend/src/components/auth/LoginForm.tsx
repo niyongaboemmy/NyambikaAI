@@ -66,12 +66,12 @@ export default function LoginForm({
           animate={{ opacity: 1, y: 0 }}
           // transition={{ duration: 0.7 }}
         >
-          <Card className="relative backdrop-blur-xl bg-gradient-to-br from-white/95 via-blue-50/90 to-blue-50/85 dark:from-black/95 dark:via-blue-950/90 dark:to-black/85 border border-white/30 dark:border-gray-700/40 shadow-2xl shadow-blue-500/20 dark:shadow-blue-400/10 overflow-hidden rounded-3xl">
+          <Card className="relative backdrop-blur-xl border border-white/30 dark:border-gray-700/40 overflow-hidden rounded-3xl bg-white/95 dark:bg-black/95">
             {/* Animated AI-inspired background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {/* Primary animated gradient orb */}
               <motion.div
-                className="absolute -top-10 -right-10 w-32 h-32 bg-gradient-to-br from-blue-400/30 via-blue-400/25 to-cyan-400/20 rounded-full blur-2xl"
+                className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl bg-gray-400/30"
                 animate={{
                   x: [0, 20, 0],
                   y: [0, -15, 0],
@@ -86,7 +86,7 @@ export default function LoginForm({
 
               {/* Secondary animated gradient orb */}
               <motion.div
-                className="absolute -bottom-8 -left-8 w-24 h-24 bg-gradient-to-tr from-blue-400/25 via-blue-400/20 to-blue-400/15 rounded-full blur-xl"
+                className="absolute -bottom-8 -left-8 w-24 h-24 rounded-full blur-xl bg-gray-400/25"
                 animate={{
                   x: [0, -15, 0],
                   y: [0, 10, 0],
@@ -102,7 +102,7 @@ export default function LoginForm({
 
               {/* Neural network inspired dots */}
               <motion.div
-                className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/40 rounded-full"
+                className="absolute top-1/4 left-1/4 w-2 h-2 bg-gold-400/40 rounded-full"
                 animate={{
                   opacity: [0.4, 0.8, 0.4],
                   scale: [1, 1.2, 1],
@@ -114,7 +114,7 @@ export default function LoginForm({
                 }}
               />
               <motion.div
-                className="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-blue-400/40 rounded-full"
+                className="absolute top-3/4 right-1/3 w-1.5 h-1.5 bg-gold-400/40 rounded-full"
                 animate={{
                   opacity: [0.3, 0.7, 0.3],
                   scale: [1, 1.3, 1],
@@ -127,7 +127,7 @@ export default function LoginForm({
                 }}
               />
               <motion.div
-                className="absolute top-1/2 right-1/4 w-1 h-1 bg-cyan-400/40 rounded-full"
+                className="absolute top-1/2 right-1/4 w-1 h-1 bg-gold-300/40 rounded-full"
                 animate={{
                   opacity: [0.2, 0.6, 0.2],
                   scale: [1, 1.4, 1],
@@ -142,7 +142,7 @@ export default function LoginForm({
 
               {/* Subtle connecting lines for neural network effect */}
               <motion.div
-                className="absolute top-1/4 left-1/4 w-16 h-px bg-gradient-to-r from-blue-400/20 to-transparent"
+                className="absolute top-1/4 left-1/4 w-16 h-px bg-gray-400/20"
                 animate={{
                   opacity: [0.2, 0.4, 0.2],
                 }}
@@ -153,7 +153,7 @@ export default function LoginForm({
                 }}
               />
               <motion.div
-                className="absolute top-1/2 right-1/3 w-12 h-px bg-gradient-to-l from-blue-400/20 to-transparent rotate-45"
+                className="absolute top-1/2 right-1/3 w-12 h-px rotate-45 bg-gray-400/20"
                 animate={{
                   opacity: [0.1, 0.3, 0.1],
                 }}
@@ -171,7 +171,7 @@ export default function LoginForm({
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3, duration: 0.6 }}
               >
-                <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
+                <CardTitle className="text-3xl font-bold mb-2 text-foreground">
                   Welcome Back
                 </CardTitle>
                 <p className="text-gray-600 dark:text-gray-300 text-sm">
@@ -253,7 +253,7 @@ export default function LoginForm({
                   <div className="flex items-center justify-end">
                     <button
                       type="button"
-                      className="text-sm text-blue-600 hover:underline"
+                      className="text-sm text-gray-900 hover:underline"
                       onClick={onNavigateForgot}
                     >
                       Forgot password?
@@ -270,7 +270,7 @@ export default function LoginForm({
                   <Button
                     type="submit"
                     disabled={isActionLoading || submitting}
-                    className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                    className="w-full text-white text-lg py-3 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden bg-gold-500 hover:bg-gold-600"
                   >
                     {submitting ? (
                       <>
@@ -290,7 +290,7 @@ export default function LoginForm({
                         Sign In
                       </span>
                     )}
-                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-white/20" />
                   </Button>
                 </motion.div>
 
@@ -305,7 +305,7 @@ export default function LoginForm({
                     <span className="bg-white/90 dark:bg-gray-900/90 px-3 relative z-10 backdrop-blur-sm">
                       or continue with
                     </span>
-                    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent" />
+                    <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px bg-transparent dark:bg-gray-600" />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <Button
@@ -397,7 +397,7 @@ export default function LoginForm({
                     New to Nyambika?{" "}
                     <button
                       type="button"
-                      className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                      className="text-gray-900 dark:text-white hover:underline font-medium"
                       onClick={onNavigateRegister}
                     >
                       Create an account

@@ -11,7 +11,7 @@ export function LoadingIndicatorStyles() {
         left: 0;
         right: 0;
         height: 2px;
-        background: linear-gradient(90deg, #2563eb, #06b6d4);
+        background: #B58E41;
         transform: scaleX(0);
         transform-origin: left;
         z-index: 1000;
@@ -27,7 +27,7 @@ export function LoadingIndicatorStyles() {
         left: 0;
         right: 0;
         height: 2px;
-        background: linear-gradient(90deg, #2563eb, #06b6d4);
+        background: #B58E41;
         transform: scaleX(0);
         transform-origin: left;
         z-index: 1000;

@@ -378,7 +378,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     <CartContext.Provider value={value}>
       {children}
       {isSyncing && (
-        <div className="fixed top-2 right-3 z-50 flex items-center gap-2 rounded-full border bg-background/90 backdrop-blur px-3 py-1 shadow">
+        <div className="fixed top-2 right-3 z-50 flex items-center gap-2 rounded-full border bg-background/90 backdrop-blur px-3 py-1">
           <Loader2 className="h-4 w-4 animate-spin text-primary" />
           <span className="text-xs text-muted-foreground">Syncing cart…</span>
         </div>

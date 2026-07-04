@@ -10,27 +10,27 @@ export function AppLoader() {
         <div className="relative mb-8">
           <div className="w-20 h-20 mx-auto relative">
             {/* Main circle */}
-            <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 animate-spin">
+            <div className="absolute inset-0 rounded-full animate-spin bg-gold-500">
               <div className="absolute inset-2 rounded-full bg-white dark:bg-gray-900"></div>
             </div>
 
             {/* Center icon */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <Brain className="h-8 w-8 text-blue-500 animate-pulse" />
+              <Brain className="h-8 w-8 text-gray-800 animate-pulse" />
             </div>
 
             {/* Floating elements */}
-            <div className="absolute -top-2 -right-2 w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full animate-bounce" />
+            <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full animate-bounce bg-gold-400" />
             <div
-              className="absolute -bottom-2 -left-2 w-3 h-3 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full animate-bounce"
+              className="absolute -bottom-2 -left-2 w-3 h-3 rounded-full animate-bounce bg-gold-400"
               style={{ animationDelay: "0.5s" }}
             />
             <Sparkles
-              className="absolute -top-1 -left-1 h-3 w-3 text-blue-400 animate-pulse"
+              className="absolute -top-1 -left-1 h-3 w-3 text-gray-700 animate-pulse"
               style={{ animationDelay: "1s" }}
             />
             <Zap
-              className="absolute -bottom-1 -right-1 h-3 w-3 text-blue-400 animate-pulse"
+              className="absolute -bottom-1 -right-1 h-3 w-3 text-gray-700 animate-pulse"
               style={{ animationDelay: "1.5s" }}
             />
           </div>
@@ -38,7 +38,7 @@ export function AppLoader() {
 
         {/* Loading text */}
         <div className="space-y-2">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent">
+          <h2 className="text-xl font-bold text-foreground">
             Nyambika
           </h2>
           <p className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">
@@ -48,13 +48,13 @@ export function AppLoader() {
 
         {/* Progress dots */}
         <div className="flex justify-center space-x-2 mt-6">
-          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"></div>
           <div
-            className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+            className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
             style={{ animationDelay: "0.1s" }}
           ></div>
           <div
-            className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
+            className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"
             style={{ animationDelay: "0.2s" }}
           ></div>
         </div>

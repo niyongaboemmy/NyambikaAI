@@ -31,16 +31,16 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'pending':
-        return <AlertCircle className="h-5 w-5 text-cyan-400" />;
+        return <AlertCircle className="h-5 w-5 text-gray-500" />;
       case 'confirmed':
       case 'processing':
-        return <Package className="h-5 w-5 text-blue-400" />;
+        return <Package className="h-5 w-5 text-gray-700" />;
       case 'shipped':
-        return <Truck className="h-5 w-5 text-blue-400" />;
+        return <Truck className="h-5 w-5 text-gray-700" />;
       case 'delivered':
-        return <CheckCircle className="h-5 w-5 text-blue-400" />;
+        return <CheckCircle className="h-5 w-5 text-gray-700" />;
       case 'handled':
-        return <CheckCircle className="h-5 w-5 text-blue-400" />;
+        return <CheckCircle className="h-5 w-5 text-gray-700" />;
       default:
         return <AlertCircle className="h-5 w-5 text-gray-400" />;
     }
@@ -49,16 +49,16 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30';
+        return 'bg-gold-300/20 text-gray-500 border-gray-300/30';
       case 'confirmed':
       case 'processing':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        return 'bg-gold-500/20 text-gray-700 border-gray-400/30';
       case 'shipped':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        return 'bg-gold-500/20 text-gray-700 border-gray-400/30';
       case 'delivered':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        return 'bg-gold-500/20 text-gray-700 border-gray-400/30';
       case 'handled':
-        return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
+        return 'bg-gold-500/20 text-gray-700 border-gray-400/30';
       default:
         return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
     }
@@ -79,7 +79,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
         <div className="flex items-center">
           <div className={`w-3 h-3 rounded-full mr-4 ${
             ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'handled'].includes(order.status)
-              ? 'bg-blue-400' : 'bg-gray-400'
+              ? 'bg-gold-400' : 'bg-gray-400'
           }`}></div>
           <div>
             <p className="text-white font-medium">Order Placed</p>
@@ -90,7 +90,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
         <div className="flex items-center">
           <div className={`w-3 h-3 rounded-full mr-4 ${
             ['confirmed', 'processing', 'shipped', 'delivered', 'handled'].includes(order.status)
-              ? 'bg-blue-400' : 'bg-gray-400'
+              ? 'bg-gold-400' : 'bg-gray-400'
           }`}></div>
           <div>
             <p className="text-white font-medium">Order Confirmed</p>
@@ -101,7 +101,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
         <div className="flex items-center">
           <div className={`w-3 h-3 rounded-full mr-4 ${
             ['processing', 'shipped', 'delivered', 'handled'].includes(order.status)
-              ? 'bg-blue-400' : 'bg-gray-400'
+              ? 'bg-gold-400' : 'bg-gray-400'
           }`}></div>
           <div>
             <p className="text-white font-medium">Processing</p>
@@ -112,7 +112,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
         <div className="flex items-center">
           <div className={`w-3 h-3 rounded-full mr-4 ${
             ['shipped', 'delivered', 'handled'].includes(order.status)
-              ? 'bg-blue-400' : 'bg-gray-400'
+              ? 'bg-gold-400' : 'bg-gray-400'
           }`}></div>
           <div>
             <p className="text-white font-medium">Shipped</p>
@@ -125,7 +125,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
         <div className="flex items-center">
           <div className={`w-3 h-3 rounded-full mr-4 ${
             ['delivered', 'handled'].includes(order.status)
-              ? 'bg-blue-400' : 'bg-gray-400'
+              ? 'bg-gold-400' : 'bg-gray-400'
           }`}></div>
           <div>
             <p className="text-white font-medium">Delivered</p>
@@ -135,7 +135,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
 
         {order.isConfirmedByCustomer && (
           <div className="flex items-center">
-            <div className="w-3 h-3 rounded-full mr-4 bg-blue-400"></div>
+            <div className="w-3 h-3 rounded-full mr-4 bg-gold-400"></div>
             <div>
               <p className="text-white font-medium">Confirmed by Customer</p>
               <p className="text-gray-400 text-sm">
@@ -149,12 +149,12 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
       {/* Confirmation Button */}
       {canConfirmReceipt && (
         <div className="border-t border-white/10 pt-6">
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+          <div className="bg-gold-500/10 border border-gray-400/30 rounded-xl p-4 mb-4">
             <div className="flex items-start">
-              <CheckCircle className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+              <CheckCircle className="h-5 w-5 text-gray-700 mr-3 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="text-blue-300 font-medium mb-1">Order Delivered!</h4>
-                <p className="text-blue-200 text-sm">
+                <h4 className="text-gray-500 font-medium mb-1">Order Delivered!</h4>
+                <p className="text-gray-500 text-sm">
                   Please confirm that you have received your order in good condition.
                 </p>
               </div>
@@ -164,7 +164,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
           <button
             onClick={() => setShowConfirmDialog(true)}
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300 disabled:opacity-50"
+            className="w-full py-3 text-white font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 bg-gold-500"
           >
             {loading ? 'Processing...' : 'Confirm Receipt'}
           </button>
@@ -196,7 +196,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
                   >
                     <Star
                       className={`h-6 w-6 ${
-                        star <= rating ? 'text-blue-400 fill-current' : 'text-gray-400'
+                        star <= rating ? 'text-gray-700 fill-current' : 'text-gray-400'
                       }`}
                     />
                   </button>
@@ -214,7 +214,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
                 onChange={(e) => setFeedback(e.target.value)}
                 placeholder="Share your experience with this order..."
                 rows={3}
-                className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-400"
               />
             </div>
 
@@ -227,7 +227,7 @@ export default function OrderConfirmation({ order, onConfirmReceipt, loading = f
               </button>
               <button
                 onClick={handleConfirmReceipt}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-blue-700 text-white rounded-xl hover:shadow-lg transition-all duration-300"
+                className="flex-1 py-3 text-white rounded-xl transition-all duration-300 bg-gold-500"
               >
                 Confirm Receipt
               </button>

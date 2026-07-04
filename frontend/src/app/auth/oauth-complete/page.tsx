@@ -75,7 +75,7 @@ export default function OAuthCompletePage() {
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="text-center p-6 rounded-2xl bg-white/70 dark:bg-gray-900/60 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl shadow-lg">
+      <div className="text-center p-6 rounded-2xl bg-white/70 dark:bg-gray-900/60 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl">
         {/* Immediate inline script to ensure auto-login and redirect even before hydration */}
         <script
           dangerouslySetInnerHTML={{
@@ -83,13 +83,13 @@ export default function OAuthCompletePage() {
               "(function(){try{if(typeof window==='undefined')return;var H=window.location.hash;var S=window.location.search;var m=H&&H.match(/token=([^&]+)/);if(m){var t=decodeURIComponent(m[1]);localStorage.setItem('auth_token', t);var r=new URLSearchParams(S).get('redirect')||'/';window.location.replace(r);} }catch(e){console.error('early oauth-complete script failed',e);}})();",
           }}
         />
-        <div className="animate-spin inline-block h-6 w-6 border-2 border-current border-t-transparent rounded-full text-blue-500 mr-2 align-[-2px]" />
+        <div className="animate-spin inline-block h-6 w-6 border-2 border-current border-t-transparent rounded-full text-gray-800 mr-2 align-[-2px]" />
         <div className="mb-2 text-sm text-gray-700 dark:text-gray-300">
           {status}
         </div>
         <button
           onClick={manualContinue}
-          className="mt-2 px-3 py-1.5 text-sm rounded-md bg-blue-600 text-white hover:bg-blue-700"
+          className="mt-2 px-3 py-1.5 text-sm rounded-md bg-gold-600 text-white hover:bg-gold-700"
         >
           Continue
         </button>

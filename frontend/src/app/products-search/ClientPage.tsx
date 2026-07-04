@@ -13,6 +13,7 @@ import {
   RefreshCw,
   ShoppingBag,
   Loader2,
+  Package,
 } from "lucide-react";
 
 import { apiClient, API_ENDPOINTS } from "@/config/api";
@@ -42,6 +43,23 @@ function useDebounce<T>(value: T, delay: number): T {
 // Utility function for class names
 function cn(...classes: (string | undefined | null | boolean)[]): string {
   return classes.filter(Boolean).join(" ");
+}
+
+// Curated warm gradient set for category/brand fallback tiles (no image yet)
+const BRAND_GRADIENTS = [
+  "from-gold-400 to-gold-600",
+  "from-gold-500 to-[#8F6F30]",
+  "from-[#C9A227] to-[#6B5423]",
+  "from-gold-300 to-gold-500",
+  "from-[#8F6F30] to-[#3D2F14]",
+];
+
+function pickBrandGradient(seed: string) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return BRAND_GRADIENTS[hash % BRAND_GRADIENTS.length];
 }
 
 type SortOption = "newest" | "price-asc" | "price-desc" | "popular";
@@ -155,7 +173,7 @@ function SortDropdown({
         />
       </Button>
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg animate-fade-in">
+        <div className="absolute top-full left-0 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md animate-fade-in">
           {sortOptions.map((option) => (
             <button
               key={option.value}
@@ -308,7 +326,7 @@ export default function ClientProductsSearchPage() {
     });
 
     console.log(
-      "📊 Total products after deduplication and sorting:",
+      "Total products after deduplication and sorting:",
       sortedProducts.length
     );
     return sortedProducts;
@@ -423,7 +441,7 @@ export default function ClientProductsSearchPage() {
   // Show error state
   if ((categoriesError || productsError) && !productsPages) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+      <div className="min-h-screen bg-gold-50 dark:bg-gray-900">
         <div className="container mx-auto px-4 py-8">
           <ErrorFallback
             error={new Error("Failed to load products")}
@@ -449,15 +467,15 @@ export default function ClientProductsSearchPage() {
           </Button>
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative">
-              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-500 via-blue-600 to-blue-500 flex items-center justify-center shadow-lg animate-pulse">
+              <div className="w-8 h-8 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center animate-pulse bg-gold-500">
                 <ShoppingBag className="h-3.5 w-3.5 sm:h-5 sm:w-5 text-white" />
               </div>
-              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full border border-white dark:border-gray-900 animate-bounce">
+              <div className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 w-3 h-3 sm:w-4 sm:h-4 rounded-full border border-white dark:border-gray-900 animate-bounce bg-gold-400">
                 <Sparkles className="h-1.5 w-1.5 sm:h-2 sm:w-2 text-white ml-0.5 mt-0.5" />
               </div>
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent truncate">
+              <h1 className="text-lg sm:text-2xl font-bold truncate text-foreground">
                 {t("search.title")}
               </h1>
               <div className="hidden md:inline-block text-xs sm:text-sm text-gray-600 dark:text-gray-400 w-full">
@@ -472,12 +490,12 @@ export default function ClientProductsSearchPage() {
           {/* Enhanced search stats with animation */}
           {debouncedSearchQuery && (
             <div className="mt-4 text-center animate-slide-up">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 border border-blue-200/50 dark:border-blue-700/50 rounded-2xl backdrop-blur-sm">
-                <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full animate-spin" />
-                <span className="text-sm font-medium bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-400 bg-clip-text text-transparent">
+              <div className="inline-flex items-center gap-2 px-4 py-2 border border-gray-200/50 dark:border-gray-700/50 rounded-2xl backdrop-blur-sm bg-gold-50 dark:bg-gray-900/20">
+                <div className="w-3 h-3 rounded-full animate-spin bg-gold-500" />
+                <span className="text-sm font-medium text-foreground">
                   {t("search.searchingFor")} "{debouncedSearchQuery}"
                 </span>
-                <Sparkles className="h-4 w-4 text-blue-500 animate-pulse" />
+                <Sparkles className="h-4 w-4 text-gray-800 animate-pulse" />
               </div>
             </div>
           )}
@@ -505,23 +523,21 @@ export default function ClientProductsSearchPage() {
                 <div
                   className={`flex-shrink-0 w-24 sm:w-28 aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 touch-manipulation relative group ${
                     selectedCategoryId === "all"
-                      ? "ring-4 ring-offset-2 ring-blue-500 shadow-2xl transform"
-                      : "hover:shadow-lg hover:scale-102"
+                      ? "ring-4 ring-offset-2 ring-gold-500 transform"
+                      : "hover:scale-102"
                   }`}
                   onClick={() => handleCategoryChange("all")}
                 >
-                  {/* Background with gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500 via-blue-600 to-blue-500">
-                    <div className="absolute inset-0 bg-black/20" />
-                  </div>
+                  {/* Warm gold gradient background */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gold-400 to-gold-600" />
 
-                  {/* Floating emoji icon */}
-                  <div className="absolute top-2 left-2 text-xl sm:text-2xl animate-bounce">
-                    🛍️
+                  {/* Floating icon */}
+                  <div className="absolute top-2 left-2 animate-bounce">
+                    <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
 
                   {/* Floating title */}
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/70 to-transparent pt-6">
                     <h3 className="text-white font-bold text-xs sm:text-sm truncate">
                       {t("search.allProducts")}
                     </h3>
@@ -532,8 +548,8 @@ export default function ClientProductsSearchPage() {
 
                   {/* Selection indicator */}
                   {selectedCategoryId === "all" && (
-                    <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                      <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                    <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center animate-pulse">
+                      <div className="w-2.5 h-2.5 bg-gold-500 rounded-full" />
                     </div>
                   )}
                 </div>
@@ -554,11 +570,11 @@ export default function ClientProductsSearchPage() {
                     <div
                       className={`relative rounded-2xl transition-all duration-300 ${
                         selectedCategoryId === category.id
-                          ? "p-1 bg-gradient-to-r from-blue-500 via-blue-600 to-blue-500 shadow-2xl"
+                          ? "p-1 bg-gold-500"
                           : "p-0"
                       }`}
                     >
-                      <div className="w-24 sm:w-28 aspect-[3/4] rounded-2xl overflow-hidden relative group hover:shadow-lg transition-all duration-300">
+                      <div className="w-24 sm:w-28 aspect-[3/4] rounded-2xl overflow-hidden relative group transition-all duration-300">
                         {/* Background Image */}
                         <div className="absolute inset-0">
                           {category.imageUrl ? (
@@ -568,15 +584,20 @@ export default function ClientProductsSearchPage() {
                                 alt={category.name}
                                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                               />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                              {/* Legibility gradient: clear at top, dark only at bottom */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                             </>
                           ) : (
                             <>
-                              <div className="w-full h-full bg-gradient-to-br from-gray-200 via-gray-300 to-gray-400 dark:from-gray-700 dark:via-gray-600 dark:to-gray-500" />
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/20 to-transparent" />
-                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-2xl sm:text-3xl opacity-60">
-                                📦
+                              <div
+                                className={`w-full h-full bg-gradient-to-br ${pickBrandGradient(
+                                  category.name || String(category.id)
+                                )}`}
+                              />
+                              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-90">
+                                <Package className="h-8 w-8 sm:h-9 sm:w-9 text-white" />
                               </div>
+                              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 to-transparent" />
                             </>
                           )}
                         </div>
@@ -587,7 +608,7 @@ export default function ClientProductsSearchPage() {
                         </div>
 
                         {/* Floating title */}
-                        <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/90 via-black/50 to-transparent">
+                        <div className="absolute bottom-0 left-0 right-0 p-2">
                           <h3 className="text-white font-bold text-xs sm:text-sm truncate">
                             {category.name}
                           </h3>
@@ -600,13 +621,13 @@ export default function ClientProductsSearchPage() {
 
                         {/* Selection indicator */}
                         {selectedCategoryId === category.id && (
-                          <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg animate-pulse">
-                            <div className="w-2.5 h-2.5 bg-blue-500 rounded-full" />
+                          <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center animate-pulse">
+                            <div className="w-2.5 h-2.5 bg-gold-500 rounded-full" />
                           </div>
                         )}
 
                         {/* Hover overlay */}
-                        <div className="absolute inset-0 bg-blue-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 bg-gold-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       </div>
                     </div>
                   </div>
@@ -618,12 +639,12 @@ export default function ClientProductsSearchPage() {
 
         {/* Modern Lightweight Filter Bar - Sticky */}
         <div className="mb-4 sm:mb-6 z-10">
-          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl shadow-sm">
+          <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-2xl">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 p-2 sm:p-2 pl-2 md:pl-4">
               {/* Left side - Product count and filters */}
               <div className="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gradient-to-r from-blue-500 to-blue-700"></div>
+                  <div className="w-1.5 h-1.5 rounded-full bg-gold-500"></div>
                   <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">
                     {products.length}
                   </span>
@@ -635,16 +656,16 @@ export default function ClientProductsSearchPage() {
                 </div>
 
                 {selectedCategoryId !== "all" && (
-                  <div className="flex items-center gap-1 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/30 border border-blue-200/50 dark:border-blue-700/50 px-2 sm:px-3 py-1 rounded-full">
-                    <span className="text-xs font-medium text-blue-700 dark:text-blue-300 truncate max-w-[80px] sm:max-w-[120px]">
+                  <div className="flex items-center gap-1 border border-gray-200/50 dark:border-gray-700/50 px-2 sm:px-3 py-1 rounded-full bg-gold-50 dark:bg-gray-900/30">
+                    <span className="text-xs font-medium text-gray-900 dark:text-gray-300 truncate max-w-[80px] sm:max-w-[120px]">
                       {categories.find((c) => c.id === selectedCategoryId)
                         ?.name || t("search.category")}
                     </span>
                     <button
                       onClick={() => handleCategoryChange("all")}
-                      className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-blue-200/50 dark:hover:bg-blue-800/50 transition-colors touch-manipulation"
+                      className="ml-1 w-4 h-4 flex items-center justify-center rounded-full hover:bg-gray-200/50 dark:hover:bg-gold-800/50 transition-colors touch-manipulation"
                     >
-                      <X className="h-2.5 w-2.5 text-blue-600 dark:text-blue-400" />
+                      <X className="h-2.5 w-2.5 text-gray-900 dark:text-white" />
                     </button>
                   </div>
                 )}
@@ -692,7 +713,7 @@ export default function ClientProductsSearchPage() {
                 {products.map((product, index) => (
                   <div
                     key={product.id}
-                    className="animate-fade-in touch-feedback transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                    className="animate-fade-in touch-feedback transform transition-all duration-300 hover:scale-105"
                     style={{
                       animationDelay: `${index * 50}ms`,
                     }}
@@ -718,9 +739,9 @@ export default function ClientProductsSearchPage() {
                 {isFetchingNextPage ? (
                   <div className="flex flex-col items-center gap-3 animate-pulse">
                     <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                      <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                      <div className="w-2 h-2 bg-gold-500 rounded-full animate-bounce"></div>
                     </div>
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider uppercase">
                       {t("search.loadingMore")}
@@ -728,9 +749,9 @@ export default function ClientProductsSearchPage() {
                   </div>
                 ) : !hasNextPage && products.length > 0 ? (
                   <div className="flex flex-col items-center gap-2 py-4">
-                    <div className="h-px w-24 bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-700 to-transparent mb-2" />
+                    <div className="h-px w-24 mb-2 bg-transparent dark:bg-gray-700" />
                     <p className="text-sm text-gray-500 dark:text-gray-400 font-medium italic">
-                      {t("search.reachedEnd") || "You've reached the end"} ✨
+                      {t("search.reachedEnd") || "You've reached the end"}
                     </p>
                   </div>
                 ) : null}
@@ -738,7 +759,7 @@ export default function ClientProductsSearchPage() {
             </>
           ) : (
             <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
-              <div className="bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-full p-8 mb-6 shadow-inner">
+              <div className="rounded-full p-8 mb-6 bg-gray-100 dark:bg-gray-800">
                 <Search className="h-16 w-16 text-gray-400 animate-pulse" />
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
@@ -803,15 +824,6 @@ export default function ClientProductsSearchPage() {
           }
         }
 
-        @keyframes shimmer {
-          0% {
-            background-position: -200px 0;
-          }
-          100% {
-            background-position: calc(200px + 100%) 0;
-          }
-        }
-
         @keyframes bounce-in {
           0% {
             opacity: 0;
@@ -845,17 +857,6 @@ export default function ClientProductsSearchPage() {
 
         .animate-pulse {
           animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        .animate-shimmer {
-          background: linear-gradient(
-            90deg,
-            #f0f0f0 0px,
-            #e0e0e0 40px,
-            #f0f0f0 80px
-          );
-          background-size: 200px;
-          animation: shimmer 1.5s ease-in-out infinite;
         }
 
         /* Enhanced mobile optimizations */
@@ -944,26 +945,15 @@ export default function ClientProductsSearchPage() {
           transform: translateY(-2px);
         }
 
-        /* Loading states with better animations */
+        /* Loading states */
         .loading-skeleton {
-          background: linear-gradient(
-            90deg,
-            rgba(240, 240, 240, 0.8) 25%,
-            rgba(224, 224, 224, 0.8) 50%,
-            rgba(240, 240, 240, 0.8) 75%
-          );
-          background-size: 200% 100%;
-          animation: shimmer 1.8s infinite;
+          background: rgba(232, 232, 232, 0.8);
+          animation: pulse 1.8s ease-in-out infinite;
         }
 
         /* Dark mode loading skeleton */
         .dark .loading-skeleton {
-          background: linear-gradient(
-            90deg,
-            rgba(55, 65, 81, 0.8) 25%,
-            rgba(75, 85, 99, 0.8) 50%,
-            rgba(55, 65, 81, 0.8) 75%
-          );
+          background: rgba(65, 75, 89, 0.8);
         }
 
         /* Gradient animations */
@@ -1011,7 +1001,7 @@ export default function ClientProductsSearchPage() {
 
         /* Focus states for accessibility */
         .focus-ring:focus {
-          outline: 2px solid #3b82f6;
+          outline: 2px solid #B58E41;
           outline-offset: 2px;
         }
 
@@ -1021,7 +1011,6 @@ export default function ClientProductsSearchPage() {
           .animate-slide-up,
           .animate-bounce-in,
           .animate-pulse,
-          .animate-shimmer,
           .smooth-transition,
           .touch-feedback {
             animation: none;

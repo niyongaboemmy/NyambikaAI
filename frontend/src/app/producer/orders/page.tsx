@@ -130,7 +130,7 @@ export default function ProducerOrdersPage() {
               {orders.map((order: any) => (
                 <Card
                   key={order.id}
-                  className="hover:shadow-md transition-shadow"
+                  className="transition-shadow"
                 >
                   <CardHeader className="pb-2">
                     <div className="flex justify-between items-start">

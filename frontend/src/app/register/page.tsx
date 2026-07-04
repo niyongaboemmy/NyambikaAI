@@ -346,21 +346,9 @@ export default function Register() {
     <div className="relative overflow-hidden pt-10">
       {/* Modern AI-Inspired Background */}
       <div className="fixed inset-0 pointer-events-none">
-        {/* Neural network grid */}
-        <div className="absolute inset-0 opacity-20">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `radial-gradient(circle at 25px 25px, rgba(99, 102, 241, 0.3) 2px, transparent 0),
-                             radial-gradient(circle at 75px 75px, rgba(168, 85, 247, 0.3) 2px, transparent 0)`,
-              backgroundSize: "100px 100px",
-            }}
-          />
-        </div>
-
         {/* Floating AI nodes */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full shadow-lg shadow-blue-400/50"
+          className="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-gold-400"
           animate={{
             y: [0, -30, 0],
             x: [0, 20, 0],
@@ -374,7 +362,7 @@ export default function Register() {
           }}
         />
         <motion.div
-          className="absolute top-3/4 right-1/4 w-3 h-3 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full shadow-lg shadow-blue-400/50"
+          className="absolute top-3/4 right-1/4 w-3 h-3 rounded-full bg-gold-400"
           animate={{
             y: [0, 25, 0],
             x: [0, -15, 0],
@@ -389,7 +377,7 @@ export default function Register() {
           }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/6 w-2 h-2 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full shadow-lg shadow-blue-400/50"
+          className="absolute top-1/2 left-1/6 w-2 h-2 rounded-full bg-gold-400"
           animate={{
             y: [0, -20, 0],
             x: [0, 30, 0],
@@ -406,7 +394,7 @@ export default function Register() {
 
         {/* Connecting lines */}
         <motion.div
-          className="absolute top-1/4 left-1/4 w-32 h-px bg-gradient-to-r from-blue-400/40 to-transparent"
+          className="absolute top-1/4 left-1/4 w-32 h-px bg-gray-400/40"
           animate={{
             opacity: [0.2, 0.6, 0.2],
             scaleX: [0.8, 1.2, 0.8],
@@ -418,7 +406,7 @@ export default function Register() {
           }}
         />
         <motion.div
-          className="absolute top-1/2 right-1/3 w-24 h-px bg-gradient-to-l from-blue-400/40 to-transparent rotate-45"
+          className="absolute top-1/2 right-1/3 w-24 h-px rotate-45 bg-gray-400/40"
           animate={{
             opacity: [0.3, 0.7, 0.3],
             scaleX: [0.9, 1.1, 0.9],
@@ -433,7 +421,7 @@ export default function Register() {
 
         {/* Large ambient orbs */}
         <motion.div
-          className="absolute -top-32 -right-32 w-96 h-96 bg-gradient-to-br from-blue-500/10 via-blue-500/10 to-blue-500/10 rounded-full blur-3xl"
+          className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-3xl bg-gray-500/10"
           animate={{
             scale: [1, 1.1, 1],
             opacity: [0.3, 0.5, 0.3],
@@ -445,7 +433,7 @@ export default function Register() {
           }}
         />
         <motion.div
-          className="absolute -bottom-32 -left-32 w-80 h-80 bg-gradient-to-tr from-blue-500/10 via-blue-500/10 to-cyan-500/10 rounded-full blur-3xl"
+          className="absolute -bottom-32 -left-32 w-80 h-80 rounded-full blur-3xl bg-gray-500/10"
           animate={{
             scale: [1, 0.9, 1],
             opacity: [0.4, 0.6, 0.4],
@@ -467,14 +455,14 @@ export default function Register() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Card className="rounded-3xl md:max-w-screen-md mx-auto backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/20 dark:border-gray-700/30 shadow-2xl shadow-blue-500/10 dark:shadow-blue-400/5">
+              <Card className="rounded-3xl md:max-w-screen-md mx-auto backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/20 dark:border-gray-700/30">
                 <CardHeader className="text-center relative">
                   <motion.div
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.2, duration: 0.5 }}
                   >
-                    <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 dark:from-blue-400 dark:via-blue-400 dark:to-blue-400 bg-clip-text text-transparent mb-2">
+                    <CardTitle className="text-3xl font-bold mb-2 text-foreground">
                       Join Nyambika
                     </CardTitle>
                     <p className="text-gray-600 dark:text-gray-300 text-sm">
@@ -490,7 +478,7 @@ export default function Register() {
                   >
                     {/* Enhanced Step indicator */}
                     <motion.div
-                      className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50/50 via-blue-50/50 to-blue-50/50 dark:from-blue-900/20 dark:via-blue-900/20 dark:to-blue-900/20 rounded-xl border dark:border-none border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm"
+                      className="flex items-center gap-3 p-3 rounded-xl border dark:border-none border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm bg-gray-50/50 dark:bg-gray-900/20"
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.3 }}
@@ -507,11 +495,11 @@ export default function Register() {
                         </Button>
                       )}
                       <div className="flex-1">
-                        <div className="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 dark:from-blue-400 dark:to-blue-400 bg-clip-text text-transparent flex items-center gap-2">
+                        <div className="text-lg font-bold flex items-center gap-2 text-foreground">
                           {formData.role === "customer" ? (
-                            <ShoppingBag className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            <ShoppingBag className="h-5 w-5 text-gray-900 dark:text-white" />
                           ) : (
-                            <Factory className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                            <Factory className="h-5 w-5 text-gray-900 dark:text-white" />
                           )}
                           <span className="text-black dark:text-white">
                             {formData.role === "customer"
@@ -530,7 +518,7 @@ export default function Register() {
                     {/* Enhanced Progress (Step 2 only) */}
                     {step === 2 && (
                       <motion.div
-                        className="space-y-3 p-3 bg-gradient-to-r from-blue-50/50 via-blue-50/50 to-blue-50/50 dark:from-blue-900/20 dark:via-blue-900/20 dark:to-blue-900/20 rounded-xl border dark:border-none border-blue-200/30 dark:border-blue-700/30 backdrop-blur-sm"
+                        className="space-y-3 p-3 rounded-xl border dark:border-none border-gray-200/30 dark:border-gray-700/30 backdrop-blur-sm bg-gray-50/50 dark:bg-gray-900/20"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.4 }}
@@ -539,14 +527,14 @@ export default function Register() {
                           <span className="font-medium text-gray-700 dark:text-gray-300">
                             Setup Progress
                           </span>
-                          <span className="font-bold text-blue-600 dark:text-blue-400">
+                          <span className="font-bold text-gray-900 dark:text-white">
                             {progressPct}%
                           </span>
                         </div>
                         <div className="relative">
                           <Progress value={progressPct} className="h-2" />
                           <motion.div
-                            className="absolute top-0 left-0 h-2 bg-gradient-to-r from-blue-400 via-blue-400 to-blue-400 rounded-full"
+                            className="absolute top-0 left-0 h-2 rounded-full bg-gold-400"
                             initial={{ width: 0 }}
                             animate={{ width: `${progressPct}%` }}
                             transition={{ duration: 0.8, ease: "easeOut" }}
@@ -571,19 +559,19 @@ export default function Register() {
                           <TabsList className="grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-1">
                             <TabsTrigger
                               value="customer"
-                              className="px-3 py-2 text-sm bg-secondary data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-full transition-colors hover:bg-blue-500 hover:text-white"
+                              className="px-3 py-2 text-sm bg-secondary data-[state=active]:bg-gold-600 data-[state=active]:text-white rounded-full transition-colors hover:bg-gold-500 hover:text-white"
                             >
                               Customer
                             </TabsTrigger>
                             <TabsTrigger
                               value="producer"
-                              className="px-3 py-2 text-sm bg-secondary data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-full transition-colors hover:bg-blue-500 hover:text-white"
+                              className="px-3 py-2 text-sm bg-secondary data-[state=active]:bg-gold-600 data-[state=active]:text-white rounded-full transition-colors hover:bg-gold-500 hover:text-white"
                             >
                               Producer
                             </TabsTrigger>
                             <TabsTrigger
                               value="agent"
-                              className="px-3 py-2 text-sm bg-secondary data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-sm rounded-full transition-colors hover:bg-blue-500 hover:text-white"
+                              className="px-3 py-2 text-sm bg-secondary data-[state=active]:bg-gold-600 data-[state=active]:text-white rounded-full transition-colors hover:bg-gold-500 hover:text-white"
                             >
                               Agent
                             </TabsTrigger>
@@ -597,15 +585,15 @@ export default function Register() {
                               </div>
                               <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Personalized size guidance
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   AI virtual try-on
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Secure Mobile Money checkout
                                 </li>
                               </ul>
@@ -618,15 +606,15 @@ export default function Register() {
                               </div>
                               <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Manage products and orders
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Analytics & insights
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Payouts to Mobile Money
                                 </li>
                               </ul>
@@ -639,15 +627,15 @@ export default function Register() {
                               </div>
                               <ul className="grid grid-cols-1 gap-1 sm:grid-cols-2">
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Manage producer subscriptions
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Earn 40% commission on payments
                                 </li>
                                 <li className="flex items-center gap-2 text-muted-foreground">
-                                  <Check className="h-3.5 w-3.5 text-blue-600" />{" "}
+                                  <Check className="h-3.5 w-3.5 text-gray-900" />{" "}
                                   Mobile Money payment processing
                                 </li>
                               </ul>
@@ -674,13 +662,13 @@ export default function Register() {
                           >
                             <Button
                               type="button"
-                              className="w-full text-white py-3 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 relative overflow-hidden"
+                              className="w-full text-white py-3 transition-all duration-300 relative overflow-hidden bg-gold-500 hover:bg-gold-600"
                               onClick={() => setStep(2)}
                             >
                               <span className="relative z-10 flex items-center justify-center gap-2">
                                 Continue
                               </span>
-                              <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                              <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-white/20" />
                             </Button>
                           </motion.div>
                           <p className="mt-2 text-center text-xs text-muted-foreground">
@@ -753,12 +741,12 @@ export default function Register() {
                                       setCountryCode(e.target.value)
                                     }
                                     options={[
-                                      { value: "+250", label: "🇷🇼 +250" },
-                                      { value: "+256", label: "🇺🇬 +256" },
-                                      { value: "+254", label: "🇰🇪 +254" },
-                                      { value: "+255", label: "🇹🇿 +255" },
-                                      { value: "+257", label: "🇧🇮 +257" },
-                                      { value: "+211", label: "🇸🇸 +211" },
+                                      { value: "+250", label: "+250 (Rwanda)" },
+                                      { value: "+256", label: "+256 (Uganda)" },
+                                      { value: "+254", label: "+254 (Kenya)" },
+                                      { value: "+255", label: "+255 (Tanzania)" },
+                                      { value: "+257", label: "+257 (Burundi)" },
+                                      { value: "+211", label: "+211 (South Sudan)" },
                                     ]}
                                     className="w-32"
                                   />
@@ -901,7 +889,7 @@ export default function Register() {
                               <div
                                 className={`px-2 py-1 rounded-md border ${
                                   pwdReq.minLength
-                                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                                    ? "bg-gray-50 text-gray-900 border-gray-200"
                                     : "bg-muted/30"
                                 }`}
                               >
@@ -910,7 +898,7 @@ export default function Register() {
                               <div
                                 className={`px-2 py-1 rounded-md border ${
                                   pwdReq.upper
-                                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                                    ? "bg-gray-50 text-gray-900 border-gray-200"
                                     : "bg-muted/30"
                                 }`}
                               >
@@ -919,7 +907,7 @@ export default function Register() {
                               <div
                                 className={`px-2 py-1 rounded-md border ${
                                   pwdReq.lower
-                                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                                    ? "bg-gray-50 text-gray-900 border-gray-200"
                                     : "bg-muted/30"
                                 }`}
                               >
@@ -928,7 +916,7 @@ export default function Register() {
                               <div
                                 className={`px-2 py-1 rounded-md border ${
                                   pwdReq.digit
-                                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                                    ? "bg-gray-50 text-gray-900 border-gray-200"
                                     : "bg-muted/30"
                                 }`}
                               >
@@ -937,7 +925,7 @@ export default function Register() {
                               <div
                                 className={`px-2 py-1 rounded-md border ${
                                   pwdReq.special
-                                    ? "bg-blue-50 text-blue-700 border-blue-200"
+                                    ? "bg-gray-50 text-gray-900 border-gray-200"
                                     : "bg-muted/30"
                                 }`}
                               >
@@ -1010,7 +998,7 @@ export default function Register() {
                                         formData.confirmPassword) ||
                                   !termsAccepted
                                 }
-                                className="w-full text-white text-lg py-3 bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden"
+                                className="w-full text-white text-lg py-3 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed relative overflow-hidden bg-gold-500 hover:bg-gold-600"
                               >
                                 {isLoading ? (
                                   <>
@@ -1031,7 +1019,7 @@ export default function Register() {
                                     Create AI Account
                                   </span>
                                 )}
-                                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+                                <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-white/20" />
                               </Button>
                             </motion.div>
                           </div>

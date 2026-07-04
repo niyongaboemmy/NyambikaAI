@@ -9,6 +9,7 @@ import { LoginPromptProvider } from "@/contexts/LoginPromptContext";
 import { CompanyProvider } from "@/contexts/CompanyContext";
 import { CartProvider } from "@/contexts/CartContext";
 import RoleBasedNavigation from "@/components/RoleBasedNavigation";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import AnimatedAIBackground from "@/components/layout/AnimatedAIBackground";
 import Footer from "@/components/Footer";
 import CompanyModal from "@/components/CompanyModal";
@@ -81,8 +82,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
   // Determine container class outside of JSX to avoid conditional hook calls
   const containerClass =
     pathname?.includes("/store/") || pathname?.includes("/public-tryon")
-      ? "min-h-screen"
-      : "min-h-screen container mx-auto px-2 sm:px-0";
+      ? "min-h-screen pb-16 md:pb-0"
+      : "min-h-screen container mx-auto px-2 sm:px-0 pb-16 md:pb-0";
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -113,6 +114,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
                                 </ClientOnly>
                               </div>
                               <Footer />
+                              <MobileBottomNav />
                             </ProducerSubscriptionGuard>
                           </RouteProtection>
                         </AnimatedAIBackground>

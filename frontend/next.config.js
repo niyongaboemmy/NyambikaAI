@@ -72,7 +72,7 @@ const nextConfig = withPWA({
       ...config.resolve.alias,
       "@": path.resolve(__dirname, "src"),
       "@components": path.resolve(__dirname, "src/components"),
-      "@ui": path.resolve(__dirname, "src/components/ui"),
+      "@ui": path.resolve(__dirname, "src/components/custom-ui"),
     };
     return config;
   },

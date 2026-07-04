@@ -54,7 +54,7 @@ export default function AboutClient() {
             </section>
 
             <div className="pt-2">
-              <Button asChild className="bg-blue-600 hover:bg-blue-500">
+              <Button asChild className="bg-gold-600 hover:bg-gold-500">
                 <Link href="/contact">{t("about.getInTouch")}</Link>
               </Button>
             </div>

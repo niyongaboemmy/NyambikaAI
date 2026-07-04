@@ -15,6 +15,7 @@ import {
   Bookmark,
   Instagram,
   X,
+  Check,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -213,14 +214,14 @@ export default function Share({
           >
             {/* Backdrop with subtle gradient and grain */}
             <div
-              className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-blue-900/30 to-blue-900/30 backdrop-blur-sm"
+              className="absolute inset-0 backdrop-blur-sm bg-gray-900/30"
               onClick={() => setOpen(false)}
             />
 
             {/* Floating particles / aurora layers */}
             <div className="pointer-events-none absolute inset-0 overflow-hidden">
-              <span className="absolute -top-16 -left-10 w-72 h-72 bg-blue-500/30 rounded-full blur-3xl animate-[pulse_6s_ease-in-out_infinite]" />
-              <span className="absolute bottom-0 -right-10 w-80 h-80 bg-blue-500/25 rounded-full blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
+              <span className="absolute -top-16 -left-10 w-72 h-72 bg-gold-500/30 rounded-full blur-3xl animate-[pulse_6s_ease-in-out_infinite]" />
+              <span className="absolute bottom-0 -right-10 w-80 h-80 bg-gold-500/25 rounded-full blur-3xl animate-[pulse_8s_ease-in-out_infinite]" />
             </div>
 
             {/* Panel (bottom-sheet on mobile, centered on desktop) */}
@@ -238,7 +239,7 @@ export default function Share({
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Decorative gradient top border */}
-                <div className="hidden md:block absolute -top-px left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500" />
+                <div className="hidden md:block absolute -top-px left-0 right-0 h-1 bg-gold-400" />
 
                 {/* Grabber for mobile bottom sheet */}
                 <div className="md:hidden flex justify-center pt-2">
@@ -255,7 +256,7 @@ export default function Share({
                         className="w-7 h-7 rounded-full object-cover ring-2 ring-white/40"
                       />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-500" />
+                      <div className="w-7 h-7 rounded-full bg-gold-400" />
                     )}
                     <div>
                       <div className="text-sm font-semibold text-gray-900 dark:text-white">
@@ -288,49 +289,49 @@ export default function Share({
                       label="Twitter / X"
                       onClick={() => setSelected("twitter")}
                       icon={<Twitter className="w-4 h-4" />}
-                      color="from-gray-900 to-gray-700"
+                      color="gray-900"
                     />
                     <PlatformCard
                       selected={selected === "facebook"}
                       label="Facebook"
                       onClick={() => setSelected("facebook")}
                       icon={<Facebook className="w-4 h-4" />}
-                      color="from-blue-600 to-blue-400"
+                      color="gold-600"
                     />
                     <PlatformCard
                       selected={selected === "linkedin"}
                       label="LinkedIn"
                       onClick={() => setSelected("linkedin")}
                       icon={<Linkedin className="w-4 h-4" />}
-                      color="from-sky-600 to-sky-400"
+                      color="sky-600"
                     />
                     <PlatformCard
                       selected={selected === "whatsapp"}
                       label="WhatsApp"
                       onClick={() => setSelected("whatsapp")}
                       icon={<MessageCircle className="w-4 h-4" />}
-                      color="from-blue-600 to-blue-400"
+                      color="gold-600"
                     />
                     <PlatformCard
                       selected={selected === "telegram"}
                       label="Telegram"
                       onClick={() => setSelected("telegram")}
                       icon={<Send className="w-4 h-4" />}
-                      color="from-sky-500 to-sky-300"
+                      color="sky-500"
                     />
                     <PlatformCard
                       selected={selected === "email"}
                       label="Email"
                       onClick={() => setSelected("email")}
                       icon={<Mail className="w-4 h-4" />}
-                      color="from-blue-500 to-blue-300"
+                      color="gold-500"
                     />
                     <PlatformCard
                       selected={selected === "instagram"}
                       label="Instagram"
                       onClick={() => setSelected("instagram")}
                       icon={<Instagram className="w-4 h-4" />}
-                      color="from-blue-500 to-blue-700"
+                      color="gold-500"
                     />
                     {u.pinterest && (
                       <PlatformCard
@@ -338,7 +339,7 @@ export default function Share({
                         label="Pinterest"
                         onClick={() => setSelected("pinterest")}
                         icon={<Bookmark className="w-4 h-4" />}
-                        color="from-blue-600 to-blue-500"
+                        color="gold-600"
                       />
                     )}
                   </div>
@@ -346,7 +347,7 @@ export default function Share({
                   {/* Actions */}
                   <div className="mt-6 flex flex-col sm:flex-row gap-3 mb-9">
                     <Button
-                      className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white hover:from-blue-600 hover:to-blue-700-blue-500/20 h-12 md:h-11 text-base md:text-sm"
+                      className="flex-1 text-white h-12 md:h-11 text-base md:text-sm bg-gold-500 hover:bg-gold-600"
                       onClick={() => {
                         const href =
                           selected === "twitter"
@@ -422,19 +423,12 @@ function PlatformCard({
       onClick={onClick}
       className={`group relative flex flex-col items-center justify-center gap-2 py-4 rounded-xl border transition overflow-hidden ${
         selected
-          ? "scale-[1.04] border-transparent bg-gradient-to-br from-white/85 to-white/60 dark:from-gray-800/95 dark:to-gray-800/70 ring-4 ring-offset-0 ring-blue-400/80"
+          ? "scale-[1.04] border-transparent ring-4 ring-offset-0 ring-gold-400/80 bg-white/85 dark:bg-gray-800/95"
           : "border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 hover:bg-white/80 dark:hover:bg-gray-800/80"
       }`}
     >
-      {/* gradient halo */}
       <span
-        className={`absolute inset-x-6 -top-8 h-16 rounded-full blur-xl opacity-40 group-hover:opacity-70 transition bg-gradient-to-r ${color}`}
-      />
-      <span
-        className={`absolute inset-x-10 -bottom-10 h-16 rounded-full blur-xl opacity-30 group-hover:opacity-60 transition bg-gradient-to-r ${color}`}
-      />
-      <span
-        className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-xl text-white bg-gradient-to-br ${color}-black/20 ${
+        className={`relative z-10 flex h-12 w-12 items-center justify-center rounded-xl text-white bg-${color} ${
           selected ? "scale-110" : ""
         }`}
       >
@@ -443,7 +437,7 @@ function PlatformCard({
       <span
         className={`relative z-10 text-[11px] text-center px-1 line-clamp-1 font-medium ${
           selected
-            ? "font-semibold text-blue-700 dark:text-blue-300"
+            ? "font-semibold text-gray-900 dark:text-gray-300"
             : "text-gray-700 dark:text-gray-300"
         }`}
       >
@@ -451,9 +445,9 @@ function PlatformCard({
       </span>
       {selected && (
         <>
-          <span className="pointer-events-none absolute inset-0 rounded-xl ring-4 ring-blue-400/80" />
-          <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center justify-center w-5 h-5 rounded-full bg-blue-500 text-white text-[11px] font-bold ring-1 ring-white/80">
-            ✓
+          <span className="pointer-events-none absolute inset-0 rounded-xl ring-4 ring-gold-400/80" />
+          <span className="absolute top-1.5 right-1.5 z-10 inline-flex items-center justify-center w-5 h-5 rounded-full bg-gold-500 text-white ring-1 ring-white/80">
+            <Check className="h-3 w-3" />
           </span>
         </>
       )}

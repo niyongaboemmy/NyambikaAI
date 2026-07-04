@@ -43,7 +43,7 @@ export default function HelpClient() {
                 {t('help.faq.returnItem.answer')}
                 <a 
                   href="/returns" 
-                  className="text-blue-600 hover:underline dark:text-blue-400 ml-1"
+                  className="text-gray-900 hover:underline dark:text-white ml-1"
                 >
                   {t('help.faq.returnItem.link')}
                 </a>
@@ -61,7 +61,7 @@ export default function HelpClient() {
           </p>
           <a 
             href="/contact" 
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+            className="inline-flex items-center px-4 py-2 bg-gold-600 text-white rounded-md hover:bg-gold-700 transition-colors"
           >
             {t('help.contact.button')}
           </a>
@@ -75,7 +75,7 @@ export default function HelpClient() {
             {t('help.sizeGuide.description')}
             <a 
               href="/size-guide" 
-              className="text-blue-600 hover:underline dark:text-blue-400 ml-1"
+              className="text-gray-900 hover:underline dark:text-white ml-1"
             >
               {t('help.sizeGuide.link')}
             </a>

@@ -339,9 +339,9 @@ export default function SessionDetailsPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-blue-500 mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin mx-auto text-gray-800 mb-4" />
           <p className="text-slate-600 dark:text-slate-300">
             Loading session details...
           </p>
@@ -352,7 +352,7 @@ export default function SessionDetailsPage({
 
   if (!session) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
         <div className="text-center">
           <p className="text-slate-600 dark:text-slate-300 mb-4">
             Session not found
@@ -370,7 +370,7 @@ export default function SessionDetailsPage({
       <div className="pb-4">
         {loading ? (
           <div className="flex justify-center items-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+            <Loader2 className="h-8 w-8 animate-spin text-gray-800" />
           </div>
         ) : !session ? (
           <div className="bg-white dark:bg-slate-800 rounded-lg p-4 sm:p-8 text-center">
@@ -388,7 +388,7 @@ export default function SessionDetailsPage({
             className="space-y-4"
           >
             {/* Post Card - Facebook Style */}
-            <div className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl shadow-sm border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-gray-900 rounded-2xl md:rounded-3xl border border-slate-200 dark:border-slate-700">
               {/* Post Header */}
               <div className="p-2 sm:p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -401,7 +401,7 @@ export default function SessionDetailsPage({
                   >
                     <ArrowLeft className="h-4 w-4" />
                   </Button>
-                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center flex-shrink-0">
+                  <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gold-400">
                     {user?.profileImage ? (
                       <Image
                         src={user.profileImage}
@@ -433,7 +433,7 @@ export default function SessionDetailsPage({
                     }
                     variant="default"
                     size="sm"
-                    className="gap-1 sm:gap-2 text-xs sm:text-sm rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+                    className="gap-1 sm:gap-2 text-xs sm:text-sm rounded-full bg-gold-600 hover:bg-gold-700 text-white"
                   >
                     <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                     <span className="hidden sm:inline">Try On</span>
@@ -471,7 +471,7 @@ export default function SessionDetailsPage({
                           <User className="h-12 w-12 text-slate-400" />
                         </div>
                       )}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2">
+                      <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-black/70">
                         <p className="text-white text-xs sm:text-sm font-semibold">
                           Before
                         </p>
@@ -492,7 +492,7 @@ export default function SessionDetailsPage({
                           <User className="h-12 w-12 text-slate-400" />
                         </div>
                       )}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2">
+                      <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-black/70">
                         <p className="text-white text-xs sm:text-sm font-semibold">
                           After
                         </p>
@@ -563,7 +563,7 @@ export default function SessionDetailsPage({
                       variant="ghost"
                       className={`flex-1 gap-1 sm:gap-2 rounded-lg py-1.5 sm:py-2 text-xs sm:text-sm ${
                         savedSessions.has(sessionId || "")
-                          ? "text-blue-500"
+                          ? "text-gray-800"
                           : "text-slate-600 dark:text-slate-300"
                       }`}
                     >
@@ -590,7 +590,7 @@ export default function SessionDetailsPage({
                     {/* Comment Input - Facebook Style */}
                     {user && (
                       <div className="flex gap-2 sm:gap-3">
-                        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center flex-shrink-0">
+                        <div className="h-6 w-6 sm:h-8 sm:w-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gold-400">
                           {user?.profileImage ? (
                             <Image
                               src={user.profileImage}
@@ -615,14 +615,14 @@ export default function SessionDetailsPage({
                               }
                             }}
                             placeholder="Write a comment..."
-                            className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-100 dark:bg-slate-700 rounded-full border-0 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
+                            className="flex-1 px-3 sm:px-4 py-1.5 sm:py-2 bg-slate-100 dark:bg-slate-700 rounded-full border-0 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-gold-500 text-xs sm:text-sm"
                           />
                           <Button
                             onClick={handlePostComment}
                             disabled={!commentText.trim() || postingComment}
                             variant="ghost"
                             size="sm"
-                            className="text-blue-500 hover:text-blue-600 h-6 w-6 sm:h-8 sm:w-8 p-0"
+                            className="text-gray-800 hover:text-gray-900 h-6 w-6 sm:h-8 sm:w-8 p-0"
                           >
                             {postingComment ? (
                               <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
@@ -637,7 +637,7 @@ export default function SessionDetailsPage({
                     {/* Comments List */}
                     {loadingComments ? (
                       <div className="flex justify-center py-4">
-                        <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+                        <Loader2 className="h-4 w-4 animate-spin text-gray-800" />
                       </div>
                     ) : comments.filter((c: any) => !c.isDeleted).length > 0 ? (
                       <div className="space-y-2 sm:space-y-3">
@@ -650,7 +650,7 @@ export default function SessionDetailsPage({
                               animate={{ opacity: 1, y: 0 }}
                               className="flex gap-1.5 sm:gap-2"
                             >
-                              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full bg-gradient-to-br from-blue-400 to-blue-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <div className="h-5 w-5 sm:h-6 sm:w-6 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 bg-gold-400">
                                 <User className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-white" />
                               </div>
                               <div className="flex-1 bg-slate-100 dark:bg-slate-700 rounded-lg p-1.5 sm:p-2">
@@ -709,7 +709,7 @@ export default function SessionDetailsPage({
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-slate-200 dark:border-slate-700 p-4"
+                className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4"
               >
                 <h2 className="text-lg font-bold text-slate-900 dark:text-white mb-4">
                   More Products to Try
@@ -719,7 +719,7 @@ export default function SessionDetailsPage({
                     <motion.div
                       key={product.id}
                       whileHover={{ y: -2 }}
-                      className="bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                      className="bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden transition-shadow cursor-pointer"
                     >
                       <Link href={`/try-on?product=${product.id}`}>
                         <div className="relative h-32 bg-slate-200 dark:bg-slate-700">
@@ -736,7 +736,7 @@ export default function SessionDetailsPage({
                               <ShoppingBag className="h-8 w-8 text-slate-400" />
                             </div>
                           )}
-                          <div className="absolute top-1 right-1 bg-blue-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
+                          <div className="absolute top-1 right-1 bg-gold-600 text-white px-2 py-0.5 rounded text-xs font-semibold">
                             ${product.price}
                           </div>
                         </div>

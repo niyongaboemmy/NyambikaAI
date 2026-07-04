@@ -15,7 +15,7 @@ export const debugPWA = () => {
   results.checks.inBrowser = typeof window !== 'undefined';
 
   if (!results.checks.inBrowser) {
-    console.log('❌ Not running in browser context');
+    console.log('Not running in browser context');
     return results;
   }
 
@@ -68,55 +68,54 @@ export const debugPWA = () => {
   results.checks.supportsBeforeInstallPrompt = 'onbeforeinstallprompt' in window;
 
   // 9. Display results
-  console.group('🔍 PWA Debug Results');
-  
-  console.log('\n📱 Platform Detection:');
+  console.group('PWA Debug Results');
+
+  console.log('\nPlatform Detection:');
   console.table(results.platform);
-  
-  console.log('\n✅ PWA Checks:');
+
+  console.log('\nPWA Checks:');
   Object.entries(results.checks).forEach(([key, value]) => {
-    const icon = value ? '✅' : '❌';
-    console.log(`${icon} ${key}:`, value);
+    console.log(`${value ? 'PASS' : 'FAIL'} ${key}:`, value);
   });
 
-  console.log('\n💡 Recommendations:');
+  console.log('\nRecommendations:');
   const recommendations: string[] = [];
 
   if (!results.checks.isHTTPS) {
-    recommendations.push('❌ App must be served over HTTPS (or localhost for dev)');
+    recommendations.push('App must be served over HTTPS (or localhost for dev)');
   }
   if (results.checks.isStandalone) {
-    recommendations.push('ℹ️ App is already installed - prompt won\'t show');
+    recommendations.push('App is already installed - prompt won\'t show');
   }
   if (!results.checks.hasManifestLink) {
-    recommendations.push('❌ Missing manifest link in HTML <head>');
+    recommendations.push('Missing manifest link in HTML <head>');
   }
   if (!results.checks.hasServiceWorker) {
-    recommendations.push('❌ Service Worker not supported in this browser');
+    recommendations.push('Service Worker not supported in this browser');
   }
   if (!results.checks.serviceWorkerRegistered) {
-    recommendations.push('⚠️ No Service Worker registered yet (may still be registering)');
+    recommendations.push('No Service Worker registered yet (may still be registering)');
   }
   if (results.checks.wasDismissed && !results.checks.dismissalExpired) {
-    recommendations.push(`ℹ️ Prompt was dismissed ${results.checks.daysSinceDismissal} days ago (shows again after 7 days)`);
-    recommendations.push('💡 Clear localStorage or use InstallAppButton to bypass dismissal');
+    recommendations.push(`Prompt was dismissed ${results.checks.daysSinceDismissal} days ago (shows again after 7 days)`);
+    recommendations.push('Clear localStorage or use InstallAppButton to bypass dismissal');
   }
   if (!results.checks.supportsBeforeInstallPrompt) {
-    recommendations.push('ℹ️ Browser doesn\'t support beforeinstallprompt event');
-    recommendations.push('💡 Manual instructions will be shown instead');
+    recommendations.push('Browser doesn\'t support beforeinstallprompt event');
+    recommendations.push('Manual instructions will be shown instead');
   }
 
   if (recommendations.length === 0) {
-    console.log('✅ All checks passed! Prompt should show after 3 seconds.');
+    console.log('All checks passed! Prompt should show after 3 seconds.');
   } else {
     recommendations.forEach(rec => console.log(rec));
   }
 
-  console.log('\n🔧 Quick Fixes:');
+  console.log('\nQuick Fixes:');
   console.log('- Clear dismissal: localStorage.removeItem("pwa-prompt-dismissed")');
   console.log('- Trigger manually: window.dispatchEvent(new CustomEvent("show-install-prompt"))');
-  console.log('- Check console: Look for "🎉 beforeinstallprompt event fired"');
-  
+  console.log('- Check console: Look for "beforeinstallprompt event fired"');
+
   console.groupEnd();
 
   return results;
@@ -125,7 +124,7 @@ export const debugPWA = () => {
 // Make it available globally for debugging
 if (typeof window !== 'undefined') {
   (window as any).debugPWA = debugPWA;
-  console.log('💡 PWA Debug utility loaded. Run: debugPWA()');
+  console.log('PWA Debug utility loaded. Run: debugPWA()');
 }
 
 export default debugPWA;

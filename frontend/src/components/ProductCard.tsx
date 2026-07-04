@@ -106,8 +106,8 @@ function ProductCard({
   return (
     <div
       className={cn(
-        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-md bg-white dark:bg-gray-900 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 [content-visibility:auto] [contain-intrinsic-size:400px]",
-        selected && "ring-2 ring-blue-400 shadow-blue-200/50",
+        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-md bg-white dark:bg-gray-900 transition-all duration-300 transform hover:-translate-y-1 [content-visibility:auto] [contain-intrinsic-size:400px]",
+        selected && "ring-2 ring-gold-400",
         containerClassName
       )}
       onClick={onCardClick ? () => onCardClick(product.id) : undefined}
@@ -157,7 +157,7 @@ function ProductCard({
             onToggleFavorite(product.id);
           }}
           className={cn(
-            "absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200",
+            "absolute top-3 right-3 bg-white/90 hover:bg-white rounded-full p-2 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all duration-200",
             isFavorited ? "text-red-500 opacity-100" : "text-gray-700"
           )}
         >
@@ -170,7 +170,7 @@ function ProductCard({
               <Button
                 size="icon"
                 variant="outline"
-                className="h-8 w-8 rounded-full bg-white/90 hover:bg-white shadow-lg backdrop-blur-sm border-none"
+                className="h-8 w-8 rounded-full bg-white/90 hover:bg-white backdrop-blur-sm border-none"
                 onClick={(e) => {
                   e.stopPropagation();
                   onEdit(product.id);
@@ -186,7 +186,7 @@ function ProductCard({
                 size={showBoostLabel ? "sm" : "icon"}
                 variant="default"
                 className={cn(
-                  "rounded-full bg-blue-600 hover:bg-blue-700 text-white shadow-lg",
+                  "rounded-full bg-gold-600 hover:bg-gold-700 text-white",
                   showBoostLabel ? "h-8 px-2" : "h-8 w-8"
                 )}
                 onClick={(e) => {
@@ -206,7 +206,7 @@ function ProductCard({
               <Button
                 size="icon"
                 variant="destructive"
-                className="h-8 w-8 rounded-full bg-red-500/90 hover:bg-red-500 shadow-lg"
+                className="h-8 w-8 rounded-full bg-red-500/90 hover:bg-red-500"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(product.id);
@@ -227,7 +227,7 @@ function ProductCard({
                 e.stopPropagation();
                 onViewDetails(product.id);
               }}
-              className="pointer-events-auto bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-6 py-2 rounded-full font-medium shadow-lg opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105"
+              className="pointer-events-auto text-white px-6 py-2 rounded-full font-medium opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:scale-105 bg-gold-500 hover:bg-gold-600"
               aria-label="View details"
               title="View details"
             >
@@ -271,7 +271,7 @@ function ProductCard({
           <div className="text-center">
             <span
               className={cn(
-                "font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent",
+                "font-bold text-foreground",
                 compact ? "text-[11px] md:text-xs" : "text-xs md:text-sm"
               )}
             >

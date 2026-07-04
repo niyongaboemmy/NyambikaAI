@@ -124,7 +124,7 @@ export default function EnhancedOrderForm({
             onChange={(e) => setShippingAddress(e.target.value)}
             placeholder="Enter your complete shipping address..."
             rows={3}
-            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gold-500/20"
             required
           />
         </div>
@@ -140,12 +140,12 @@ export default function EnhancedOrderForm({
               onClick={() => setPaymentMethod("mobile_money")}
               className={`p-3 rounded-xl border-2 transition-all duration-300 ${
                 paymentMethod === "mobile_money"
-                  ? "border-blue-500 bg-blue-500/20"
+                  ? "border-gray-400 bg-gold-500/20"
                   : "border-white/20 bg-white/5 hover:border-white/30"
               }`}
             >
               <div className="text-center">
-                <div className="text-blue-400 text-sm font-semibold">
+                <div className="text-gray-700 text-sm font-semibold">
                   MTN MoMo
                 </div>
                 <div className="text-gray-400 text-xs">*182#</div>
@@ -157,7 +157,7 @@ export default function EnhancedOrderForm({
               onClick={() => setPaymentMethod("airtel_money")}
               className={`p-3 rounded-xl border-2 transition-all duration-300 ${
                 paymentMethod === "airtel_money"
-                  ? "border-blue-500 bg-blue-500/20"
+                  ? "border-gray-400 bg-gold-500/20"
                   : "border-white/20 bg-white/5 hover:border-white/30"
               }`}
             >
@@ -174,12 +174,12 @@ export default function EnhancedOrderForm({
               onClick={() => setPaymentMethod("cash_on_delivery")}
               className={`p-3 rounded-xl border-2 transition-all duration-300 ${
                 paymentMethod === "cash_on_delivery"
-                  ? "border-blue-500 bg-blue-500/20"
+                  ? "border-gray-400 bg-gold-500/20"
                   : "border-white/20 bg-white/5 hover:border-white/30"
               }`}
             >
               <div className="text-center">
-                <div className="text-blue-400 text-sm font-semibold">Cash</div>
+                <div className="text-gray-700 text-sm font-semibold">Cash</div>
                 <div className="text-gray-400 text-xs">On Delivery</div>
               </div>
             </button>
@@ -218,8 +218,8 @@ export default function EnhancedOrderForm({
               </label>
             ) : (
               <div className="text-center">
-                <CheckCircle className="h-12 w-12 text-blue-400 mx-auto mb-3" />
-                <p className="text-blue-400">Maximum photos uploaded</p>
+                <CheckCircle className="h-12 w-12 text-gray-700 mx-auto mb-3" />
+                <p className="text-gray-700">Maximum photos uploaded</p>
               </div>
             )}
           </div>
@@ -262,7 +262,7 @@ export default function EnhancedOrderForm({
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any special instructions or requirements..."
             rows={3}
-            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+            className="w-full p-3 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-gray-400 focus:ring-2 focus:ring-gold-500/20"
           />
         </div>
 
@@ -270,7 +270,7 @@ export default function EnhancedOrderForm({
         <button
           type="submit"
           disabled={loading || uploading}
-          className="w-full py-4 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-3xl transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          className="w-full py-4 text-white font-semibold rounded-3xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center bg-gold-500"
         >
           {loading || uploading ? (
             <>
@@ -284,14 +284,14 @@ export default function EnhancedOrderForm({
       </form>
 
       {/* Info Box */}
-      <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+      <div className="mt-6 p-4 bg-gold-500/10 border border-gray-400/30 rounded-xl">
         <div className="flex items-start">
-          <AlertCircle className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+          <AlertCircle className="h-5 w-5 text-gray-700 mr-3 mt-0.5 flex-shrink-0" />
           <div>
-            <h4 className="text-blue-300 font-medium mb-1">
+            <h4 className="text-gray-500 font-medium mb-1">
               Size Evidence Photos
             </h4>
-            <p className="text-blue-200 text-sm">
+            <p className="text-gray-500 text-sm">
               Adding photos helps producers better understand your size
               requirements and ensures a better fit. This is optional but highly
               recommended for custom or fitted items.

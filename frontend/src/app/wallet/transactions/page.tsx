@@ -32,7 +32,7 @@ const StatusPill = ({ status }: { status: WalletPayment["status"] }) => {
   if (status === "completed")
     return (
       <span
-        className={`${base} bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300`}
+        className={`${base} bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300`}
       >
         <CheckCircle className="h-3 w-3" /> Completed
       </span>
@@ -98,7 +98,7 @@ export default function TransactionsPage() {
     p.type === "debit" ? (
       <ArrowDownLeft className="h-4 w-4 text-red-600 dark:text-red-400" />
     ) : (
-      <ArrowUpRight className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+      <ArrowUpRight className="h-4 w-4 text-gray-900 dark:text-white" />
     );
 
   return (
@@ -157,7 +157,7 @@ export default function TransactionsPage() {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
           }}
-          className="px-3 py-2 rounded-md bg-blue-600 text-white text-sm hover:bg-blue-700"
+          className="px-3 py-2 rounded-md bg-gold-600 text-white text-sm hover:bg-gold-700"
         >
           Export CSV
         </button>
@@ -220,11 +220,11 @@ export default function TransactionsPage() {
 
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
-          <div className="w-10 h-10 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin" />
+          <div className="w-10 h-10 rounded-full border-2 border-gray-300 border-t-gold-600 animate-spin" />
         </div>
       ) : pageItems.length === 0 ? (
         <div className="text-center py-16 space-y-2">
-          <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 flex items-center justify-center">
+          <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
             <AlertCircle className="h-8 w-8 text-gray-400" />
           </div>
           <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -243,7 +243,7 @@ export default function TransactionsPage() {
                   <div
                     className={`p-2 rounded-lg ${
                       p.type === "topup"
-                        ? "bg-blue-100 dark:bg-blue-900/30"
+                        ? "bg-gray-100 dark:bg-gray-800/30"
                         : "bg-red-100 dark:bg-red-900/30"
                     }`}
                   >
@@ -277,14 +277,14 @@ export default function TransactionsPage() {
                     className={`text-sm font-bold ${
                       p.type === "debit"
                         ? "text-red-600 dark:text-red-400"
-                        : "text-blue-600 dark:text-blue-400"
+                        : "text-gray-900 dark:text-white"
                     }`}
                   >
                     {p.type === "debit" ? "-" : "+"} RWF{" "}
                     {Number(p.amount).toLocaleString()}
                   </p>
                   <button
-                    className="mt-2 text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline"
+                    className="mt-2 text-xs text-gray-900 hover:text-gray-900 dark:text-white dark:hover:text-gray-500 underline"
                     onClick={() => setSelected(p)}
                   >
                     View details
@@ -322,7 +322,7 @@ export default function TransactionsPage() {
       {/* Details Modal */}
       {selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-3">
-          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 sm:p-6 shadow-xl">
+          <div className="w-full max-w-lg rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-semibold">Transaction Details</h2>
               <button

@@ -90,7 +90,7 @@ export const metadata: Metadata = {
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "default",
     "apple-mobile-web-app-title": "Nyambika",
-    "msapplication-TileColor": "#6366f1",
+    "msapplication-TileColor": "#B58E41",
     "msapplication-config": "/browserconfig.xml",
   },
 };
@@ -98,8 +98,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
+  maximumScale: 5,
   // Improves behavior of on-screen keyboards on mobile
   interactiveWidget: "resizes-content",
 };
@@ -121,14 +120,14 @@ export default function RootLayout({
         <meta
           name="theme-color"
           media="(prefers-color-scheme: light)"
-          content="#6366f1"
+          content="#FAF7F1"
         />
         <meta
           name="theme-color"
           media="(prefers-color-scheme: dark)"
-          content="#3730a3"
+          content="#0B0B0C"
         />
-        <meta name="msapplication-TileColor" content="#6366f1" />
+        <meta name="msapplication-TileColor" content="#B58E41" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Nyambika" />
@@ -154,7 +153,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden">
-        <NextTopLoader color="#6366f1" showSpinner={false} height={3} shadow="0 0 10px #6366f1,0 0 5px #6366f1" zIndex={1600} />
+        <NextTopLoader color="#B58E41" showSpinner={false} height={3} shadow="0 0 10px #B58E41,0 0 5px #B58E41" zIndex={1600} />
         <Providers>
           {children}
           <LoadingIndicatorStyles />

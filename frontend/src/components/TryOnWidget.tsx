@@ -46,7 +46,7 @@ const shareToSocial = (
   imageUrl: string,
   productName: string
 ) => {
-  const text = `Check out my virtual try-on with ${productName} from Nyambika! 🛍️ #VirtualTryOn #Fashion`;
+  const text = `Check out my virtual try-on with ${productName} from Nyambika! #VirtualTryOn #Fashion`;
   const url = window.location.href;
 
   const shareUrls: Record<string, string> = {
@@ -1150,25 +1150,10 @@ export default function TryOnWidget({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      {/* AI Circuit pattern background */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="w-full h-full"
-          style={{
-            backgroundImage: `
-            radial-gradient(circle at 20% 50%, #3b82f6 2px, transparent 2px),
-            radial-gradient(circle at 80% 50%, #3b82f6 2px, transparent 2px),
-            linear-gradient(90deg, transparent 48%, #06b6d4 50%, transparent 52%)
-          `,
-            backgroundSize: "40px 20px, 40px 20px, 60px 20px",
-          }}
-        />
-      </div>
-
       <div className="flex items-center gap-2 relative z-10">
         <Button
           variant="ghost"
-          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-800 bg-gray-100 dark:bg-gray-800"
+          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gold-800 bg-gray-100 dark:bg-gray-800"
           onClick={() => (onBack ? onBack() : router.back())}
         >
           <ArrowLeft className="h-4 w-4 mr-1" /> Back
@@ -1176,7 +1161,7 @@ export default function TryOnWidget({
 
         <Button
           variant="ghost"
-          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-blue-100 hover:text-blue-700 dark:hover:bg-blue-800 bg-gray-100 dark:bg-gray-800"
+          className="px-3 h-9 rounded-full text-slate-700 dark:text-slate-200 hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gold-800 bg-gray-100 dark:bg-gray-800"
           onClick={() => {
             const params = new URLSearchParams();
             if (productId) params.append("product-id", productId);
@@ -1200,17 +1185,17 @@ export default function TryOnWidget({
 
       <div className="flex items-center gap-3 relative z-10">
         <motion.div
-          className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 flex items-center justify-center"
+          className="w-6 h-6 rounded-full flex items-center justify-center bg-gold-500"
           animate={{ rotate: 360 }}
           transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
         >
           <div className="w-3 h-3 rounded-full bg-white/90" />
         </motion.div>
-        <span className="text-sm font-medium bg-gradient-to-r from-blue-600 via-blue-600 to-cyan-600 bg-clip-text text-transparent">
+        <span className="text-sm font-medium text-foreground">
           AI Try-On Studio
         </span>
         <motion.span
-          className="hidden md:inline-block text-xs px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
+          className="hidden md:inline-block text-xs px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800/30 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700"
           animate={{ scale: [1, 1.05, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
@@ -1228,7 +1213,7 @@ export default function TryOnWidget({
           {[0, 1, 2].map((i) => (
             <motion.div
               key={i}
-              className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-blue-600"
+              className="w-2 h-2 rounded-full bg-gold-400"
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.5, 1, 0.5],
@@ -1247,7 +1232,7 @@ export default function TryOnWidget({
 
   const Body = (
     <div className="p-0 sm:p-4 md:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-      <div className="rounded-xl border p-4 sm:p-5 bg-white dark:bg-slate-900 shadow-sm">
+      <div className="rounded-xl border p-4 sm:p-5 bg-white dark:bg-slate-900">
         <p className="text-sm font-medium mb-2 sm:mb-3 text-center">
           {productName}
         </p>
@@ -1269,7 +1254,7 @@ export default function TryOnWidget({
                   }}
                   className={`relative h-10 w-10 sm:h-12 sm:w-12 md:h-10 md:w-10 lg:h-12 lg:w-12 rounded-lg overflow-hidden border transition-all ${
                     selectedGarmentUrl === img
-                      ? "border-blue-500 ring-2 ring-blue-300"
+                      ? "border-gray-400 ring-2 ring-gold-300"
                       : "border-slate-200 dark:border-slate-700 hover:border-slate-400"
                   }`}
                   title="Choose this image for try-on"
@@ -1317,7 +1302,7 @@ export default function TryOnWidget({
         )}
       </div>
 
-      <div className="rounded-xl border p-2 sm:p-4 bg-white dark:bg-slate-900 shadow-sm min-h-[480px] sm:min-h-[410px]">
+      <div className="rounded-xl border p-2 sm:p-4 bg-white dark:bg-slate-900 min-h-[480px] sm:min-h-[410px]">
         <p
           className={`text-sm font-medium text-center ${
             stream || customerImage ? "mb-4" : "mb-20 sm:mb-10"
@@ -1382,7 +1367,7 @@ export default function TryOnWidget({
                   <div className="flex gap-3 justify-center">
                     <Button
                       onClick={startCamera}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 text-base"
+                      className="bg-gold-600 hover:bg-gold-700 text-white px-6 py-3 text-base"
                     >
                       Retry
                     </Button>
@@ -1450,7 +1435,7 @@ export default function TryOnWidget({
                 <Button
                   onClick={capturePhoto}
                   disabled={!isVideoReady}
-                  className="w-20 h-20 rounded-full bg-white hover:bg-gray-100 text-black shadow-2xl border-4 border-white/20 p-0 disabled:opacity-50"
+                  className="w-20 h-20 rounded-full bg-white hover:bg-gray-100 text-black border-4 border-white/20 p-0 disabled:opacity-50"
                 >
                   <div className="w-16 h-16 rounded-full bg-white border-2 border-gray-300 flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-white border border-gray-400"></div>
@@ -1520,7 +1505,7 @@ export default function TryOnWidget({
                     height="70"
                     rx="8"
                     fill="none"
-                    stroke="#3b82f6"
+                    stroke="#B58E41"
                     strokeWidth="2"
                     strokeDasharray="4,2"
                     animate={{
@@ -1549,7 +1534,7 @@ export default function TryOnWidget({
                       cx="45"
                       cy="35"
                       r="8"
-                      fill="#3b82f6"
+                      fill="#B58E41"
                       opacity="0.7"
                     />
                     {/* Body */}
@@ -1559,7 +1544,7 @@ export default function TryOnWidget({
                       width="14"
                       height="25"
                       rx="7"
-                      fill="#3b82f6"
+                      fill="#B58E41"
                       opacity="0.7"
                     />
                     {/* Arms */}
@@ -1569,7 +1554,7 @@ export default function TryOnWidget({
                       width="8"
                       height="3"
                       rx="1.5"
-                      fill="#3b82f6"
+                      fill="#B58E41"
                       opacity="0.7"
                     />
                     <rect
@@ -1578,7 +1563,7 @@ export default function TryOnWidget({
                       width="8"
                       height="3"
                       rx="1.5"
-                      fill="#3b82f6"
+                      fill="#B58E41"
                       opacity="0.7"
                     />
                     {/* Legs */}
@@ -1588,7 +1573,7 @@ export default function TryOnWidget({
                       width="4"
                       height="12"
                       rx="2"
-                      fill="#3b82f6"
+                      fill="#B58E41"
                       opacity="0.7"
                     />
                     <rect
@@ -1597,7 +1582,7 @@ export default function TryOnWidget({
                       width="4"
                       height="12"
                       rx="2"
-                      fill="#3b82f6"
+                      fill="#B58E41"
                       opacity="0.7"
                     />
                   </motion.g>
@@ -1611,7 +1596,7 @@ export default function TryOnWidget({
                 >
                   <motion.path
                     d="M 80 55 L 95 55 M 90 50 L 95 55 L 90 60"
-                    stroke="#06b6d4"
+                    stroke="#D4AF37"
                     strokeWidth="2"
                     fill="none"
                     strokeLinecap="round"
@@ -1638,7 +1623,7 @@ export default function TryOnWidget({
                     cy="40"
                     r="15"
                     fill="none"
-                    stroke="#3b82f6"
+                    stroke="#B58E41"
                     strokeWidth="2"
                     animate={{
                       scale: [1, 1.1, 1],
@@ -1657,7 +1642,7 @@ export default function TryOnWidget({
                       cx={115 + i * 5}
                       cy={35 + i * 3}
                       r="2"
-                      fill="#06b6d4"
+                      fill="#D4AF37"
                       animate={{
                         opacity: [0.3, 1, 0.3],
                         scale: [0.8, 1.2, 0.8],
@@ -1676,7 +1661,7 @@ export default function TryOnWidget({
                     y="65"
                     textAnchor="middle"
                     fontSize="8"
-                    fill="#6366f1"
+                    fill="#B58E41"
                     animate={{
                       opacity: [0.5, 1, 0.5],
                     }}
@@ -1697,7 +1682,7 @@ export default function TryOnWidget({
                 >
                   <motion.path
                     d="M 145 55 L 160 55 M 155 50 L 160 55 L 155 60"
-                    stroke="#06b6d4"
+                    stroke="#D4AF37"
                     strokeWidth="2"
                     fill="none"
                     strokeLinecap="round"
@@ -1720,26 +1705,15 @@ export default function TryOnWidget({
                   transition={{ delay: 2, duration: 0.8 }}
                 >
                   {/* Result frame */}
-                  <motion.rect
+                  <rect
                     x="170"
                     y="25"
                     width="25"
                     height="35"
                     rx="3"
                     fill="none"
-                    stroke="#3b82f6"
+                    stroke="#B58E41"
                     strokeWidth="2"
-                    animate={{
-                      boxShadow: [
-                        "0 0 0 0 rgba(139, 92, 246, 0)",
-                        "0 0 0 4px rgba(139, 92, 246, 0.3)",
-                        "0 0 0 0 rgba(139, 92, 246, 0)",
-                      ],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                    }}
                   />
 
                   {/* Sparkles */}
@@ -1775,7 +1749,7 @@ export default function TryOnWidget({
                     y="105"
                     textAnchor="middle"
                     fontSize="10"
-                    fill="#3b82f6"
+                    fill="#B58E41"
                     fontWeight="600"
                   >
                     1
@@ -1785,7 +1759,7 @@ export default function TryOnWidget({
                     y="105"
                     textAnchor="middle"
                     fontSize="10"
-                    fill="#3b82f6"
+                    fill="#B58E41"
                     fontWeight="600"
                   >
                     2
@@ -1795,7 +1769,7 @@ export default function TryOnWidget({
                     y="105"
                     textAnchor="middle"
                     fontSize="10"
-                    fill="#3b82f6"
+                    fill="#B58E41"
                     fontWeight="600"
                   >
                     3
@@ -1861,7 +1835,7 @@ export default function TryOnWidget({
               >
                 <Button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full sm:w-auto min-h-[48px] px-6 py-3 text-base sm:text-sm font-semibold bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 dark:from-blue-600 dark:to-blue-600 dark:hover:from-blue-700 dark:hover:to-blue-700 shadow-lg hover:shadow-xl shadow-blue-500/25 dark:shadow-blue-400/30 dark:hover:shadow-blue-400/40 touch-manipulation rounded-full border-0 text-white transition-all duration-200"
+                  className="w-full sm:w-auto min-h-[48px] px-6 py-3 text-base sm:text-sm font-semibold touch-manipulation rounded-full border-0 text-white transition-all duration-200 bg-gold-500 hover:bg-gold-600 dark:bg-gold-600 dark:hover:bg-gold-700"
                 >
                   <Upload className="h-5 w-5 sm:h-4 sm:w-4 mr-3 sm:mr-2" />
                   <span className="sm:hidden">Choose Photo from Gallery</span>
@@ -1879,7 +1853,7 @@ export default function TryOnWidget({
                 <Button
                   onClick={startCamera}
                   variant="outline"
-                  className="w-full sm:w-auto min-h-[48px] px-6 py-3 text-base sm:text-sm font-semibold border-2 border-blue-300 hover:border-blue-400 bg-white/95 hover:bg-blue-50 dark:bg-slate-800/95 dark:hover:bg-slate-700/95 dark:border-blue-500 dark:hover:border-blue-400 text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200 shadow-md hover:shadow-lg dark:shadow-slate-900/20 dark:hover:shadow-slate-900/30 backdrop-blur-sm touch-manipulation rounded-full transition-all duration-200"
+                  className="w-full sm:w-auto min-h-[48px] px-6 py-3 text-base sm:text-sm font-semibold border-2 border-gray-300 hover:border-gray-400 bg-white/95 hover:bg-gray-50 dark:bg-slate-800/95 dark:hover:bg-slate-700/95 dark:border-gray-500 dark:hover:border-gray-400 text-gray-900 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-500 backdrop-blur-sm touch-manipulation rounded-full transition-all duration-200"
                 >
                   <Camera className="h-5 w-5 sm:h-4 sm:w-4 mr-3 sm:mr-2" />
                   <span className="sm:hidden">Take Photo with Camera</span>
@@ -1912,7 +1886,7 @@ export default function TryOnWidget({
         <canvas ref={canvasRef} className="hidden" />
       </div>
 
-      <div className="rounded-xl relative border p-2 sm:p-4 bg-white dark:bg-slate-900 shadow-sm min-h-[360px] sm:min-h-[320px] overflow-hidden">
+      <div className="rounded-xl relative border p-2 sm:p-4 bg-white dark:bg-slate-900 min-h-[360px] sm:min-h-[320px] overflow-hidden">
         <p className="text-sm font-medium mb-3 sm:mb-4 text-center">Result</p>
         <AnimatePresence mode="wait">
           {isProcessingTryOn ? (
@@ -1925,7 +1899,7 @@ export default function TryOnWidget({
             >
               {/* AI Scan line animation */}
               <motion.div
-                className="absolute inset-x-0 h-0.5 bg-gradient-to-r from-transparent via-sky-400 to-transparent"
+                className="absolute inset-x-0 h-0.5 bg-transparent"
                 initial={{ y: 0, opacity: 0.8 }}
                 animate={{ y: 256, opacity: 0 }}
                 transition={{
@@ -1935,19 +1909,6 @@ export default function TryOnWidget({
                   repeatType: "loop",
                 }}
               />
-              {/* Grid pattern overlay */}
-              <div className="absolute inset-0 opacity-10">
-                <div
-                  className="w-full h-full"
-                  style={{
-                    backgroundImage: `
-                    linear-gradient(rgba(96, 165, 250, 0.3) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(96, 165, 250, 0.3) 1px, transparent 1px)
-                  `,
-                    backgroundSize: "20px 20px",
-                  }}
-                />
-              </div>
               <div className="relative z-10 flex flex-row items-center justify-center gap-2">
                 <Loader2 className="h-6 w-6 animate-spin" />{" "}
                 <div>Processing...</div>
@@ -1968,7 +1929,7 @@ export default function TryOnWidget({
               />
               {/* Shimmer overlay */}
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                className="absolute inset-0 bg-transparent"
                 initial={{ x: "-100%" }}
                 animate={{ x: "100%" }}
                 transition={{
@@ -2019,7 +1980,7 @@ export default function TryOnWidget({
                       width="30"
                       height="4"
                       rx="2"
-                      fill="#3b82f6"
+                      fill="#B58E41"
                     />
                     {/* Wand tip */}
                     <circle cx="77" cy="37" r="3" fill="#fbbf24" />
@@ -2111,23 +2072,22 @@ export default function TryOnWidget({
             >
               <div className="relative w-full h-full">
                 {[
-                  "#3b82f6",
-                  "#3b82f6",
-                  "#06b6d4",
-                  "#0ea5e9", // replaced indigo-500
-                  "#0ea5e9",
-                  "#2563eb", // replaced violet-600
+                  "#B58E41",
+                  "#B58E41",
+                  "#D4AF37",
+                  "#C9A227",
+                  "#E8C05C",
+                  "#8F6F30",
                 ].map((c, i) => (
                   <motion.span
                     key={i}
                     className="absolute block rounded-full"
                     style={{
-                      background: `linear-gradient(135deg, ${c}, ${c}aa)`,
+                      background: c,
                       width: i % 2 === 0 ? 10 : 8,
                       height: i % 2 === 0 ? 10 : 8,
                       left: `${15 + i * 12}%`,
                       top: `${45 + (i % 2 === 0 ? -8 : 8)}%`,
-                      boxShadow: `0 0 15px ${c}88, 0 0 25px ${c}44`,
                     }}
                     initial={{ scale: 0, opacity: 1, y: 0, rotate: 0 }}
                     animate={{
@@ -2158,16 +2118,12 @@ export default function TryOnWidget({
               animate={
                 customerImage && !isProcessingTryOn
                   ? {
-                      boxShadow: [
-                        "0 0 0 0 rgba(59, 130, 246, 0)",
-                        "0 0 0 8px rgba(59, 130, 246, 0.15)",
-                        "0 0 0 0 rgba(59, 130, 246, 0)",
-                      ],
+                      scale: [1, 1.03, 1],
                     }
                   : {}
               }
               transition={{
-                boxShadow: { duration: 2, repeat: Infinity },
+                scale: { duration: 2, repeat: Infinity },
               }}
               className="w-full rounded-full"
             >
@@ -2176,7 +2132,7 @@ export default function TryOnWidget({
                 disabled={!customerImage || isProcessingTryOn}
                 className={`w-full min-h-[52px] px-6 py-4 text-base sm:text-sm font-semibold touch-manipulation rounded-full transition-all duration-200 ${
                   customerImage && !isProcessingTryOn
-                    ? "bg-gradient-to-r from-blue-500 via-blue-500 to-blue-500 hover:from-blue-600 hover:via-blue-600 hover:to-blue-600 dark:from-blue-600 dark:via-blue-600 dark:to-blue-600 dark:hover:from-blue-700 dark:hover:via-blue-700 dark:hover:to-blue-700 shadow-lg hover:shadow-xl shadow-blue-500/25 dark:shadow-blue-400/30 text-white"
+                    ? "text-white bg-gold-500 hover:bg-gold-600 dark:bg-gold-600 dark:hover:bg-gold-700"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-not-allowed"
                 }`}
               >
@@ -2230,7 +2186,7 @@ export default function TryOnWidget({
                     }
                   }}
                   variant="outline"
-                  className="px-5 py-3 cursor-pointer text-sm touch-manipulation rounded-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white hover:text-white border-0 shadow-md hover:shadow-lg w-full"
+                  className="px-5 py-3 cursor-pointer text-sm touch-manipulation rounded-full text-white hover:text-white border-0 w-full bg-gold-500 hover:bg-gold-600"
                 >
                   <ShoppingBag className="h-4 w-4 mr-2" />
                   Order Now
@@ -2253,18 +2209,17 @@ export default function TryOnWidget({
             className="absolute rounded-full opacity-70"
             style={{
               background: [
-                "linear-gradient(135deg, #0ea5e9, #3b82f6)", // AI Blue
-                "linear-gradient(135deg, #60a5fa, #3b82f6)", // Sky Blue
-                "linear-gradient(135deg, #06b6d4, #0891b2)", // Cyan Data
-                "linear-gradient(135deg, #2563eb, #1d4ed8)", // Electric Blue
-                "linear-gradient(135deg, #0284c7, #0369a1)", // Deep Blue
-                "linear-gradient(135deg, #1e40af, #1e3a8a)", // Navy Blue
+                "#B58E41",
+                "#D4AF37",
+                "#C9A227",
+                "#8F6F30",
+                "#E8C05C",
+                "#6B5423",
               ][i % 6],
               width: i % 3 === 0 ? "6px" : "4px",
               height: i % 3 === 0 ? "6px" : "4px",
               left: `${5 + ((i * 8) % 90)}%`,
               top: `${10 + ((i * 12) % 80)}%`,
-              boxShadow: "0 0 8px rgba(59, 130, 246, 0.4)",
             }}
             animate={{
               y: [0, -30, 0],
@@ -2282,14 +2237,13 @@ export default function TryOnWidget({
           />
         ))}
 
-        {/* Neural connection lines */}
+        {/* Connection lines */}
         {[...Array(4)].map((_, i) => (
           <motion.div
             key={`line-${i}`}
             className="absolute h-px opacity-30"
             style={{
-              background:
-                "linear-gradient(90deg, transparent, #3b82f6, transparent)",
+              background: "#B58E41",
               width: "120px",
               left: `${20 + i * 20}%`,
               top: `${30 + i * 15}%`,
@@ -2308,45 +2262,10 @@ export default function TryOnWidget({
         ))}
       </div>
 
-      {/* Animated gradient background with parallax */}
-      <motion.div
-        className="absolute inset-0 -z-10 blur-3xl opacity-50"
-        style={{
-          background:
-            "radial-gradient(50% 50% at 50% 50%, #3b82f6 0%, #3b82f6 30%, #06b6d4 60%, transparent 100%)",
-        }}
-        animate={{
-          scale: [1, 1.08, 1],
-          rotate: [0, 2, 0],
-          opacity: [0.5, 0.7, 0.5],
-        }}
-        transition={{
-          duration: 10,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-      />
-
-      <motion.div
-        className="rounded-xl sm:rounded-3xl sm:dark:p-0.5"
-        style={{
-          background:
-            "linear-gradient(135deg, #3b82f6, #3b82f6, #06b6d4, #6366f1)",
-        }}
-        animate={{
-          backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
-        }}
-        transition={{
-          duration: 4,
-          repeat: Infinity,
-          ease: "linear",
-        }}
-      >
-        <div className="rounded-xl sm:rounded-3xl overflow-hidden bg-white dark:bg-slate-900/95 backdrop-blur-sm text-slate-900 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/50">
-          {Header}
-          {Body}
-        </div>
-      </motion.div>
+      <div className="rounded-xl sm:rounded-3xl overflow-hidden bg-white dark:bg-slate-900/95 backdrop-blur-sm text-slate-900 dark:text-slate-100 border border-slate-200/50 dark:border-slate-700/50">
+        {Header}
+        {Body}
+      </div>
     </div>
   );
 
@@ -2369,13 +2288,13 @@ export default function TryOnWidget({
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="relative bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto shadow-2xl border border-slate-200/50 dark:border-slate-700/50"
+            className="relative bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto border border-slate-200/50 dark:border-slate-700/50"
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
-                  <Loader2 className="w-5 h-5 text-blue-500 animate-spin" />
+                <div className="w-10 h-10 bg-gold-500/20 rounded-full flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-gray-800 animate-spin" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -2406,10 +2325,10 @@ export default function TryOnWidget({
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           sessionStatus.status === "completed"
-                            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                            ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-white"
                             : sessionStatus.status === "failed"
                             ? "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                            : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                            : "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-white"
                         }`}
                       >
                         {sessionStatus.status}
@@ -2441,8 +2360,8 @@ export default function TryOnWidget({
 
                   {sessionStatus.status === "processing" && (
                     <div className="text-center py-4">
-                      <div className="w-12 h-12 mx-auto mb-3 bg-blue-500/20 rounded-full flex items-center justify-center">
-                        <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
+                      <div className="w-12 h-12 mx-auto mb-3 bg-gold-500/20 rounded-full flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-gray-800 animate-spin" />
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400">
                         Your try-on is being generated. This usually takes 1-2
@@ -2457,8 +2376,8 @@ export default function TryOnWidget({
                   {sessionStatus.status === "completed" &&
                     sessionStatus.resultImageUrl && (
                       <div className="text-center py-4">
-                        <div className="w-12 h-12 mx-auto mb-3 bg-blue-500/20 rounded-full flex items-center justify-center">
-                          <div className="w-6 h-6 bg-blue-500 rounded-full" />
+                        <div className="w-12 h-12 mx-auto mb-3 bg-gold-500/20 rounded-full flex items-center justify-center">
+                          <div className="w-6 h-6 bg-gold-500 rounded-full" />
                         </div>
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mb-1">
                           Try-On Complete!

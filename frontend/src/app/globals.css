@@ -1,114 +1,120 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --background: hsl(0 0% 98%);
-  --foreground: hsl(230 26% 18%);
-  --card: hsl(0 0% 100%);
-  --card-foreground: hsl(230 26% 18%);
-  --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(230 26% 18%);
-  --primary: hsl(235 100% 65%);
-  --primary-foreground: hsl(0 0% 100%);
-  --secondary: hsl(220 24% 97%);
-  --secondary-foreground: hsl(230 26% 18%);
-  --muted: hsl(220 14% 96%);
-  --muted-foreground: hsl(220 9% 46%);
-  --accent: hsl(220 24% 95%);
-  --accent-foreground: hsl(230 26% 18%);
-  --destructive: hsl(0 72% 51%);
-  --destructive-foreground: hsl(0 0% 100%);
-  --border: hsl(220 13% 91%);
-  --input: hsl(220 13% 91%);
-  --ring: hsl(235 100% 65%);
-  --chart-1: hsl(235 100% 65%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(215 65% 60%);
-  --chart-5: hsl(190 75% 55%);
-  
-  /* Enhanced AI Theme Colors - Light Mode */
-  --electric-blue: hsl(235 100% 65%);
-  --coral: hsl(210 100% 60%);
-  --success: hsl(142 71% 45%);
-  --warning: hsl(45 93% 47%);
-  --ai-blue: hsl(215 100% 70%);
-  --ai-cyan: hsl(190 100% 60%);
-  --electric-blue-rgb: 82 82 255;
-  --coral-rgb: 37 99 235;
-  --success-rgb: 34 197 94;
-  --warning-rgb: 245 158 11;
-  --ai-blue-rgb: 51 128 255;
-  --ai-cyan-rgb: 51 204 255;
-  
-  
-  /* Enhanced Glassmorphism */
-  --glass-bg: hsla(0 0% 100% / 0.85);
-  --glass-border: hsla(235 100% 65% / 0.15);
+  /* Nyambika brand — paper: white/black surfaces + ink text, gold reserved for action buttons only
+     (see documentations/UI_UX_DESIGN_RESEARCH_AND_REDESIGN_PLAN.md) */
+  --background: #FFFFFF;
+  --foreground: #111111;
+  --card: #FFFFFF;
+  --card-foreground: #111111;
+  --popover: #FFFFFF;
+  --popover-foreground: #111111;
+  /* --primary/--ring darkened from #B58E41 to clear WCAG AA 4.5:1 as text-on-white
+     and white-text-on-fill; #B58E41 only tested at ~3:1 (Phase 5 QA finding). */
+  --primary: #8F6F30;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F5F5F5;
+  --secondary-foreground: #111111;
+  --muted: #F5F5F5;
+  --muted-foreground: #6B6B6B;
+  --accent: #F0F0F0;
+  --accent-foreground: #111111;
+  --destructive: hsl(4 62% 40%);
+  --destructive-foreground: #FFFFFF;
+  --border: #E5E5E5;
+  --input: #E5E5E5;
+  --ring: #8F6F30;
+  --chart-1: #8F6F30;
+  --chart-2: hsl(160 35% 38%);
+  --chart-3: hsl(215 35% 45%);
+  --chart-4: hsl(4 45% 45%);
+  --chart-5: hsl(45 60% 55%);
+
+  /* Brand gold accents — deep gold, mid gold, champagne gold (replaces "AI theme" tokens) */
+  --electric-blue: #8F6F30;
+  --coral: #8B3A2F;
+  --success: hsl(142 35% 34%);
+  --warning: hsl(38 75% 45%);
+  --ai-blue: #8F6F30;
+  --ai-cyan: #E8C05C;
+  --electric-blue-rgb: 143 111 48;
+  --coral-rgb: 139 58 47;
+  --success-rgb: 58 107 76;
+  --warning-rgb: 191 138 46;
+  --ai-blue-rgb: 143 111 48;
+  --ai-cyan-rgb: 232 192 92;
+
+
+  /* Glassmorphism — retained for the single sticky mobile filter bar surface only */
+  --glass-bg: hsla(40 30% 98% / 0.85);
+  --glass-border: hsla(38 45% 45% / 0.18);
   --glass-backdrop: blur(16px);
-  
-  --radius: 1.5rem;
+
+  --radius: 0.5rem;
   --font-sans: 'Inter', system-ui, sans-serif;
+  --font-serif: 'Fraunces', 'Playfair Display', Georgia, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Scrollbar color tokens (light) */
-  --scrollbar-thumb: linear-gradient(180deg, hsl(235 100% 70% / 0.85), hsl(190 100% 60% / 0.85));
-  --scrollbar-thumb-hover: linear-gradient(180deg, hsl(235 100% 75%), hsl(215 100% 70%));
-  --scrollbar-track: linear-gradient(180deg, hsl(220 24% 97%), hsl(220 14% 96%));
-  --scrollbar-shadow: 0 0 0 1px hsl(235 100% 65% / 0.15), 0 2px 8px hsl(235 100% 65% / 0.15);
+  --scrollbar-thumb: hsl(0 0% 75% / 0.85);
+  --scrollbar-thumb-hover: hsl(0 0% 60%);
+  --scrollbar-track: transparent;
+  --scrollbar-shadow: none;
 }
 
 .dark {
-  --background: hsl(230 23% 9%);
-  --foreground: hsl(225 14% 93%);
-  --card: hsl(230 26% 12%);
-  --card-foreground: hsl(225 14% 93%);
-  --popover: hsl(230 26% 12%);
-  --popover-foreground: hsl(225 14% 93%);
-  --primary: hsl(235 100% 70%);
-  --primary-foreground: hsl(230 23% 9%);
-  --secondary: hsl(230 26% 15%);
-  --secondary-foreground: hsl(225 14% 93%);
-  --muted: hsl(230 26% 15%);
-  --muted-foreground: hsl(225 9% 60%);
-  --accent: hsl(230 26% 18%);
-  --accent-foreground: hsl(225 14% 93%);
-  --destructive: hsl(0 72% 51%);
-  --destructive-foreground: hsl(225 14% 93%);
-  --border: hsl(230 26% 18%);
-  --input: hsl(230 26% 18%);
-  --ring: hsl(235 100% 70%);
-  --chart-1: hsl(235 100% 70%);
-  --chart-2: hsl(160 60% 45%);
-  --chart-3: hsl(30 80% 55%);
-  --chart-4: hsl(215 65% 60%);
-  --chart-5: hsl(190 75% 55%);
-  
-  /* Enhanced AI Theme Colors - Dark Mode */
-  --electric-blue: hsl(235 100% 75%);
-  --coral: hsl(210 100% 65%);
-  --success: hsl(142 71% 50%);
-  --warning: hsl(45 93% 55%);
-  --ai-blue: hsl(215 100% 75%);
-  --ai-cyan: hsl(190 100% 65%);
-  --electric-blue-rgb: 128 128 255;
-  --coral-rgb: 59 130 246;
-  --success-rgb: 52 211 153;
-  --warning-rgb: 251 191 36;
-  --ai-blue-rgb: 96 165 250;
-  --ai-cyan-rgb: 102 217 255;
-  
-  /* Enhanced Glassmorphism Dark */
-  --glass-bg: hsla(230 26% 12% / 0.85);
-  --glass-border: hsla(235 100% 70% / 0.2);
+  --background: #000000;
+  --foreground: #F2F2F2;
+  --card: #0D0D0D;
+  --card-foreground: #F2F2F2;
+  --popover: #0D0D0D;
+  --popover-foreground: #F2F2F2;
+  --primary: #D4AF37;
+  --primary-foreground: #0B0B0C;
+  --secondary: #171717;
+  --secondary-foreground: #F2F2F2;
+  --muted: #171717;
+  --muted-foreground: #A3A3A3;
+  --accent: #1A1A1A;
+  --accent-foreground: #F2F2F2;
+  --destructive: hsl(4 55% 55%);
+  --destructive-foreground: #0B0B0C;
+  --border: #262626;
+  --input: #262626;
+  --ring: #D4AF37;
+  --chart-1: #D4AF37;
+  --chart-2: hsl(160 35% 45%);
+  --chart-3: hsl(215 35% 55%);
+  --chart-4: hsl(4 45% 55%);
+  --chart-5: hsl(45 60% 60%);
+
+  /* Brand gold accents — Dark Mode */
+  --electric-blue: #D4AF37;
+  --coral: hsl(6 55% 60%);
+  --success: hsl(142 35% 48%);
+  --warning: hsl(38 75% 55%);
+  --ai-blue: hsl(45 70% 55%);
+  --ai-cyan: #E8C05C;
+  --electric-blue-rgb: 212 175 55;
+  --coral-rgb: 224 108 93;
+  --success-rgb: 95 163 124;
+  --warning-rgb: 224 168 71;
+  --ai-blue-rgb: 224 184 71;
+  --ai-cyan-rgb: 232 192 92;
+
+  /* Glassmorphism Dark */
+  --glass-bg: hsla(240 3% 9% / 0.85);
+  --glass-border: hsla(45 65% 55% / 0.2);
   --glass-backdrop: blur(20px);
 
   /* Scrollbar color tokens (dark) */
-  --scrollbar-thumb: linear-gradient(180deg, hsl(235 100% 70% / 0.6), hsl(190 100% 65% / 0.6));
-  --scrollbar-thumb-hover: linear-gradient(180deg, hsl(235 100% 75% / 0.8), hsl(215 100% 75% / 0.8));
-  --scrollbar-track: linear-gradient(180deg, hsl(230 26% 15%), hsl(230 26% 12%));
-  --scrollbar-shadow: 0 0 0 1px hsl(235 100% 70% / 0.2), 0 2px 8px hsl(235 100% 70% / 0.15);
+  --scrollbar-thumb: hsl(0 0% 30% / 0.85);
+  --scrollbar-thumb-hover: hsl(0 0% 45%);
+  --scrollbar-track: transparent;
+  --scrollbar-shadow: none;
 }
 
 @layer base {
@@ -128,7 +134,11 @@
   /* Global scrollbar defaults */
   html, body, * {
     scrollbar-width: thin; /* Firefox */
-    scrollbar-color: hsl(235 100% 65% / 0.6) transparent;
+    scrollbar-color: hsl(0 0% 70% / 0.6) transparent;
+  }
+
+  html.dark, .dark * {
+    scrollbar-color: hsl(0 0% 30% / 0.6) transparent;
   }
 
   /* AI-inspired scrollbar styles */
@@ -171,64 +181,18 @@
     background: var(--scrollbar-track);
   }
 
-  /* AI-inspired skeleton: subtle aurora + shimmer bar */
+  /* Flat skeleton loader: solid color + simple opacity pulse (no gradients) */
   .ai-skeleton {
-    position: relative;
-    overflow: hidden;
-    background:
-      linear-gradient(120deg,
-        hsl(220 14% 96% / 0.9) 0%,
-        hsl(220 14% 96% / 0.9) 35%,
-        hsl(220 14% 96% / 0.9) 65%,
-        hsl(220 14% 96% / 0.9) 100%);
-    /* Dark mode fallback via CSS vars already applied by bg-muted */
-    mask-image: radial-gradient(white, black);
-    -webkit-mask-image: radial-gradient(white, black);
+    background: hsl(220 14% 94%);
+    animation: skeleton-pulse 1.6s ease-in-out infinite;
   }
 
   .dark .ai-skeleton {
-    background:
-      linear-gradient(120deg,
-        hsl(230 26% 15% / 0.9) 0%,
-        hsl(230 26% 15% / 0.9) 35%,
-        hsl(230 26% 15% / 0.9) 65%,
-        hsl(230 26% 15% / 0.9) 100%);
-  }
-
-  /* Aurora glow layer */
-  .ai-skeleton::after {
-    content: "";
-    position: absolute;
-    inset: -40% -60%;
-    background:
-      radial-gradient(60% 50% at 20% 30%, hsla(var(--electric-blue-rgb)/0.08), transparent 60%),
-      radial-gradient(55% 45% at 80% 70%, hsla(var(--ai-blue-rgb)/0.08), transparent 60%),
-      radial-gradient(50% 40% at 50% 50%, hsla(var(--ai-cyan-rgb)/0.08), transparent 60%);
-    filter: blur(18px);
-    animation: ai-aurora 8s ease-in-out infinite alternate;
-    pointer-events: none;
-  }
-
-  /* Shimmer bar */
-  .ai-skeleton::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(90deg,
-        transparent 0%,
-        rgba(255,255,255,0.55) 20%,
-        rgba(255,255,255,0.8) 35%,
-        rgba(255,255,255,0.55) 50%,
-        transparent 70%);
-    mix-blend-mode: overlay;
-    transform: translateX(-100%);
-    animation: ai-shimmer 1.6s linear infinite;
+    background: hsl(230 10% 16%);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ai-skeleton::before,
-    .ai-skeleton::after {
+    .ai-skeleton {
       animation: none !important;
     }
   }
@@ -243,14 +207,11 @@
   }
   
   .ai-gradient {
-    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--ai-blue) 50%, var(--ai-cyan) 100%);
+    background: var(--primary);
   }
   
   .ai-gradient-text {
-    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--ai-blue) 50%, var(--ai-cyan) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--foreground);
   }
   
   .floating-card {
@@ -265,14 +226,11 @@
   }
   
   .gradient-bg {
-    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--ai-cyan) 100%);
+    background: var(--primary);
   }
   
   .gradient-text {
-    background: linear-gradient(135deg, var(--electric-blue) 0%, var(--ai-cyan) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--foreground);
   }
   
   .soft-border {
@@ -297,47 +255,29 @@
   }
   
   .success-badge {
-    @apply status-badge bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100;
+    @apply status-badge bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100;
   }
-  
+
   .warning-badge {
-    @apply status-badge bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100;
+    @apply status-badge bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-100;
   }
-  
+
   .error-badge {
     @apply status-badge bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100;
   }
-  
+
   .info-badge {
     @apply status-badge bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100;
   }
 }
 
 @layer utilities {
-  .animate-gradient-x {
-    animation: gradient-x 15s ease infinite;
-    background-size: 200% 200%;
-  }
-  
-  .animate-gradient-y {
-    animation: gradient-y 15s ease infinite;
-    background-size: 200% 200%;
-  }
-  
   .animate-float {
     animation: float 6s ease-in-out infinite;
   }
-  
+
   .animate-pulse-slow {
     animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }
-  
-  .animate-glow {
-    animation: glow 3s ease-in-out infinite alternate;
-  }
-  
-  .animate-shimmer {
-    animation: shimmer 2s linear infinite;
   }
 
   .text-balance {
@@ -345,74 +285,21 @@
   }
 }
 
-@keyframes gradient-x {
-  0%, 100% {
-    background-position: left center;
-  }
-  50% {
-    background-position: right center;
-  }
-}
-
-@keyframes gradient-y {
-  0%, 100% {
-    background-position: center top;
-  }
-  50% {
-    background-position: center bottom;
-  }
-}
-
 @keyframes float {
-  0%, 100% { 
+  0%, 100% {
     transform: translateY(0px);
   }
-  50% { 
+  50% {
     transform: translateY(-10px);
   }
 }
 
-@keyframes glow {
-  from {
-    opacity: 0.8;
-  }
-  to {
+@keyframes skeleton-pulse {
+  0%, 100% {
     opacity: 1;
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200% center;
-  }
-  100% {
-    background-position: 200% center;
-  }
-}
-
-/* AI skeleton shimmer keyframe (translate instead of background-pos for perf) */
-@keyframes ai-shimmer {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
-}
-
-/* Aurora drift */
-@keyframes ai-aurora {
-  0% {
-    transform: translate3d(-2%, -2%, 0) scale(1);
-    opacity: 0.9;
   }
   50% {
-    transform: translate3d(2%, 1%, 0) scale(1.03);
-    opacity: 1;
-  }
-  100% {
-    transform: translate3d(1%, -1%, 0) scale(1.02);
-    opacity: 0.95;
+    opacity: 0.6;
   }
 }
 
@@ -442,4 +329,18 @@
 
 .animation-delay-4000 {
   animation-delay: 4s;
+}
+
+/* Respect prefers-reduced-motion for the decorative bounce/ping/pulse/blob
+   effects used across product/marketing sections site-wide */
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce,
+  .animate-ping,
+  .animate-pulse,
+  .animate-blob,
+  .animate-float,
+  .animate-pulse-slow,
+  .ai-skeleton {
+    animation: none !important;
+  }
 }

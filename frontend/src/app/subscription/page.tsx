@@ -3,7 +3,17 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { Check, Sparkles, Zap, Crown, ArrowRight, Loader2 } from "lucide-react";
+import {
+  Check,
+  Sparkles,
+  Zap,
+  Crown,
+  ArrowRight,
+  Loader2,
+  Smartphone,
+  ShieldCheck,
+  Globe,
+} from "lucide-react";
 
 interface SubscriptionPlan {
   id: string;
@@ -149,24 +159,24 @@ export default function SubscriptionPage() {
     }
   };
 
-  const getPlanGradient = (planName: string) => {
+  const getPlanColor = (planName: string) => {
     switch (planName.toLowerCase()) {
       case "starter":
-        return "from-blue-500 to-cyan-500";
+        return "gold-500";
       case "professional":
-        return "from-blue-500 to-blue-700";
+        return "gold-600";
       case "enterprise":
-        return "from-cyan-500 to-red-500";
+        return "gold-700";
       default:
-        return "from-blue-500 to-cyan-500";
+        return "gold-500";
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-slate-900">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-blue-400 mx-auto mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin text-gray-700 mx-auto mb-4" />
           <p className="text-white">Loading subscription plans...</p>
         </div>
       </div>
@@ -174,23 +184,23 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
+    <div className="min-h-screen bg-slate-900">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gold-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gold-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-40 left-40 w-80 h-80 bg-gold-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-16">
         {/* Header */}
         <div className="text-center mb-16">
-          <div className="inline-flex items-center justify-center p-2 bg-blue-500/20 rounded-full mb-6">
-            <Sparkles className="h-8 w-8 text-blue-400" />
+          <div className="inline-flex items-center justify-center p-2 bg-gold-500/20 rounded-full mb-6">
+            <Sparkles className="h-8 w-8 text-gray-700" />
           </div>
           <h1 className="text-5xl font-bold text-white mb-6">
             Choose Your
-            <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+            <span className="text-foreground">
               {" "}
               AI-Powered{" "}
             </span>
@@ -204,7 +214,7 @@ export default function SubscriptionPage() {
 
         {/* Current Subscription Banner */}
         {currentSubscription && (
-          <div className="mb-12 p-6 bg-gradient-to-r from-blue-500/20 to-blue-500/20 border border-blue-500/30 rounded-2xl backdrop-blur-xl">
+          <div className="mb-12 p-6 border border-gray-400/30 rounded-2xl backdrop-blur-xl bg-gray-500/20">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-semibold text-white mb-2">
@@ -235,7 +245,7 @@ export default function SubscriptionPage() {
                 onClick={() => setBillingCycle("monthly")}
                 className={`px-6 py-3 rounded-xl transition-all duration-300 ${
                   billingCycle === "monthly"
-                    ? "bg-blue-500 text-white shadow-lg"
+                    ? "bg-gold-500 text-white"
                     : "text-gray-300 hover:text-white"
                 }`}
               >
@@ -245,12 +255,12 @@ export default function SubscriptionPage() {
                 onClick={() => setBillingCycle("annual")}
                 className={`px-6 py-3 rounded-xl transition-all duration-300 relative ${
                   billingCycle === "annual"
-                    ? "bg-blue-500 text-white shadow-lg"
+                    ? "bg-gold-500 text-white"
                     : "text-gray-300 hover:text-white"
                 }`}
               >
                 Annual
-                <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs px-2 py-1 rounded-full">
+                <span className="absolute -top-2 -right-2 bg-gold-500 text-white text-xs px-2 py-1 rounded-full">
                   Save 17%
                 </span>
               </button>
@@ -275,7 +285,7 @@ export default function SubscriptionPage() {
               >
                 {isPopular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                    <div className="bg-gradient-to-r from-blue-500 to-blue-700 text-white px-6 py-2 rounded-full text-sm font-semibold">
+                    <div className="text-white px-6 py-2 rounded-full text-sm font-semibold bg-gold-500">
                       Most Popular
                     </div>
                   </div>
@@ -284,13 +294,13 @@ export default function SubscriptionPage() {
                 <div
                   className={`h-full p-8 rounded-3xl backdrop-blur-xl border transition-all duration-500 group-hover:scale-105 ${
                     isPopular
-                      ? "bg-gradient-to-br from-blue-500/20 to-blue-500/20 border-blue-500/50 shadow-2xl shadow-blue-500/25"
+                      ? "border-gray-400/50 bg-gray-500/20"
                       : "bg-white/5 border-white/10 hover:border-white/20"
                   }`}
                 >
                   {/* Plan Icon */}
                   <div
-                    className={`inline-flex p-3 rounded-2xl bg-gradient-to-r ${getPlanGradient(
+                    className={`inline-flex p-3 rounded-2xl bg-${getPlanColor(
                       plan.name
                     )} mb-6`}
                   >
@@ -313,7 +323,7 @@ export default function SubscriptionPage() {
                       </span>
                     </div>
                     {billingCycle === "annual" && (
-                      <p className="text-sm text-blue-400 mt-1">
+                      <p className="text-sm text-gray-700 mt-1">
                         Save{" "}
                         {Math.round(
                           (1 -
@@ -332,7 +342,7 @@ export default function SubscriptionPage() {
                     {(Array.isArray(plan.features) ? plan.features : []).map(
                       (feature, featureIndex) => (
                         <li key={featureIndex} className="flex items-start">
-                          <Check className="h-5 w-5 text-blue-400 mr-3 mt-0.5 flex-shrink-0" />
+                          <Check className="h-5 w-5 text-gray-700 mr-3 mt-0.5 flex-shrink-0" />
                           <span className="text-gray-300">{feature}</span>
                         </li>
                       )
@@ -345,9 +355,9 @@ export default function SubscriptionPage() {
                     disabled={subscribing === plan.id || isCurrentPlan}
                     className={`w-full py-4 px-6 rounded-2xl font-semibold transition-all duration-300 flex items-center justify-center ${
                       isCurrentPlan
-                        ? "bg-blue-500/20 text-blue-400 cursor-not-allowed"
+                        ? "bg-gold-500/20 text-gray-700 cursor-not-allowed"
                         : isPopular
-                        ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white hover:shadow-lg hover:shadow-blue-500/25"
+                        ? "text-white bg-gold-500"
                         : "bg-white/10 text-white hover:bg-white/20"
                     }`}
                   >
@@ -376,22 +386,22 @@ export default function SubscriptionPage() {
           <div className="grid md:grid-cols-4 gap-6 max-w-4xl mx-auto">
             {[
               {
-                icon: "🤖",
+                icon: Sparkles,
                 title: "AI Try-On Technology",
                 desc: "Advanced virtual fitting",
               },
               {
-                icon: "📱",
+                icon: Smartphone,
                 title: "Mobile Payments",
                 desc: "MTN & Airtel Money",
               },
               {
-                icon: "🛡️",
+                icon: ShieldCheck,
                 title: "Secure Platform",
                 desc: "Enterprise-grade security",
               },
               {
-                icon: "🌍",
+                icon: Globe,
                 title: "Multi-language",
                 desc: "English, Kinyarwanda, French",
               },
@@ -400,7 +410,9 @@ export default function SubscriptionPage() {
                 key={index}
                 className="p-6 bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10"
               >
-                <div className="text-3xl mb-3">{feature.icon}</div>
+                <div className="mb-3 flex justify-center">
+                  <feature.icon className="h-8 w-8 text-gray-700" />
+                </div>
                 <h3 className="text-lg font-semibold text-white mb-2">
                   {feature.title}
                 </h3>

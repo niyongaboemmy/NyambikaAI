@@ -56,10 +56,12 @@ export const FormReactSelect = React.forwardRef<HTMLDivElement, FormReactSelectP
         minHeight: 40,
         background: "transparent",
         borderRadius: 8,
-        borderColor: error ? (isDark ? "#f87171" : "#ef4444") : (isDark ? "#374151" : "#e5e7eb"),
-        boxShadow: state.isFocused
-          ? `0 0 0 2px ${isDark ? "rgba(96,165,250,0.2)" : "rgba(59,130,246,0.2)"}`
-          : "none",
+        borderWidth: state.isFocused ? 2 : 1,
+        borderColor: error
+          ? (isDark ? "#f87171" : "#ef4444")
+          : state.isFocused
+            ? (isDark ? "#D4AF37" : "#8F6F30")
+            : (isDark ? "#374151" : "#e5e7eb"),
         color: isDark ? "#e5e7eb" : "#111827",
         ':hover': {
           borderColor: error ? (isDark ? "#fca5a5" : "#f87171") : (isDark ? "#4b5563" : "#d1d5db"),
@@ -68,8 +70,7 @@ export const FormReactSelect = React.forwardRef<HTMLDivElement, FormReactSelectP
       menu: (base) => ({
         ...base,
         background: isDark ? "#111827" : "#ffffff",
-        border: `1px solid ${isDark ? "#374151" : "#e5e7eb"}`,
-        boxShadow: isDark ? "0 8px 24px rgba(0,0,0,0.5)" : "0 8px 24px rgba(0,0,0,0.08)",
+        border: `1px solid ${isDark ? "#4b5563" : "#9ca3af"}`,
         zIndex: 50,
       }),
       option: (base, state) => ({

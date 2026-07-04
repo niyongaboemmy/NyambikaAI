@@ -27,6 +27,7 @@ import {
   X,
   Trash2,
   Send,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -529,12 +530,12 @@ export default function TryOnRoom() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b bg-white dark:from-gray-900 dark:via-gray-950 dark:to-black mt-10 rounded-t-2xl">
+    <div className="min-h-screen bg-white mt-10 rounded-t-2xl dark:bg-gray-900">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-blue-800/30 rounded-t-2xl"
+        className="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200 dark:border-gray-700/30 rounded-t-2xl"
       >
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           {/* Mobile Header Layout */}
@@ -554,7 +555,7 @@ export default function TryOnRoom() {
 
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                   <motion.div
-                    className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-blue-700 flex items-center justify-center flex-shrink-0"
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 bg-gold-500"
                     animate={{ rotate: 360 }}
                     transition={{
                       duration: 8,
@@ -565,7 +566,7 @@ export default function TryOnRoom() {
                     <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </motion.div>
                   <div className="min-w-0">
-                    <h1 className="text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent truncate">
+                    <h1 className="text-lg font-bold truncate text-foreground">
                       {productId ? "AI Try-On" : "AI Try-On Gallery"}
                     </h1>
                     <div className="hidden sm:flex items-center gap-2">
@@ -628,7 +629,7 @@ export default function TryOnRoom() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800"
+                className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700"
               >
                 {/* Mobile Search - shown when filter panel opens */}
                 <div className="relative sm:hidden mb-3">
@@ -638,7 +639,7 @@ export default function TryOnRoom() {
                     placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-7 pr-3 py-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-7 pr-3 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-gold-500"
                   />
                 </div>
 
@@ -646,7 +647,7 @@ export default function TryOnRoom() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-slate-800 text-xs flex-1 sm:flex-none"
+                    className="px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 text-xs flex-1 sm:flex-none"
                   >
                     <option value="createdAt">Latest First</option>
                     <option value="likes">Most Liked</option>
@@ -681,7 +682,7 @@ export default function TryOnRoom() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-950/50 dark:to-blue-950/50 border border-blue-200 dark:border-blue-800 rounded-xl sm:rounded-2xl p-4 sm:p-6 mx-3 sm:mx-4 mt-4"
+          className="border border-gray-200 dark:border-gray-700 rounded-xl sm:rounded-2xl p-4 sm:p-6 mx-3 sm:mx-4 mt-4 bg-gold-50 dark:bg-gray-950/50"
         >
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start lg:items-center">
             {/* Product Info */}
@@ -710,7 +711,7 @@ export default function TryOnRoom() {
                 {/* Progress Bar */}
                 <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
                   <motion.div
-                    className="bg-gradient-to-r from-blue-500 to-blue-600 h-2 rounded-full"
+                    className="h-2 rounded-full bg-gold-500"
                     initial={{ width: 0 }}
                     animate={{ width: `${processingProgress}%` }}
                     transition={{ duration: 0.5 }}
@@ -730,7 +731,7 @@ export default function TryOnRoom() {
                             ease: "linear",
                           }}
                         >
-                          <RefreshCw className="h-4 w-4 text-blue-500" />
+                          <RefreshCw className="h-4 w-4 text-gray-800" />
                         </motion.div>
                         <span className="text-slate-600 dark:text-slate-400">
                           Processing your try-on...
@@ -739,7 +740,7 @@ export default function TryOnRoom() {
                     )}
                     {processingStatus === "completed" && (
                       <>
-                        <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                        <div className="w-4 h-4 bg-gold-500 rounded-full flex items-center justify-center">
                           <svg
                             className="w-2.5 h-2.5 text-white"
                             fill="currentColor"
@@ -752,7 +753,7 @@ export default function TryOnRoom() {
                             />
                           </svg>
                         </div>
-                        <span className="text-blue-600 dark:text-blue-400 font-medium">
+                        <span className="text-gray-900 dark:text-white font-medium">
                           Try-on completed!
                         </span>
                       </>
@@ -783,7 +784,7 @@ export default function TryOnRoom() {
                   {processingStatus === "completed" && (
                     <Button
                       onClick={() => setSelectedSession(processingSession)}
-                      className="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full"
+                      className="flex-1 sm:flex-none text-white text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full bg-gold-500 hover:bg-gold-600"
                     >
                       <Eye className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
                       View Result
@@ -797,7 +798,7 @@ export default function TryOnRoom() {
                           `/try-on-widget/${processingSession.productId}`
                         )
                       }
-                      className="flex-1 sm:flex-none bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full"
+                      className="flex-1 sm:flex-none text-white text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full bg-gold-500 hover:bg-gold-600"
                     >
                       <RefreshCw className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
                       Try Again
@@ -809,7 +810,7 @@ export default function TryOnRoom() {
                     onClick={() =>
                       router.push(`/product/${processingSession.productId}`)
                     }
-                    className="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400"
+                    className="flex-1 sm:flex-none text-xs sm:text-sm px-3 py-1.5 h-auto rounded-full border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white"
                   >
                     <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
                     View Product
@@ -846,7 +847,7 @@ export default function TryOnRoom() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="truncate text-base sm:text-lg font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent mb-0.5 xs:mb-1 leading-tight">
+                      <h3 className="truncate text-base sm:text-lg font-bold mb-0.5 xs:mb-1 leading-tight text-foreground">
                         {product.name}
                       </h3>
                       <p className="text-xs text-slate-600 dark:text-slate-400">
@@ -861,7 +862,7 @@ export default function TryOnRoom() {
                     <Button
                       onClick={() => router.push(`/product/${product.id}`)}
                       size="sm"
-                      className="flex-1 sm:flex-none xs:h-8 px-2 sm:px-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs"
+                      className="flex-1 sm:flex-none xs:h-8 px-2 sm:px-3 rounded-full text-white text-xs bg-gold-500 hover:bg-gold-600"
                     >
                       <ShoppingBag className="h-3 w-3 flex-shrink-0" />
                       <span className="sm:inline">Order</span>
@@ -872,7 +873,7 @@ export default function TryOnRoom() {
                         router.push(`/try-on-widget/${product.id}`)
                       }
                       size="sm"
-                      className="flex-1 sm:flex-none xs:h-8 px-2 sm:px-3 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-xs"
+                      className="flex-1 sm:flex-none xs:h-8 px-2 sm:px-3 rounded-full text-white text-xs bg-gold-500 hover:bg-gold-600"
                     >
                       <User className="h-3 w-3 flex-shrink-0" />
                       <span className="sm:inline">Try On</span>
@@ -894,7 +895,7 @@ export default function TryOnRoom() {
                       }}
                       variant="outline"
                       size="sm"
-                      className="flex-1 sm:flex-none xs:h-8 px-2 sm:px-3 rounded-full text-xs border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400 dark:bg-gray-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      className="flex-1 sm:flex-none xs:h-8 px-2 sm:px-3 rounded-full text-xs border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gold-900/20"
                     >
                       <Grid3X3 className="h-3 w-3 flex-shrink-0" />
                       <span className="sm:inline">Gallery</span>
@@ -912,7 +913,7 @@ export default function TryOnRoom() {
                       transition={{
                         delay: productIndex * 0.1 + sessionIndex * 0.05,
                       }}
-                      className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden border border-blue-100 dark:border-gray-800/60 relative group cursor-pointer"
+                      className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl overflow-hidden border border-gray-200 dark:border-gray-800/60 relative group cursor-pointer"
                       onClick={() =>
                         router.push(`/session-details/${session.id}`)
                       }
@@ -925,7 +926,7 @@ export default function TryOnRoom() {
                           fill
                           className="object-cover transition-transform duration-300 group-hover:scale-105"
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/50" />
 
                         {/* Quick Actions */}
                         <div className="absolute top-1 xs:top-1.5 sm:top-2 right-1 xs:right-1.5 sm:right-2 flex gap-0.5 xs:gap-1">
@@ -980,13 +981,13 @@ export default function TryOnRoom() {
             </p>
             {productId ? (
               <Link href="/try-on">
-                <Button className="rounded-full bg-gradient-to-r from-blue-500 to-blue-700 text-sm w-full sm:w-auto">
+                <Button className="rounded-full text-sm w-full sm:w-auto bg-gold-500">
                   Start Your First Try-On
                 </Button>
               </Link>
             ) : (
               <Link href="/products">
-                <Button className="rounded-full bg-gradient-to-r from-blue-500 to-blue-700 text-sm w-full sm:w-auto">
+                <Button className="rounded-full text-sm w-full sm:w-auto bg-gold-500">
                   Browse Products
                 </Button>
               </Link>
@@ -1066,8 +1067,9 @@ export default function TryOnRoom() {
                         {selectedSession.productName}
                       </h3>
                       <div className="flex items-center gap-2 mb-3 sm:mb-4 flex-wrap">
-                        <div className="px-2 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium">
-                          ✓ Completed
+                        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800/30 text-gray-900 dark:text-gray-300 text-xs font-medium">
+                          <Check className="h-3 w-3" />
+                          Completed
                         </div>
                         <span className="text-xs text-slate-500 dark:text-slate-400">
                           {new Date(
@@ -1089,7 +1091,7 @@ export default function TryOnRoom() {
                       <div className="min-w-0">
                         <Link
                           href={`/profile/${selectedSession.userId}`}
-                          className="font-medium text-xs sm:text-sm text-slate-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate"
+                          className="font-medium text-xs sm:text-sm text-slate-900 dark:text-slate-100 hover:text-gray-900 dark:hover:text-gray-700 transition-colors truncate"
                         >
                           {selectedSession.userName}
                         </Link>
@@ -1102,7 +1104,7 @@ export default function TryOnRoom() {
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-2 sm:gap-4">
                       <div className="text-center p-2 sm:p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg sm:rounded-xl">
-                        <div className="flex items-center justify-center gap-1 text-blue-500 mb-1">
+                        <div className="flex items-center justify-center gap-1 text-gray-800 mb-1">
                           <Heart className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span className="font-semibold text-xs sm:text-sm">
                             {selectedSession.likes}
@@ -1113,7 +1115,7 @@ export default function TryOnRoom() {
                         </p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg sm:rounded-xl">
-                        <div className="flex items-center justify-center gap-1 text-blue-500 mb-1">
+                        <div className="flex items-center justify-center gap-1 text-gray-800 mb-1">
                           <Eye className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span className="font-semibold text-xs sm:text-sm">
                             {selectedSession.views}
@@ -1124,7 +1126,7 @@ export default function TryOnRoom() {
                         </p>
                       </div>
                       <div className="text-center p-2 sm:p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg sm:rounded-xl">
-                        <div className="flex items-center justify-center gap-1 text-blue-500 mb-1">
+                        <div className="flex items-center justify-center gap-1 text-gray-800 mb-1">
                           <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                           <span className="font-semibold text-xs sm:text-sm">
                             0
@@ -1163,7 +1165,7 @@ export default function TryOnRoom() {
                         onClick={() => handleSave(selectedSession.id)}
                         className={`flex-1 rounded-full text-xs sm:text-sm ${
                           savedSessions.has(selectedSession.id)
-                            ? "bg-blue-500 hover:bg-blue-600 text-white"
+                            ? "bg-gold-500 hover:bg-gold-600 text-white"
                             : "bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-600"
                         }`}
                       >
@@ -1216,7 +1218,7 @@ export default function TryOnRoom() {
                         <Link
                           href={`/try-on-widget/${selectedSession.productId}`}
                         >
-                          <Button className="w-full rounded-full bg-gradient-to-r from-blue-500 to-blue-700 text-white text-sm">
+                          <Button className="w-full rounded-full text-white text-sm bg-gold-500">
                             <ShoppingBag className="h-4 w-4 mr-2 flex-shrink-0" />
                             Try This Product
                           </Button>
@@ -1267,7 +1269,7 @@ export default function TryOnRoom() {
               <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4">
                 {loadingComments ? (
                   <div className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-500" />
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-gray-800" />
                   </div>
                 ) : comments.length > 0 ? (
                   comments.map((comment) => (
@@ -1323,12 +1325,12 @@ export default function TryOnRoom() {
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     placeholder="Add a comment..."
-                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-gold-500"
                   />
                   <Button
                     onClick={() => handlePostComment(selectedSession.id)}
                     disabled={postingComment || !commentText.trim()}
-                    className="rounded-lg bg-blue-500 hover:bg-blue-600 text-white px-3 py-2"
+                    className="rounded-lg bg-gold-500 hover:bg-gold-600 text-white px-3 py-2"
                   >
                     {postingComment ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -1348,7 +1350,7 @@ export default function TryOnRoom() {
             initial={{ opacity: 0, y: -50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -50, scale: 0.9 }}
-            className="fixed top-16 left-1/2 transform -translate-x-1/2 z-[60] bg-gradient-to-r from-blue-500 to-blue-700 text-white px-3 sm:px-4 py-2 rounded-full flex items-center gap-2 text-xs sm:text-sm max-w-xs sm:max-w-sm mx-3"
+            className="fixed top-16 left-1/2 transform -translate-x-1/2 z-[60] text-white px-3 sm:px-4 py-2 rounded-full flex items-center gap-2 text-xs sm:text-sm max-w-xs sm:max-w-sm mx-3 bg-gold-500"
           >
             <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse flex-shrink-0" />
             <div className="flex items-center gap-1 min-w-0">
@@ -1415,7 +1417,7 @@ export default function TryOnRoom() {
                   <div className="flex gap-2 sm:gap-3">
                     <Button
                       onClick={copyShareLink}
-                      className="flex-1 rounded-full bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm"
+                      className="flex-1 rounded-full bg-gold-500 hover:bg-gold-600 text-white text-xs sm:text-sm"
                     >
                       <Download className="h-3 w-3 sm:h-4 sm:w-4 mr-1 flex-shrink-0" />
                       <span className="hidden sm:inline">Copy Link</span>

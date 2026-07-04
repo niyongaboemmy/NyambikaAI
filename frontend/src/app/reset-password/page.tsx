@@ -129,7 +129,7 @@ export default function ResetPasswordPage() {
           <span className="text-lg font-bold tracking-tight text-neutral-900">Nyambika</span>
         </div>
 
-        <div className="bg-white border border-neutral-200 rounded-xl p-8 shadow-sm">
+        <div className="bg-white border border-neutral-200 rounded-xl p-8">
           <div className="mb-6">
             <h1 className="text-xl font-bold text-neutral-900 tracking-tight">Set new password</h1>
             <p className="mt-1 text-sm text-neutral-500">

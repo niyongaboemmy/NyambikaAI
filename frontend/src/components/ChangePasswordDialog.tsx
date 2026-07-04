@@ -108,7 +108,7 @@ export function ChangePasswordDialog({
         {/* Fixed Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 shadow-lg"
+          className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
         >
           <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
         </button>
@@ -116,8 +116,8 @@ export function ChangePasswordDialog({
         <div className="p-6">
           <DialogHeader className="mb-6">
             <div className="flex items-center gap-3 mb-2">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <Lock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/30">
+                <Lock className="h-5 w-5 text-gray-900 dark:text-white" />
               </div>
               <DialogTitle className="text-xl font-semibold text-gray-900 dark:text-white">
                 Change Password
@@ -234,7 +234,7 @@ export function ChangePasswordDialog({
               </Button>
               <Button
                 type="submit"
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                className="flex-1 bg-gold-600 hover:bg-gold-700 text-white"
                 disabled={changePasswordMutation.isPending}
               >
                 {changePasswordMutation.isPending ? (

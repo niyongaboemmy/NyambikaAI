@@ -90,41 +90,41 @@ interface OrderDetails {
 const statusConfig = {
   pending: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: Clock,
     label: "Pending",
     description: "Your order is being reviewed",
   },
   confirmed: {
-    color: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+    color: "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: CheckCircle,
     label: "Confirmed",
     description: "Your order has been confirmed",
   },
   processing: {
     color:
-      "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400",
+      "bg-gray-100 text-gray-500 dark:bg-gold-300/30 dark:text-gray-300",
     icon: Package,
     label: "Processing",
     description: "Your order is being prepared",
   },
   handled: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: CheckCircle,
     label: "Handled",
     description: "Your order has been handled by the producer",
   },
   shipped: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: Truck,
     label: "Shipped",
     description: "Your order is on its way",
   },
   delivered: {
     color:
-      "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400",
+      "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white",
     icon: CheckCircle,
     label: "Delivered",
     description: "Your order has been delivered",
@@ -330,23 +330,23 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
         {/* AI-inspired floating particles */}
         <div className="absolute inset-0 pointer-events-none">
           <div
-            className="absolute top-10 left-10 w-1 h-1 bg-blue-400/60 rounded-full animate-ping"
+            className="absolute top-10 left-10 w-1 h-1 bg-gold-400/60 rounded-full animate-ping"
             style={{ animationDelay: "0s" }}
           />
           <div
-            className="absolute top-20 right-20 w-2 h-2 bg-blue-400/40 rounded-full animate-pulse"
+            className="absolute top-20 right-20 w-2 h-2 bg-gold-400/40 rounded-full animate-pulse"
             style={{ animationDelay: "1s" }}
           />
           <div
-            className="absolute bottom-32 left-16 w-1.5 h-1.5 bg-blue-400/50 rounded-full animate-bounce"
+            className="absolute bottom-32 left-16 w-1.5 h-1.5 bg-gold-400/50 rounded-full animate-bounce"
             style={{ animationDelay: "2s" }}
           />
           <div
-            className="absolute top-1/3 right-10 w-1 h-1 bg-cyan-400/60 rounded-full animate-ping"
+            className="absolute top-1/3 right-10 w-1 h-1 bg-gold-300/60 rounded-full animate-ping"
             style={{ animationDelay: "3s" }}
           />
           <div
-            className="absolute bottom-20 right-32 w-2 h-2 bg-blue-400/40 rounded-full animate-pulse"
+            className="absolute bottom-20 right-32 w-2 h-2 bg-gold-400/40 rounded-full animate-pulse"
             style={{ animationDelay: "4s" }}
           />
         </div>
@@ -361,7 +361,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     ? router.push(`/producer-orders`)
                     : router.push("/orders")
                 }
-                className="bg-gray-100 dark:bg-gray-900/50 dark:border-none hover:bg-white/20 dark:hover:bg-slate-800/50 transition-all duration-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 transform hover:scale-105 hover:shadow-md"
+                className="bg-gray-100 dark:bg-gray-900/50 dark:border-none hover:bg-white/20 dark:hover:bg-slate-800/50 transition-all duration-300 text-xs sm:text-sm px-2 sm:px-3 py-1 sm:py-2 transform hover:scale-105"
               >
                 <ArrowLeft className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
                 <span className="hidden sm:inline">
@@ -371,14 +371,14 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
               </Button>
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <div className="relative">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-blue-500 via-blue-500 to-blue-500 rounded-lg flex items-center justify-center shadow-md">
+                  <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center bg-gold-500">
                     <Brain className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                   </div>
-                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full animate-bounce" />
-                  <Activity className="absolute -bottom-0.5 -left-0.5 h-2 w-2 text-cyan-400 animate-pulse" />
+                  <div className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full animate-bounce bg-gold-400" />
+                  <Activity className="absolute -bottom-0.5 -left-0.5 h-2 w-2 text-gray-500 animate-pulse" />
                 </div>
                 <div>
-                  <h1 className="text-sm sm:text-base md:text-lg font-bold bg-gradient-to-r from-blue-600 via-blue-600 to-blue-600 bg-clip-text text-transparent">
+                  <h1 className="text-sm sm:text-base md:text-lg font-bold text-foreground">
                     #{order.id.slice(-8).toUpperCase()}
                   </h1>
                   <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
@@ -410,13 +410,13 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-2 animate-in slide-in-from-left-4 duration-500 delay-200">
               {/* Order Status */}
-              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all hover:scale-[1.01] hover:shadow-lg animate-in slide-in-from-bottom-4 duration-500 delay-250">
+              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all hover:scale-[1.01] animate-in slide-in-from-bottom-4 duration-500 delay-250">
                 <div className="absolute inset-0 bg-white dark:bg-gray-900/50 dark:border-none" />
 
                 {/* Progress indicator */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gray-200 dark:bg-gray-800/50">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-blue-700 transition-all duration-1000 ease-out animate-pulse"
+                    className="h-full transition-all duration-1000 ease-out animate-pulse bg-gold-500"
                     style={{ width: `${progress}%` }}
                   />
                 </div>
@@ -424,7 +424,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                 <CardHeader className="relative z-10">
                   <div className="flex items-center justify-between flex-wrap gap-3 sm:gap-0">
                     <CardTitle className="flex items-center gap-2">
-                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gold-500 rounded-lg flex items-center justify-center">
                         <StatusIcon className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
                       </div>
                       <div>
@@ -435,7 +435,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                           <span className="sm:hidden">
                             {t("orders.detail.journeyShort")}
                           </span>
-                          <Layers className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
+                          <Layers className="h-2.5 w-2.5 text-gray-700 animate-pulse" />
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           {/* Optional: localized descriptions can be added */}
@@ -444,10 +444,10 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     </CardTitle>
                     <div className="text-right">
                       <div className="relative">
-                        <div className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                        <div className="text-lg sm:text-xl md:text-2xl font-bold text-foreground">
                           {Math.round(progress)}%
                         </div>
-                        <Wifi className="absolute -top-1 -right-5 h-3 w-3 text-blue-400 animate-pulse" />
+                        <Wifi className="absolute -top-1 -right-5 h-3 w-3 text-gray-700 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-500">
                         {t("orders.detail.complete")}
@@ -458,10 +458,10 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                 <CardContent className="relative z-10 p-3 sm:p-4">
                   <div className="space-y-2 sm:space-y-3">
                     {order.trackingNumber && (
-                      <div className="flex items-center gap-2 p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                        <Truck className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      <div className="flex items-center gap-2 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800/20 rounded-lg">
+                        <Truck className="h-4 w-4 text-gray-800 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium text-blue-700 dark:text-blue-300">
+                          <div className="text-xs font-medium text-gray-900 dark:text-gray-300">
                             {t("orders.detail.tracking")}
                           </div>
                           <div className="font-mono text-xs text-gray-700 dark:text-gray-300 truncate">
@@ -472,7 +472,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                           size="sm"
                           variant="ghost"
                           onClick={copyTrackingNumber}
-                          className="hover:bg-blue-100 dark:hover:bg-blue-800 p-1"
+                          className="hover:bg-gray-100 dark:hover:bg-gold-800 p-1"
                         >
                           <Copy className="h-3 w-3" />
                         </Button>
@@ -490,11 +490,11 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
               </Card>
 
               {/* Order Items */}
-              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] hover:shadow-lg animate-in slide-in-from-bottom-4 delay-300">
+              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] animate-in slide-in-from-bottom-4 delay-300">
                 <div className="absolute inset-0 bg-white dark:bg-gray-900/50 dark:border-none" />
                 <CardHeader className="relative z-10 pb-2">
                   <CardTitle className="flex items-center gap-2">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gold-500 rounded-lg flex items-center justify-center">
                       <ShoppingBag className="h-3 w-3 text-white" />
                     </div>
                     <div>
@@ -505,7 +505,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         <span className="sm:hidden">
                           {t("orders.detail.items")}
                         </span>
-                        <Cpu className="h-2.5 w-2.5 text-blue-500 animate-pulse" />
+                        <Cpu className="h-2.5 w-2.5 text-gray-800 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">
                         {order.items.length}{" "}
@@ -521,7 +521,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                     {order.items.map((item, index) => (
                       <div
                         key={item.id}
-                        className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-100 dark:bg-gray-800/50 rounded-lg group hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 hover:scale-[1.02] hover:shadow-md animate-in slide-in-from-left-4 delay-75"
+                        className="flex flex-col sm:flex-row gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-100 dark:bg-gray-800/50 rounded-lg group hover:bg-gray-50 dark:hover:bg-gray-800 transition-all duration-300 hover:scale-[1.02] animate-in slide-in-from-left-4 delay-75"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
                         <div className="relative flex-shrink-0 mx-auto sm:mx-0">
@@ -535,14 +535,14 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                                 ? (item as any).product?.nameRw
                                 : item.product?.name || "Product"
                             }
-                            className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg transform transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
+                            className="w-12 h-12 sm:w-16 sm:h-16 object-cover rounded-lg transform transition-all duration-300 group-hover:scale-110"
                           />
-                          <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg animate-pulse">
+                          <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-xs font-bold text-white animate-pulse bg-gold-500">
                             {item.quantity}
                           </div>
                         </div>
                         <div className="flex-1 text-center sm:text-left">
-                          <h4 className="font-semibold text-gray-900 dark:text-white text-xs sm:text-sm truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300">
+                          <h4 className="font-semibold text-gray-900 dark:text-white text-xs sm:text-sm truncate group-hover:text-gray-900 dark:group-hover:text-gray-700 transition-colors duration-300">
                             {language === "rw" && (item as any).product?.nameRw
                               ? (item as any).product?.nameRw
                               : item.product?.name ||
@@ -568,14 +568,14 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                           </div>
                         </div>
                         <div className="text-center sm:text-right">
-                          <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent group-hover:from-blue-600 group-hover:to-blue-600 transition-all duration-300">
+                          <div className="text-sm sm:text-base font-bold group-hover:from-gold-600 group-hover:to-gold-600 transition-all duration-300 text-foreground">
                             {formatPrice(item.price)}
                           </div>
                         </div>
                         <div className="text-xs text-gray-500">
                           {t("orders.detail.each")}
                         </div>
-                        <div className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                        <div className="text-sm sm:text-base font-bold text-foreground">
                           {formatPrice(parseFloat(item.price) * item.quantity)}
                         </div>
                       </div>
@@ -586,11 +586,11 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
 
               {/* Shipping Address */}
               {shippingAddr && (
-                <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] hover:shadow-lg animate-in slide-in-from-bottom-4 delay-400">
+                <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] animate-in slide-in-from-bottom-4 delay-400">
                   <div className="absolute inset-0 bg-white dark:bg-gray-900/50 dark:border-none" />
                   <CardHeader className="relative z-10 p-3 sm:p-4">
                     <CardTitle className="flex items-center gap-2">
-                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gold-500 rounded-lg flex items-center justify-center">
                         <MapPin className="h-3 w-3 text-white" />
                       </div>
                       <div>
@@ -601,7 +601,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                           <span className="sm:hidden">
                             {t("orders.detail.addressShort")}
                           </span>
-                          <Activity className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
+                          <Activity className="h-2.5 w-2.5 text-gray-700 animate-pulse" />
                         </div>
                         <div className="text-xs text-gray-600 dark:text-gray-400">
                           {t("orders.detail.aiRoute")}
@@ -614,7 +614,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <div className="space-y-1.5">
                         {shippingAddr.fullName && (
                           <p className="font-semibold text-gray-900 dark:text-white text-sm flex items-center gap-2">
-                            <User className="h-3 w-3 text-blue-500" />
+                            <User className="h-3 w-3 text-gray-800" />
                             {shippingAddr.fullName}
                           </p>
                         )}
@@ -630,7 +630,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         <div className="flex flex-col sm:flex-row gap-1 sm:gap-3 mt-2 pt-2 border-t border-gray-200 dark:border-gray-600">
                           {shippingAddr.phone && (
                             <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                              <Phone className="h-3 w-3 text-blue-500" />
+                              <Phone className="h-3 w-3 text-gray-800" />
                               <span className="truncate">
                                 {shippingAddr.phone}
                               </span>
@@ -638,7 +638,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                           )}
                           {shippingAddr.email && (
                             <div className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                              <Mail className="h-3 w-3 text-blue-500" />
+                              <Mail className="h-3 w-3 text-gray-800" />
                               <span className="truncate">
                                 {shippingAddr.email}
                               </span>
@@ -655,11 +655,11 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
             {/* Sidebar */}
             <div className="space-y-2 animate-in slide-in-from-right-4 duration-500 delay-300">
               {/* Order Summary */}
-              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] hover:shadow-lg animate-in slide-in-from-right-4 delay-400">
+              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] animate-in slide-in-from-right-4 delay-400">
                 <div className="absolute inset-0 bg-white dark:bg-gray-900/50 dark:border-none" />
                 <CardHeader className="relative z-10 p-3 sm:p-4">
                   <CardTitle className="flex items-center gap-2">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gold-500 rounded-lg flex items-center justify-center">
                       <CreditCard className="h-3 w-3 text-white" />
                     </div>
                     <div>
@@ -670,7 +670,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                         <span className="sm:hidden">
                           {t("orders.detail.summary")}
                         </span>
-                        <Cpu className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
+                        <Cpu className="h-2.5 w-2.5 text-gray-700 animate-pulse" />
                       </div>
                       <div className="text-xs text-gray-600 dark:text-gray-400">
                         AI totals
@@ -695,10 +695,10 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <Separator className="bg-gray-200/50 dark:bg-gray-800/50/50" />
                       <div className="flex justify-between items-center">
                         <span className="text-xs sm:text-sm font-bold text-gray-900 dark:text-white flex items-center gap-1">
-                          <Brain className="h-2.5 w-2.5 text-blue-400" />
+                          <Brain className="h-2.5 w-2.5 text-gray-700" />
                           {t("orders.detail.total")}
                         </span>
-                        <span className="text-sm sm:text-base font-bold bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                        <span className="text-sm sm:text-base font-bold text-foreground">
                           {formatPrice(order.total)}
                         </span>
                       </div>
@@ -708,11 +708,11 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
               </Card>
 
               {/* Payment Info */}
-              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] hover:shadow-lg animate-in slide-in-from-right-4 delay-500">
+              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] animate-in slide-in-from-right-4 delay-500">
                 <div className="absolute inset-0 bg-white dark:bg-gray-900/50 dark:border-none" />
                 <CardHeader className="relative z-10 p-3 sm:p-4">
                   <CardTitle className="flex items-center gap-2">
-                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gold-500 rounded-lg flex items-center justify-center">
                       <CreditCard className="h-3 w-3 text-white" />
                     </div>
                     <div className="text-xs sm:text-sm font-bold flex items-center gap-1">
@@ -722,7 +722,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <span className="sm:hidden">
                         {t("orders.detail.payment")}
                       </span>
-                      <Activity className="h-2.5 w-2.5 text-blue-400 animate-pulse" />
+                      <Activity className="h-2.5 w-2.5 text-gray-700 animate-pulse" />
                     </div>
                   </CardTitle>
                 </CardHeader>
@@ -756,7 +756,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
 
               {/* Order Notes */}
               {order.notes && (
-                <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] hover:shadow-lg animate-in slide-in-from-right-4 delay-600">
+                <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] animate-in slide-in-from-right-4 delay-600">
                   <CardHeader className="p-3 sm:p-4">
                     <CardTitle className="flex items-center gap-2 text-xs sm:text-sm">
                       <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
@@ -775,14 +775,14 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
               )}
 
               {/* Actions */}
-              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] hover:shadow-lg animate-in slide-in-from-right-4 delay-700">
+              <Card className="relative overflow-hidden bg-gray-50 dark:bg-gray-900/50 dark:border-none transform transition-all duration-300 hover:scale-[1.01] animate-in slide-in-from-right-4 delay-700">
                 <CardContent className="p-3 sm:p-4 space-y-2">
                   {order.status === "delivered" && (
                     <Button
                       onClick={() =>
                         router.push(`/products/${order.items[0]?.productId}`)
                       }
-                      className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white text-xs sm:text-sm py-2 transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                      className="w-full text-white text-xs sm:text-sm py-2 transform transition-all duration-300 hover:scale-105 bg-gold-500 hover:bg-gold-600"
                     >
                       <Star className="h-3 w-3 mr-2" />
                       <span className="hidden sm:inline">
@@ -800,7 +800,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                       <Button
                         onClick={handleConfirmOrder}
                         disabled={confirming}
-                        className="w-full text-xs sm:text-sm py-2 bg-blue-600 hover:bg-blue-700 text-white transform transition-all duration-300 hover:scale-105 hover:shadow-md"
+                        className="w-full text-xs sm:text-sm py-2 bg-gold-600 hover:bg-gold-700 text-white transform transition-all duration-300 hover:scale-105"
                       >
                         {confirming ? (
                           <>
@@ -823,13 +823,13 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
 
                   {/* Order Confirmed Message */}
                   {order.isConfirmedByCustomer && (
-                    <div className="p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg text-center">
-                      <CheckCircle className="h-5 w-5 text-blue-600 mx-auto mb-2" />
-                      <p className="text-sm text-blue-700 dark:text-blue-300 font-medium">
+                    <div className="p-3 bg-gray-50 dark:bg-gold-950/20 rounded-lg text-center">
+                      <CheckCircle className="h-5 w-5 text-gray-900 mx-auto mb-2" />
+                      <p className="text-sm text-gray-900 dark:text-gray-300 font-medium">
                         {t("orders.detail.confirmedTitle")}
                       </p>
                       {order.customerConfirmationDate && (
-                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        <p className="text-xs text-gray-900 dark:text-white mt-1">
                           {t("orders.detail.confirmedOn")}{" "}
                           {formatDate(order.customerConfirmationDate)}
                         </p>
@@ -840,7 +840,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                   <Button
                     onClick={() => copyToClipboard(order.id)}
                     variant="outline"
-                    className="w-full text-xs sm:text-sm py-2 border-gray-300 dark:border-gray-600 transform transition-all duration-300 hover:scale-105 hover:shadow-md hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="w-full text-xs sm:text-sm py-2 border-gray-300 dark:border-gray-600 transform transition-all duration-300 hover:scale-105 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <span className="hidden sm:inline">
                       {t("orders.detail.copyOrderId")}
@@ -852,7 +852,7 @@ function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
                   <Button
                     onClick={() => router.push("/orders")}
                     variant="outline"
-                    className="w-full text-xs sm:text-sm py-2 border-gray-300 dark:border-gray-600 transform transition-all duration-300 hover:scale-105 hover:shadow-md hover:bg-gray-50 dark:hover:bg-gray-800"
+                    className="w-full text-xs sm:text-sm py-2 border-gray-300 dark:border-gray-600 transform transition-all duration-300 hover:scale-105 hover:bg-gray-50 dark:hover:bg-gray-800"
                   >
                     <span className="hidden sm:inline">
                       {t("orders.detail.viewAll")}

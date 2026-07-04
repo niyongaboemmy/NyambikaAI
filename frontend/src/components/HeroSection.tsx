@@ -25,11 +25,11 @@ export default function HeroSection() {
     >
       {/* Animated background: layered gradient + soft blobs */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-blue-500/10 to-blue-500/10" />
+        <div className="absolute inset-0 bg-gray-500/10" />
         {/* Blobs */}
-        <div className="absolute -top-24 -left-24 h-80 w-80 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute top-20 -right-24 h-72 w-72 bg-blue-500/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-96 w-96 bg-blue-500/10 rounded-full blur-3xl" />
+        <div className="absolute -top-24 -left-24 h-80 w-80 bg-gold-500/20 rounded-full blur-3xl" />
+        <div className="absolute top-20 -right-24 h-72 w-72 bg-gold-500/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-1/3 h-96 w-96 bg-gold-500/10 rounded-full blur-3xl" />
       </div>
 
       <div className="text-center max-w-4xl mx-auto">
@@ -113,14 +113,14 @@ function CategoriesStrip() {
       </div>
       <div className="relative">
         {/* Edge fade */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-gradient-to-r from-background to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 w-8 bg-background" />
+        <div className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-background" />
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex gap-4 pb-3 pr-6 snap-x snap-mandatory">
             {categories.map((c) => (
               <Link key={c.id} href={`/products?category=${c.id}`}>
                 <div className="snap-start min-w-[180px] max-w-[200px] cursor-pointer group">
-                  <div className="rounded-2xl overflow-hidden border bg-card hover:shadow-md transition-all">
+                  <div className="rounded-2xl overflow-hidden border bg-card transition-all">
                     <div className="h-28 w-full overflow-hidden">
                       <Image
                         src={

@@ -84,7 +84,7 @@ export default function TermsClient() {
               {t("terms.section7.title")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              For questions about these Terms, contact <a href="mailto:legal@nyambika.com" className="text-blue-600 hover:underline">legal@nyambika.com</a>.
+              For questions about these Terms, contact <a href="mailto:legal@nyambika.com" className="text-gray-900 hover:underline">legal@nyambika.com</a>.
             </p>
           </section>
         </CardContent>

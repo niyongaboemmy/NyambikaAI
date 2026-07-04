@@ -93,10 +93,10 @@ export function SizesColorsDescriptionStep({
     <div className="space-y-4">
       {/* Sizes & Colors - Progressive Disclosure */}
       <Card className="glassmorphism border-0 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-3xl overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
+        <CardHeader className="border-b border-white/20 dark:border-gray-700/50 py-3 bg-gray-500/5">
           <CardTitle className="text-lg sm:text-xl flex items-center justify-between text-gray-800 dark:text-gray-100">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white">
+              <div className="p-2 rounded-xl text-white bg-gold-500">
                 <Palette className="h-5 w-5" />
               </div>
               Sizes & Colors
@@ -121,7 +121,7 @@ export function SizesColorsDescriptionStep({
             {/* Sizes */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Ruler className="h-4 w-4 text-blue-500" />
+                <Ruler className="h-4 w-4 text-gray-800" />
                 <Label className="text-base font-medium">Available Sizes</Label>
               </div>
               <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
@@ -135,8 +135,8 @@ export function SizesColorsDescriptionStep({
                       size="sm"
                       className={`h-10 sm:h-12 text-sm sm:text-base transition-all duration-200 ${
                         selected
-                          ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white scale-105"
-                          : "hover:scale-105 hover:shadow-md"
+                          ? "text-white scale-105 bg-gold-500"
+                          : "hover:scale-105"
                       }`}
                       onClick={() => {
                         if (selected) {
@@ -187,9 +187,9 @@ export function SizesColorsDescriptionStep({
                   {formData.sizes.map((s, idx) => (
                     <div
                       key={`${s}-${idx}`}
-                      className="px-2 py-1.5 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/30 border border-blue-200 dark:border-blue-700 flex items-center gap-2 transition-all duration-200 hover:scale-105"
+                      className="px-2 py-1.5 rounded-full border border-gray-200 dark:border-gray-700 flex items-center gap-2 transition-all duration-200 hover:scale-105 bg-gold-100 dark:bg-gray-900/30"
                     >
-                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-300">
                         {s}
                       </span>
                       <button
@@ -209,7 +209,7 @@ export function SizesColorsDescriptionStep({
             {/* Colors */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Palette className="h-4 w-4 text-blue-500" />
+                <Palette className="h-4 w-4 text-gray-800" />
                 <Label className="text-sm font-medium">Available Colors</Label>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
@@ -223,8 +223,8 @@ export function SizesColorsDescriptionStep({
                       size="sm"
                       className={`h-10 sm:h-12 text-sm sm:text-base transition-all duration-200 ${
                         selected
-                          ? "bg-gradient-to-r from-blue-500 to-blue-700 text-white scale-105"
-                          : "hover:scale-105 hover:shadow-md"
+                          ? "text-white scale-105 bg-gold-500"
+                          : "hover:scale-105"
                       }`}
                       onClick={() => {
                         if (selected) {
@@ -275,9 +275,9 @@ export function SizesColorsDescriptionStep({
                   {formData.colors.map((c, idx) => (
                     <div
                       key={`${c}-${idx}`}
-                      className="px-3 py-2 rounded-full bg-gradient-to-r from-blue-100 to-blue-200 dark:from-blue-900/30 dark:to-blue-900/30 border border-blue-200 dark:border-blue-700 flex items-center gap-2 transition-all duration-200 hover:scale-105"
+                      className="px-3 py-2 rounded-full border border-gray-200 dark:border-gray-700 flex items-center gap-2 transition-all duration-200 hover:scale-105 bg-gold-100 dark:bg-gray-900/30"
                     >
-                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                      <span className="text-sm font-medium text-gray-900 dark:text-gray-300">
                         {c}
                       </span>
                       <button
@@ -299,10 +299,10 @@ export function SizesColorsDescriptionStep({
 
       {/* AI-Powered Description */}
       <Card className="glassmorphism border-0 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 rounded-3xl overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-blue-500/5 to-blue-500/5 border-b border-white/20 dark:border-gray-700/50 py-3">
+        <CardHeader className="border-b border-white/20 dark:border-gray-700/50 py-3 bg-gray-500/5">
           <CardTitle className="text-lg sm:text-xl flex items-center justify-between text-gray-800 dark:text-gray-100">
             <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-700 text-white">
+              <div className="p-2 rounded-xl text-white bg-gold-500">
                 <FileText className="h-5 w-5" />
               </div>
               Product Description
@@ -312,7 +312,7 @@ export function SizesColorsDescriptionStep({
               onClick={generateDescription}
               disabled={generatingDescription || !formData.name.trim()}
               size="sm"
-              className="bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-600 text-white transition-all duration-200 hover:scale-105"
+              className="text-white transition-all duration-200 hover:scale-105 bg-gold-500 hover:bg-gold-600"
             >
               {generatingDescription ? (
                 <>
@@ -359,9 +359,9 @@ export function SizesColorsDescriptionStep({
             />
           </div>
           {!formData.name.trim() && (
-            <div className="flex items-center gap-2 p-3 rounded-xl bg-blue-50/50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-              <Wand2 className="h-4 w-4 text-blue-600 dark:text-blue-400 animate-pulse" />
-              <span className="text-sm text-blue-700 dark:text-blue-300">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-gray-50/50 dark:bg-gray-800/20 border border-gray-200 dark:border-gray-700">
+              <Wand2 className="h-4 w-4 text-gray-900 dark:text-white animate-pulse" />
+              <span className="text-sm text-gray-900 dark:text-gray-300">
                 Enter a product name first to use AI description generation
               </span>
             </div>

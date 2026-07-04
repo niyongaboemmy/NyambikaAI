@@ -241,10 +241,10 @@ export default function AgentReferralsPage() {
         <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-foreground/10 to-foreground/5 flex items-center justify-center border border-border/30">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center border border-border/30 bg-foreground/10">
                 <NetworkIcon className="h-5 w-5 text-foreground" />
               </div>
-              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-gradient-to-br from-blue-500/40 to-blue-500/40 rounded-full animate-pulse"></div>
+              <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full animate-pulse bg-gray-500/40"></div>
             </div>
             <div>
               <h1 className="text-xl font-semibold text-foreground">
@@ -272,7 +272,7 @@ export default function AgentReferralsPage() {
               Sync
             </Button>
             <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-foreground/5 border border-border/30">
-              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+              <div className="w-1.5 h-1.5 bg-gold-500 rounded-full animate-pulse"></div>
               <span className="text-xs text-muted-foreground">Live</span>
             </div>
           </div>
@@ -282,44 +282,44 @@ export default function AgentReferralsPage() {
       <div className="px-2 md:px-0">
         {/* Compact Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-">
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-blue-500/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl border border-gray-400/20 transition-all duration-300 bg-gray-500/10 hover:bg-gray-500/15">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <Users className="w-4 h-4 text-gray-900 dark:text-white" />
               <span className="text-xs font-medium text-muted-foreground">
                 L1 Nodes
               </span>
             </div>
-            <div className="text-xl font-semibold text-blue-700 dark:text-blue-400">
+            <div className="text-xl font-semibold text-gray-900 dark:text-white">
               {summary?.directCount ?? 0}
             </div>
           </div>
 
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-blue-500/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl border border-gray-400/20 transition-all duration-300 bg-gray-500/10 hover:bg-gray-500/15">
             <div className="flex items-center gap-2 mb-2">
-              <Network className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <Network className="w-4 h-4 text-gray-900 dark:text-white" />
               <span className="text-xs font-medium text-muted-foreground">
                 L2 Nodes
               </span>
             </div>
-            <div className="text-xl font-semibold text-blue-700 dark:text-blue-400">
+            <div className="text-xl font-semibold text-gray-900 dark:text-white">
               {summary?.indirectCount ?? 0}
             </div>
           </div>
 
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/10 border border-blue-500/20 hover:from-blue-500/15 hover:to-blue-500/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl border border-gray-400/20 transition-all duration-300 bg-gray-500/10 hover:bg-gray-500/15">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <TrendingUp className="w-4 h-4 text-gray-900 dark:text-white" />
               <span className="text-xs font-medium text-muted-foreground">
                 Total Yield
               </span>
             </div>
-            <div className="text-xl font-semibold text-blue-700 dark:text-blue-400">
+            <div className="text-xl font-semibold text-gray-900 dark:text-white">
               {summary ? `${summary.totalEarnings.toLocaleString()}` : "0"}
               <span className="text-xs text-muted-foreground ml-1">RWF</span>
             </div>
           </div>
 
-          <div className="group p-4 rounded-xl bg-gradient-to-br from-foreground/5 to-foreground/10 border border-border/30 hover:from-foreground/10 hover:to-foreground/15 transition-all duration-300">
+          <div className="group p-4 rounded-xl border border-border/30 transition-all duration-300 bg-foreground/5 hover:bg-foreground/10">
             <div className="flex items-center gap-2 mb-2">
               <Zap className="w-4 h-4 text-foreground" />
               <span className="text-xs font-medium text-muted-foreground">
@@ -333,13 +333,13 @@ export default function AgentReferralsPage() {
         </div>
 
         {/* Neural Link & Referral Code - Professional Layout */}
-        <Card className="mb-4 mt-4 border border-border/50 bg-gradient-to-br from-background to-muted/5 rounded-2xl">
+        <Card className="mb-4 mt-4 border border-border/50 rounded-2xl bg-background">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg font-semibold flex items-center gap-2">
               <Network className="h-4 w-4 text-foreground" />
               Share Your Referral Link
               {!referralCode && (
-                <span className="text-xs text-blue-600 dark:text-blue-400 font-normal">
+                <span className="text-xs text-gray-900 dark:text-white font-normal">
                   (Pending Activation)
                 </span>
               )}
@@ -368,7 +368,7 @@ export default function AgentReferralsPage() {
                         aria-label="Copy Referral Link"
                       >
                         {copied ? (
-                          <Check className="h-4 w-4 text-blue-600" />
+                          <Check className="h-4 w-4 text-gray-900" />
                         ) : (
                           <Copy className="h-4 w-4" />
                         )}
@@ -404,7 +404,7 @@ export default function AgentReferralsPage() {
                         aria-label="Copy Referral Code"
                       >
                         {copiedCode ? (
-                          <Check className="h-4 w-4 text-blue-600" />
+                          <Check className="h-4 w-4 text-gray-900" />
                         ) : (
                           <Copy className="h-4 w-4" />
                         )}
@@ -416,7 +416,7 @@ export default function AgentReferralsPage() {
 
               {/* Right: QR Card */}
               <div className="md:col-span-1">
-                <div className="p-4 rounded-xl bg-gradient-to-br from-muted/20 to-muted/10 border border-border/30">
+                <div className="p-4 rounded-xl border border-border/30 bg-muted/20">
                   <div className="shrink-0 flex flex-col items-center sm:items-start">
                     <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
                       <QrCode className="h-3.5 w-3.5" />
@@ -445,10 +445,10 @@ export default function AgentReferralsPage() {
 
       <div className="mt-12">
         <Tabs defaultValue="network" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 h-14 p-1.5 bg-gradient-to-r from-foreground/5 to-foreground/10 border border-border/30 rounded-2xl backdrop-blur-sm">
+          <TabsList className="grid w-full grid-cols-2 h-14 p-1.5 border border-border/30 rounded-2xl backdrop-blur-sm bg-foreground/5">
             <TabsTrigger
               value="network"
-              className="relative text-sm font-medium data-[state=active]:bg-gradient-to-br data-[state=active]:from-background data-[state=active]:to-muted/20 data-[state=active]:border data-[state=active]:border-border/30 rounded-xl transition-all duration-300"
+              className="relative text-sm font-medium data-[state=active]:border data-[state=active]:border-border/30 rounded-xl transition-all duration-300 data-[state=active]:bg-background"
             >
               <div className="flex items-center gap-2">
                 <Network className="h-4 w-4" />
@@ -457,7 +457,7 @@ export default function AgentReferralsPage() {
             </TabsTrigger>
             <TabsTrigger
               value="commissions"
-              className="relative text-sm font-medium data-[state=active]:bg-gradient-to-br data-[state=active]:from-background data-[state=active]:to-muted/20 data-[state=active]:border data-[state=active]:border-border/30 rounded-xl transition-all duration-300"
+              className="relative text-sm font-medium data-[state=active]:border data-[state=active]:border-border/30 rounded-xl transition-all duration-300 data-[state=active]:bg-background"
             >
               <div className="flex items-center gap-2">
                 <TrendingUp className="h-4 w-4" />
@@ -467,14 +467,14 @@ export default function AgentReferralsPage() {
           </TabsList>
 
           <TabsContent value="network" className="mt-4 mb-6">
-            <Card className="relative overflow-hidden border border-border/50 bg-gradient-to-br from-background via-background to-muted/10 rounded-2xl backdrop-blur-sm">
+            <Card className="relative overflow-hidden border border-border/50 rounded-2xl backdrop-blur-sm bg-background">
               <CardHeader className="pb-6">
                 <CardTitle className="text-xl font-semibold flex items-center gap-3">
                   <div className="relative">
-                    <div className="p-2 rounded-xl bg-gradient-to-br from-foreground/10 to-foreground/5 border border-border/30">
+                    <div className="p-2 rounded-xl border border-border/30 bg-foreground/10">
                       <Network className="h-5 w-5 text-foreground" />
                     </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-blue-500/40 to-blue-500/40 rounded-full animate-pulse"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse bg-gray-500/40"></div>
                   </div>
                   <div>
                     <span className="text-foreground">Network Topology</span>
@@ -521,10 +521,10 @@ export default function AgentReferralsPage() {
                     placeholder="Search neural network nodes..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="bg-gradient-to-r from-muted/20 to-muted/10 border border-border/30 focus:border-border/60 transition-all duration-300 pl-4"
+                    className="border border-border/30 focus:border-border/60 transition-all duration-300 pl-4 bg-muted/20"
                   />
                   <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
                   </div>
                 </div>
 
@@ -533,7 +533,7 @@ export default function AgentReferralsPage() {
                   {/* Tree Header */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-2xl flex items-center justify-center bg-primary/10">
                         <Users className="h-4 w-4 text-primary" />
                       </div>
                       <div>
@@ -559,8 +559,8 @@ export default function AgentReferralsPage() {
                   <div className="relative overflow-x-auto">
                     {filteredDirect.length === 0 &&
                     filteredIndirect.length === 0 ? (
-                      <div className="p-8 rounded-2xl bg-gradient-to-br from-muted/40 to-muted/20 text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-muted/60 to-muted/40 flex items-center justify-center">
+                      <div className="p-8 rounded-2xl text-center bg-muted/40">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-muted/60">
                           <Users className="h-8 w-8 text-muted-foreground animate-pulse" />
                         </div>
                         <div className="text-sm text-muted-foreground">
@@ -575,7 +575,7 @@ export default function AgentReferralsPage() {
                         {/* Root Node (You) */}
                         <div className="flex items-center justify-center">
                           <div className="relative group">
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 border-2 border-primary/30">
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 border-2 border-primary/30 bg-primary/20">
                               <Users className="h-6 w-6 text-primary animate-pulse" />
                             </div>
                             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-xs font-medium text-foreground whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
@@ -588,12 +588,12 @@ export default function AgentReferralsPage() {
                         {filteredDirect.length > 0 && (
                           <div className="relative">
                             {/* Vertical line from root */}
-                            <div className="absolute left-1/2 top-0 w-0.5 h-6 bg-gradient-to-b from-primary/40 to-muted-foreground/20 transform -translate-x-0.5"></div>
+                            <div className="absolute left-1/2 top-0 w-0.5 h-6 transform -translate-x-0.5 bg-primary/40"></div>
 
                             {/* Horizontal line */}
                             {filteredDirect.length > 1 && (
                               <div
-                                className="absolute left-1/2 top-6 h-0.5 bg-gradient-to-r from-muted-foreground/20 via-primary/40 to-muted-foreground/20 transform -translate-x-1/2"
+                                className="absolute left-1/2 top-6 h-0.5 transform -translate-x-1/2 bg-muted-foreground/20"
                                 style={{
                                   width: `${Math.min(
                                     filteredDirect.length * 120,
@@ -613,11 +613,11 @@ export default function AgentReferralsPage() {
                                 >
                                   {/* Connection line */}
                                   {index === 0 && (
-                                    <div className="absolute left-1/2 -top-2 w-0.5 h-2 bg-gradient-to-b from-muted-foreground/10 to-transparent transform -translate-x-0.5"></div>
+                                    <div className="absolute left-1/2 -top-2 w-0.5 h-2 transform -translate-x-0.5 bg-muted-foreground/10"></div>
                                   )}
 
                                   <div className="flex items-center space-x-2">
-                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 flex items-center justify-center hover:scale-110 transition-all duration-300">
+                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-primary/20 flex items-center justify-center hover:scale-110 transition-all duration-300 bg-primary/10">
                                       <span className="text-xs font-semibold text-primary/80">
                                         {getInitials(
                                           agent.fullName,
@@ -625,7 +625,7 @@ export default function AgentReferralsPage() {
                                         )}
                                       </span>
                                     </div>
-                                    <div className="p-3 rounded-2xl bg-gradient-to-br from-muted/30 to-muted/10 hover:from-muted/40 hover:to-muted/20 transition-all duration-300 min-w-[140px]">
+                                    <div className="p-3 rounded-2xl transition-all duration-300 min-w-[140px] bg-muted/30 hover:bg-muted/40">
                                       <div className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">
                                         {agent.fullName || "Unnamed"}
                                       </div>
@@ -641,8 +641,8 @@ export default function AgentReferralsPage() {
                                         <span
                                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
                                             agent.isVerified
-                                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                                              : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                              ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
+                                              : "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
                                           }`}
                                         >
                                           {agent.isVerified
@@ -661,7 +661,7 @@ export default function AgentReferralsPage() {
                                     ).length > 0 && (
                                       <div className="relative mt-4">
                                         {/* Vertical line down */}
-                                        <div className="absolute left-1/2 -top-4 w-0.5 h-4 bg-gradient-to-b from-muted-foreground/20 to-muted-foreground/10 transform -translate-x-0.5"></div>
+                                        <div className="absolute left-1/2 -top-4 w-0.5 h-4 transform -translate-x-0.5 bg-muted-foreground/20"></div>
 
                                         {/* Indirect agents */}
                                         <div className="flex flex-col items-center space-y-2">
@@ -688,11 +688,11 @@ export default function AgentReferralsPage() {
                                                 >
                                                   {/* Connection line */}
                                                   {indirectIndex === 0 && (
-                                                    <div className="absolute left-1/2 -top-2 w-0.5 h-2 bg-gradient-to-b from-muted-foreground/10 to-transparent transform -translate-x-0.5"></div>
+                                                    <div className="absolute left-1/2 -top-2 w-0.5 h-2 transform -translate-x-0.5 bg-muted-foreground/10"></div>
                                                   )}
 
                                                   <div className="flex items-center space-x-2">
-                                                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center hover:scale-110 transition-all duration-300 border border-border/30">
+                                                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 border border-border/30 bg-muted/30">
                                                       <span className="text-[10px] font-semibold text-foreground/80">
                                                         {getInitials(
                                                           indirectAgent.fullName,
@@ -700,7 +700,7 @@ export default function AgentReferralsPage() {
                                                         )}
                                                       </span>
                                                     </div>
-                                                    <div className="p-2 rounded-2xl bg-gradient-to-br from-muted/20 to-muted/5 hover:from-muted/30 hover:to-muted/10 transition-all duration-300 min-w-[120px]">
+                                                    <div className="p-2 rounded-2xl transition-all duration-300 min-w-[120px] bg-muted/20 hover:bg-muted/30">
                                                       <div className="text-xs font-medium text-foreground truncate">
                                                         {indirectAgent.fullName ||
                                                           "Unnamed"}
@@ -713,8 +713,8 @@ export default function AgentReferralsPage() {
                                                         <span
                                                           className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
                                                             indirectAgent.isVerified
-                                                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                                                              : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                                              ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
+                                                              : "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
                                                           }`}
                                                         >
                                                           {indirectAgent.isVerified
@@ -739,7 +739,7 @@ export default function AgentReferralsPage() {
                               filteredIndirect.length > 0 && (
                                 <div className="relative pt-8">
                                   {/* Vertical line from root */}
-                                  <div className="absolute left-1/2 top-0 w-0.5 h-6 bg-gradient-to-b from-primary/40 to-muted-foreground/20 transform -translate-x-0.5"></div>
+                                  <div className="absolute left-1/2 top-0 w-0.5 h-6 transform -translate-x-0.5 bg-primary/40"></div>
                                   {/* Grid of L2 agents */}
                                   <div className="flex items-start justify-center gap-6 flex-wrap">
                                     {filteredIndirect.map(
@@ -752,7 +752,7 @@ export default function AgentReferralsPage() {
                                           }}
                                         >
                                           <div className="flex items-center space-x-2">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center hover:scale-110 transition-all duration-300 border border-border/30">
+                                            <div className="w-10 h-10 rounded-full flex items-center justify-center hover:scale-110 transition-all duration-300 border border-border/30 bg-muted/30">
                                               <span className="text-[10px] font-semibold text-foreground/80">
                                                 {getInitials(
                                                   indirectAgent.fullName,
@@ -760,7 +760,7 @@ export default function AgentReferralsPage() {
                                                 )}
                                               </span>
                                             </div>
-                                            <div className="p-2 rounded-2xl bg-gradient-to-br from-muted/20 to-muted/5 hover:from-muted/30 hover:to-muted/10 transition-all duration-300 min-w-[140px]">
+                                            <div className="p-2 rounded-2xl transition-all duration-300 min-w-[140px] bg-muted/20 hover:bg-muted/30">
                                               <div className="text-xs font-medium text-foreground truncate">
                                                 {indirectAgent.fullName ||
                                                   "Unnamed"}
@@ -773,8 +773,8 @@ export default function AgentReferralsPage() {
                                                 <span
                                                   className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
                                                     indirectAgent.isVerified
-                                                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                                                      : "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                                      ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
+                                                      : "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
                                                   }`}
                                                 >
                                                   {indirectAgent.isVerified
@@ -800,14 +800,14 @@ export default function AgentReferralsPage() {
             </Card>
           </TabsContent>
           <TabsContent value="commissions" className="mt-8">
-            <Card className="relative overflow-hidden border border-border/50 bg-gradient-to-br from-background via-background to-muted/10 rounded-2xl backdrop-blur-sm">
+            <Card className="relative overflow-hidden border border-border/50 rounded-2xl backdrop-blur-sm bg-background">
               <CardHeader className="pb-6">
                 <CardTitle className="text-xl font-semibold flex items-center gap-3">
                   <div className="relative">
-                    <div className="p-2 rounded-xl bg-gradient-to-br from-foreground/10 to-foreground/5 border border-border/30">
+                    <div className="p-2 rounded-xl border border-border/30 bg-foreground/10">
                       <TrendingUp className="h-5 w-5 text-foreground" />
                     </div>
-                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-br from-blue-500/40 to-blue-500/40 rounded-full animate-pulse"></div>
+                    <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse bg-gray-500/40"></div>
                   </div>
                   <div>
                     <span className="text-foreground">Yield Analytics</span>
@@ -820,7 +820,7 @@ export default function AgentReferralsPage() {
               <CardContent className="p-6">
                 <div className="overflow-x-auto rounded-xl border border-border/30">
                   <table className="w-full">
-                    <thead className="bg-gradient-to-r from-foreground/5 to-foreground/10">
+                    <thead className="bg-foreground/5">
                       <tr>
                         <th className="text-left p-4 font-semibold text-sm text-foreground">
                           <div className="flex items-center gap-2">
@@ -842,7 +842,7 @@ export default function AgentReferralsPage() {
                         </th>
                         <th className="text-left p-4 font-semibold text-sm text-foreground">
                           <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
                             Status
                           </div>
                         </th>
@@ -859,7 +859,7 @@ export default function AgentReferralsPage() {
                         <tr>
                           <td colSpan={5} className="p-12 text-center">
                             <div className="flex flex-col items-center gap-4">
-                              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-foreground/10 to-foreground/5 flex items-center justify-center border border-border/30">
+                              <div className="w-16 h-16 rounded-2xl flex items-center justify-center border border-border/30 bg-foreground/10">
                                 <TrendingUp className="h-8 w-8 text-muted-foreground" />
                               </div>
                               <div>
@@ -885,14 +885,14 @@ export default function AgentReferralsPage() {
                             {new Date(row.createdAt).toLocaleDateString()}
                           </td>
                           <td className="p-4">
-                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium bg-gradient-to-r from-foreground/10 to-foreground/5 border border-border/30">
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium border border-border/30 bg-foreground/10">
                               <div className="w-1.5 h-1.5 bg-foreground/60 rounded-full"></div>
                               L{row.level}
                             </span>
                           </td>
                           <td className="p-4 font-semibold text-sm text-foreground">
                             <div className="flex items-center gap-2">
-                              <TrendingUp className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                              <TrendingUp className="w-3 h-3 text-gray-900 dark:text-white" />
                               {Number(row.amount).toLocaleString()} RWF
                             </div>
                           </td>
@@ -900,18 +900,18 @@ export default function AgentReferralsPage() {
                             <span
                               className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium capitalize ${
                                 row.status === "completed"
-                                  ? "bg-gradient-to-r from-blue-500/10 to-blue-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400"
+                                  ? "border border-gray-400/20 text-gray-900 dark:text-white bg-gray-500/10"
                                   : row.status === "pending"
-                                  ? "bg-gradient-to-r from-blue-500/10 to-amber-500/10 border border-blue-500/20 text-blue-700 dark:text-blue-400"
-                                  : "bg-gradient-to-r from-foreground/5 to-foreground/10 border border-border/30 text-muted-foreground"
+                                  ? "border border-gray-400/20 text-gray-900 dark:text-white bg-gray-500/10"
+                                  : "border border-border/30 text-muted-foreground bg-foreground/5"
                               }`}
                             >
                               <div
                                 className={`w-1.5 h-1.5 rounded-full ${
                                   row.status === "completed"
-                                    ? "bg-blue-500 animate-pulse"
+                                    ? "bg-gold-500 animate-pulse"
                                     : row.status === "pending"
-                                    ? "bg-blue-500 animate-pulse"
+                                    ? "bg-gold-500 animate-pulse"
                                     : "bg-muted-foreground"
                                 }`}
                               ></div>
@@ -920,7 +920,7 @@ export default function AgentReferralsPage() {
                           </td>
                           <td className="p-4 text-xs font-mono text-muted-foreground hidden sm:table-cell">
                             <div className="flex items-center gap-2">
-                              <div className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></div>
+                              <div className="w-1.5 h-1.5 bg-gold-500 rounded-full animate-pulse"></div>
                               {row.sourceAgentId || "SYSTEM"}
                             </div>
                           </td>

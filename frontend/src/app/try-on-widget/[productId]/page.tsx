@@ -126,7 +126,7 @@ export default function TryOnWidgetPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-8 animate-spin text-gray-800" />
       </div>
     );
   }
@@ -138,7 +138,7 @@ export default function TryOnWidgetPage() {
         <p className="text-gray-600 mb-4">{error || "Product not found"}</p>
         <button
           onClick={() => router.back()}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+          className="px-4 py-2 bg-gold-500 text-white rounded hover:bg-gold-600 transition-colors"
         >
           Go Back
         </button>
@@ -153,17 +153,17 @@ export default function TryOnWidgetPage() {
     <div className="min-h-screen">
       {/* AI-Motivated Animated Background */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 w-40 h-40 bg-gradient-to-r from-blue-400/20 via-blue-400/20 to-blue-400/25 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-10 left-10 w-40 h-40 rounded-full blur-3xl animate-pulse bg-gray-400/20" />
         <div
-          className="absolute top-20 left-20 w-32 h-32 bg-gradient-to-r from-slate-400/15 via-gray-400/10 to-slate-400/15 dark:from-slate-600/20 dark:via-gray-600/15 dark:to-slate-600/20 rounded-full blur-3xl animate-bounce"
+          className="absolute top-20 left-20 w-32 h-32 rounded-full blur-3xl animate-bounce bg-slate-400/15 dark:bg-slate-600/20"
           style={{ animationDuration: "6s" }}
         />
         <div
-          className="absolute top-1/3 right-1/4 w-32 h-32 bg-gradient-to-r from-blue-400/15 via-sky-400/15 to-blue-400/20 rounded-full blur-2xl animate-ping"
+          className="absolute top-1/3 right-1/4 w-32 h-32 rounded-full blur-2xl animate-ping bg-gray-400/15"
           style={{ animationDuration: "5s" }}
         />
         <div
-          className="absolute top-1/4 left-1/3 w-28 h-28 bg-gradient-to-r from-blue-400/10 via-blue-400/15 to-blue-400/10 rounded-full blur-2xl animate-pulse"
+          className="absolute top-1/4 left-1/3 w-28 h-28 rounded-full blur-2xl animate-pulse bg-gray-400/10"
           style={{ animationDuration: "6s" }}
         />
       </div>

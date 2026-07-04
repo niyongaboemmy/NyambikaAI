@@ -34,7 +34,7 @@ export default function CompaniesPreview() {
               (c, idx) => (
                 <div
                   key={c ? c.id : idx}
-                  className="min-w-[96px] max-w-[96px] shrink-0 rounded-2xl p-3 bg-background/60 backdrop-blur border border-border/60 shadow-sm hover:shadow-md transition-all"
+                  className="min-w-[96px] max-w-[96px] shrink-0 rounded-2xl p-3 bg-background/60 backdrop-blur border border-border/60 transition-all"
                 >
                   <div className="aspect-square rounded-xl overflow-hidden border border-border/60 flex items-center justify-center bg-muted/40">
                     {c?.logoUrl ? (

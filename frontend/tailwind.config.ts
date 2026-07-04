@@ -66,6 +66,24 @@ export default {
           border: "var(--sidebar-border)",
           ring: "var(--sidebar-ring)",
         },
+        // Brand gold scale — replaces the old electric-blue/indigo "AI SaaS" palette
+        // across hardcoded component classes (see documentations/UI_UX_DESIGN_RESEARCH_AND_REDESIGN_PLAN.md)
+        // 500/600 are darkened from the initial pass (#C9A227/#B58E41) to
+        // clear WCAG AA 4.5:1 as text-on-white and as button-fill-with-white-text —
+        // both failed at ~2.4-3.0:1 (see documentations/UI_UX_DESIGN_RESEARCH_AND_REDESIGN_PLAN.md Phase 5 QA).
+        gold: {
+          50: "#FBF6EA",
+          100: "#F5EBD1",
+          200: "#EAD9A8",
+          300: "#DFC57F",
+          400: "#D4AF37",
+          500: "#8F6F30",
+          600: "#6B5423",
+          700: "#54401C",
+          800: "#3D2F14",
+          900: "#2A2110",
+          950: "#1C1710",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

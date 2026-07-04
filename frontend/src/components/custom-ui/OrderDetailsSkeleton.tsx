@@ -49,7 +49,7 @@ export function OrderDetailsSkeleton() {
               </CardHeader>
               <CardContent className="relative z-10 p-3 sm:p-4">
                 <div className="space-y-2 sm:space-y-3">
-                  <div className="flex items-center gap-2 p-2 sm:p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                  <div className="flex items-center gap-2 p-2 sm:p-3 bg-gray-50 dark:bg-gray-800/20 rounded-lg">
                     <Skeleton className="h-4 w-4 rounded" />
                     <div className="flex-1">
                       <Skeleton className="h-3 w-16 mb-1" />

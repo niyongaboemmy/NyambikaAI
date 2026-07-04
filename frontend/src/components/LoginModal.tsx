@@ -65,7 +65,7 @@ export default function LoginModal() {
       {isOpen && <div className="fixed inset-0 bg-black/5 backdrop-blur-md" />}
       <DialogContent
         // allow closing; onOpenChange will handle navigation
-        className="p-0 overflow-hidden border-0 shadow-xl max-h-[95vh] overflow-y-auto rounded-3xl bg-transparent"
+        className="p-0 overflow-hidden border-0 max-h-[95vh] overflow-y-auto rounded-3xl bg-transparent"
         hideClose={false}
       >
         <DialogHeader className="sr-only">
@@ -115,7 +115,7 @@ export default function LoginModal() {
                 <div className="absolute top-4 left-4 z-10">
                   <button
                     type="button"
-                    className="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors duration-200 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-3 py-2 rounded-full border border-blue-200/50 dark:border-blue-700/50 hover:bg-white dark:hover:bg-gray-900"
+                    className="flex items-center gap-2 text-sm text-gray-900 dark:text-white hover:text-gray-900 dark:hover:text-gray-500 transition-colors duration-200 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-3 py-2 rounded-full border border-gray-200/50 dark:border-gray-700/50 hover:bg-white dark:hover:bg-gray-900"
                     onClick={() => {
                       setForgotMode(false);
                       clearError();
@@ -155,7 +155,7 @@ export default function LoginModal() {
                   setForgotMode(true);
                   clearError();
                 }}
-                buttonClassName="bg-blue-600 hover:bg-blue-700 text-white"
+                buttonClassName="bg-gold-600 hover:bg-gold-700 text-white"
               />
             )}
           </div>

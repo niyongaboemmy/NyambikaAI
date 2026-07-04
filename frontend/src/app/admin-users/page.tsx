@@ -6,6 +6,7 @@ import { apiClient, API_ENDPOINTS, handleApiError } from "@/config/api";
 import SubscriptionPlanSelector from "@/components/SubscriptionPlanSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
+import { CheckCircle2, Clock } from "lucide-react";
 
 type Role = "producer" | "agent" | "customer" | "admin";
 
@@ -400,7 +401,7 @@ const AdminUsersPage: React.FC = () => {
     <ProtectedRoute>
       {/* <div className="min-h-screen py-4 pt-10"> */}
       <div className="py-4 pt-10">
-        <div className="mb-3 rounded-3xl bg-gradient-to-r from-blue-600/10 via-blue-500/10 to-cyan-500/10 dark:from-blue-400/10 dark:via-blue-400/10 dark:to-cyan-400/10 p-5 border dark:border-none border-gray-200/60 dark:border-gray-700/60">
+        <div className="mb-3 rounded-3xl p-5 border dark:border-none border-gray-200/60 dark:border-gray-700/60 bg-gray-600/10 dark:bg-gray-400/10">
           <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
             Admin • Users
           </h1>
@@ -413,7 +414,7 @@ const AdminUsersPage: React.FC = () => {
         {/* Summary Stats */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-3">
           <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-500/20" />
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gray-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Total Users
             </div>
@@ -422,7 +423,7 @@ const AdminUsersPage: React.FC = () => {
             </div>
           </div>
           <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20" />
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gray-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Verified (Producers & Agents)
             </div>
@@ -431,7 +432,7 @@ const AdminUsersPage: React.FC = () => {
             </div>
           </div>
           <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-blue-500/20 to-blue-500/20" />
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gray-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Pending Verifications
             </div>
@@ -440,7 +441,7 @@ const AdminUsersPage: React.FC = () => {
             </div>
           </div>
           <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gradient-to-br from-sky-500/20 to-blue-500/20" />
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-sky-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Producers • Agents
             </div>
@@ -522,7 +523,7 @@ const AdminUsersPage: React.FC = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search by name or email..."
                     aria-label="Search users"
-                    className="w-full rounded-2xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full rounded-2xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 backdrop-blur supports-[backdrop-filter]:bg-white/40 px-3 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500"
                   />
                 </div>
                 <div className="flex w-full sm:w-auto items-center gap-3">
@@ -635,7 +636,7 @@ const AdminUsersPage: React.FC = () => {
                     onChange={(e) => setFormName(e.target.value)}
                     required
                     placeholder="Full name"
-                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/50 outline-none transition-all"
                   />
                   <input
                     type="email"
@@ -643,7 +644,7 @@ const AdminUsersPage: React.FC = () => {
                     onChange={(e) => setFormEmail(e.target.value)}
                     required
                     placeholder="Email"
-                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/50 outline-none transition-all"
                   />
                   <input
                     type="password"
@@ -652,12 +653,12 @@ const AdminUsersPage: React.FC = () => {
                     required
                     minLength={6}
                     placeholder="Password"
-                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/50 outline-none transition-all"
                   />
                   <select
                     value={formRole}
                     onChange={(e) => setFormRole(e.target.value as Role)}
-                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+                    className="w-full rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/50 outline-none transition-all"
                   >
                     <option value="customer">Customer</option>
                     <option value="producer">Producer</option>
@@ -669,7 +670,7 @@ const AdminUsersPage: React.FC = () => {
                       value={formPhone}
                       onChange={(e) => setFormPhone(e.target.value)}
                       placeholder="Phone (optional)"
-                      className="flex-1 rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500/50 outline-none transition-all"
+                      className="flex-1 rounded-xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 px-3 py-2 text-sm focus:ring-2 focus:ring-gold-500/50 outline-none transition-all"
                     />
                     <button
                       type="submit"
@@ -703,11 +704,11 @@ const AdminUsersPage: React.FC = () => {
                 paginatedRows.map((u) => (
                   <div
                     key={u.id}
-                    className="rounded-3xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 p-4 transition-all hover:shadow-md"
+                    className="rounded-3xl border dark:border-none border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/60 p-4 transition-all"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-blue-500/70 to-blue-500/70 text-white flex items-center justify-center text-sm font-semibold">
+                        <div className="h-10 w-10 rounded-full text-white flex items-center justify-center text-sm font-semibold bg-gray-500/70">
                           {(u.fullName || u.username || u.email || "?")
                             .split(" ")
                             .map((p) => p[0])
@@ -727,12 +728,12 @@ const AdminUsersPage: React.FC = () => {
                       <span
                         className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                           u.role === "producer"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                            ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                             : u.role === "agent"
                               ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
                               : u.role === "customer"
-                                ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
+                                : "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                         }`}
                       >
                         {u.role}
@@ -747,11 +748,19 @@ const AdminUsersPage: React.FC = () => {
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                               u.isVerified
-                                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-200"
+                                : "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                             }`}
                           >
-                            {u.isVerified ? "✅ Verified" : "🕒 Pending"}
+                            {u.isVerified ? (
+                              <>
+                                <CheckCircle2 className="h-3 w-3" /> Verified
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="h-3 w-3" /> Pending
+                              </>
+                            )}
                           </span>
                         ) : (
                           <span className="text-gray-500 dark:text-gray-400">
@@ -824,7 +833,7 @@ const AdminUsersPage: React.FC = () => {
                         >
                           <td className="px-4 py-3 text-sm text-gray-900 dark:text-white">
                             <div className="flex items-center gap-3">
-                              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-blue-500/70 to-blue-500/70 dark:from-blue-400/60 dark:to-blue-400/60 text-white flex items-center justify-center text-xs font-medium">
+                              <div className="h-8 w-8 rounded-full text-white flex items-center justify-center text-xs font-medium bg-gray-500/70 dark:bg-gray-400/60">
                                 {(u.fullName || u.username || u.email || "?")
                                   .split(" ")
                                   .map((p) => p[0])
@@ -850,12 +859,12 @@ const AdminUsersPage: React.FC = () => {
                               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium 
                                 ${
                                   u.role === "producer"
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                    ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                                     : u.role === "agent"
                                       ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
                                       : u.role === "customer"
-                                        ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-                                        : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                        ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
+                                        : "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                                 }`}
                             >
                               {u.role}
@@ -870,11 +879,19 @@ const AdminUsersPage: React.FC = () => {
                                 <span
                                   className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                     u.isVerified
-                                      ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200"
-                                      : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                      ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-200"
+                                      : "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                                   }`}
                                 >
-                                  {u.isVerified ? "✅ Verified" : "🕒 Pending"}
+                                  {u.isVerified ? (
+                              <>
+                                <CheckCircle2 className="h-3 w-3" /> Verified
+                              </>
+                            ) : (
+                              <>
+                                <Clock className="h-3 w-3" /> Pending
+                              </>
+                            )}
                                 </span>
                               ) : (
                                 <span className="text-gray-500 dark:text-gray-400">
@@ -948,10 +965,10 @@ const AdminUsersPage: React.FC = () => {
                   } bg-white dark:bg-gray-900 rounded-3xl border border-gray-200/50 dark:border-gray-700/50 overflow-y-auto`}
                 >
                   {/* Header */}
-                  <div className="p-4 bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-950/30 dark:to-blue-950/30 border-b border-gray-200/50 dark:border-gray-700/50">
+                  <div className="p-4 border-b border-gray-200/50 dark:border-gray-700/50 bg-gold-50 dark:bg-gray-950/30">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-sm font-semibold">
+                        <div className="w-10 h-10 rounded-full text-white flex items-center justify-center text-sm font-semibold bg-gold-500">
                           {(
                             selected.fullName ||
                             selected.username ||
@@ -977,11 +994,11 @@ const AdminUsersPage: React.FC = () => {
                         <span
                           className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
                             selected.role === "admin"
-                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                              ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
                               : selected.role === "producer"
-                                ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
                                 : selected.role === "agent"
-                                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                  ? "bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-gray-300"
                                   : "bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-300"
                           }`}
                         >
@@ -1081,15 +1098,15 @@ const AdminUsersPage: React.FC = () => {
                                   <div
                                     className={`w-2 h-2 rounded-full ${
                                       selected.isVerified
-                                        ? "bg-blue-500"
-                                        : "bg-blue-500"
+                                        ? "bg-gold-500"
+                                        : "bg-gold-500"
                                     }`}
                                   ></div>
                                   <p
                                     className={`text-xs font-medium ${
                                       selected.isVerified
-                                        ? "text-blue-600 dark:text-blue-400"
-                                        : "text-blue-600 dark:text-blue-400"
+                                        ? "text-gray-900 dark:text-white"
+                                        : "text-gray-900 dark:text-white"
                                     }`}
                                   >
                                     {selected.isVerified
@@ -1106,7 +1123,7 @@ const AdminUsersPage: React.FC = () => {
                             <div className="mb-4">
                               <Link
                                 href={`/admin/agent/${selected.id}`}
-                                className="inline-flex items-center gap-2 text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 px-3 py-2 rounded-2xl hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all active:scale-95"
+                                className="inline-flex items-center gap-2 text-xs bg-gray-50 dark:bg-gray-800/20 text-gray-900 dark:text-white px-3 py-2 rounded-2xl hover:bg-gray-100 dark:hover:bg-gold-900/30 transition-all active:scale-95"
                               >
                                 <svg
                                   className="w-4 h-4"
@@ -1146,7 +1163,7 @@ const AdminUsersPage: React.FC = () => {
                                 </div>
                               ) : (
                                 <div className="space-y-2">
-                                  <div className="text-xs text-blue-600 dark:text-blue-400 font-medium">
+                                  <div className="text-xs text-gray-900 dark:text-white font-medium">
                                     Total Earned:{" "}
                                     {agentPayments.reduce(
                                       (sum, p) =>
@@ -1187,7 +1204,7 @@ const AdminUsersPage: React.FC = () => {
                                                   ).toLocaleDateString()
                                                 : "—"}
                                             </td>
-                                            <td className="py-1 font-medium text-blue-600">
+                                            <td className="py-1 font-medium text-gray-900">
                                               {payment.agentCommission} RWF
                                             </td>
                                             <td className="py-1">
@@ -1195,8 +1212,8 @@ const AdminUsersPage: React.FC = () => {
                                                 className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                                                   payment.agentPayoutStatus ===
                                                   "paid"
-                                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
-                                                    : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+                                                    ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-300"
+                                                    : "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-300"
                                                 }`}
                                               >
                                                 {payment.agentPayoutStatus ===
@@ -1249,7 +1266,7 @@ const AdminUsersPage: React.FC = () => {
                                                       setPayoutLoadingId(null);
                                                     }
                                                   }}
-                                                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded-xl disabled:opacity-60 transition-all"
+                                                  className="text-xs bg-gold-600 hover:bg-gold-700 text-white px-2 py-1 rounded-xl disabled:opacity-60 transition-all"
                                                 >
                                                   {payoutLoadingId ===
                                                   payment.id
@@ -1272,16 +1289,16 @@ const AdminUsersPage: React.FC = () => {
                     </div>
                     {selected.role === "producer" && modalTab === "info" && (
                       <div className="px-3">
-                        <div className="mt-6 rounded-2xl border border-blue-200/50 dark:border-blue-700/30 bg-gradient-to-br from-blue-50/50 to-blue-50/50 dark:from-blue-950/20 dark:to-blue-950/20 p-4 backdrop-blur-sm">
+                        <div className="mt-6 rounded-2xl border border-gray-200/50 dark:border-gray-700/30 p-4 backdrop-blur-sm bg-gray-50/50 dark:bg-gray-950/20">
                           <div className="flex items-center justify-between mb-3">
-                            <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                            <h4 className="text-sm font-semibold text-black dark:text-gray-100 flex items-center gap-2">
+                              <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
                               Company Details
                             </h4>
                             {companyLoading && (
                               <div className="flex items-center gap-2">
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce"></div>
-                                <span className="text-xs text-blue-600 dark:text-blue-400">
+                                <div className="w-3 h-3 bg-gold-500 rounded-full animate-bounce"></div>
+                                <span className="text-xs text-gray-900 dark:text-white">
                                   Loading…
                                 </span>
                               </div>
@@ -1320,7 +1337,7 @@ const AdminUsersPage: React.FC = () => {
                                     href={company.websiteUrl}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
+                                    className="text-xs text-gray-900 dark:text-white hover:underline"
                                   >
                                     {company.websiteUrl}
                                   </a>
@@ -1342,15 +1359,15 @@ const AdminUsersPage: React.FC = () => {
                           {/* Current Subscription - Compact Title */}
                           <div className="border-b border-gray-200/50 dark:border-gray-700/50 pb-3 -mt-5 px-3">
                             <h4 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-2">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                              <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
                               Current Subscription
                               {subLoading && (
-                                <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce ml-2"></div>
+                                <div className="w-3 h-3 bg-gold-500 rounded-full animate-bounce ml-2"></div>
                               )}
                             </h4>
                             {subInfo ? (
                               <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-300">
-                                <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium bg-gradient-to-r from-blue-100 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/30 text-blue-800 dark:text-blue-300">
+                                <span className="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium text-black dark:text-gray-300 bg-gold-100 dark:bg-gray-900/30">
                                   {subInfo.subscription.status}
                                 </span>
                                 <span>{subInfo.plan?.name || "—"}</span>
@@ -1374,9 +1391,9 @@ const AdminUsersPage: React.FC = () => {
                           </div>
 
                           {/* Activate New Subscription */}
-                          <div className="border border-blue-200/50 dark:border-blue-700/30 bg-gradient-to-br from-blue-50/50 to-blue-50/50 dark:from-blue-950/20 dark:to-blue-950/20 p-4 backdrop-blur-sm">
-                            <h4 className="text-sm font-semibold text-blue-900 dark:text-blue-100 mb-3 flex items-center gap-2">
-                              <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                          <div className="border border-gray-200/50 dark:border-gray-700/30 p-4 backdrop-blur-sm bg-gray-50/50 dark:bg-gray-950/20">
+                            <h4 className="text-sm font-semibold text-black dark:text-gray-100 mb-3 flex items-center gap-2">
+                              <div className="w-2 h-2 bg-gold-500 rounded-full animate-pulse"></div>
                               Activate New Subscription
                             </h4>
                             <div className="space-y-3">
@@ -1391,7 +1408,7 @@ const AdminUsersPage: React.FC = () => {
                                     }
                                     className={`px-3 py-1 text-xs rounded ${
                                       activationBilling === "monthly"
-                                        ? "bg-blue-500 text-white"
+                                        ? "bg-gold-500 text-white"
                                         : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                                     }`}
                                   >
@@ -1403,7 +1420,7 @@ const AdminUsersPage: React.FC = () => {
                                     }
                                     className={`px-3 py-1 text-xs rounded ${
                                       activationBilling === "annual"
-                                        ? "bg-blue-500 text-white"
+                                        ? "bg-gold-500 text-white"
                                         : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                                     }`}
                                   >
@@ -1431,7 +1448,7 @@ const AdminUsersPage: React.FC = () => {
                                 <div
                                   className={`text-xs p-2 rounded ${
                                     activationMessage.includes("successfully")
-                                      ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                                      ? "text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-800/20"
                                       : "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20"
                                   }`}
                                 >
@@ -1501,7 +1518,7 @@ const AdminUsersPage: React.FC = () => {
                                     setActivationLoading(false);
                                   }
                                 }}
-                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-colors"
+                                className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-gold-500 hover:bg-gold-600 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-colors"
                               >
                                 {activationLoading ? (
                                   <>
@@ -1544,7 +1561,7 @@ const AdminUsersPage: React.FC = () => {
                             <button
                               disabled={isVerifying}
                               onClick={verifySelected}
-                              className="inline-flex items-center gap-2 rounded-3xl bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] hover:shadow-blue-500/20"
+                              className="inline-flex items-center gap-2 rounded-3xl text-white px-4 py-2 text-sm font-medium disabled:opacity-60 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] bg-gold-500 hover:bg-gold-600"
                             >
                               {isVerifying ? (
                                 <>

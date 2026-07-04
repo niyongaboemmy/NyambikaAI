@@ -144,12 +144,12 @@ export default function SubscriptionPlanSelector({
       {/* Holographic Background */}
       <div className="relative">
         <motion.div
-          className="absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br from-blue-400/10 to-blue-600/10 rounded-full blur-3xl"
+          className="absolute -top-20 -right-20 w-40 h-40 rounded-full blur-3xl bg-gray-400/10"
           animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-blue-400/10 to-blue-600/10 rounded-full blur-3xl"
+          className="absolute -bottom-20 -left-20 w-40 h-40 rounded-full blur-3xl bg-gray-400/10"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -168,7 +168,7 @@ export default function SubscriptionPlanSelector({
                 onClick={() => setBillingCycle("monthly")}
                 className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
                   billingCycle === "monthly"
-                    ? "bg-gradient-to-r from-blue-600 to-blue-400 text-white"
+                    ? "text-white bg-gold-600"
                     : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 }`}
                 whileHover={{ scale: 1.02 }}
@@ -181,14 +181,14 @@ export default function SubscriptionPlanSelector({
                 onClick={() => setBillingCycle("annual")}
                 className={`px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                   billingCycle === "annual"
-                    ? "bg-gradient-to-r from-blue-600 to-blue-400 text-white"
+                    ? "text-white bg-gold-600"
                     : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                 }`}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 Annual
-                <Badge className="bg-blue-500 text-white text-xs px-2 py-0.5">
+                <Badge className="bg-gold-500 text-white text-xs px-2 py-0.5">
                   Save up to 30%
                 </Badge>
               </motion.button>
@@ -218,7 +218,7 @@ export default function SubscriptionPlanSelector({
               >
                 {plan.isPopular && (
                   <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-                    <Badge className="bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-4 py-1">
+                    <Badge className="text-white px-4 py-1 bg-gold-300">
                       <Sparkles className="w-3 h-3 mr-1" />
                       Most Popular
                     </Badge>
@@ -228,32 +228,22 @@ export default function SubscriptionPlanSelector({
                 <Card
                   className={`relative overflow-hidden transition-all duration-300 cursor-pointer rounded-3xl ${
                     isSelected
-                      ? "ring-2 ring-blue-500-blue-500/25"
-                      : "hover:shadow-xl"
+                      ? "ring-2 ring-gold-500-gold-500/25"
+                      : ""
                   } ${
                     plan.isPremium
-                      ? "bg-gradient-to-br from-blue-50/80 to-blue-50/80 dark:from-blue-900/30 dark:to-blue-900/30 border-blue-200/50 dark:border-blue-700/50"
+                      ? "border-gray-200/50 dark:border-gray-700/50 bg-gray-50/80 dark:bg-gray-900/30"
                       : "bg-white/70 dark:bg-gray-900/70 border-gray-200/50 dark:border-gray-700/50"
                   } backdrop-blur-xl`}
                   onClick={() => onPlanSelect(plan.id, billingCycle)}
                 >
-                  {/* Animated Background Pattern */}
-                  <div className="absolute inset-0 opacity-5">
-                    <div
-                      className="absolute inset-0"
-                      style={{
-                        backgroundImage: `radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.3) 2px, transparent 2px)`,
-                        backgroundSize: "20px 20px",
-                      }}
-                    />
-                  </div>
 
                   <CardContent className="p-6 relative">
                     {/* Header */}
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <motion.div
-                          className={`w-10 h-10 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-700`}
+                          className="w-10 h-10 rounded-2xl flex items-center justify-center bg-gold-600"
                           whileHover={{ rotate: 5 }}
                         >
                           {getPlanIcon(plan.name)}
@@ -271,7 +261,7 @@ export default function SubscriptionPlanSelector({
                         <motion.div
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
-                          className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
+                          className="w-6 h-6 bg-gold-500 rounded-full flex items-center justify-center"
                         >
                           <Check className="w-4 h-4 text-white" />
                         </motion.div>
@@ -290,7 +280,7 @@ export default function SubscriptionPlanSelector({
                       </div>
                       {billingCycle === "annual" && discount > 0 && (
                         <div className="flex items-center gap-2 mt-2">
-                          <Badge className="bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                          <Badge className="bg-gray-100 text-gray-900 dark:bg-gray-800/30 dark:text-white">
                             Save {discount}%
                           </Badge>
                           <span className="text-sm text-gray-500 line-through">
@@ -311,8 +301,8 @@ export default function SubscriptionPlanSelector({
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: 0.3 + idx * 0.05 }}
                           >
-                            <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                              <Check className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                            <div className="w-5 h-5 bg-gray-100 dark:bg-gray-800/30 rounded-full flex items-center justify-center flex-shrink-0">
+                              <Check className="w-3 h-3 text-gray-900 dark:text-white" />
                             </div>
                             <span className="text-sm text-gray-700 dark:text-gray-300">
                               {feature}
@@ -333,9 +323,9 @@ export default function SubscriptionPlanSelector({
                         disabled={loading}
                         className={`w-full rounded-2xl ${
                           isSelected
-                            ? "bg-blue-600 hover:bg-blue-700 text-white"
-                            : "bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white"
-                        } hover:shadow-xl transition-all duration-300`}
+                            ? "bg-gold-600 hover:bg-gold-700 text-white"
+                            : "text-white bg-gold-600 hover:bg-gold-700"
+                        } transition-all duration-300`}
                       >
                         {isSelected ? (
                           <>

@@ -1,6 +1,20 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import {
+  Shirt,
+  Gem,
+  Footprints,
+  ShoppingBag,
+  Smartphone,
+  Sparkles,
+  LayoutGrid,
+  Dumbbell,
+  Home as HomeIcon,
+  Package,
+  Zap,
+  Check,
+} from "lucide-react";
 import { Button } from "@/components/custom-ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import BoostProductDialog from "@/components/BoostProductDialog";
@@ -22,6 +36,23 @@ interface HomeProductsProps {
   };
 }
 
+// Curated warm gradient set for brand-monogram fallback cards (no logo yet)
+const BRAND_GRADIENTS = [
+  "from-gold-400 to-gold-600",
+  "from-gold-500 to-[#8F6F30]",
+  "from-[#C9A227] to-[#6B5423]",
+  "from-gold-300 to-gold-500",
+  "from-[#8F6F30] to-[#3D2F14]",
+];
+
+function pickBrandGradient(seed: string) {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = (hash * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return BRAND_GRADIENTS[hash % BRAND_GRADIENTS.length];
+}
+
 // Modern category card component with images
 function CategoryCard({
   category,
@@ -36,55 +67,38 @@ function CategoryCard({
 }) {
   const { t } = useLanguage();
   const getCategoryImage = (category: any) => {
-    if (category.imageUrl) {
-      return category.imageUrl;
-    }
-    const imageMap: Record<string, string> = {
-      Clothing: "👗",
-      Accessories: "💍",
-      Shoes: "👠",
-      Bags: "👜",
-      Electronics: "📱",
-      Beauty: "💄",
-      All: "🛍️",
-      Fashion: "",
-      Sports: "⚽",
-      Home: "🏠",
-    };
-    return imageMap[category.name] || "🛍️";
+    return category.imageUrl || null;
   };
 
-  const getGradientColors = (categoryName: string) => {
-    const gradientMap: Record<string, string> = {
-      Clothing: "from-blue-600/80 via-blue-500/80 to-blue-400/80",
-      Accessories: "from-blue-700/80 via-blue-600/80 to-blue-500/80",
-      Shoes: "from-blue-500/80 via-cyan-500/80 to-blue-500/80",
-      Bags: "from-blue-800/80 via-blue-600/80 to-blue-500/80",
-      Electronics: "from-slate-600/80 via-blue-600/80 to-blue-500/80",
-      Beauty: "from-blue-500/80 via-blue-500/80 to-blue-500/80",
-      All: "from-blue-600/80 via-blue-500/80 to-sky-400/80",
-      Fashion: "from-blue-700/80 via-blue-600/80 to-blue-500/80",
-      Sports: "from-blue-500/80 via-cyan-500/80 to-blue-400/80",
-      Home: "from-blue-800/80 via-blue-600/80 to-blue-400/80",
+  const getCategoryIcon = (categoryName: string) => {
+    const iconMap: Record<string, typeof ShoppingBag> = {
+      Clothing: Shirt,
+      Accessories: Gem,
+      Shoes: Footprints,
+      Bags: ShoppingBag,
+      Electronics: Smartphone,
+      Beauty: Sparkles,
+      All: LayoutGrid,
+      Sports: Dumbbell,
+      Home: HomeIcon,
     };
-    return (
-      gradientMap[categoryName] || "from-blue-500/80 via-blue-500/80 to-blue/50"
-    );
+    return iconMap[categoryName] || Package;
   };
 
   const categoryImage = getCategoryImage(category);
-  const isImageUrl = categoryImage.startsWith("http");
+  const isImageUrl = Boolean(categoryImage);
+  const CategoryIcon = getCategoryIcon(category.name);
 
   return (
     <button
       onClick={onClick}
       className={`group relative overflow-hidden rounded-3xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 ${
         isSelected
-          ? "ring-4 ring-blue-500/50-blue-500/30 scale-105"
-          : "hover:shadow-2xl hover:shadow-black/20"
+          ? "ring-4 ring-gold-500/50 scale-105"
+          : ""
       } aspect-[4/5]`}
     >
-      {/* Background Image or Gradient */}
+      {/* Background Image or gradient fallback */}
       <div className="absolute inset-0">
         {isImageUrl ? (
           <>
@@ -95,18 +109,19 @@ function CategoryCard({
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
               className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
-            <div
-              className={`absolute inset-0 bg-gradient-to-t ${getGradientColors(
-                category.name,
-              )} mix-blend-multiply group-hover:opacity-80 transition-opacity duration-300`}
-            />
+            {/* Legibility gradient: clear at top, warm gold-black at bottom */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#1a1206]/95 via-[#1a1206]/25 to-transparent group-hover:from-[#1a1206]/85 transition-all duration-300" />
           </>
         ) : (
-          <div
-            className={`w-full h-full bg-gradient-to-br ${getGradientColors(
-              category.name,
-            )}`}
-          />
+          <>
+            <div
+              className={`w-full h-full bg-gradient-to-br ${pickBrandGradient(
+                category.name || String(category.id)
+              )} transition-transform duration-500 group-hover:scale-110`}
+            />
+            {/* Lighter scrim — just enough for the label to read */}
+            <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/55 to-transparent" />
+          </>
         )}
       </div>
 
@@ -126,24 +141,22 @@ function CategoryCard({
         ))}
       </div>
 
-      {/* Emoji Icon for non-image categories */}
+      {/* Icon for non-image categories */}
       {!isImageUrl && (
         <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-6xl group-hover:scale-110 group-hover:animate-bounce transition-all duration-300 drop-shadow-lg">
-            {categoryImage}
-          </span>
+          <CategoryIcon className="h-16 w-16 text-white group-hover:scale-110 transition-all duration-300" />
         </div>
       )}
 
-      {/* Floating Content Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-6">
         <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-          <h3 className="font-bold text-white text-xl mb-1 drop-shadow-lg">
+          <span className="block w-8 h-0.5 rounded-full mb-2 bg-gradient-to-r from-gold-400 to-gold-200 group-hover:w-12 transition-all duration-300" />
+          <h3 className="font-bold text-white text-xl mb-1">
             {category.name}
           </h3>
           {productCount !== undefined && (
-            <p className="text-white/90 text-sm font-medium drop-shadow">
+            <p className="text-white/90 text-sm font-medium">
               {productCount} {t("home.items")}
             </p>
           )}
@@ -154,7 +167,7 @@ function CategoryCard({
       {isSelected && (
         <div className="absolute top-4 right-4 z-20">
           <div className="bg-white/20 backdrop-blur-sm rounded-full p-2">
-            <span className="text-2xl animate-bounce">💖</span>
+            <Check className="h-5 w-5 text-white" />
           </div>
         </div>
       )}
@@ -256,7 +269,7 @@ function HomeProductsSkeleton() {
 
           {/* Enhanced Products Search Banner skeleton */}
           <div className="mt-8">
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600 p-6 md:p-8">
+            <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 bg-gray-200 dark:bg-gray-700">
               {/* Animated Background Elements */}
               <div className="absolute inset-0 overflow-hidden">
                 <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full animate-pulse" />
@@ -621,13 +634,13 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               {t("home.brands")}
             </h2>
             <div className="flex gap-1">
-              <div className="w-2 h-2 bg-blue-400 rounded-full animate-ping" />
+              <div className="w-2 h-2 bg-gold-400 rounded-full animate-ping" />
               <div
-                className="w-2 h-2 bg-blue-400 rounded-full animate-ping"
+                className="w-2 h-2 bg-gold-400 rounded-full animate-ping"
                 style={{ animationDelay: "0.5s" }}
               />
               <div
-                className="w-2 h-2 bg-blue-400 rounded-full animate-ping"
+                className="w-2 h-2 bg-gold-400 rounded-full animate-ping"
                 style={{ animationDelay: "1s" }}
               />
             </div>
@@ -645,44 +658,54 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   .map((s: string) => s[0])
                   .join("")
                   .toUpperCase();
+                const gradient = pickBrandGradient(company.id || label);
 
                 return (
                   <button
                     key={company.id}
                     onClick={() => router.push(`/store/${company.id}`)}
-                    className="group relative min-w-[180px] aspect-[4/5] rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                    className="group relative min-w-[180px] aspect-[4/5] rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1"
                     aria-pressed={isSelected}
                     title={label}
                   >
-                    {/* Background image or initials */}
+                    {/* Background image or gradient monogram */}
                     {logo ? (
-                      <Image
-                        src={logo}
-                        alt={label}
-                        fill
-                        sizes="180px"
-                        quality={60}
-                        placeholder="empty"
-                        loading="lazy"
-                        className="object-cover transform group-hover:scale-105 transition-transform duration-500"
-                      />
+                      <>
+                        <Image
+                          src={logo}
+                          alt={label}
+                          fill
+                          sizes="180px"
+                          quality={60}
+                          placeholder="empty"
+                          loading="lazy"
+                          className="object-cover transform group-hover:scale-105 transition-transform duration-500"
+                        />
+                        {/* Legibility gradient: clear at top, dark only at bottom */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+                      </>
                     ) : (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-200 dark:bg-gray-800">
-                        <span className="text-4xl font-bold text-gray-700 dark:text-gray-200">
-                          {initials}
-                        </span>
-                      </div>
+                      <>
+                        <div
+                          className={`absolute inset-0 bg-gradient-to-br ${gradient} transition-transform duration-500 group-hover:scale-105`}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-4xl font-bold text-white/95">
+                            {initials}
+                          </span>
+                        </div>
+                        {/* Soft scrim for the label beneath */}
+                        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/50 to-transparent" />
+                      </>
                     )}
-                    {/* Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90" />
                     {/* Content */}
                     <div className="absolute bottom-0 left-0 right-0 p-4">
                       <div className="translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-                        <h3 className="text-white text-lg font-semibold drop-shadow">
+                        <h3 className="text-white text-lg font-semibold">
                           {label}
                         </h3>
                         {company.location && (
-                          <p className="text-white/90 text-xs truncate drop-shadow-sm">
+                          <p className="text-white/90 text-xs truncate">
                             {company.location}
                           </p>
                         )}
@@ -747,7 +770,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   : `${t("home.trending")}`}
               </h2>
               <div className="flex items-center gap-3">
-                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-gradient-to-r from-cyan-400 via-red-500 to-blue-500 text-white text-xs sm:text-sm md:text-base font-bold rounded-full animate-pulse">
+                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-[rgb(var(--coral-rgb))] text-white text-xs sm:text-sm md:text-base font-bold rounded-full">
                   {t("home.hot")}
                 </span>
                 <div className="flex gap-2">
@@ -793,7 +816,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               {/* Enhanced Products Search Banner */}
               {activeProducerProducts.length > 10 && (
                 <div className="mt-8">
-                  <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-blue-600 to-blue-600 p-6 md:p-8">
+                  <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 bg-gold-600">
                     {/* Animated Background Elements */}
                     <div className="absolute inset-0 overflow-hidden">
                       <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full animate-pulse" />
@@ -823,15 +846,15 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button
                           onClick={() => router.push("/products-search")}
-                          className="bg-white text-blue-600 hover:bg-gray-50 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-full transition-all duration-300 hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
+                          className="bg-white text-gray-900 hover:bg-gray-50 font-bold px-6 py-3 sm:px-8 sm:py-4 rounded-full transition-all duration-300 hover:scale-105 text-sm sm:text-base w-full sm:w-auto"
                         >
                           {t("home.browseAll")}
                         </Button>
 
                         <div className="flex items-center gap-2 text-white/80 text-xs sm:text-sm">
-                          <span className="animate-pulse">⚡</span>
+                          <Zap className="h-3.5 w-3.5 animate-pulse" />
                           <span>{t("home.advancedSearch")}</span>
-                          <span className="animate-pulse">⚡</span>
+                          <Zap className="h-3.5 w-3.5 animate-pulse" />
                         </div>
                       </div>
                     </div>
@@ -841,7 +864,9 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
             </>
           ) : (
             <div className="col-span-full py-12 text-center">
-              <div className="text-6xl mb-4">📦</div>
+              <div className="mb-4 flex justify-center">
+                <Package className="h-16 w-16 text-gray-400" />
+              </div>
               <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
                 {t("home.noProducts")}
               </h3>

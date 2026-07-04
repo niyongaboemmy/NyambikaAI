@@ -449,10 +449,10 @@ function Profile() {
           <div className="mb-4 sm:mb-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="relative">
-                <div className="p-3 sm:p-3 rounded-full bg-blue-600 shadow-lg">
+                <div className="p-3 sm:p-3 rounded-full bg-gold-600">
                   <User className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                 </div>
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full"></div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-gold-500 rounded-full"></div>
               </div>
               <div className="flex-1">
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-bold text-gray-900 dark:text-white">
@@ -462,9 +462,9 @@ function Profile() {
                   {t("profile.subtitle")}
                 </p>
               </div>
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800">
-                <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                <span className="text-xs font-medium text-blue-700 dark:text-blue-400">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-800/30 border border-gray-200 dark:border-gray-700">
+                <div className="w-2 h-2 rounded-full bg-gold-500"></div>
+                <span className="text-xs font-medium text-gray-900 dark:text-white">
                   {t("profile.active")}
                 </span>
               </div>
@@ -477,11 +477,11 @@ function Profile() {
             <div className="flex-1 space-y-3 sm:space-y-4">
               {/* Stats Dashboard */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-3 sm:mb-4">
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1.5 sm:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                        <Heart className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-gray-100 dark:bg-gray-800/30">
+                        <Heart className="h-3 w-3 sm:h-4 sm:w-4 text-gray-900 dark:text-white" />
                       </div>
                     </div>
                     <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
@@ -492,11 +492,11 @@ function Profile() {
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1.5 sm:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                        <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-gray-100 dark:bg-gray-800/30">
+                        <ShoppingBag className="h-3 w-3 sm:h-4 sm:w-4 text-gray-900 dark:text-white" />
                       </div>
                     </div>
                     <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
@@ -507,11 +507,11 @@ function Profile() {
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1.5 sm:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-gray-100 dark:bg-gray-800/30">
+                        <Sparkles className="h-3 w-3 sm:h-4 sm:w-4 text-gray-900 dark:text-white" />
                       </div>
                     </div>
                     <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
@@ -522,11 +522,11 @@ function Profile() {
                     </p>
                   </CardContent>
                 </Card>
-                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+                <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-200">
                   <CardContent className="p-2 sm:p-3 text-center">
                     <div className="flex items-center justify-center mb-1">
-                      <div className="p-1.5 sm:p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                        <Target className="h-3 w-3 sm:h-4 sm:w-4 text-blue-600 dark:text-blue-400" />
+                      <div className="p-1.5 sm:p-2 rounded-lg bg-gray-100 dark:bg-gray-800/30">
+                        <Target className="h-3 w-3 sm:h-4 sm:w-4 text-gray-900 dark:text-white" />
                       </div>
                     </div>
                     <p className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
@@ -541,14 +541,14 @@ function Profile() {
               {/* Compact Profile Section with Flex Layout */}
               <div className="flex flex-col md:flex-row gap-3 sm:gap-4">
                 {/* Profile Info Card */}
-                <Card className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+                <Card className="flex-1 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-200">
                   <CardContent className="p-3 sm:p-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
                       <div className="relative flex-shrink-0">
-                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-blue-600 flex items-center justify-center shadow-lg">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gold-600 flex items-center justify-center">
                           <User className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
                         </div>
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-gold-500 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
                           <Check className="h-3 w-3 text-white" />
                         </div>
                       </div>
@@ -574,7 +574,7 @@ function Profile() {
                         size="sm"
                         className={`${
                           isEditing
-                            ? "bg-blue-600 hover:bg-blue-700 text-white"
+                            ? "bg-gold-600 hover:bg-gold-700 text-white"
                             : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
                         } transition-all duration-200 border border-gray-200 dark:border-gray-700 px-3 py-2 sm:px-4 flex-shrink-0 w-full sm:w-auto`}
                         disabled={updateProfileMutation.isPending}
@@ -649,7 +649,7 @@ function Profile() {
                         <div className="flex flex-col sm:flex-row gap-2 sm:hidden">
                           <Button
                             onClick={handleSaveProfile}
-                            className="bg-blue-600 hover:bg-blue-700 text-white flex-1"
+                            className="bg-gold-600 hover:bg-gold-700 text-white flex-1"
                             disabled={updateProfileMutation.isPending}
                           >
                             <div className="flex items-center justify-center gap-2">
@@ -679,11 +679,11 @@ function Profile() {
               <UserWallet />
 
               {/* Recent Activity */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-200">
                 <CardContent className="p-3 sm:p-4">
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                      <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    <div className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800/30">
+                      <Activity className="h-5 w-5 text-gray-900 dark:text-white" />
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                       {t("profile.recentActivity")}
@@ -697,8 +697,8 @@ function Profile() {
                           className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
                         >
                           <div className="flex items-center gap-2">
-                            <div className="p-1 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                              <ShoppingBag className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                            <div className="p-1 rounded-full bg-gray-100 dark:bg-gray-800/30">
+                              <ShoppingBag className="h-3 w-3 text-gray-900 dark:text-white" />
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-white">
@@ -715,7 +715,7 @@ function Profile() {
                             <p className="text-sm font-semibold text-black dark:text-white">
                               RF {order.total}
                             </p>
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-gray-100 text-black dark:bg-gray-800/30 dark:text-white">
                               {order.status || "Processing"}
                             </span>
                           </div>
@@ -731,7 +731,7 @@ function Profile() {
                       <Button
                         onClick={() => router.push("/")}
                         size="sm"
-                        className="bg-blue-600 hover:bg-blue-700 text-white dark:bg-blue-500 dark:hover:bg-blue-600"
+                        className="bg-gold-600 hover:bg-gold-700 text-white dark:bg-gold-500 dark:hover:bg-gold-600"
                       >
                         {t("profile.startShopping")}
                       </Button>
@@ -744,7 +744,7 @@ function Profile() {
             {/* Sidebar */}
             <div className="lg:w-80 xl:w-96 space-y-3 sm:space-y-4">
               {/* Quick Actions */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 shadow-sm hover:shadow-md transition-all duration-200">
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 transition-all duration-200">
                 <CardContent className="p-2 sm:p-3">
                   <div className="flex items-center gap-3 mb-3 sm:mb-4">
                     <div className="p-2 rounded-lg bg-amber-100 dark:bg-amber-900/30">
@@ -758,7 +758,7 @@ function Profile() {
                     <Button
                       onClick={() => router.push("/try-on")}
                       size="sm"
-                      className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
+                      className="w-full justify-start bg-gold-600 hover:bg-gold-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
                     >
                       <Sparkles className="mr-3 h-4 w-4" />
                       {t("profile.action.tryOn")}
@@ -800,7 +800,7 @@ function Profile() {
                       <Button
                         onClick={() => setModalOpen(true)}
                         size="sm"
-                        className="w-full justify-start bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white text-sm py-3 rounded-lg transition-all duration-200 mt-2"
+                        className="w-full justify-start text-white text-sm py-3 rounded-lg transition-all duration-200 mt-2 bg-gold-500 hover:bg-gold-600"
                       >
                         <Building2 className="mr-3 h-4 w-4" />
                         Update Company
@@ -811,20 +811,20 @@ function Profile() {
               </Card>
 
               {/* Insights */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 transition-shadow duration-200">
                 <CardContent className="relative p-2 sm:p-3">
                   <div className="flex items-center gap-2 mb-2 sm:mb-3">
-                    <div className="p-1.5 rounded-full bg-blue-100 dark:bg-blue-900/30">
-                      <Target className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    <div className="p-1.5 rounded-full bg-gray-100 dark:bg-gray-800/30">
+                      <Target className="h-4 w-4 text-gray-900 dark:text-white" />
                     </div>
                     <h3 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-gray-100">
                       Insights
                     </h3>
                   </div>
                   <div className="space-y-1 sm:space-y-2">
-                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                    <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800/20">
                       <div className="flex items-center gap-2 mb-1">
-                        <Award className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                        <Award className="h-3 w-3 text-gray-900 dark:text-white" />
                         <span className="text-xs font-medium text-gray-900 dark:text-white">
                           Style Match
                         </span>
@@ -833,9 +833,9 @@ function Profile() {
                         95% casual-chic
                       </p>
                     </div>
-                    <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/20">
+                    <div className="p-2 rounded-lg bg-gray-50 dark:bg-gray-800/20">
                       <div className="flex items-center gap-2 mb-1">
-                        <TrendingUp className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                        <TrendingUp className="h-3 w-3 text-gray-900 dark:text-white" />
                         <span className="text-xs font-medium text-gray-900 dark:text-white">
                           Trending
                         </span>
@@ -849,7 +849,7 @@ function Profile() {
               </Card>
 
               {/* Settings */}
-              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 shadow-sm hover:shadow-md transition-shadow duration-200">
+              <Card className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-0 transition-shadow duration-200">
                 <CardContent className="p-2 sm:p-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -869,7 +869,7 @@ function Profile() {
                       onClick={() =>
                         setTheme(actualTheme === "light" ? "dark" : "light")
                       }
-                      className="w-full flex justify-start items-center gap-2 p-2 pr-3 bg-blue-50 dark:bg-gray-800 hover:bg-blue-100 dark:hover:bg-gray-700 rounded-lg transition-all"
+                      className="w-full flex justify-start items-center gap-2 p-2 pr-3 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
                     >
                       <div className="p-1 rounded-full bg-slate-100 dark:bg-slate-800">
                         {actualTheme === "light" ? (
@@ -888,7 +888,7 @@ function Profile() {
                     <Button
                       size="sm"
                       onClick={openChangePassword}
-                      className="w-full justify-start bg-blue-600 hover:bg-blue-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
+                      className="w-full justify-start bg-gold-600 hover:bg-gold-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
                     >
                       <Lock className="mr-3 h-4 w-4" />
                       Open Change Password

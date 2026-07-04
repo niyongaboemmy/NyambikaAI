@@ -78,8 +78,8 @@ Alternative method:
                 onClick={() => setSelectedVariant(variant.key)}
                 className={`px-6 py-3 rounded-lg font-medium transition-all ${
                   selectedVariant === variant.key
-                    ? "bg-blue-600 text-white shadow-lg"
-                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
+                    ? "bg-gold-600 text-white"
+                    : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-600"
                 }`}
               >
                 <div className="text-sm font-semibold">{variant.name}</div>
@@ -90,7 +90,7 @@ Alternative method:
         </div>
 
         {/* Instructions */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-8 shadow-lg">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
               <Download className="h-6 w-6" />
@@ -98,7 +98,7 @@ Alternative method:
             </h2>
             <button
               onClick={copyInstructions}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-gold-600 text-white rounded-lg hover:bg-gold-700 transition-colors"
             >
               {copied ? (
                 <Check className="h-4 w-4" />
@@ -135,8 +135,8 @@ Alternative method:
             </div>
           </div>
 
-          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <p className="text-sm text-blue-800 dark:text-blue-200">
+          <div className="mt-4 p-4 bg-gray-50 dark:bg-gray-800/20 rounded-lg">
+            <p className="text-sm text-black dark:text-gray-200">
               <strong>Tip:</strong> The banner is optimized for{" "}
               {variants
                 .find((v) => v.key === selectedVariant)
@@ -164,7 +164,7 @@ Alternative method:
 
         {/* Banner Container */}
         <div className="flex justify-center mb-8">
-          <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-2xl">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl">
             <SocialMediaBanner
               variant={selectedVariant}
               className="border-2 border-gray-200 dark:border-gray-600 rounded-xl"
@@ -173,7 +173,7 @@ Alternative method:
         </div>
 
         {/* Usage Tips */}
-        <div className="bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-900/20 dark:to-blue-900/20 rounded-2xl p-6">
+        <div className="rounded-2xl p-6 bg-gold-50 dark:bg-gray-900/20">
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
             Social Media Usage Tips
           </h3>

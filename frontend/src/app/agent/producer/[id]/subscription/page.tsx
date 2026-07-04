@@ -171,7 +171,7 @@ export default function ProducerSubscriptionDetails() {
     switch (status) {
       case "active":
         return (
-          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <Badge className="bg-gray-100 text-black dark:bg-gold-900 dark:text-gray-200">
             Active
           </Badge>
         );
@@ -183,7 +183,7 @@ export default function ProducerSubscriptionDetails() {
         );
       case "pending":
         return (
-          <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+          <Badge className="bg-gray-100 text-black dark:bg-gold-900 dark:text-gray-200">
             Pending
           </Badge>
         );
@@ -195,11 +195,11 @@ export default function ProducerSubscriptionDetails() {
   const getStatusIcon = (status: string | null) => {
     switch (status) {
       case "active":
-        return <CheckCircle2 className="h-4 w-4 text-blue-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-gray-800" />;
       case "expired":
         return <AlertCircle className="h-4 w-4 text-red-500" />;
       case "pending":
-        return <Clock className="h-4 w-4 text-blue-500" />;
+        return <Clock className="h-4 w-4 text-gray-800" />;
       default:
         return <Clock className="h-4 w-4 text-gray-500" />;
     }
@@ -210,34 +210,20 @@ export default function ProducerSubscriptionDetails() {
       {/* Holographic Background Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
+          className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl bg-gray-400/20"
           animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-blue-400/20 to-blue-600/20 rounded-full blur-3xl"
+          className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl bg-gray-400/20"
           animate={{ scale: [1.2, 1, 1.2], rotate: [360, 180, 0] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-cyan-400/10 to-blue-600/10 rounded-full blur-3xl"
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 rounded-full blur-3xl bg-gray-300/10"
           animate={{ scale: [1, 1.1, 1], opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
-        <div className="absolute inset-0 opacity-10 dark:opacity-5">
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: `
-                linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px),
-                linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px),
-                radial-gradient(circle at 25% 25%, rgba(168, 85, 247, 0.4) 2px, transparent 2px),
-                radial-gradient(circle at 75% 75%, rgba(236, 72, 153, 0.4) 2px, transparent 2px)
-              `,
-              backgroundSize: "50px 50px, 50px 50px, 100px 100px, 100px 100px",
-            }}
-          />
-        </div>
       </div>
 
       <div className="relative space-y-6 px-2 sm:px-3 lg:px-0 py-6">
@@ -251,7 +237,7 @@ export default function ProducerSubscriptionDetails() {
             <Button
               variant="ghost"
               onClick={() => router.push("/agent/producers-management")}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-blue-500 dark:hover:bg-blue-600 hover:text-white"
+              className="flex items-center gap-2 bg-white dark:bg-gray-800 hover:bg-gold-500 dark:hover:bg-gold-600 hover:text-white"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to Producers
@@ -262,21 +248,21 @@ export default function ProducerSubscriptionDetails() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <div className="w-9 h-9 rounded-2xl flex items-center justify-center bg-gold-500">
                   <Brain className="w-6 h-6 text-white" />
                 </div>
                 <motion.div
-                  className="absolute -inset-2 rounded-2xl border-2 border-blue-500/30"
+                  className="absolute -inset-2 rounded-2xl border-2 border-gray-400/30"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -inset-1 rounded-2xl border border-blue-500/30"
+                  className="absolute -inset-1 rounded-2xl border border-gray-400/30"
                   animate={{ rotate: -360 }}
                   transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
                 />
                 <motion.div
-                  className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full flex items-center justify-center"
+                  className="absolute -top-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center bg-gold-400"
                   animate={{ rotate: 360, scale: [1, 1.2, 1] }}
                   transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                 >
@@ -311,7 +297,7 @@ export default function ProducerSubscriptionDetails() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
           >
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="h-5 w-5" />
@@ -324,10 +310,10 @@ export default function ProducerSubscriptionDetails() {
                     <img
                       src={producer.companyLogoUrl}
                       alt={producer.companyName || "Company Logo"}
-                      className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-700 shadow-sm"
+                      className="w-12 h-12 rounded-full object-cover border border-gray-200 dark:border-gray-700"
                     />
                   ) : (
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-medium shadow-md">
+                    <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-medium bg-gold-500">
                       {producer.fullName
                         ?.split(" ")
                         .map((n: string) => n[0])
@@ -417,7 +403,7 @@ export default function ProducerSubscriptionDetails() {
                           href={producer.companyWebsiteUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline"
+                          className="text-gray-900 hover:underline"
                         >
                           {producer.companyWebsiteUrl}
                         </a>
@@ -428,7 +414,7 @@ export default function ProducerSubscriptionDetails() {
 
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Products:</span>
-                  <span className="text-lg font-semibold text-blue-600">
+                  <span className="text-lg font-semibold text-gray-900">
                     {producer.productsCount}
                   </span>
                 </div>
@@ -451,7 +437,7 @@ export default function ProducerSubscriptionDetails() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
@@ -514,7 +500,7 @@ export default function ProducerSubscriptionDetails() {
 
                     <div className="flex justify-between items-center">
                       <span className="font-medium">Commission Earned:</span>
-                      <span className="text-lg font-semibold text-blue-600">
+                      <span className="text-lg font-semibold text-gray-900">
                         {producer.commissionEarned.toLocaleString()} RWF
                       </span>
                     </div>
@@ -526,7 +512,7 @@ export default function ProducerSubscriptionDetails() {
                             `/agent/subscription/renew/${producer.id}`
                           )
                         }
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                        className="w-full bg-gold-600 hover:bg-gold-700 text-white"
                       >
                         <RefreshCw className="h-4 w-4 mr-2" />
                         Renew Subscription
@@ -544,7 +530,7 @@ export default function ProducerSubscriptionDetails() {
                       onClick={() =>
                         router.push(`/agent/subscription/create/${producer.id}`)
                       }
-                      className="bg-gradient-to-r from-blue-600 to-blue-400 hover:from-blue-700 hover:to-blue-700 text-white shadow-lg"
+                      className="text-white bg-gold-600 hover:bg-gold-700"
                     >
                       <CreditCard className="h-4 w-4 mr-2" />
                       Create Subscription
@@ -562,7 +548,7 @@ export default function ProducerSubscriptionDetails() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 shadow-xl">
+            <Card className="bg-white/70 dark:bg-gray-900/70 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <DollarSign className="h-5 w-5" />
@@ -577,11 +563,11 @@ export default function ProducerSubscriptionDetails() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="rounded-xl border border-gray-200/60 dark:border-gray-700/60 bg-gradient-to-br from-gray-50/60 to-white/60 dark:from-gray-800/40 dark:to-gray-900/40 backdrop-blur-xl p-3 sm:p-4"
+                      className="rounded-xl border border-gray-200/60 dark:border-gray-700/60 backdrop-blur-xl p-3 sm:p-4 bg-gray-50/60 dark:bg-gray-800/40"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2">
-                          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-xl text-white flex items-center justify-center bg-gold-500">
                             <Calendar className="h-5 w-5" />
                           </div>
                           <div>
@@ -602,7 +588,7 @@ export default function ProducerSubscriptionDetails() {
                             }
                             className={
                               payment.status === "completed"
-                                ? "bg-blue-100 text-blue-800"
+                                ? "bg-gray-100 text-black"
                                 : ""
                             }
                           >
@@ -623,7 +609,7 @@ export default function ProducerSubscriptionDetails() {
                           <p className="text-gray-500 dark:text-gray-400">
                             Commission
                           </p>
-                          <p className="font-semibold text-blue-600">
+                          <p className="font-semibold text-gray-900">
                             {Number(payment.agentCommission).toLocaleString()}{" "}
                             RWF
                           </p>

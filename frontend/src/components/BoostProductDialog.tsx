@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Plus,
   RotateCcw,
+  MousePointerClick,
 } from "lucide-react";
 
 export type BoostProductDialogProps = {
@@ -169,16 +170,16 @@ export default function BoostProductDialog({
         if (!v) setConfirmChecked(false);
       }}
     >
-      <AlertDialogContent className="sm:max-w-[450px] overflow-hidden border-0 bg-gradient-to-br from-white via-blue-50/30 to-blue-50/30 dark:from-gray-900 dark:via-blue-950/30 dark:to-blue-950/30 backdrop-blur-xl shadow-2xl">
+      <AlertDialogContent className="sm:max-w-[450px] overflow-hidden border-0 backdrop-blur-xl bg-white dark:bg-gray-900">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br from-blue-400/20 to-blue-400/20 rounded-full blur-xl animate-pulse"></div>
-          <div className="absolute -bottom-8 -left-8 w-20 h-20 bg-gradient-to-tr from-blue-400/20 to-blue-400/20 rounded-full blur-xl animate-pulse delay-1000"></div>
+          <div className="absolute -top-8 -right-8 w-24 h-24 rounded-full blur-xl animate-pulse bg-gray-400/20"></div>
+          <div className="absolute -bottom-8 -left-8 w-20 h-20 rounded-full blur-xl animate-pulse delay-1000 bg-gray-400/20"></div>
         </div>
 
         <AlertDialogHeader className="relative z-10 text-center space-y-3">
           {/* Cute Animated SVG - Trophy/Medal for "going first" */}
-          <div className="mx-auto w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-full flex items-center justify-center shadow-lg animate-bounce">
+          <div className="mx-auto w-12 h-12 rounded-full flex items-center justify-center animate-bounce bg-gold-400">
             <svg
               className="w-7 h-7 text-white animate-pulse"
               viewBox="0 0 24 24"
@@ -196,7 +197,7 @@ export default function BoostProductDialog({
             </svg>
           </div>
 
-          <AlertDialogTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+          <AlertDialogTitle className="text-xl font-bold text-foreground">
             Go First & Stand Out
           </AlertDialogTitle>
 
@@ -204,9 +205,9 @@ export default function BoostProductDialog({
             <div>
               {settingLoading ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce"></div>
-                  <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce delay-100"></div>
-                  <div className="w-4 h-4 bg-blue-500 rounded-full animate-bounce delay-200"></div>
+                  <div className="w-4 h-4 bg-gold-500 rounded-full animate-bounce"></div>
+                  <div className="w-4 h-4 bg-gold-500 rounded-full animate-bounce delay-100"></div>
+                  <div className="w-4 h-4 bg-gold-500 rounded-full animate-bounce delay-200"></div>
                   <span className="ml-2">Loading boost settings...</span>
                 </div>
               ) : !setting ? (
@@ -217,24 +218,24 @@ export default function BoostProductDialog({
               ) : (
                 <div className="space-y-3">
                   {/* Compact benefits with inline display */}
-                  <div className="bg-gradient-to-r from-blue-500/10 to-cyan-500/10 rounded-lg p-3 border border-blue-200/30 dark:border-blue-700/30">
+                  <div className="rounded-lg p-3 border border-gray-200/30 dark:border-gray-700/30 bg-gray-500/10">
                     <div className="flex items-center space-x-2 mb-2">
-                      <TrendingUp className="w-4 h-4 text-blue-600" />
-                      <span className="font-semibold text-blue-700 dark:text-blue-300 text-sm">
+                      <TrendingUp className="w-4 h-4 text-gray-900" />
+                      <span className="font-semibold text-gray-900 dark:text-gray-300 text-sm">
                         Get Priority Placement
                       </span>
                     </div>
                     <div className="flex flex-wrap gap-2 text-xs text-gray-600 dark:text-gray-300">
                       <span className="flex items-center space-x-1">
-                        <Sparkles className="w-2.5 h-2.5 text-blue-500" />
+                        <Sparkles className="w-2.5 h-2.5 text-gray-800" />
                         <span>Top of search</span>
                       </span>
                       <span className="flex items-center space-x-1">
-                        <Sparkles className="w-2.5 h-2.5 text-blue-500" />
+                        <Sparkles className="w-2.5 h-2.5 text-gray-800" />
                         <span>Featured spot</span>
                       </span>
                       <span className="flex items-center space-x-1">
-                        <Sparkles className="w-2.5 h-2.5 text-blue-500" />
+                        <Sparkles className="w-2.5 h-2.5 text-gray-800" />
                         <span>More views</span>
                       </span>
                     </div>
@@ -242,22 +243,22 @@ export default function BoostProductDialog({
 
                   {/* Compact cost and balance in one row */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-gradient-to-r from-blue-500/10 to-blue-500/10 rounded-lg p-3 border border-blue-200/30 dark:border-blue-700/30">
+                    <div className="rounded-lg p-3 border border-gray-200/30 dark:border-gray-700/30 bg-gray-500/10">
                       <div className="flex items-center space-x-2 mb-1">
-                        <Zap className="w-4 h-4 text-blue-500" />
+                        <Zap className="w-4 h-4 text-gray-800" />
                         <span className="font-semibold text-sm">Cost</span>
                       </div>
-                      <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                      <div className="text-lg font-bold text-gray-900 dark:text-white">
                         RF {setting.amountInRwf.toLocaleString()}
                       </div>
                     </div>
 
                     {wallet && (
                       <div
-                        className={`bg-gradient-to-r rounded-lg p-3 border transition-all duration-300 ${
+                        className={`rounded-lg p-3 border transition-all duration-300 ${
                           hasInsufficientBalance
-                            ? "from-red-500/10 to-cyan-500/10 border-red-200/30 dark:border-red-700/30"
-                            : "from-blue-500/10 to-blue-500/10 border-blue-200/30 dark:border-blue-700/30"
+                            ? "bg-red-500/10 border-red-200/30 dark:border-red-700/30"
+                            : "bg-gray-500/10 border-gray-200/30 dark:border-gray-700/30"
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1">
@@ -266,7 +267,7 @@ export default function BoostProductDialog({
                               className={`w-4 h-4 ${
                                 hasInsufficientBalance
                                   ? "text-red-500"
-                                  : "text-blue-500"
+                                  : "text-gray-800"
                               }`}
                             />
                             <span className="font-semibold text-sm">
@@ -293,7 +294,7 @@ export default function BoostProductDialog({
                           className={`text-lg font-bold ${
                             hasInsufficientBalance
                               ? "text-red-600 dark:text-red-400"
-                              : "text-blue-600 dark:text-blue-400"
+                              : "text-gray-900 dark:text-white"
                           }`}
                         >
                           RF {Number(wallet.balance).toLocaleString()}
@@ -309,7 +310,7 @@ export default function BoostProductDialog({
                                 e.stopPropagation();
                                 openWallet();
                               }}
-                              className="flex items-center space-x-1 text-xs bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded-md transition-all duration-200 hover:scale-105 shadow-sm"
+                              className="flex items-center space-x-1 text-xs bg-gold-500 hover:bg-gold-600 text-white px-2 py-1 rounded-md transition-all duration-200 hover:scale-105"
                             >
                               <Plus className="w-3 h-3" />
                               <span>Add Funds</span>
@@ -339,8 +340,8 @@ export default function BoostProductDialog({
             <div
               className={`flex items-center space-x-3 p-4 rounded-lg border-2 transition-all duration-300 cursor-pointer select-none ${
                 confirmChecked
-                  ? "bg-gradient-to-r from-blue-50 to-blue-50 dark:from-blue-950/50 dark:to-blue-950/50 border-blue-300 dark:border-blue-600 shadow-lg shadow-blue-200/50 dark:shadow-blue-900/30"
-                  : "bg-gradient-to-r from-blue-50/80 to-cyan-50/80 dark:from-blue-950/40 dark:to-cyan-950/40 border-blue-300 dark:border-blue-600 hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-lg hover:shadow-blue-200/50 dark:hover:shadow-blue-900/30 hover:scale-[1.02]"
+                  ? "border-gray-300 dark:border-gray-600 bg-gold-50 dark:bg-gray-950/50"
+                  : "border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400 hover:scale-[1.02] bg-gray-50/80 dark:bg-gray-950/40"
               }`}
               onClick={(e) => {
                 e.preventDefault();
@@ -354,14 +355,14 @@ export default function BoostProductDialog({
                   onCheckedChange={(checked) =>
                     setConfirmChecked(checked === true)
                   }
-                  className={`data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-500 data-[state=checked]:to-blue-500 border-2 w-5 h-5 ${
+                  className={`data-[state=checked]:bg-gold-500 border-2 w-5 h-5 ${
                     confirmChecked
-                      ? "animate-pulse border-blue-500"
-                      : "border-blue-600"
+                      ? "animate-pulse border-gray-400"
+                      : "border-gray-500"
                   }`}
                 />
                 {!confirmChecked && (
-                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400 rounded-full animate-ping"></div>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 bg-gold-400 rounded-full animate-ping"></div>
                 )}
               </div>
               <div className="text-sm font-semibold cursor-pointer flex-1">
@@ -370,25 +371,25 @@ export default function BoostProductDialog({
                     <CheckCircle
                       className={`w-5 h-5 transition-all duration-300 ${
                         confirmChecked
-                          ? "text-blue-500 scale-110 animate-pulse"
-                          : "text-blue-500"
+                          ? "text-gray-800 scale-110 animate-pulse"
+                          : "text-gray-800"
                       }`}
                     />
                     <span
                       className={
                         confirmChecked
-                          ? "text-blue-700 dark:text-blue-300"
-                          : "text-blue-700 dark:text-blue-300"
+                          ? "text-gray-900 dark:text-gray-300"
+                          : "text-gray-900 dark:text-gray-300"
                       }
                     >
                       {confirmChecked
-                        ? "✓ Ready to go first!"
+                        ? "Ready to go first!"
                         : "Click to confirm boost"}
                     </span>
                   </div>
                   {!confirmChecked && (
-                    <div className="flex items-center space-x-1 text-xs text-blue-600 dark:text-blue-400">
-                      <span>👆</span>
+                    <div className="flex items-center space-x-1 text-xs text-gray-900 dark:text-white">
+                      <MousePointerClick className="h-3.5 w-3.5" />
                       <span>Click here</span>
                     </div>
                   )}
@@ -412,7 +413,7 @@ export default function BoostProductDialog({
                 boostMutation.isPending ||
                 hasInsufficientBalance
               }
-              className="bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white border-0 shadow-lg transition-all duration-300 hover:scale-105 hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 min-w-[120px]"
+              className="text-white border-0 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 min-w-[120px] bg-gold-500 hover:bg-gold-600"
             >
               {boostMutation.isPending ? (
                 <div className="flex items-center space-x-2">
