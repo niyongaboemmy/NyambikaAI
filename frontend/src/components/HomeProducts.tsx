@@ -95,9 +95,7 @@ function CategoryCard({
       aria-pressed={isSelected}
       title={category.name}
       className={`group relative overflow-hidden rounded-3xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 ${
-        isSelected
-          ? "ring-4 ring-gold-500/50 scale-105"
-          : ""
+        isSelected ? "ring-4 ring-gold-500/50 scale-105" : ""
       } aspect-[4/5]`}
     >
       {/* Background Image or gradient fallback */}
@@ -118,7 +116,7 @@ function CategoryCard({
           <>
             <div
               className={`w-full h-full bg-gradient-to-br ${pickBrandGradient(
-                category.name || String(category.id)
+                category.name || String(category.id),
               )} transition-transform duration-500 group-hover:scale-110`}
             />
             {/* Lighter scrim — just enough for the label to read */}
@@ -154,9 +152,7 @@ function CategoryCard({
       <div className="absolute bottom-0 left-0 right-0 p-6">
         <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
           <span className="block w-8 h-0.5 rounded-full mb-2 bg-gradient-to-r from-gold-400 to-gold-200 group-hover:w-12 transition-all duration-300" />
-          <h3 className="font-bold text-white text-xl mb-1">
-            {category.name}
-          </h3>
+          <h3 className="font-bold text-white text-xl mb-1">{category.name}</h3>
           {productCount !== undefined && (
             <p className="text-white/90 text-sm font-medium">
               {productCount} {t("home.items")}
@@ -720,11 +716,6 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   ? `${selectedCompany.name} ${t("home.products")}`
                   : `${t("home.trending")}`}
               </h2>
-              <div className="flex items-center gap-3">
-                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-coral text-white text-xs sm:text-sm md:text-base font-bold rounded-full">
-                  {t("home.hot")}
-                </span>
-              </div>
             </div>
           </div>
           {shouldApplyVerification && !verifyingProducers && (
