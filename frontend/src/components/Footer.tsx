@@ -50,53 +50,7 @@ export default function Footer() {
 
   return (
     <footer className="relative bg-muted/40 border-t border-border mt-0">
-
-      {/* AI CTA banner */}
-      <div className="container mx-auto px-4 sm:px-6 pt-12">
-        <div className="rounded-2xl bg-card border border-border overflow-hidden">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 p-8 md:p-10">
-            {/* Left: text */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground tracking-wide">
-                  <span className="relative flex h-1.5 w-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
-                  </span>
-                  {t("footer.liveBadge")}
-                </span>
-                <span className="text-xs text-muted-foreground hidden sm:block">
-                  {t("footer.tryOutfits")}
-                </span>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight leading-tight">
-                {t("footer.ctaTitle")}
-              </h2>
-              <p className="mt-2 text-muted-foreground max-w-lg text-sm leading-relaxed">
-                {t("footer.ctaDesc")}
-              </p>
-            </div>
-            {/* Right: CTAs */}
-            <div className="shrink-0 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              <Button
-                asChild
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2.5 text-sm font-medium rounded-lg transition-colors"
-              >
-                <Link href="/try-on">{t("footer.startTryOn")}</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                className="px-6 py-2.5 text-sm font-medium rounded-lg transition-colors"
-              >
-                <Link href="/products">{t("footer.browseProducts")}</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 sm:px-6 py-12 md:py-14">
+      <div className="container mx-auto px-4 sm:px-6 py-8 md:py-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-20">
           {/* Brand */}
           <div className="space-y-5">
@@ -214,27 +168,11 @@ export default function Footer() {
               <div className="flex items-center gap-3 text-sm">
                 <MapPin className="h-4 w-4 shrink-0" /> Kigali, Rwanda
               </div>
-              <div className="pt-2">
-                <Button
-                  asChild
-                  variant="outline"
-                  className="text-sm rounded-lg"
-                >
-                  <a
-                    href="https://wa.me/250782634364"
-                    target="_blank"
-                    rel="noreferrer noopener"
-                    aria-label={t("footer.whatsappAria")}
-                  >
-                    {t("footer.chatWhatsApp")}
-                  </a>
-                </Button>
-              </div>
             </div>
           </div>
         </div>
 
-        <Separator className="my-10 bg-border" />
+        <Separator className="my-8 bg-border" />
 
         <div className="flex flex-col lg:flex-row items-center justify-between gap-4 text-muted-foreground text-xs">
           <div className="text-center md:text-left">

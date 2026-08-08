@@ -701,10 +701,10 @@ export default function ProductDetail() {
                           variant="ghost"
                           size="icon"
                           onClick={() => setBoostOpen(true)}
-                          className="group relative w-10 h-10 rounded-xl border border-amber-200/50 dark:border-amber-700/50 transition-all duration-300 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-800/40"
+                          className="group relative w-10 h-10 rounded-xl border border-gold-200/50 dark:border-gold-700/50 transition-all duration-300 bg-gold-50 dark:bg-gold-900/30 hover:bg-gold-100 dark:hover:bg-gold-800/40"
                           title={t("product.boost")}
                         >
-                          <Zap className="h-4 w-4 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform duration-200" />
+                          <Zap className="h-4 w-4 text-gold-600 dark:text-gold-400 group-hover:scale-110 transition-transform duration-200" />
                         </Button>
                       </motion.div>
 
@@ -936,7 +936,7 @@ export default function ProductDetail() {
                   <Button
                     onClick={() => setIsChatOpen(true)}
                     disabled={!producerContact?.phone}
-                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm flex items-center justify-center gap-2 border border-gray-400/30 dark:border-gray-400/40 min-h-[44px] bg-gold-600 hover:bg-gold-700"
+                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm flex items-center justify-center gap-2 border border-gray-400/30 dark:border-gray-400/40 min-h-[44px] bg-gold-600 hover:bg-gold-700"
                     title={
                       producerContact?.phone
                         ? "Chat on WhatsApp"
@@ -967,7 +967,7 @@ export default function ProductDetail() {
                   <Button
                     onClick={handleBuyNow}
                     disabled={!selectedSize || !selectedColor}
-                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 text-white font-semibold rounded-md sm:rounded-lg transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm flex items-center justify-center gap-2 border border-gray-400/30 dark:border-gray-400/40 min-h-[44px] bg-gold-600 hover:bg-gold-700"
+                    className="flex-1 py-2 sm:py-2.5 px-4 sm:px-6 text-white font-semibold rounded-full transition-all duration-300 transform hover:scale-105 text-xs sm:text-sm flex items-center justify-center gap-2 border border-gray-400/30 dark:border-gray-400/40 min-h-[44px] bg-gold-600 hover:bg-gold-700"
                   >
                     Buy Now
                   </Button>
@@ -983,7 +983,7 @@ export default function ProductDetail() {
                       </span>
                     </div>
                     <div className="flex flex-col items-center gap-1">
-                      <Shield className="h-3 w-3 text-teal-500 dark:text-teal-400" />
+                      <Shield className="h-3 w-3 text-gold-500 dark:text-gold-400" />
                       <span className="text-xs text-gray-600 dark:text-gray-400">
                         Quality
                       </span>

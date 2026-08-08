@@ -365,6 +365,7 @@ export default function StorePage() {
   );
 
   // react-select styles for light/dark modes
+  // Keep in sync with the `gold` scale in tailwind.config.ts — react-select needs raw hex here, not Tailwind classes
   const selectStyles = useMemo(() => {
     // Match Input styles: rounded-lg, 2px border, hover:border-gray-200, focus:border-gray-400
     const lightBg = "rgba(255,255,255,0.8)"; // bg-white/80
@@ -492,9 +493,7 @@ export default function StorePage() {
       <div className="min-h-screen bg-transparent -mt-12">
         {/* Hero skeleton (logo, name, location/phone, actions) */}
         {/* Store Header Skeleton */}
-        <div className="relative overflow-hidden pt-8 bg-gold-600 dark:bg-gold-900">
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-0 animate-pulse bg-gray-500/30" />
+        <div className="relative overflow-hidden pt-8 bg-gradient-to-b from-gold-600 to-gold-700 dark:from-gold-900 dark:to-gold-950">
           <div className="px-4 sm:px-6 lg:px-8 py-12 sm:py-16 relative">
             <div className="max-w-4xl mx-auto text-center space-y-4">
               {/* Logo and Title */}
@@ -709,25 +708,9 @@ export default function StorePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
         />
       )}
-      {/* Enhanced Hero Section */}
-      <div className="relative overflow-hidden pt-8 bg-gold-600 dark:bg-gold-950">
-        <div className="absolute inset-0 bg-black/20 dark:bg-black" />
-        <div className="absolute inset-0 animate-pulse dark:animate-none bg-gray-500/30 dark:bg-gold-950" />
-        <div
-          className="absolute inset-0 animate-pulse dark:animate-none bg-gray-500/20 dark:bg-gray-950/40"
-          style={{ animationDelay: "2s" }}
-        />
-        <div className="absolute inset-0">
-          <div className="absolute top-10 left-10 w-32 h-32 rounded-full opacity-20 dark:opacity-5 animate-float bg-gold-400" />
-          <div
-            className="absolute top-20 right-20 w-24 h-24 rounded-full opacity-20 dark:opacity-5 animate-float bg-gold-400"
-            style={{ animationDelay: "1s" }}
-          />
-          <div
-            className="absolute bottom-10 left-1/3 w-20 h-20 rounded-full opacity-20 dark:opacity-5 animate-float bg-gold-400"
-            style={{ animationDelay: "3s" }}
-          />
-        </div>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden pt-8 bg-gradient-to-b from-gold-600 to-gold-700 dark:from-gold-900 dark:to-gold-950">
+        <div className="absolute top-10 right-10 w-40 h-40 rounded-full opacity-10 blur-2xl bg-gold-300" />
         <div className="px-4 sm:px-6 md:px-6 py-12 sm:py-16 pb-8 sm:pb-10 relative ">
           <div className="text-center text-white space-y-4 sm:space-y-0">
             <div className="flex flex-col sm:flex-row justify-center items-center sm:space-x-3 space-y-3 sm:space-y-0">

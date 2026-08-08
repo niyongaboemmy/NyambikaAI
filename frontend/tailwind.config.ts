@@ -84,6 +84,7 @@ export default {
           900: "#2A2110",
           950: "#1C1710",
         },
+        coral: "rgb(var(--coral-rgb) / <alpha-value>)",
       },
       fontFamily: {
         sans: ["var(--font-sans)"],

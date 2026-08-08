@@ -49,6 +49,12 @@ type NavItem = { href: string; label: string; icon: IconType | null };
 type RoleKey = "customer" | "producer" | "admin" | "agent";
 type RoleConfig = { links: NavItem[]; menu: NavItem[] };
 
+function isNavLinkActive(pathname: string | null, href: string): boolean {
+  if (!pathname) return false;
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export default function RoleBasedNavigation() {
   const { user, isAuthenticated, logout } = useAuth();
   const { company } = useCompany();
@@ -280,16 +286,25 @@ export default function RoleBasedNavigation() {
             <div className="hidden lg:flex items-center gap-1">
               {publicLinks.map((link) => {
                 const Icon = link.icon;
+                const active = isNavLinkActive(pathname, link.href);
                 return (
                   <Button
                     key={link.href}
                     variant="ghost"
                     size="sm"
                     onClick={() => router.push(link.href)}
-                    className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gold-900/20 transition-all duration-200 hover:scale-105"
+                    aria-current={active ? "page" : undefined}
+                    className={`relative flex items-center gap-2 transition-all duration-200 hover:scale-105 ${
+                      active
+                        ? "bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-300"
+                        : "hover:bg-gray-50 dark:hover:bg-gold-900/20"
+                    }`}
                   >
                     {Icon && <Icon className="h-4 w-4" />}
                     <span className="font-medium">{t(link.label)}</span>
+                    {active && (
+                      <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-gold-600 dark:bg-gold-400" />
+                    )}
                   </Button>
                 );
               })}
@@ -301,7 +316,11 @@ export default function RoleBasedNavigation() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gold-900/20 transition-all duration-200 hover:scale-105"
+                    className={`flex items-center gap-2 transition-all duration-200 hover:scale-105 ${
+                      publicLinks.some((l) => isNavLinkActive(pathname, l.href))
+                        ? "bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-300"
+                        : "hover:bg-gray-50 dark:hover:bg-gold-900/20"
+                    }`}
                   >
                     <Grid3X3 className="h-4 w-4" />
                     <span className="font-medium">{t("browse")}</span>
@@ -311,13 +330,18 @@ export default function RoleBasedNavigation() {
                 <DropdownMenuContent align="start" className="w-56">
                   {publicLinks.map((link, i) => {
                     const Icon = link.icon;
+                    const active = isNavLinkActive(pathname, link.href);
                     return (
                       <DropdownMenuItem
                         key={i + 1}
                         onSelect={() => {
                           router.push(link.href);
                         }}
-                        className="cursor-pointer gap-3 py-3 hover:bg-gray-50 dark:hover:bg-gold-900/20 transition-all duration-200"
+                        className={`cursor-pointer gap-3 py-3 transition-all duration-200 ${
+                          active
+                            ? "bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-300"
+                            : "hover:bg-gray-50 dark:hover:bg-gold-900/20"
+                        }`}
                       >
                         {Icon && <Icon className="h-4 w-4" />}
                         {t(link.label)}
@@ -573,19 +597,33 @@ export default function RoleBasedNavigation() {
                   </div>
                   {allNavLinks.map((link, i) => {
                     const Icon = link.icon;
+                    const active = isNavLinkActive(pathname, link.href);
                     return (
                       <DropdownMenuItem
                         key={i + 1}
                         onSelect={() => {
-                          const isActive = pathname === link.href;
-                          if (isActive) return;
+                          if (active) return;
                           router.push(link.href);
                         }}
-                        className="cursor-pointer gap-3 py-3 hover:bg-gray-50 dark:hover:bg-gold-900/20 transition-all duration-200"
+                        className={`cursor-pointer gap-3 py-3 transition-all duration-200 ${
+                          active
+                            ? "bg-gold-50 dark:bg-gold-900/20 text-gold-700 dark:text-gold-300"
+                            : "hover:bg-gray-50 dark:hover:bg-gold-900/20"
+                        }`}
                       >
-                        <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gray-500/10">
+                        <div
+                          className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                            active ? "bg-gold-500/20" : "bg-gray-500/10"
+                          }`}
+                        >
                           {Icon && (
-                            <Icon className="h-4 w-4 text-gray-900 dark:text-white" />
+                            <Icon
+                              className={`h-4 w-4 ${
+                                active
+                                  ? "text-gold-700 dark:text-gold-300"
+                                  : "text-gray-900 dark:text-white"
+                              }`}
+                            />
                           )}
                         </div>
                         <span className="font-medium">{t(link.label)}</span>

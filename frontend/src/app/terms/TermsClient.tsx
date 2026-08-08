@@ -27,8 +27,7 @@ export default function TermsClient() {
               {t("terms.section1.title")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              By using Nyambika, you agree to these Terms. If you do not agree,
-              please discontinue use of the platform.
+              {t("terms.section1.body")}
             </p>
           </section>
 
@@ -37,9 +36,9 @@ export default function TermsClient() {
               {t("terms.section2.title")}
             </h2>
             <ul className="list-disc pl-5 text-sm text-gray-700 dark:text-gray-300 space-y-1">
-              <li>You must provide accurate account information.</li>
-              <li>Do not misuse the platform, including attempts to disrupt or reverse engineer services.</li>
-              <li>Respect intellectual property and community guidelines.</li>
+              <li>{t("terms.section2.item1")}</li>
+              <li>{t("terms.section2.item2")}</li>
+              <li>{t("terms.section2.item3")}</li>
             </ul>
           </section>
 
@@ -48,7 +47,7 @@ export default function TermsClient() {
               {t("terms.section3.title")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              You retain rights to the photos you upload. You grant Nyambika a limited license to process and display your content solely to provide the service.
+              {t("terms.section3.body")}
             </p>
           </section>
 
@@ -57,7 +56,7 @@ export default function TermsClient() {
               {t("terms.section4.title")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              Orders are placed directly with producers on the platform. Nyambika facilitates discovery and ordering. Payment and fulfillment terms may vary by producer.
+              {t("terms.section4.body")}
             </p>
           </section>
 
@@ -66,7 +65,7 @@ export default function TermsClient() {
               {t("terms.section5.title")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              The service is provided "as is" without warranties. To the maximum extent permitted by law, Nyambika is not liable for indirect or consequential damages.
+              {t("terms.section5.body")}
             </p>
           </section>
 
@@ -75,7 +74,7 @@ export default function TermsClient() {
               {t("terms.section6.title")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              We may update these Terms from time to time. Material changes will be communicated through the platform or by email.
+              {t("terms.section6.body")}
             </p>
           </section>
 
@@ -84,7 +83,7 @@ export default function TermsClient() {
               {t("terms.section7.title")}
             </h2>
             <p className="text-sm text-gray-700 dark:text-gray-300">
-              For questions about these Terms, contact <a href="mailto:legal@nyambika.com" className="text-gray-900 hover:underline">legal@nyambika.com</a>.
+              {t("terms.section7.body")}
             </p>
           </section>
         </CardContent>

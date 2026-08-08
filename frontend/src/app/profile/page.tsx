@@ -758,7 +758,7 @@ function Profile() {
                     <Button
                       onClick={() => router.push("/try-on")}
                       size="sm"
-                      className="w-full justify-start bg-gold-600 hover:bg-gold-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
+                      className="w-full justify-start bg-gold-600 hover:bg-gold-700 text-white text-sm py-3 rounded-full transition-all duration-200"
                     >
                       <Sparkles className="mr-3 h-4 w-4" />
                       {t("profile.action.tryOn")}
@@ -766,7 +766,7 @@ function Profile() {
                     <Button
                       onClick={() => router.push("/try-on-history")}
                       size="sm"
-                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-full transition-all duration-200 border border-gray-200 dark:border-gray-700"
                     >
                       <div className="flex items-center">
                         <EyeIcon className="mr-3 h-4 w-4" />
@@ -777,7 +777,7 @@ function Profile() {
                     <Button
                       onClick={() => router.push("/favorites")}
                       size="sm"
-                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-full transition-all duration-200 border border-gray-200 dark:border-gray-700"
                     >
                       <div className="flex items-center">
                         <Heart className="mr-3 h-4 w-4" />
@@ -788,7 +788,7 @@ function Profile() {
                     <Button
                       onClick={() => router.push("/orders")}
                       size="sm"
-                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-lg transition-all duration-200 border border-gray-200 dark:border-gray-700"
+                      className="w-full justify-between bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700 dark:text-gray-300 text-sm py-3 rounded-full transition-all duration-200 border border-gray-200 dark:border-gray-700"
                     >
                       <div className="flex items-center">
                         <ShoppingBag className="mr-3 h-4 w-4" />
@@ -800,7 +800,7 @@ function Profile() {
                       <Button
                         onClick={() => setModalOpen(true)}
                         size="sm"
-                        className="w-full justify-start text-white text-sm py-3 rounded-lg transition-all duration-200 mt-2 bg-gold-500 hover:bg-gold-600"
+                        className="w-full justify-start text-white text-sm py-3 rounded-full transition-all duration-200 mt-2 bg-gold-500 hover:bg-gold-600"
                       >
                         <Building2 className="mr-3 h-4 w-4" />
                         Update Company
@@ -888,7 +888,7 @@ function Profile() {
                     <Button
                       size="sm"
                       onClick={openChangePassword}
-                      className="w-full justify-start bg-gold-600 hover:bg-gold-700 text-white text-sm py-3 rounded-lg transition-all duration-200"
+                      className="w-full justify-start bg-gold-600 hover:bg-gold-700 text-white text-sm py-3 rounded-full transition-all duration-200"
                     >
                       <Lock className="mr-3 h-4 w-4" />
                       Open Change Password

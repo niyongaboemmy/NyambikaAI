@@ -8,12 +8,7 @@ import React, {
 } from "react";
 import { useRef } from "react";
 import { useSafeToast } from "@/hooks/use-safe-toast";
-import {
-  apiClient,
-  handleApiError,
-  API_BASE_URL,
-  UserInterface,
-} from "@/config/api";
+import { apiClient, API_BASE_URL, UserInterface } from "@/config/api";
 import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 export interface User {
@@ -232,18 +227,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
       }, 0);
     } catch (error: any) {
-      // Normalize error message
-      const description = handleApiError
-        ? handleApiError(error)
-        : error?.message || "Login failed";
-      // React-safe error toast
-      setTimeout(() => {
-        toast({
-          title: "Login failed",
-          description,
-          variant: "destructive",
-        });
-      }, 0);
+      // No toast here — LoginForm renders an inline error banner for this failure.
       throw error;
     } finally {
       setIsActionLoading(false);
@@ -288,14 +272,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         });
       }, 0);
     } catch (error: any) {
-      // React-safe error toast
-      setTimeout(() => {
-        toast({
-          title: "Registration failed",
-          description: handleApiError(error),
-          variant: "destructive",
-        });
-      }, 0);
+      // No toast here — the register page shows its own toast with field-level context.
       throw error;
     } finally {
       setIsActionLoading(false);
@@ -308,23 +285,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const response = await apiClient.post("/api/auth/forgot-password", {
         email,
       });
-
-      // React-safe toast notification
-      setTimeout(() => {
-        toast({
-          title: "Password reset sent",
-          description: "Check your email for a reset link.",
-        });
-      }, 0);
+      // No success toast here — PasswordRecoveryForm shows an inline success message.
     } catch (error: any) {
-      // React-safe error toast
-      setTimeout(() => {
-        toast({
-          title: "Password reset failed",
-          description: handleApiError(error),
-          variant: "destructive",
-        });
-      }, 0);
+      // No toast here — PasswordRecoveryForm shows an inline error banner for this failure.
       throw error;
     } finally {
       setIsActionLoading(false);

@@ -422,8 +422,8 @@ export default function TryOn() {
                         x2="100%"
                         y2="0%"
                       >
-                        <stop offset="0%" stopColor="#3B82F6" />
-                        <stop offset="100%" stopColor="#8B5CF6" />
+                        <stop offset="0%" stopColor="#D4AF37" />
+                        <stop offset="100%" stopColor="#8F6F30" />
                       </linearGradient>
                       <linearGradient
                         id="gradient2"
@@ -432,8 +432,8 @@ export default function TryOn() {
                         x2="100%"
                         y2="0%"
                       >
-                        <stop offset="0%" stopColor="#8B5CF6" />
-                        <stop offset="100%" stopColor="#EC4899" />
+                        <stop offset="0%" stopColor="#8F6F30" />
+                        <stop offset="100%" stopColor="#6B5423" />
                       </linearGradient>
                     </defs>
                   </svg>

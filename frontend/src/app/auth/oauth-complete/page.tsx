@@ -1,25 +1,33 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { useLoginPrompt } from "@/contexts/LoginPromptContext";
 
 export default function OAuthCompletePage() {
   const [status, setStatus] = useState<string>("Finishing sign-in...");
+  const [failed, setFailed] = useState(false);
   const router = useRouter();
+  const { show: showLoginPrompt } = useLoginPrompt();
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
       try {
         if (typeof window === "undefined") return;
 
-        // Read token from URL search parameters
-        const { search } = window.location;
-        const urlParams = new URLSearchParams(search);
+        const urlParams = new URLSearchParams(window.location.search);
         const token = urlParams.get("token");
 
         if (!token) {
-          console.error("No token found in URL hash");
-          setStatus("Authentication verification. Redirecting to login...");
-          setTimeout(() => router.push("/"), 2000);
+          console.error("No token found in OAuth callback URL");
+          setStatus("We couldn't complete sign-in. Redirecting home...");
+          setFailed(true);
+          setTimeout(() => {
+            showLoginPrompt(
+              "We couldn't finish signing you in with that provider. Please try again."
+            );
+            router.push("/");
+          }, 1500);
           return;
         }
 
@@ -29,38 +37,36 @@ export default function OAuthCompletePage() {
         cleanUrl.searchParams.delete("user");
         window.history.replaceState(null, "", cleanUrl.toString());
 
-        // Store the token in localStorage
         localStorage.setItem("auth_token", token);
 
-        // Get user data from URL parameters (passed from backend)
         const userDataParam = urlParams.get("user");
-
         if (userDataParam) {
           try {
             const userData = JSON.parse(decodeURIComponent(userDataParam));
             localStorage.setItem("user", JSON.stringify(userData));
-            console.log("User data stored from URL parameters");
           } catch (e) {
             console.error("Failed to parse user data from URL:", e);
           }
         }
 
-        // Optional redirect param from query string
         const redirectParam = urlParams.get("redirect");
         const redirect = redirectParam || "/";
 
         // Force a full page reload to ensure all context is properly initialized
-        console.log("Authentication successful, redirecting to:", redirect);
         window.location.href = redirect;
       } catch (e) {
         console.error("OAuth completion failed:", e);
-        setStatus("Authentication verification. Redirecting to login...");
-        setTimeout(() => router.push("/"), 2000);
+        setStatus("Something went wrong. Redirecting home...");
+        setFailed(true);
+        setTimeout(() => {
+          showLoginPrompt("Something went wrong finishing sign-in. Please try again.");
+          router.push("/");
+        }, 1500);
       }
     };
 
     handleOAuthCallback();
-  }, [router]);
+  }, [router, showLoginPrompt]);
 
   const manualContinue = () => {
     try {
@@ -74,25 +80,22 @@ export default function OAuthCompletePage() {
   };
 
   return (
-    <div className="min-h-[60vh] flex items-center justify-center">
-      <div className="text-center p-6 rounded-2xl bg-white/70 dark:bg-gray-900/60 border border-gray-200/50 dark:border-gray-700/50 backdrop-blur-xl">
-        {/* Immediate inline script to ensure auto-login and redirect even before hydration */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html:
-              "(function(){try{if(typeof window==='undefined')return;var H=window.location.hash;var S=window.location.search;var m=H&&H.match(/token=([^&]+)/);if(m){var t=decodeURIComponent(m[1]);localStorage.setItem('auth_token', t);var r=new URLSearchParams(S).get('redirect')||'/';window.location.replace(r);} }catch(e){console.error('early oauth-complete script failed',e);}})();",
-          }}
+    <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <div className="text-center p-8 rounded-3xl bg-card/95 border border-border/50 backdrop-blur-xl max-w-sm">
+        <Loader2
+          className={`h-8 w-8 mx-auto mb-3 text-gold-600 ${
+            failed ? "" : "animate-spin"
+          }`}
         />
-        <div className="animate-spin inline-block h-6 w-6 border-2 border-current border-t-transparent rounded-full text-gray-800 mr-2 align-[-2px]" />
-        <div className="mb-2 text-sm text-gray-700 dark:text-gray-300">
-          {status}
-        </div>
-        <button
-          onClick={manualContinue}
-          className="mt-2 px-3 py-1.5 text-sm rounded-md bg-gold-600 text-white hover:bg-gold-700"
-        >
-          Continue
-        </button>
+        <div className="mb-4 text-sm text-foreground">{status}</div>
+        {!failed && (
+          <button
+            onClick={manualContinue}
+            className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors"
+          >
+            Taking too long? Continue manually
+          </button>
+        )}
       </div>
     </div>
   );

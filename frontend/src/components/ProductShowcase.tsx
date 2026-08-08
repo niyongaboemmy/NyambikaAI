@@ -84,7 +84,7 @@ export default function ProductShowcase() {
         </div>
 
         <div className="text-center mt-12">
-          <Button className="gradient-bg text-white px-8 py-4 rounded-2xl hover:scale-105 transition-all duration-300 font-semibold text-lg">
+          <Button className="gradient-bg text-white px-8 py-4 rounded-full hover:scale-105 transition-all duration-300 font-semibold text-lg">
             Reba Byose / View All
           </Button>
         </div>

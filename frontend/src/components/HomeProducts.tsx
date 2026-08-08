@@ -39,10 +39,10 @@ interface HomeProductsProps {
 // Curated warm gradient set for brand-monogram fallback cards (no logo yet)
 const BRAND_GRADIENTS = [
   "from-gold-400 to-gold-600",
-  "from-gold-500 to-[#8F6F30]",
-  "from-[#C9A227] to-[#6B5423]",
+  "from-gold-500 to-gold-600",
+  "from-gold-400 to-gold-700",
   "from-gold-300 to-gold-500",
-  "from-[#8F6F30] to-[#3D2F14]",
+  "from-gold-500 to-gold-800",
 ];
 
 function pickBrandGradient(seed: string) {
@@ -92,6 +92,8 @@ function CategoryCard({
   return (
     <button
       onClick={onClick}
+      aria-pressed={isSelected}
+      title={category.name}
       className={`group relative overflow-hidden rounded-3xl transition-all duration-500 transform hover:scale-105 hover:-translate-y-2 ${
         isSelected
           ? "ring-4 ring-gold-500/50 scale-105"
@@ -232,7 +234,7 @@ function HomeProductsSkeleton() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 md:gap-6 px-2 md:px-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3.5 md:gap-6 px-2 md:px-0">
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
@@ -258,7 +260,7 @@ function HomeProductsSkeleton() {
           </div>
 
           {/* Products grid skeleton */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
             {Array.from({ length: 10 }).map((_, i) => (
               <div
                 key={i}
@@ -313,9 +315,6 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
   const searchParamsStr = searchParams
     ? new URLSearchParams(searchParams as Record<string, string>).toString()
     : "";
-  const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [searchExpanded, setSearchExpanded] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
@@ -328,16 +327,13 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
     producer_id: string;
   } | null>(null);
 
-  // Debounce search typing for smoother UX
-  useEffect(() => {
-    const id = setTimeout(() => setDebouncedSearch(searchQuery), 250);
-    return () => clearTimeout(id);
-  }, [searchQuery]);
-
   // Fetch categories for filter bar
-  const { data: categories = [], isLoading: categoriesLoading } = useQuery<
-    (Category & { id: string; name: string; nameRw: string })[]
-  >({
+  const {
+    data: categories = [],
+    isLoading: categoriesLoading,
+    isError: categoriesError,
+    refetch: refetchCategories,
+  } = useQuery<(Category & { id: string; name: string; nameRw: string })[]>({
     queryKey: ["categories"],
     queryFn: async () => {
       try {
@@ -354,6 +350,8 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
   const {
     data: productsPages,
     isLoading: productsLoading,
+    isError: productsError,
+    refetch: refetchProducts,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -395,23 +393,31 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
     return Array.from(ids);
   }, [products]);
 
+  // Product count per category, computed once instead of filtering per card per render
+  const productCountByCategory = useMemo(() => {
+    const counts: Record<string, number> = {};
+    for (const p of products) {
+      if (p?.categoryId) counts[p.categoryId] = (counts[p.categoryId] || 0) + 1;
+    }
+    return counts;
+  }, [products]);
+
   // Fetch verification status for those producers (status lives on producer)
-  // Avoid network storms by limiting verification checks to a manageable number of producers
+  // Avoid network storms by limiting the number of producers we check per load;
+  // producers beyond the cap default to "shown" (fail-open) rather than turning
+  // filtering off entirely, so behavior stays consistent regardless of catalog size.
   const APPLY_VERIFICATION_LIMIT = 30;
-  const shouldApplyVerification =
-    producerIds.length > 0 && producerIds.length <= APPLY_VERIFICATION_LIMIT;
+  const shouldApplyVerification = producerIds.length > 0;
+  const checkedProducerIds = producerIds.slice(0, APPLY_VERIFICATION_LIMIT);
 
   type VerifiedMap = Record<string, boolean>;
 
   const { data: verifiedMap = {}, isLoading: verifyingProducers } =
     useQuery<VerifiedMap>({
-      queryKey: [
-        "producers-verified-map",
-        producerIds.slice(0, APPLY_VERIFICATION_LIMIT),
-      ],
+      queryKey: ["producers-verified-map", checkedProducerIds],
       queryFn: async () => {
         const entries: Array<[string, boolean]> = await Promise.all(
-          producerIds.slice(0, APPLY_VERIFICATION_LIMIT).map(async (id) => {
+          checkedProducerIds.map(async (id) => {
             try {
               const res = await apiClient.get(`/api/producers/${id}`);
               const isVerified = Boolean((res.data as any)?.isVerified);
@@ -428,57 +434,17 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
       staleTime: 60_000,
     });
 
-  // Local search across all keys
-  const term = (debouncedSearch || "").trim().toLowerCase();
-  const locallyFilteredProducts: Product[] = useMemo(() => {
-    if (!products || !Array.isArray(products)) return [];
-
-    return products.filter((product) => {
-      if (!product) return false;
-      if (!term) return true;
-
-      // Convert product to record of string values for searching
-      const productRecord: Record<string, unknown> = {
-        ...product,
-        price: product.price?.toString() || "",
-        createdAt: product.createdAt?.toString() || "",
-        updatedAt: product.updatedAt?.toString() || "",
-        name: product.name || "",
-        nameRw: product.nameRw || "",
-        description: product.description || "",
-        categoryId: product.categoryId || "",
-        producerId: product.producerId || "",
-      };
-
-      return Object.values(productRecord).some((v) => {
-        if (v == null || v === undefined) return false;
-        const s =
-          typeof v === "string"
-            ? v
-            : typeof v === "number"
-              ? v.toString()
-              : typeof v === "boolean"
-                ? v.toString()
-                : v instanceof Date
-                  ? v.toISOString()
-                  : "";
-        return s.toLowerCase().includes(term);
-      });
-    });
-  }, [products, term]);
-
   // Apply active-producer filter
   const activeProducerProducts: Product[] = useMemo(() => {
-    // If verification not applied (too many producers), skip filtering by verification
-    if (!shouldApplyVerification) return locallyFilteredProducts as Product[];
-    return locallyFilteredProducts.filter((p: Product) => {
+    if (!shouldApplyVerification) return products;
+    return products.filter((p: Product) => {
       const pid = p?.producerId ? String(p.producerId) : undefined;
       if (!pid) return true; // keep if no producerId info
-      const v = verifiedMap[pid];
-      // Only show when verified === true
-      return v === true;
-    }) as Product[];
-  }, [locallyFilteredProducts, verifiedMap, shouldApplyVerification]);
+      // Producers we didn't check (beyond the verification cap) default to shown
+      if (!(pid in verifiedMap)) return true;
+      return verifiedMap[pid] === true;
+    });
+  }, [products, verifiedMap, shouldApplyVerification]);
 
   // Sentinel for infinite scroll
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
@@ -498,19 +464,14 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
     return () => obs.disconnect();
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // If search/category changes and no local results in current pages, auto fetch next page
+  // If category changes and no local results in current pages, auto fetch next page
   useEffect(() => {
-    if (
-      locallyFilteredProducts.length === 0 &&
-      hasNextPage &&
-      !isFetchingNextPage
-    ) {
+    if (products.length === 0 && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
   }, [
-    searchQuery,
     selectedCategoryId,
-    locallyFilteredProducts.length,
+    products.length,
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
@@ -725,16 +686,9 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-black dark:text-white">
                 {t("home.shopByCategory")}
               </h2>
-              <div className="flex items-center gap-1">
-                <span
-                  className="text-base animate-spin"
-                  style={{ animationDuration: "3s" }}
-                ></span>
-                <span className="text-sm animate-bounce"></span>
-              </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 md:gap-6 px-2 md:px-0">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-3.5 md:gap-6 px-2 md:px-0">
             {categories.map((category) => (
               <CategoryCard
                 key={category.id}
@@ -743,10 +697,7 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                 onClick={() =>
                   router.push(`/products-search?category=${category.id}`)
                 }
-                productCount={
-                  products.filter((p: any) => p.categoryId === category.id)
-                    .length
-                }
+                productCount={productCountByCategory[category.id] || 0}
               />
             ))}
           </div>
@@ -770,27 +721,48 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                   : `${t("home.trending")}`}
               </h2>
               <div className="flex items-center gap-3">
-                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-[rgb(var(--coral-rgb))] text-white text-xs sm:text-sm md:text-base font-bold rounded-full">
+                <span className="px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-1.5 bg-coral text-white text-xs sm:text-sm md:text-base font-bold rounded-full">
                   {t("home.hot")}
                 </span>
-                <div className="flex gap-2">
-                  <span
-                    className="text-2xl animate-bounce"
-                    style={{ animationDelay: "0s" }}
-                  ></span>
-                </div>
               </div>
             </div>
           </div>
+          {shouldApplyVerification && !verifyingProducers && (
+            <p className="-mt-6 mb-6 text-xs text-gray-500 dark:text-gray-400">
+              {t("home.verifiedSellersOnly")}
+            </p>
+          )}
 
           {productsLoading || verifyingProducers ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-3">
               {Array.from({ length: 10 }).map((_, i) => (
                 <div
                   key={i}
                   className="aspect-square bg-gray-200 dark:bg-gray-700 animate-pulse rounded-xl"
                 />
               ))}
+            </div>
+          ) : productsError || categoriesError ? (
+            <div className="col-span-full py-12 text-center">
+              <div className="mb-4 flex justify-center">
+                <Package className="h-16 w-16 text-red-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200 mb-2">
+                {t("home.errorTitle")}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                {t("home.errorDesc")}
+              </p>
+              <Button
+                onClick={() => {
+                  if (categoriesError) refetchCategories();
+                  if (productsError) refetchProducts();
+                }}
+                variant="outline"
+                className="border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary transition-colors"
+              >
+                {t("home.retry")}
+              </Button>
             </div>
           ) : activeProducerProducts.length > 0 ? (
             <>
@@ -827,14 +799,9 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
                     {/* Content */}
                     <div className="relative z-10 text-center">
                       <div className="flex items-center justify-center gap-2 mb-4">
-                        <span className="text-2xl sm:text-3xl animate-bounce"></span>
                         <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white">
                           {t("home.moreTitle")}
                         </h3>
-                        <span
-                          className="text-2xl sm:text-3xl animate-bounce"
-                          style={{ animationDelay: "0.3s" }}
-                        ></span>
                       </div>
 
                       <p className="text-white/90 text-sm sm:text-base md:text-lg mb-6 max-w-2xl mx-auto">
@@ -876,13 +843,12 @@ export default function HomeProducts({ searchParams }: HomeProductsProps) {
               <Button
                 onClick={() => {
                   setSelectedCategoryId("all");
-                  setSearchQuery("");
                   setSelectedCompany(null);
                 }}
                 variant="outline"
                 className="border-2 border-dashed border-gray-300 dark:border-gray-600 hover:border-primary transition-colors"
               >
-                Clear Filters
+                {t("home.clearFilters")}
               </Button>
             </div>
           )}

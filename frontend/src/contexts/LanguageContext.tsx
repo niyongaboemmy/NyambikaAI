@@ -230,6 +230,11 @@ const translations = {
     "contact.body.intro":
       "For questions or requests, contact our team and we'll respond promptly.",
     // Home
+    "home.hero.title": "Fashion, styled by AI",
+    "home.hero.subtitle":
+      "See how it fits before you buy. Try on clothes virtually with AI-powered fashion, made for Rwanda.",
+    "home.hero.ctaTryOn": "Try It On",
+    "home.hero.ctaExplore": "Explore Products",
     "home.brands": "Brands Stories",
     "home.shopByCategory": "Shop by Category",
     // Footer links
@@ -251,6 +256,36 @@ const translations = {
     "home.clearFilters": "Clear Filters",
     "home.products": "Products",
     "home.items": "items",
+    "home.errorTitle": "Something went wrong",
+    "home.errorDesc":
+      "We couldn't load products right now. Please check your connection and try again.",
+    "home.retry": "Retry",
+    "home.verifiedSellersOnly": "Showing products from verified sellers only",
+    // Bottom navigation
+    "nav.home": "Home",
+    "nav.shop": "Shop",
+    "nav.tryOn": "Try-On",
+    "nav.cart": "Cart",
+    "nav.profile": "Profile",
+    // 404 page
+    "notFound.title": "Oops! Page Not Found",
+    "notFound.desc":
+      "The AI couldn't locate the page you're looking for. It might have been moved, deleted, or the URL might be incorrect.",
+    "notFound.tip":
+      "Check the URL for typos or use the navigation menu to find what you're looking for.",
+    "notFound.goBack": "Go Back",
+    "notFound.backHome": "Back to Home",
+    "notFound.quickLinksLabel": "Or try these popular pages:",
+    "notFound.browseStores": "Browse Stores",
+    "notFound.searchProducts": "Search Products",
+    "notFound.profile": "Profile",
+    // Error page
+    "errorPage.title": "Oops",
+    "errorPage.heading": "Something went wrong",
+    "errorPage.desc":
+      "We hit an unexpected error loading this page. You can try again, or head back to the homepage.",
+    "errorPage.tryAgain": "Try Again",
+    "errorPage.backHome": "Back to Home",
     // Products Search
     "search.title": "Discover Products",
     "search.subtitle": "Find amazing products with AI-powered search ",
@@ -366,6 +401,9 @@ const translations = {
     "orders.itemsLabel": "items • Total quantity",
     "orders.cancelConfirm":
       "Are you sure you want to cancel this order? This action cannot be undone.",
+    "orders.cancelDialogTitle": "Cancel this order?",
+    "orders.cancelConfirmAction": "Yes, cancel order",
+    "orders.keepOrder": "No, keep order",
     "orders.cancelled": "Order Cancelled",
     "orders.cancelledDesc": "Your order has been successfully cancelled.",
     "orders.cancelFailed": "Cancellation Failed",
@@ -489,6 +527,31 @@ const translations = {
     "help.faq.returnItem.question": "How do I return an item?",
     "help.faq.returnItem.answer": "You can initiate a return by visiting our",
     "help.faq.returnItem.link": "returns page",
+    "help.category.orders": "Orders",
+    "help.category.payments": "Payments & Returns",
+    "help.category.account": "Account",
+    "help.category.tryOn": "AI Try-On",
+    "help.faq.cancelOrder.question": "Can I cancel an order after placing it?",
+    "help.faq.cancelOrder.answer":
+      "Yes, you can cancel an order from your Orders page as long as the producer hasn't started fulfilling it yet.",
+    "help.faq.deliveryTime.question": "How long does delivery take?",
+    "help.faq.deliveryTime.answer":
+      "Delivery times vary by producer and location, but most orders within Kigali arrive within 2-4 business days.",
+    "help.faq.changeAddress.question": "Can I change my delivery address after ordering?",
+    "help.faq.changeAddress.answer":
+      "Contact the producer directly through your order details as soon as possible — address changes can only be made before the order ships.",
+    "help.faq.resetPassword.question": "How do I reset my password?",
+    "help.faq.resetPassword.answer":
+      "Click \"Forgot password?\" on the sign-in screen and follow the link sent to your email to set a new password.",
+    "help.faq.deleteAccount.question": "How do I delete my account?",
+    "help.faq.deleteAccount.answer":
+      "Contact our support team from the Contact page and we'll help you close your account and remove your data.",
+    "help.faq.producerAccount.question": "How do I become a producer on Nyambika?",
+    "help.faq.producerAccount.answer":
+      "Choose \"Producer\" when creating your account, then complete your business profile — our team reviews new producer accounts before they go live.",
+    "help.faq.tryOnAccuracy.question": "How accurate is the AI try-on?",
+    "help.faq.tryOnAccuracy.answer":
+      "Our AI try-on gives a realistic preview of fit and style, but actual garments may vary slightly — check each product's size guide for the best fit.",
     "help.contact.title": "Contact Support",
     "help.contact.description":
       "Can't find what you're looking for? Our customer service team is here to help.",
@@ -816,6 +879,23 @@ const translations = {
     "terms.section5.title": "5. Inshingano n'Imbibi",
     "terms.section6.title": "6. Impinduka ku Masezerano",
     "terms.section7.title": "7. Twandikire",
+    "terms.section1.body":
+      "Ukoresheje Nyambika, uba wemeye aya masezerano. Niba utayemera, reka gukoresha urubuga.",
+    "terms.section2.item1": "Ugomba gutanga amakuru y'ukuri ku konti yawe.",
+    "terms.section2.item2":
+      "Ntukoreshe nabi urubuga, harimo kugerageza kuruvana mu murongo cyangwa kuvumbura uko serivisi zikora.",
+    "terms.section2.item3":
+      "Ubahiriza uburenganzira bw'umutungo bwite n'amabwiriza y'umuryango.",
+    "terms.section3.body":
+      "Ugumana uburenganzira ku mafoto wamanuye. Uha Nyambika uruhushya rugarukira ku gutunganya no kwerekana ibikubiyemo gusa kugira ngo dutange serivisi.",
+    "terms.section4.body":
+      "Amateka atangwa ako kanya n'abakora ku rubuga. Nyambika ifasha mu gushakisha no gutumiza. Amabwiriza y'kwishyura no gutanga bishobora gutandukana bitewe n'uwabikoze.",
+    "terms.section5.body":
+      "Serivisi itangwa uko iri, nta bwishingizi. Mu rugero rwemewe n'amategeko, Nyambika ntabwo ibazwa ibyangiritse bitaziguye.",
+    "terms.section6.body":
+      "Dushobora guhindura aya masezerano igihe cyose. Impinduka nyinshi zizamenyeshwa binyuze mu rubuga cyangwa imeyili.",
+    "terms.section7.body":
+      "Ku bibazo bijyanye n'aya masezerano, twandikire kuri legal@nyambika.com.",
     "cookies.title": "Politiki ya Cookies",
     "cookies.subtitle":
       "Uko dukoresha cookies kugira ngo tunoze uburyo ukoresha urubuga.",
@@ -865,6 +945,11 @@ const translations = {
     "contact.body.intro":
       "Kubaza cyangwa gusaba ubufasha, tuvugishe kandi tuzahita dusubiza.",
     // Home
+    "home.hero.title": "Imyenda, iteguwe na AI",
+    "home.hero.subtitle":
+      "Reba uko igukwiye mbere yo kugura. Gerageza imyenda ukoresheje AI, byakorewe u Rwanda.",
+    "home.hero.ctaTryOn": "Gerageza",
+    "home.hero.ctaExplore": "Reba Ibicuruzwa",
     "home.brands": "Ibigo",
     "home.shopByCategory": "Gura bitewe n'Icyiciro",
     "home.trending": "Ibicuruzwa biri ku Isonga",
@@ -882,6 +967,37 @@ const translations = {
     "home.clearFilters": "Siba Amashungura",
     "home.products": "Ibicuruzwa",
     "home.items": "ibicuruzwa",
+    "home.errorTitle": "Habaye ikibazo",
+    "home.errorDesc":
+      "Ntitwashoboye gutangura ibicuruzwa. Reba niba interineti ikora hanyuma ugerageze nanone.",
+    "home.retry": "Ongera ugerageze",
+    "home.verifiedSellersOnly":
+      "Twerekana gusa ibicuruzwa by'abacuruzi bemejwe",
+    // Bottom navigation
+    "nav.home": "Ahabanza",
+    "nav.shop": "Guhaha",
+    "nav.tryOn": "Kwipima",
+    "nav.cart": "Igikapu",
+    "nav.profile": "Umwirondoro",
+    // 404 page
+    "notFound.title": "Yaa! Iyi paji ntibonetse",
+    "notFound.desc":
+      "AI ntiyabashije kubona iyi paji ushaka. Hari ubwo yavanyweho, isibwa, cyangwa urubuga rutari rwo.",
+    "notFound.tip":
+      "Reba niba urubuga rwanditse neza cyangwa ukoreshe ibikubiye mu bushakashatsi kugira ngo ubone icyo ushaka.",
+    "notFound.goBack": "Subira Inyuma",
+    "notFound.backHome": "Subira Ahabanza",
+    "notFound.quickLinksLabel": "Cyangwa ugerageze aya mapaji akunzwe:",
+    "notFound.browseStores": "Reba Amaduka",
+    "notFound.searchProducts": "Shakisha Ibicuruzwa",
+    "notFound.profile": "Umwirondoro",
+    // Error page
+    "errorPage.title": "Yaa",
+    "errorPage.heading": "Habaye ikibazo",
+    "errorPage.desc":
+      "Habaye ikibazo tutari twiteguye mu gutangura iyi paji. Ushobora kongera kugerageza, cyangwa ugasubira ahabanza.",
+    "errorPage.tryAgain": "Ongera Ugerageze",
+    "errorPage.backHome": "Subira Ahabanza",
     // Products Search
     "search.title": "Shakisha Ibicuruzwa",
     "search.subtitle":
@@ -993,6 +1109,31 @@ const translations = {
     "help.faq.returnItem.question": "Nigute nasubiza igicuruzwa?",
     "help.faq.returnItem.answer": "Ushobora gutangiza gusubiza unyuze kuri",
     "help.faq.returnItem.link": "ipaji yo gusubiza",
+    "help.category.orders": "Amateka",
+    "help.category.payments": "Kwishyura no Gusubiza",
+    "help.category.account": "Konti",
+    "help.category.tryOn": "Kwipima na AI",
+    "help.faq.cancelOrder.question": "Nashobora guhagarika itumye nyuma yo kuritanga?",
+    "help.faq.cancelOrder.answer":
+      "Yego, ushobora guhagarika itumye kuri paji y'Amateka yawe igihe uwakoze igicuruzwa atarabanza kuritegura.",
+    "help.faq.deliveryTime.question": "Igihe cyo kohereza kimara igihe kingana iki?",
+    "help.faq.deliveryTime.answer":
+      "Igihe cyo kohereza gitandukanye bitewe n'uwakoze igicuruzwa n'aho uri, ariko amateka menshi muri Kigali agera mu minsi 2-4 y'akazi.",
+    "help.faq.changeAddress.question": "Nashobora guhindura aho itumye rizajya nyuma yo kuritanga?",
+    "help.faq.changeAddress.answer":
+      "Vugana n'uwakoze igicuruzwa vuba bishoboka unyuze mu makuru y'itumye ryawe — impinduka zishobora gukorwa mbere y'uko itumye rioherezwa.",
+    "help.faq.resetPassword.question": "Nigute nasubiramo ijambobanga ryanjye?",
+    "help.faq.resetPassword.answer":
+      "Kanda \"Wibagiwe ijambobanga?\" ku ipaji yo kwinjira hanyuma ukurikire ihuza ryoherejwe kuri imeyili yawe kugira ngo ushyireho irindi.",
+    "help.faq.deleteAccount.question": "Nigute nsiba konti yanjye?",
+    "help.faq.deleteAccount.answer":
+      "Vugana n'itsinda ryacu ry'ubufasha unyuze ku ipaji yo Kutuvugisha, tuzagufasha gufunga konti yawe no gukuraho amakuru yawe.",
+    "help.faq.producerAccount.question": "Nigute nabona konti y'ukora ibicuruzwa kuri Nyambika?",
+    "help.faq.producerAccount.answer":
+      "Hitamo \"Umukozi\" mu gukora konti yawe, hanyuma urangize umwirondoro w'ubucuruzi bwawe — itsinda ryacu risuzuma konti nshya z'abakozi mbere yo kuzemera.",
+    "help.faq.tryOnAccuracy.question": "AI yo kwipima ifite ukuri kungana iki?",
+    "help.faq.tryOnAccuracy.answer":
+      "AI yacu yo kwipima itanga icyerekezo cy'ukuri ku kuntu ikwiye, ariko imyenda nyayo ishobora gutandukana gato — reba inyobora y'ingano ya buri gicuruzwa kugira ngo ubone ikwiye neza.",
     "help.contact.title": "Serivisi y'Abakiriya",
     "help.contact.description":
       "Ntiwabonye icyo ushaka? Itsinda ryacu ry'ubufasha rirahari kugufasha.",
@@ -1186,6 +1327,24 @@ const translations = {
     "terms.section5.title": "5. Avertissements et Responsabilité",
     "terms.section6.title": "6. Modifications des Conditions",
     "terms.section7.title": "7. Contact",
+    "terms.section1.body":
+      "En utilisant Nyambika, vous acceptez ces Conditions. Si vous n'êtes pas d'accord, veuillez cesser d'utiliser la plateforme.",
+    "terms.section2.item1":
+      "Vous devez fournir des informations de compte exactes.",
+    "terms.section2.item2":
+      "N'utilisez pas la plateforme de manière abusive, y compris toute tentative de la perturber ou de l'analyser techniquement.",
+    "terms.section2.item3":
+      "Respectez la propriété intellectuelle et les règles de la communauté.",
+    "terms.section3.body":
+      "Vous conservez les droits sur les photos que vous téléversez. Vous accordez à Nyambika une licence limitée pour traiter et afficher votre contenu uniquement dans le cadre du service.",
+    "terms.section4.body":
+      "Les commandes sont passées directement auprès des producteurs sur la plateforme. Nyambika facilite la découverte et la commande. Les conditions de paiement et de livraison peuvent varier selon le producteur.",
+    "terms.section5.body":
+      "Le service est fourni 'tel quel' sans garantie. Dans la mesure permise par la loi, Nyambika n'est pas responsable des dommages indirects ou consécutifs.",
+    "terms.section6.body":
+      "Nous pouvons mettre à jour ces Conditions de temps à autre. Les changements importants seront communiqués via la plateforme ou par e-mail.",
+    "terms.section7.body":
+      "Pour toute question concernant ces Conditions, contactez legal@nyambika.com.",
     "cookies.title": "Politique des Cookies",
     "cookies.subtitle":
       "Comment nous utilisons les cookies pour améliorer votre expérience.",
@@ -1222,6 +1381,11 @@ const translations = {
     "contact.body.intro":
       "Pour toute question ou demande, contactez notre équipe et nous répondrons rapidement.",
     // Home
+    "home.hero.title": "La mode, stylée par l'IA",
+    "home.hero.subtitle":
+      "Voyez le rendu avant d'acheter. Essayez des vêtements virtuellement grâce à l'IA, pensé pour le Rwanda.",
+    "home.hero.ctaTryOn": "Essayer",
+    "home.hero.ctaExplore": "Explorer les produits",
     "home.brands": "Stories des Marques",
     "home.shopByCategory": "Acheter par Catégorie",
     "home.trending": "Produits Tendance",
@@ -1236,6 +1400,36 @@ const translations = {
     "home.noProductsDesc":
       "Nous n'avons trouvé aucun produit correspondant à vos critères. Essayez d'ajuster vos filtres.",
     "home.clearFilters": "Effacer les filtres",
+    "home.errorTitle": "Un problème est survenu",
+    "home.errorDesc":
+      "Impossible de charger les produits pour le moment. Vérifiez votre connexion et réessayez.",
+    "home.retry": "Réessayer",
+    "home.verifiedSellersOnly":
+      "Affichage des produits des vendeurs vérifiés uniquement",
+    "nav.home": "Accueil",
+    "nav.shop": "Boutique",
+    "nav.tryOn": "Essayage",
+    "nav.cart": "Panier",
+    "nav.profile": "Profil",
+    // 404 page
+    "notFound.title": "Oups ! Page introuvable",
+    "notFound.desc":
+      "L'IA n'a pas pu trouver la page que vous cherchez. Elle a peut-être été déplacée, supprimée, ou l'URL est incorrecte.",
+    "notFound.tip":
+      "Vérifiez l'URL ou utilisez le menu de navigation pour trouver ce que vous cherchez.",
+    "notFound.goBack": "Retour",
+    "notFound.backHome": "Retour à l'accueil",
+    "notFound.quickLinksLabel": "Ou essayez ces pages populaires :",
+    "notFound.browseStores": "Parcourir les boutiques",
+    "notFound.searchProducts": "Rechercher des produits",
+    "notFound.profile": "Profil",
+    // Error page
+    "errorPage.title": "Oups",
+    "errorPage.heading": "Un problème est survenu",
+    "errorPage.desc":
+      "Une erreur inattendue s'est produite lors du chargement de cette page. Vous pouvez réessayer ou retourner à l'accueil.",
+    "errorPage.tryAgain": "Réessayer",
+    "errorPage.backHome": "Retour à l'accueil",
     "home.products": "Produits",
     "home.items": "articles",
     // Products Search
@@ -1349,6 +1543,31 @@ const translations = {
     "help.faq.returnItem.answer":
       "Vous pouvez initier un retour en visitant notre",
     "help.faq.returnItem.link": "page de retours",
+    "help.category.orders": "Commandes",
+    "help.category.payments": "Paiements et Retours",
+    "help.category.account": "Compte",
+    "help.category.tryOn": "Essayage IA",
+    "help.faq.cancelOrder.question": "Puis-je annuler une commande après l'avoir passée ?",
+    "help.faq.cancelOrder.answer":
+      "Oui, vous pouvez annuler une commande depuis votre page Commandes tant que le producteur n'a pas commencé à la préparer.",
+    "help.faq.deliveryTime.question": "Combien de temps prend la livraison ?",
+    "help.faq.deliveryTime.answer":
+      "Les délais varient selon le producteur et la localisation, mais la plupart des commandes à Kigali arrivent en 2 à 4 jours ouvrables.",
+    "help.faq.changeAddress.question": "Puis-je modifier mon adresse de livraison après la commande ?",
+    "help.faq.changeAddress.answer":
+      "Contactez le producteur dès que possible via les détails de votre commande — l'adresse ne peut être modifiée qu'avant l'expédition.",
+    "help.faq.resetPassword.question": "Comment réinitialiser mon mot de passe ?",
+    "help.faq.resetPassword.answer":
+      "Cliquez sur \"Mot de passe oublié ?\" sur l'écran de connexion et suivez le lien envoyé à votre e-mail pour en définir un nouveau.",
+    "help.faq.deleteAccount.question": "Comment supprimer mon compte ?",
+    "help.faq.deleteAccount.answer":
+      "Contactez notre équipe support depuis la page Contact, nous vous aiderons à fermer votre compte et à supprimer vos données.",
+    "help.faq.producerAccount.question": "Comment devenir producteur sur Nyambika ?",
+    "help.faq.producerAccount.answer":
+      "Choisissez \"Producteur\" lors de la création de votre compte, puis complétez votre profil professionnel — notre équipe examine les nouveaux comptes producteurs avant activation.",
+    "help.faq.tryOnAccuracy.question": "Quelle est la précision de l'essayage IA ?",
+    "help.faq.tryOnAccuracy.answer":
+      "Notre essayage IA donne un aperçu réaliste de la coupe et du style, mais les vêtements réels peuvent légèrement varier — consultez le guide des tailles de chaque produit.",
     "help.contact.title": "Contacter le Support",
     "help.contact.description":
       "Vous ne trouvez pas ce que vous cherchez ? Notre équipe est là pour vous aider.",

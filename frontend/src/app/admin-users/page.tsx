@@ -441,7 +441,7 @@ const AdminUsersPage: React.FC = () => {
             </div>
           </div>
           <div className="relative overflow-hidden rounded-3xl border dark:border-none border-gray-200/70 dark:border-gray-700/70 bg-white/70 dark:bg-gray-800/60 backdrop-blur p-4">
-            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-sky-500/20" />
+            <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full bg-gold-500/20" />
             <div className="text-xs text-gray-500 dark:text-gray-400">
               Producers • Agents
             </div>
@@ -730,7 +730,7 @@ const AdminUsersPage: React.FC = () => {
                           u.role === "producer"
                             ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                             : u.role === "agent"
-                              ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
+                              ? "bg-gold-100 text-gold-800 dark:bg-gold-900/30 dark:text-gold-200"
                               : u.role === "customer"
                                 ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                                 : "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
@@ -861,7 +861,7 @@ const AdminUsersPage: React.FC = () => {
                                   u.role === "producer"
                                     ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                                     : u.role === "agent"
-                                      ? "bg-sky-100 text-sky-800 dark:bg-sky-900/30 dark:text-sky-200"
+                                      ? "bg-gold-100 text-gold-800 dark:bg-gold-900/30 dark:text-gold-200"
                                       : u.role === "customer"
                                         ? "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"
                                         : "bg-gray-100 text-black dark:bg-gray-800/30 dark:text-gray-200"

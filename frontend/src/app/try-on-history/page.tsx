@@ -193,7 +193,7 @@ export default function TryOnHistoryPage() {
           Back
         </Button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Try-On History</h1>
+          <h1 className="text-3xl font-bold text-foreground">Try-On History</h1>
           <p className="text-gray-600 mt-1">
             View and manage your virtual try-on sessions
           </p>

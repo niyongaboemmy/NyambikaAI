@@ -18,6 +18,16 @@ import {
 import { Button } from "@/components/custom-ui/button";
 import { Card, CardContent } from "@/components/custom-ui/card";
 import { Badge } from "@/components/custom-ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/custom-ui/alert-dialog";
 import { OrdersSkeleton } from "@/components/custom-ui/OrdersSkeleton";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
@@ -186,15 +196,20 @@ function OrdersPage() {
     },
   });
 
+  const [orderPendingCancel, setOrderPendingCancel] = useState<string | null>(
+    null,
+  );
+
   const handleCancelOrder = (orderId: string) => {
     if (cancellingOrderId) return; // Prevent multiple cancellations
+    setOrderPendingCancel(orderId);
+  };
 
-    const confirmCancel = window.confirm(t("orders.cancelConfirm"));
-
-    if (confirmCancel) {
-      setCancellingOrderId(orderId);
-      cancelOrderMutation.mutate(orderId);
-    }
+  const confirmCancelOrder = () => {
+    if (!orderPendingCancel) return;
+    setCancellingOrderId(orderPendingCancel);
+    cancelOrderMutation.mutate(orderPendingCancel);
+    setOrderPendingCancel(null);
   };
 
   const handleDownloadReceipt = (order: Order) => {
@@ -335,7 +350,7 @@ function OrdersPage() {
                   </p>
                   <Button
                     onClick={() => router.push("/products")}
-                    className="text-white px-8 py-3 rounded-xl font-semibold transition-all duration-300 transform hover:scale-105 bg-gold-600 hover:bg-gold-700"
+                    className="text-white px-8 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 bg-gold-600 hover:bg-gold-700"
                   >
                     <Zap className="h-5 w-5 mr-2" />
                     {t("orders.empty.cta")}
@@ -581,6 +596,31 @@ function OrdersPage() {
             }
           }
         `}</style>
+
+        <AlertDialog
+          open={!!orderPendingCancel}
+          onOpenChange={(open) => {
+            if (!open) setOrderPendingCancel(null);
+          }}
+        >
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t("orders.cancelDialogTitle")}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t("orders.cancelConfirm")}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t("orders.keepOrder")}</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmCancelOrder}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {t("orders.cancelConfirmAction")}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </ProtectedRoute>
   );

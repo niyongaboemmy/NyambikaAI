@@ -32,7 +32,7 @@ async function seedCategories() {
       nameRw: "Imyenda y'Abagore",
       description:
         "Dresses, skirts, tops, trousers, and women's collections",
-      imageUrl: 'https://picsum.photos/seed/womens-fashion/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Women%27s+Fashion',
       createdAt: now,
     },
     {
@@ -41,7 +41,7 @@ async function seedCategories() {
       nameRw: "Imyenda y'Abagabo",
       description:
         "Suits, shirts, jeans, t-shirts, jackets, and men's outfits",
-      imageUrl: 'https://picsum.photos/seed/mens-fashion/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Men%27s+Fashion',
       createdAt: now,
     },
     {
@@ -49,7 +49,7 @@ async function seedCategories() {
       name: 'Kids & Babies',
       nameRw: "Imyenda y'Abana",
       description: 'Clothing for newborns, toddlers, boys, and girls',
-      imageUrl: 'https://picsum.photos/seed/kids-babies-fashion/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Kids+%26+Babies',
       createdAt: now,
     },
     {
@@ -58,7 +58,7 @@ async function seedCategories() {
       nameRw: 'Imyenda Nyarwanda',
       description:
         'Imishanana, ibitenge, kitenge dresses, and African collections',
-      imageUrl: 'https://picsum.photos/seed/traditional-wear/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Traditional+Wear',
       createdAt: now,
     },
     {
@@ -67,7 +67,7 @@ async function seedCategories() {
       nameRw: 'Inkweto',
       description:
         'Sneakers, heels, sandals, boots, and slippers for all genders',
-      imageUrl: 'https://picsum.photos/seed/shoes-footwear/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Shoes+%26+Footwear',
       createdAt: now,
     },
     {
@@ -75,7 +75,7 @@ async function seedCategories() {
       name: 'Bags & Purses',
       nameRw: "Imikapu n'Ibikapu",
       description: 'Handbags, backpacks, purses, and travel bags',
-      imageUrl: 'https://picsum.photos/seed/bags-purses/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Bags+%26+Purses',
       createdAt: now,
     },
     {
@@ -84,7 +84,7 @@ async function seedCategories() {
       nameRw: "Imirimbo n'Ibikoresho",
       description:
         'Earrings, necklaces, watches, bracelets, sunglasses, and belts',
-      imageUrl: 'https://picsum.photos/seed/jewelry-accessories/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Jewelry+%26+Accessories',
       createdAt: now,
     },
     {
@@ -93,7 +93,7 @@ async function seedCategories() {
       nameRw: 'Imyenda ya Siporo',
       description:
         'Tracksuits, gym wear, sneakers, football kits, and yoga outfits',
-      imageUrl: 'https://picsum.photos/seed/sportswear/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Sportswear',
       createdAt: now,
     },
     {
@@ -101,7 +101,7 @@ async function seedCategories() {
       name: 'Luxury Collections',
       nameRw: "Imyenda y'Icyubahiro",
       description: 'Designer outfits, luxury brands, and premium fashion',
-      imageUrl: 'https://picsum.photos/seed/luxury-collections/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Luxury+Collections',
       createdAt: now,
     },
     {
@@ -109,7 +109,7 @@ async function seedCategories() {
       name: 'Work & Office Wear',
       nameRw: "Imyenda y'Akarusho",
       description: 'Corporate suits, formal shirts, blouses, and uniforms',
-      imageUrl: 'https://picsum.photos/seed/work-office-wear/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Work+%26+Office',
       createdAt: now,
     },
     {
@@ -117,7 +117,7 @@ async function seedCategories() {
       name: 'Winter & Jackets',
       nameRw: "Imyenda yo Guhangana n'Ubukonje",
       description: 'Jackets, sweaters, coats, hoodies, and cold-season wear',
-      imageUrl: 'https://picsum.photos/seed/winter-jackets/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Winter+%26+Jackets',
       createdAt: now,
     },
     {
@@ -126,7 +126,7 @@ async function seedCategories() {
       nameRw: 'Imyambaro yo Ku Nyanja',
       description:
         'Swimwear, shorts, crop tops, beach dresses, and summer outfits',
-      imageUrl: 'https://picsum.photos/seed/summer-beachwear/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Summer+%26+Beachwear',
       createdAt: now,
     },
     {
@@ -135,7 +135,7 @@ async function seedCategories() {
       nameRw: 'Imyenda yo Gukoreramo Ubukwe',
       description:
         'Bridal gowns, suits, bridesmaids dresses, and reception outfits',
-      imageUrl: 'https://picsum.photos/seed/wedding-party-wear/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Wedding+%26+Party',
       createdAt: now,
     },
     {
@@ -143,7 +143,7 @@ async function seedCategories() {
       name: 'Sleepwear & Lingerie',
       nameRw: 'Imyenda yo Kurara',
       description: 'Nightgowns, pajamas, robes, and intimate wear',
-      imageUrl: 'https://picsum.photos/seed/sleepwear-lingerie/800/600',
+      imageUrl: 'https://placehold.co/800x600/EAD9A8/3D2F14?text=Sleepwear+%26+Lingerie',
       createdAt: now,
     },
   ];

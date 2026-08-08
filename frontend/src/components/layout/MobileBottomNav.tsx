@@ -2,20 +2,22 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Sparkles, ShoppingBag, User } from "lucide-react";
+import { Home, Sparkles, ShoppingBag, ShoppingCart, User } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/products", label: "Shop", icon: ShoppingBag, matchExtra: ["/products-search"] },
-  { href: "/try-on", label: "Try-On", icon: Sparkles },
-  { href: "/cart", label: "Cart", icon: ShoppingBag },
-  { href: "/profile", label: "Profile", icon: User },
+  { href: "/", labelKey: "nav.home", icon: Home },
+  { href: "/products", labelKey: "nav.shop", icon: ShoppingBag, matchExtra: ["/products-search"] },
+  { href: "/try-on", labelKey: "nav.tryOn", icon: Sparkles },
+  { href: "/cart", labelKey: "nav.cart", icon: ShoppingCart },
+  { href: "/profile", labelKey: "nav.profile", icon: User },
 ] as const;
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
   const { count } = useCart();
+  const { t } = useLanguage();
 
   // Hide on dashboard/admin surfaces where a dedicated layout already owns navigation
   const hidden =
@@ -38,7 +40,8 @@ export default function MobileBottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="grid grid-cols-5">
-        {NAV_ITEMS.map(({ href, label, icon: Icon, ...rest }) => {
+        {NAV_ITEMS.map(({ href, labelKey, icon: Icon, ...rest }) => {
+          const label = t(labelKey);
           const active = isActive(href, "matchExtra" in rest ? rest.matchExtra : undefined);
           return (
             <Link
@@ -53,7 +56,7 @@ export default function MobileBottomNav() {
                   style={{ color: active ? "var(--primary)" : "var(--muted-foreground)" }}
                 />
                 {href === "/cart" && count > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[rgb(var(--coral-rgb))] text-white text-[9px] rounded-full min-w-[15px] h-[15px] px-0.5 flex items-center justify-center">
+                  <span className="absolute -top-1.5 -right-2 bg-coral text-white text-[9px] rounded-full min-w-[15px] h-[15px] px-0.5 flex items-center justify-center">
                     {count > 9 ? "9+" : count}
                   </span>
                 )}

@@ -699,9 +699,11 @@ export default function Register() {
                                 name="name"
                                 value={formData.name}
                                 onChange={handleInputChange}
+                                onBlur={handleBlur}
                                 placeholder="Enter your full name"
                                 required
                                 label="Full Name"
+                                error={errors.name}
                               />
                             </motion.div>
 
@@ -717,10 +719,12 @@ export default function Register() {
                                 type="email"
                                 value={formData.email}
                                 onChange={handleInputChange}
+                                onBlur={handleBlur}
                                 placeholder="Enter your email address"
                                 required
                                 label="Email Address"
                                 disabled={!!searchParams.get("oauthToken")}
+                                error={errors.email}
                               />
                             </motion.div>
 
@@ -756,10 +760,17 @@ export default function Register() {
                                     type="tel"
                                     value={formData.phone}
                                     onChange={handleInputChange}
+                                    onBlur={handleBlur}
                                     placeholder="780 000 000"
                                     className="flex-1 w-full"
+                                    error={errors.phone}
                                   />
                                 </div>
+                                {!errors.phone && (
+                                  <p className="text-xs text-muted-foreground">
+                                    7–12 digits, no spaces or dashes
+                                  </p>
+                                )}
                               </div>
                             </motion.div>
                             <div></div>
@@ -799,10 +810,12 @@ export default function Register() {
                                     type={showPassword ? "text" : "password"}
                                     value={formData.password}
                                     onChange={handleInputChange}
+                                    onBlur={handleBlur}
                                     placeholder="Create a strong password"
                                     required
                                     label="Password"
                                     className="pr-11"
+                                    error={errors.password}
                                   />
                                   <Button
                                     type="button"
@@ -860,10 +873,12 @@ export default function Register() {
                                     }
                                     value={formData.confirmPassword}
                                     onChange={handleInputChange}
+                                    onBlur={handleBlur}
                                     placeholder="Confirm your password"
                                     required
                                     label="Confirm Password"
                                     className="pr-11"
+                                    error={errors.confirmPassword}
                                   />
                                   <Button
                                     type="button"
@@ -933,13 +948,6 @@ export default function Register() {
                               </div>
                             </div>
                           </motion.div>
-                          {formData.password &&
-                            formData.confirmPassword &&
-                            formData.password !== formData.confirmPassword && (
-                              <p className="text-sm text-red-600 dark:text-red-400">
-                                Passwords do not match
-                              </p>
-                            )}
                           {/* Terms & conditions */}
                           <div className="pt-5 w-full flex flex-col md:flex-row md:items-center md:justify-center gap-3 mb-3">
                             <div className="space-y-2 w-full">

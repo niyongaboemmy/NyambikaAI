@@ -517,17 +517,17 @@ export default function ProducerSubscriptionPage() {
               animate={{ opacity: 1, y: 0 }}
               className="mb-4 sm:mb-6"
             >
-              <div className="relative overflow-hidden rounded-xl border border-amber-200/50 backdrop-blur-sm p-3 sm:p-4 bg-amber-50/80 dark:bg-amber-900/20">
-                <div className="absolute inset-0 animate-pulse bg-amber-400/10" />
+              <div className="relative overflow-hidden rounded-xl border border-gold-200/50 dark:border-gold-700/50 backdrop-blur-sm p-3 sm:p-4 bg-gold-50/80 dark:bg-gold-900/20">
+                <div className="absolute inset-0 animate-pulse bg-gold-400/10" />
                 <div className="relative flex items-start gap-2 sm:gap-3">
-                  <div className="flex-shrink-0 p-1.5 bg-amber-100 dark:bg-amber-900/50 rounded-lg">
-                    <Zap className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <div className="flex-shrink-0 p-1.5 bg-gold-100 dark:bg-gold-900/50 rounded-lg">
+                    <Zap className="w-4 h-4 text-gold-600 dark:text-gold-400" />
                   </div>
                   <div className="flex-1">
-                    <div className="font-medium text-amber-900 dark:text-amber-200 text-sm">
+                    <div className="font-medium text-gold-900 dark:text-gold-200 text-sm">
                       Expiring Soon!
                     </div>
-                    <div className="text-xs text-amber-800 dark:text-amber-300">
+                    <div className="text-xs text-gold-800 dark:text-gold-300">
                       {daysLeft} day{plural(daysLeft)} left. Renew now to keep
                       AI features active.
                     </div>

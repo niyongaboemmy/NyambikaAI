@@ -154,11 +154,6 @@ export default function PublicTryOn() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [shareSession, setShareSession] = useState<TryOnSession | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date());
-  const [newSessionAlert, setNewSessionAlert] = useState<TryOnSession | null>(
-    null,
-  );
-  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [comments, setComments] = useState<any[]>([]);
   const [loadingComments, setLoadingComments] = useState(false);
   const [commentText, setCommentText] = useState("");
@@ -498,398 +493,132 @@ export default function PublicTryOn() {
 
   return (
     <div className="min-h-screen -mt-12 bg-slate-50 dark:bg-slate-950/30">
-      {/* Enhanced Hero Section */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="relative overflow-hidden pt-12 bg-gold-600 dark:bg-gold-950"
-      >
-        {/* Animated Background Elements */}
-        <div className="absolute inset-0">
-          {/* Floating orbs */}
-          <motion.div
-            animate={{
-              x: [0, 100, 0],
-              y: [0, -50, 0],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-20 left-10 w-32 h-32 bg-white/5 rounded-full blur-xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, -80, 0],
-              y: [0, 60, 0],
-            }}
-            transition={{
-              duration: 25,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute bottom-20 right-10 w-40 h-40 bg-gold-300/10 rounded-full blur-2xl"
-          />
-          <motion.div
-            animate={{
-              x: [0, 60, 0],
-              y: [0, -40, 0],
-            }}
-            transition={{
-              duration: 18,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-1/2 left-1/3 w-24 h-24 bg-gold-300/8 rounded-full blur-lg"
-          />
+      {/* Hero Section */}
+      <div className="relative overflow-hidden pt-12 bg-gradient-to-b from-gold-600 to-gold-700 dark:from-gold-900 dark:to-gold-950">
+        <div className="absolute -top-10 right-0 w-64 h-64 rounded-full opacity-10 blur-3xl bg-gold-300" />
 
-          {/* Geometric patterns */}
-          <div className="absolute inset-0 opacity-10">
-            <svg width="100%" height="100%" className="absolute inset-0">
-              <defs>
-                <pattern
-                  id="hero-pattern"
-                  x="0"
-                  y="0"
-                  width="60"
-                  height="60"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <circle cx="30" cy="30" r="1.5" fill="white" opacity="0.3" />
-                  <circle cx="10" cy="10" r="1" fill="white" opacity="0.2" />
-                  <circle cx="50" cy="50" r="1" fill="white" opacity="0.2" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#hero-pattern)" />
-            </svg>
-          </div>
+        <div className="relative w-full py-12 sm:py-16">
+          <div className="text-center max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-white/15 rounded-2xl mb-6 border border-white/20">
+              <Sparkles className="w-7 h-7 text-white" />
+            </div>
 
-          {/* Cute animated tryon elements */}
-          <motion.div
-            animate={{
-              x: [0, 50, 0],
-              y: [0, -30, 0],
-              rotate: [0, 10, 0],
-            }}
-            transition={{
-              duration: 15,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-4 left-4 w-20 h-24 backdrop-blur-sm border-2 border-white/10 bg-gray-200/20"
-          />
-          <motion.div
-            animate={{
-              x: [0, 30, 0],
-              y: [0, -20, 0],
-              scale: [1, 1.2, 1],
-            }}
-            transition={{
-              duration: 12,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-4 right-4 w-20 h-20 backdrop-blur-sm border-2 border-white/10 bg-gray-200/20"
-            style={{
-              clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",
-            }}
-          />
-          <motion.div
-            animate={{
-              x: [0, -25, 0],
-              y: [0, 25, 0],
-              rotate: [0, 20, 0],
-            }}
-            transition={{
-              duration: 20,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute bottom-4 left-4 w-18 h-18 backdrop-blur-sm border-2 border-white/10 bg-gray-200/20"
-          />
-          <motion.div
-            animate={{
-              x: [0, 35, 0],
-              y: [0, -15, 0],
-              rotate: [0, -10, 0],
-            }}
-            transition={{
-              duration: 16,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-1/2 left-4 w-20 h-16 rounded-[50%] backdrop-blur-sm border-2 border-white/10 bg-gray-300/20"
-          />
-          <motion.div
-            animate={{
-              x: [0, -30, 0],
-              y: [0, 20, 0],
-              scale: [1, 1.1, 1],
-            }}
-            transition={{
-              duration: 14,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="absolute top-1/2 right-4 w-24 h-24 rounded-full backdrop-blur-sm border-2 border-white/10 bg-gray-200/20"
-          />
-        </div>
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-semibold text-white mb-4 leading-tight">
+              AI Try-On Gallery
+            </h1>
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-black/20" />
+            <p className="text-base sm:text-lg text-white/80 mb-8 max-w-xl mx-auto leading-relaxed">
+              See real fashion transformations from AI-powered virtual try-on.
+            </p>
 
-        <div className="relative w-full py-16 sm:py-20 lg:py-24">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-center max-w-5xl mx-auto px-4 sm:px-6 lg:px-8"
-          >
-            {/* Animated icon */}
-            <motion.div
-              animate={{
-                rotate: [0, 10, -10, 0],
-                scale: [1, 1.1, 1],
-              }}
-              transition={{
-                duration: 4,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur-xl rounded-2xl mb-8 border border-white/20"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-10 h-10 text-white" />
-              </motion.div>
-            </motion.div>
-
-            {/* Main heading with gradient text */}
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black text-white mb-6 leading-tight"
-            >
-              <span className="from-white text-foreground">
-                AI Try-On
-              </span>
-              <br />
-              <span className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl text-foreground">
-                Gallery
-              </span>
-            </motion.h1>
-
-            {/* Subtitle */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="text-xl sm:text-2xl lg:text-3xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed font-light"
-            >
-              Discover breathtaking fashion transformations powered by
-              cutting-edge AI. See how virtual try-on technology brings your
-              wildest style dreams to life.
-            </motion.p>
-
-            {/* Statistics */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8, duration: 0.6 }}
-              className="flex flex-wrap justify-center gap-8 mb-12"
-            >
+            <div className="flex flex-wrap justify-center gap-8 mb-10">
               <div className="text-center">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="text-3xl sm:text-4xl font-bold text-white mb-1"
-                >
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
                   10K+
-                </motion.div>
-                <div className="text-gray-500 text-sm sm:text-base">
-                  Try-Ons Created
                 </div>
+                <div className="text-white/70 text-sm">Try-Ons Created</div>
               </div>
               <div className="text-center">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                  className="text-3xl sm:text-4xl font-bold text-white mb-1"
-                >
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1">
                   50K+
-                </motion.div>
-                <div className="text-gray-500 text-sm sm:text-base">
-                  Happy Users
                 </div>
+                <div className="text-white/70 text-sm">Happy Users</div>
               </div>
               <div className="text-center">
-                <motion.div
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                  className="text-3xl sm:text-4xl font-bold text-white mb-1 flex items-center justify-center gap-1"
-                >
+                <div className="text-2xl sm:text-3xl font-bold text-white mb-1 flex items-center justify-center gap-1">
                   4.9
-                  <Star className="h-6 w-6 sm:h-7 sm:w-7 fill-current" />
-                </motion.div>
-                <div className="text-gray-500 text-sm sm:text-base">
-                  User Rating
+                  <Star className="h-5 w-5 fill-current" />
                 </div>
+                <div className="text-white/70 text-sm">User Rating</div>
               </div>
-            </motion.div>
+            </div>
 
-            {/* CTA Buttons */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.6 }}
-              className="flex flex-col sm:flex-row gap-6 justify-center items-center"
-            >
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link href={"/try-on"}>
-                  <Button className="bg-white text-gray-900 hover:bg-gray-50 px-8 py-3 rounded-full font-bold text-base transition-all duration-300 border-2 border-white/20">
-                    <Zap className="w-6 h-6 mr-3" />
-                    Start Your Try-On
-                    <motion.div
-                      animate={{ x: [0, 5, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity }}
-                      className="ml-2"
-                    >
-                      <ArrowRight className="h-4 w-4" />
-                    </motion.div>
-                  </Button>
-                </Link>
-              </motion.div>
-
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant="outline"
-                  className="border-2 border-white/40 text-white bg-transparent hover:text-white hover:bg-white/10 hover:border-white/60 px-8 py-3 rounded-full font-bold text-base backdrop-blur-sm"
-                  onClick={() =>
-                    document
-                      .getElementById("gallery")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                >
-                  <Eye className="w-6 h-6 mr-3" />
-                  Explore Gallery
-                  <motion.div
-                    animate={{ rotate: [0, 360] }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="ml-2"
-                  >
-                    <Sparkles className="w-4 h-4" />
-                  </motion.div>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Link href={"/try-on"}>
+                <Button className="bg-white text-slate-900 hover:bg-slate-50 px-6 py-3 rounded-full font-semibold transition-all duration-200 hover:scale-105">
+                  <Zap className="w-5 h-5 mr-2" />
+                  Start Your Try-On
                 </Button>
-              </motion.div>
-            </motion.div>
+              </Link>
 
-            {/* Scroll indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5, duration: 0.6 }}
-              className="absolute bottom-8 left-1/2 transform -translate-x-1/2"
-            >
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="w-6 h-10 border-2 border-white/40 rounded-full flex justify-center"
+              <Button
+                variant="outline"
+                className="border-2 border-white/40 text-white bg-transparent hover:bg-white/10 hover:border-white/60 px-6 py-3 rounded-full font-semibold transition-all duration-200 hover:scale-105"
+                onClick={() =>
+                  document
+                    .getElementById("gallery")
+                    ?.scrollIntoView({ behavior: "smooth" })
+                }
               >
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="w-1 h-3 bg-white/60 rounded-full mt-2"
-                />
-              </motion.div>
-            </motion.div>
-          </motion.div>
+                <Eye className="w-5 h-5 mr-2" />
+                Explore Gallery
+              </Button>
+            </div>
+          </div>
         </div>
-      </motion.div>
+      </div>
       {/* Product Header Section - Show when product is specified */}
       {productId && (product || loadingProduct) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6 }}
-          className="relative bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-gray-700/20"
+          className="relative bg-card/90 backdrop-blur-xl border-b border-border"
         >
           <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6">
             {loadingProduct ? (
               <div className="flex items-center justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
-                <span className="ml-2 text-slate-600 dark:text-slate-400">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                <span className="ml-2 text-muted-foreground">
                   Loading product...
                 </span>
               </div>
             ) : product ? (
-              <>
-                {/* <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-        
-                  <div className="">
-                    <div className="relative w-full max-w-sm mx-auto lg:mx-0">
-                      <div className="aspect-square rounded-xl h-[130px] overflow-hidden border border-gray-200/30 dark:border-gray-700/30 relative group bg-gray-50/80 dark:bg-slate-800/90">
-                        <Image
-                          src={product.imageUrl}
-                          alt={product.name}
-                          fill
-                          sizes="(min-width: 1024px) 33vw, 100vw"
-                          quality={70}
-                          priority
-                          placeholder="empty"
-                          className="object-cover"
-                        />
-                      </div>
-                    </div>
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden border border-border bg-muted">
+                  <Image
+                    src={product.imageUrl}
+                    alt={product.name}
+                    fill
+                    sizes="112px"
+                    quality={70}
+                    priority
+                    placeholder="empty"
+                    className="object-cover"
+                  />
+                </div>
+
+                <div className="space-y-3 text-center sm:text-left">
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-semibold mb-1 text-foreground">
+                      {product.name}
+                    </h2>
+                    <span className="text-base font-bold text-foreground">
+                      RF {parseFloat(String(product.price)).toLocaleString()}
+                    </span>
                   </div>
 
-                  <div className="space-y-3">
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-bold mb-2 text-foreground">
-                        {product.name}
-                      </h2>
-                      <div className="flex items-center gap-2 mb-3">
-                        <span className="text-lg font-bold text-gray-900 dark:text-white">
-                          RF{" "}
-                          {parseFloat(String(product.price)).toLocaleString()}
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-3">
-                      <Button
-                        onClick={() => router.push(`/product/${product.id}`)}
-                        className="text-white px-4 py-2 rounded-full transition-all duration-300 bg-gold-600 hover:bg-gold-600"
-                      >
-                        <ShoppingBag className="w-4 h-4" />
-                        View Product
-                      </Button>
-                      <Button
-                        onClick={() =>
-                          router.push(`/try-on-widget/${product.id}`)
-                        }
-                        className="text-white px-4 py-2 rounded-full transition-all duration-300 bg-gold-600 hover:bg-gold-600"
-                      >
-                        <Wand2 className="w-4 h-4" />
-                        Try On
-                      </Button>
-                    </div>
+                  <div className="flex flex-wrap justify-center sm:justify-start gap-3">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => router.push(`/product/${product.id}`)}
+                      className="rounded-full"
+                    >
+                      <ShoppingBag className="w-4 h-4" />
+                      View Product
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={() => router.push(`/try-on-widget/${product.id}`)}
+                      className="bg-gold-600 hover:bg-gold-700 text-white rounded-full"
+                    >
+                      <Wand2 className="w-4 h-4" />
+                      Try On
+                    </Button>
                   </div>
-                </div> */}
-              </>
+                </div>
+              </div>
             ) : null}
           </div>
         </motion.div>
@@ -900,7 +629,7 @@ export default function PublicTryOn() {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-gray-700/20"
+        className="sticky top-0 z-40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-700/20"
       >
         <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
           {/* Mobile Header Layout */}
@@ -980,7 +709,7 @@ export default function PublicTryOn() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="mt-3 pt-3 border-t border-gray-200/50 dark:border-gray-700/30"
+                className="mt-3 pt-3 border-t border-slate-200/50 dark:border-slate-700/30"
               >
                 {/* Mobile Search - shown when filter panel opens */}
                 <div className="relative sm:hidden mb-3">
@@ -990,7 +719,7 @@ export default function PublicTryOn() {
                     placeholder="Search try-ons..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-7 pr-3 py-1.5 rounded-full border border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-slate-800/80 text-xs focus:outline-none focus:ring-2 focus:ring-gold-500/50 backdrop-blur-sm"
+                    className="w-full pl-7 pr-3 py-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-800/80 text-xs focus:outline-none focus:ring-2 focus:ring-gold-500/50 backdrop-blur-sm"
                   />
                 </div>
 
@@ -998,7 +727,7 @@ export default function PublicTryOn() {
                   <select
                     value={sortBy}
                     onChange={(e) => setSortBy(e.target.value)}
-                    className="px-3 py-2 rounded-lg border border-gray-200/50 dark:border-gray-700/50 bg-white/80 dark:bg-slate-800/80 text-xs flex-1 sm:flex-none backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50"
+                    className="px-3 py-2 rounded-lg border border-slate-200/50 dark:border-slate-700/50 bg-white/80 dark:bg-slate-800/80 text-xs flex-1 sm:flex-none backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-gold-500/50"
                   >
                     <option value="createdAt">Latest First</option>
                     <option value="likes">Most Liked</option>
@@ -1012,7 +741,7 @@ export default function PublicTryOn() {
                       const newOrder = sortOrder === "desc" ? "asc" : "desc";
                       setSortOrder(newOrder);
                     }}
-                    className="rounded-full text-xs px-3 py-2 h-auto sm:hidden w-full border-gray-200/50 dark:border-gray-700/50 hover:bg-gray-50/50 dark:hover:bg-gold-900/20"
+                    className="rounded-full text-xs px-3 py-2 h-auto sm:hidden w-full border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-gold-900/20"
                   >
                     {sortOrder === "desc" ? (
                       <SortDesc className="h-3 w-3 mr-2 flex-shrink-0" />
@@ -1032,79 +761,17 @@ export default function PublicTryOn() {
       <div className="container mx-auto px-0 xs:px-1 sm:px-4 py-4 xs:py-6 pt-2 xs:pt-3 sm:py-8 sm:pt-4">
         {/* Enhanced Loading State */}
         {loading && sessions.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex flex-col items-center justify-center py-20"
-          >
-            <div className="relative">
-              {/* Outer rotating ring */}
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                className="w-16 h-16 border-4 border-gray-200/30 dark:border-gray-700/30 rounded-full"
-              />
-
-              {/* Inner pulsing ring */}
-              <motion.div
-                animate={{ rotate: -360, scale: [1, 1.2, 1] }}
-                transition={{
-                  rotate: { duration: 2, repeat: Infinity, ease: "linear" },
-                  scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" },
-                }}
-                className="absolute inset-2 border-2 border-gray-400 dark:border-gray-400 rounded-full"
-              />
-
-              {/* Center dot */}
-              <motion.div
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{
-                  duration: 1,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <div className="w-3 h-3 rounded-full bg-gold-500" />
-              </motion.div>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="mt-6 text-center"
-            >
-              <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-2">
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="h-8 w-8 animate-spin text-gold-500" />
+            <div className="mt-4 text-center">
+              <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Discovering Amazing Try-Ons
               </h3>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Loading the latest fashion transformations...
               </p>
-            </motion.div>
-
-            {/* Animated dots */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="flex gap-1 mt-4"
-            >
-              {[0, 1, 2].map((i) => (
-                <motion.div
-                  key={i}
-                  animate={{ scale: [1, 1.5, 1] }}
-                  transition={{
-                    duration: 1.5,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                    ease: "easeInOut",
-                  }}
-                  className="w-2 h-2 rounded-full bg-gold-500"
-                />
-              ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
 
         {/* Modern Product Gallery */}
@@ -1119,9 +786,9 @@ export default function PublicTryOn() {
                 className="relative"
               >
                 {/* Background decoration */}
-                <div className="absolute -inset-4 rounded-3xl blur-2xl opacity-50 bg-gray-500/5" />
+                <div className="absolute -inset-4 rounded-3xl blur-2xl opacity-50 bg-slate-500/5" />
 
-                <div className="relative bg-white/80 dark:bg-gray-900/50 backdrop-blur-xl rounded-3xl p-2 sm:p-4 md:p-10 border border-white/20 dark:border-slate-700/50">
+                <div className="relative bg-white/80 dark:bg-slate-900/50 backdrop-blur-xl rounded-3xl p-4 sm:p-6 md:p-8 border border-white/20 dark:border-slate-700/50">
                   {/* Product Header with enhanced design */}
                   <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 mb-8">
                     <div className="flex gap-4 xs:gap-6 flex-1 min-w-0">
@@ -1137,7 +804,7 @@ export default function PublicTryOn() {
                             fill
                             className="object-cover"
                           />
-                          <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-gray-500/20" />
+                          <div className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-slate-500/20" />
                         </motion.div>
                         {/* Floating badge */}
                         <motion.div
@@ -1171,16 +838,16 @@ export default function PublicTryOn() {
                           transition={{ delay: productIndex * 0.15 + 0.3 }}
                           className="flex flex-wrap items-center gap-4 mb-3"
                         >
-                          <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 dark:bg-gray-800/30 rounded-full">
-                            <Eye className="w-4 h-4 text-gray-900 dark:text-white" />
-                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-300">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 dark:bg-slate-800/30 rounded-full">
+                            <Eye className="w-4 h-4 text-slate-900 dark:text-white" />
+                            <span className="text-sm font-semibold text-slate-900 dark:text-slate-300">
                               {product.sessions.length} try-on
                               {product.sessions.length !== 1 ? "s" : ""}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 px-3 py-1 bg-gray-50 dark:bg-gray-800/30 rounded-full">
-                            <Star className="w-4 h-4 text-gray-900 fill-current" />
-                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-300">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 dark:bg-slate-800/30 rounded-full">
+                            <Star className="w-4 h-4 text-slate-900 fill-current" />
+                            <span className="text-sm font-semibold text-slate-900 dark:text-slate-300">
                               {Math.floor(Math.random() * 2) + 4}.
                               {Math.floor(Math.random() * 9) + 1}
                             </span>
@@ -1245,7 +912,7 @@ export default function PublicTryOn() {
                             router.push(`/public-tryon?${params.toString()}`);
                           }}
                           variant="outline"
-                          className="border-2 border-gray-200/60 dark:border-gray-700/60 text-gray-900 dark:text-white hover:bg-gray-50/80 dark:hover:bg-gold-900/30 backdrop-blur-sm px-4 py-2 rounded-full transition-all duration-300"
+                          className="border-2 border-slate-200/60 dark:border-slate-700/60 text-slate-900 dark:text-white hover:bg-slate-50/80 dark:hover:bg-gold-900/30 backdrop-blur-sm px-4 py-2 rounded-full transition-all duration-300"
                         >
                           <Grid3X3 className="w-5 h-5" />
                           View All
@@ -1343,7 +1010,7 @@ export default function PublicTryOn() {
                           </motion.div>
 
                           {/* Hover glow effect */}
-                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl bg-gray-500/20" />
+                          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl bg-slate-500/20" />
                         </div>
                       </motion.div>
                     ))}
@@ -1363,7 +1030,7 @@ export default function PublicTryOn() {
             className="relative text-center py-16 sm:py-20"
           >
             {/* Background decoration */}
-            <div className="absolute inset-0 rounded-3xl blur-3xl bg-gray-500/5" />
+            <div className="absolute inset-0 rounded-3xl blur-3xl bg-slate-500/5" />
 
             <div className="relative">
               {/* Animated illustration */}
@@ -1378,9 +1045,9 @@ export default function PublicTryOn() {
                     repeat: Infinity,
                     ease: "easeInOut",
                   }}
-                  className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto bg-gold-100 dark:bg-gray-900/40"
+                  className="w-24 h-24 rounded-3xl flex items-center justify-center mx-auto bg-gold-100 dark:bg-slate-900/40"
                 >
-                  <Sparkles className="w-12 h-12 text-gray-900 dark:text-white" />
+                  <Sparkles className="w-12 h-12 text-slate-900 dark:text-white" />
                 </motion.div>
 
                 {/* Floating elements */}
@@ -1450,7 +1117,7 @@ export default function PublicTryOn() {
                     transition={{ delay: 0.8 + index * 0.1 }}
                     className="flex items-center gap-2 px-4 py-2 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm rounded-full border border-white/30 dark:border-slate-700/30"
                   >
-                    <feature.icon className="w-4 h-4 text-gray-900 dark:text-white" />
+                    <feature.icon className="w-4 h-4 text-slate-900 dark:text-white" />
                     <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
                       {feature.text}
                     </span>
@@ -1600,7 +1267,7 @@ export default function PublicTryOn() {
                         {selectedSession.productName}
                       </h3>
                       <div className="flex items-center gap-3 mb-4 flex-wrap">
-                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800/30 text-gray-900 dark:text-gray-300 text-sm font-medium">
+                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800/30 text-slate-900 dark:text-slate-300 text-sm font-medium">
                           <Check className="h-3.5 w-3.5" />
                           Completed
                         </div>
@@ -1624,7 +1291,7 @@ export default function PublicTryOn() {
                       <div className="min-w-0">
                         <Link
                           href={`/profile/${selectedSession.userId}`}
-                          className="font-semibold text-base text-slate-900 dark:text-slate-100 hover:text-gray-900 dark:hover:text-gray-700 transition-colors truncate"
+                          className="font-semibold text-base text-slate-900 dark:text-slate-100 hover:text-slate-900 dark:hover:text-slate-700 transition-colors truncate"
                         >
                           {selectedSession.userName}
                         </Link>
@@ -1637,7 +1304,7 @@ export default function PublicTryOn() {
                     {/* Stats */}
                     <div className="grid grid-cols-3 gap-3">
                       <div className="text-center p-3 bg-slate-50/80 dark:bg-slate-700/50 rounded-xl backdrop-blur-sm">
-                        <div className="flex items-center justify-center gap-1 text-gray-800 mb-2">
+                        <div className="flex items-center justify-center gap-1 text-slate-800 mb-2">
                           <Heart className="h-5 w-5" />
                           <span className="font-bold text-lg">
                             {selectedSession.likes}
@@ -1648,7 +1315,7 @@ export default function PublicTryOn() {
                         </p>
                       </div>
                       <div className="text-center p-3 bg-slate-50/80 dark:bg-slate-700/50 rounded-xl backdrop-blur-sm">
-                        <div className="flex items-center justify-center gap-1 text-gray-800 mb-2">
+                        <div className="flex items-center justify-center gap-1 text-slate-800 mb-2">
                           <Eye className="h-5 w-5" />
                           <span className="font-bold text-lg">
                             {selectedSession.views}
@@ -1659,7 +1326,7 @@ export default function PublicTryOn() {
                         </p>
                       </div>
                       <div className="text-center p-3 bg-slate-50/80 dark:bg-slate-700/50 rounded-xl backdrop-blur-sm">
-                        <div className="flex items-center justify-center gap-1 text-gray-800 mb-2">
+                        <div className="flex items-center justify-center gap-1 text-slate-800 mb-2">
                           <MessageCircle className="h-5 w-5" />
                           <span className="font-bold text-lg">0</span>
                         </div>
@@ -1800,7 +1467,7 @@ export default function PublicTryOn() {
               <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
                 {loadingComments ? (
                   <div className="text-center py-8">
-                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-gray-800" />
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-slate-800" />
                   </div>
                 ) : comments.length > 0 ? (
                   comments.map((comment) => (
@@ -1932,7 +1599,7 @@ export default function PublicTryOn() {
                     </Button>
                     <Button
                       variant="outline"
-                      className="flex-1 rounded-full text-xs py-1.5 border-gray-200/50 dark:border-gray-700/50 hover:bg-gray-50/50 dark:hover:bg-gold-900/20 backdrop-blur-sm"
+                      className="flex-1 rounded-full text-xs py-1.5 border-slate-200/50 dark:border-slate-700/50 hover:bg-slate-50/50 dark:hover:bg-gold-900/20 backdrop-blur-sm"
                       onClick={() => setShowShareModal(false)}
                     >
                       Cancel

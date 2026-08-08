@@ -7,16 +7,18 @@ import { Home, ArrowLeft, Search, ShoppingBag, Compass } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function NotFound() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen pt-10">
       {/* Animated Background Elements */}
       <div className="fixed inset-0 pointer-events-none">
         <motion.div
-          className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full blur-xl bg-gray-400/20"
+          className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full blur-xl bg-muted-foreground/20"
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.3, 0.6, 0.3],
@@ -28,7 +30,7 @@ export default function NotFound() {
           }}
         />
         <motion.div
-          className="absolute bottom-1/4 right-1/4 w-24 h-24 rounded-full blur-xl bg-gray-400/20"
+          className="absolute bottom-1/4 right-1/4 w-24 h-24 rounded-full blur-xl bg-muted-foreground/20"
           animate={{
             scale: [1, 0.8, 1],
             opacity: [0.4, 0.7, 0.4],
@@ -49,7 +51,7 @@ export default function NotFound() {
           transition={{ duration: 0.6 }}
           className="text-center max-w-2xl mx-auto"
         >
-          <Card className="backdrop-blur-xl bg-white/90 dark:bg-gray-900/90 border border-white/20 dark:border-gray-700/30">
+          <Card className="backdrop-blur-xl bg-card/90 border border-border/50">
             <CardContent className="p-8 md:p-12">
               {/* 404 Animation */}
               <motion.div
@@ -70,7 +72,7 @@ export default function NotFound() {
                   }}
                   className="mb-4 flex justify-center"
                 >
-                  <Compass className="h-16 w-16 text-gray-800 dark:text-white" />
+                  <Compass className="h-16 w-16 text-foreground" />
                 </motion.div>
               </motion.div>
 
@@ -81,16 +83,14 @@ export default function NotFound() {
                 transition={{ delay: 0.4, duration: 0.5 }}
                 className="space-y-4 mb-8"
               >
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
-                  Oops! Page Not Found
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                  {t("notFound.title")}
                 </h1>
-                <p className="text-gray-600 dark:text-gray-300 text-base">
-                  The AI couldn't locate the page you're looking for. It might
-                  have been moved, deleted, or the URL might be incorrect.
+                <p className="text-muted-foreground text-base">
+                  {t("notFound.desc")}
                 </p>
-                <div className="text-sm text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800 rounded-lg p-3 mt-4">
-                  <strong>Tip:</strong> Check the URL for typos or use the
-                  navigation menu to find what you're looking for.
+                <div className="text-sm text-muted-foreground bg-muted rounded-lg p-3 mt-4">
+                  <strong>{t("notFound.tip")}</strong>
                 </div>
               </motion.div>
 
@@ -104,16 +104,16 @@ export default function NotFound() {
                 <Button
                   onClick={() => router.back()}
                   variant="outline"
-                  className="w-full sm:w-auto bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600"
+                  className="w-full sm:w-auto"
                 >
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Go Back
+                  {t("notFound.goBack")}
                 </Button>
 
                 <Link href="/" className="w-full sm:w-auto">
-                  <Button className="w-full text-white transition-all duration-300 bg-gold-500 hover:bg-gold-600">
+                  <Button className="w-full text-primary-foreground transition-all duration-300 bg-gold-600 hover:bg-gold-700">
                     <Home className="mr-2 h-4 w-4" />
-                    Back to Home
+                    {t("notFound.backHome")}
                   </Button>
                 </Link>
               </motion.div>
@@ -123,27 +123,27 @@ export default function NotFound() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8, duration: 0.5 }}
-                className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700"
+                className="mt-8 pt-6 border-t border-border"
               >
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-                  Or try these popular pages:
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t("notFound.quickLinksLabel")}
                 </p>
                 <div className="flex flex-wrap gap-3 justify-center">
                   <Link href="/companies">
                     <Button variant="ghost" size="sm" className="text-xs">
                       <ShoppingBag className="mr-1 h-3 w-3" />
-                      Browse Stores
+                      {t("notFound.browseStores")}
                     </Button>
                   </Link>
                   <Link href="/products">
                     <Button variant="ghost" size="sm" className="text-xs">
                       <Search className="mr-1 h-3 w-3" />
-                      Search Products
+                      {t("notFound.searchProducts")}
                     </Button>
                   </Link>
                   <Link href="/profile">
                     <Button variant="ghost" size="sm" className="text-xs">
-                      Profile
+                      {t("notFound.profile")}
                     </Button>
                   </Link>
                 </div>

@@ -998,7 +998,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                         </div>
                       </div>
                       <Button
-                        className="w-full h-12 rounded-xl text-white font-medium transition-all bg-gold-500 hover:bg-gold-600"
+                        className="w-full h-12 rounded-full text-white font-medium transition-all bg-gold-500 hover:bg-gold-600"
                         disabled={disabled}
                         onClick={payWithMomo}
                       >
@@ -1050,7 +1050,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                       {/* Wallet Shortcut Button */}
                       <Button
                         variant="outline"
-                        className="w-full rounded-xl border-dashed border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gold-900/30"
+                        className="w-full rounded-full border-dashed border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gold-900/30"
                         onClick={() => {
                           openWalletDialog();
                         }}
@@ -1060,7 +1060,7 @@ export default function PaymentDialog(props: PaymentDialogProps) {
                       </Button>
 
                       <Button
-                        className="w-full h-12 rounded-xl text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gold-500 hover:bg-gold-600"
+                        className="w-full h-12 rounded-full text-white font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gold-500 hover:bg-gold-600"
                         disabled={walletDisabled}
                         onClick={payWithWallet}
                       >

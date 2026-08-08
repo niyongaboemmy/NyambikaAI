@@ -35,6 +35,11 @@ declare global {
 
 // Removed next/font/google to prevent network fetch during build in restricted environments
 
+// Computed once at module load (build/server-start), not per-request, so the
+// manifest URL stays stable across renders and remains cacheable by the browser.
+const MANIFEST_VERSION =
+  process.env.NEXT_PUBLIC_BUILD_ID || String(Date.now());
+
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NODE_ENV === "production"
@@ -59,7 +64,7 @@ export const metadata: Metadata = {
       { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
-  manifest: `/manifest.json?v=${Date.now()}`,
+  manifest: `/manifest.json?v=${MANIFEST_VERSION}`,
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -90,7 +95,7 @@ export const metadata: Metadata = {
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "default",
     "apple-mobile-web-app-title": "Nyambika",
-    "msapplication-TileColor": "#B58E41",
+    "msapplication-TileColor": "#8F6F30",
     "msapplication-config": "/browserconfig.xml",
   },
 };
@@ -116,7 +121,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* PWA and Mobile App Meta Tags */}
-        <link rel="manifest" href={`/manifest.json?v=${Date.now()}`} />
+        <link rel="manifest" href={`/manifest.json?v=${MANIFEST_VERSION}`} />
         <meta
           name="theme-color"
           media="(prefers-color-scheme: light)"
@@ -127,7 +132,7 @@ export default function RootLayout({
           media="(prefers-color-scheme: dark)"
           content="#0B0B0C"
         />
-        <meta name="msapplication-TileColor" content="#B58E41" />
+        <meta name="msapplication-TileColor" content="#8F6F30" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Nyambika" />
@@ -153,7 +158,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans overscroll-none touch-pan-y overflow-x-hidden">
-        <NextTopLoader color="#B58E41" showSpinner={false} height={3} shadow="0 0 10px #B58E41,0 0 5px #B58E41" zIndex={1600} />
+        <NextTopLoader color="#8F6F30" showSpinner={false} height={3} shadow="0 0 10px #8F6F30,0 0 5px #8F6F30" zIndex={1600} />
         <Providers>
           {children}
           <LoadingIndicatorStyles />

@@ -5,8 +5,10 @@
 
 :root {
   /* Nyambika brand — paper: white/black surfaces + ink text, gold reserved for action buttons only
-     (see documentations/UI_UX_DESIGN_RESEARCH_AND_REDESIGN_PLAN.md) */
-  --background: #FFFFFF;
+     (see documentations/UI_UX_DESIGN_RESEARCH_AND_REDESIGN_PLAN.md)
+     --background is a light gray (not pure white) so the translucent glass navbar
+     and white cards have something to visually separate from instead of blending in. */
+  --background: #F5F5F4;
   --foreground: #111111;
   --card: #FFFFFF;
   --card-foreground: #111111;
