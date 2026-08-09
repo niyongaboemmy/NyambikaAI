@@ -8,6 +8,7 @@ type Company = {
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { X } from "lucide-react";
 
 type Props = {
   company: Company;
@@ -68,15 +69,26 @@ export default function SelectedCompanyBar({ company, onClear }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="hidden md:flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {company.websiteUrl && (
               <Link
                 href={"#"}
-                className="text-gray-900 dark:text-white hover:text-black dark:hover:text-gray-500 font-medium text-sm transition-colors duration-200"
+                className="hidden md:inline text-gray-900 dark:text-white hover:text-black dark:hover:text-gray-500 font-medium text-sm transition-colors duration-200"
               >
                 View Store
               </Link>
             )}
+            <button
+              type="button"
+              aria-label="Clear selected brand"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClear();
+              }}
+              className="h-8 w-8 flex items-center justify-center rounded-full text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-200/70 dark:hover:bg-gray-800/70 transition-all duration-200 hover:rotate-90"
+            >
+              <X className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </div>

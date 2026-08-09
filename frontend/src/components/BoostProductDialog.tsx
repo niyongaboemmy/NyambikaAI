@@ -281,7 +281,7 @@ export default function BoostProductDialog({
                               e.stopPropagation();
                               refetchWallet();
                             }}
-                            className="p-1 rounded-md hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
+                            className="p-1 rounded-full hover:bg-white/40 dark:hover:bg-white/10 transition-colors"
                           >
                             <RotateCcw
                               className={`w-4 h-4 ${
@@ -310,7 +310,7 @@ export default function BoostProductDialog({
                                 e.stopPropagation();
                                 openWallet();
                               }}
-                              className="flex items-center space-x-1 text-xs bg-gold-500 hover:bg-gold-600 text-white px-2 py-1 rounded-md transition-all duration-200 hover:scale-105"
+                              className="flex items-center space-x-1 text-xs bg-gold-500 hover:bg-gold-600 text-white px-2 py-1 rounded-full transition-all duration-200 hover:scale-105"
                             >
                               <Plus className="w-3 h-3" />
                               <span>Add Funds</span>

@@ -74,7 +74,7 @@ export default function Footer() {
                     asChild
                     variant="ghost"
                     size="icon"
-                    className="rounded-md p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    className="rounded-full p-2 text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
                     aria-label={s.label}
                   >
                     <a href={s.href} target="_blank" rel="noreferrer noopener">
@@ -151,7 +151,7 @@ export default function Footer() {
               />
               <Button
                 type="submit"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-lg font-medium shrink-0"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full font-medium shrink-0"
                 disabled={submitting}
               >
                 {submitting ? t("footer.subscribing") : t("footer.subscribe")}

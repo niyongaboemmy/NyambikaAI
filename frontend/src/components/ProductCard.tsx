@@ -106,7 +106,7 @@ function ProductCard({
   return (
     <div
       className={cn(
-        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-md bg-white dark:bg-gray-900 transition-all duration-300 transform hover:-translate-y-1 [content-visibility:auto] [contain-intrinsic-size:400px]",
+        "col-span-6 md:col-span-4 lg:col-span-2 group relative overflow-hidden rounded-2xl bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1 [content-visibility:auto] [contain-intrinsic-size:400px]",
         selected && "ring-2 ring-gold-400",
         containerClassName
       )}
@@ -143,7 +143,7 @@ function ProductCard({
           priority={!!imagePriority}
           fetchPriority={imageFetchPriority ?? "low"}
           placeholder="empty"
-          className="w-full h-full rounded-t-md aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
+          className="w-full h-full rounded-t-2xl aspect-square object-cover group-hover:scale-110 transition-transform duration-500 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             onViewDetails(product.id);
