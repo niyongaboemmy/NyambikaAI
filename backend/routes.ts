@@ -46,10 +46,14 @@ import {
 } from "./producer-routes";
 import { ESICIA_CONFIG } from "./payments/config";
 
-// Initialize Stripe
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-07-30.basil",
-});
+// Initialize Stripe lazily — the constructor throws on a missing key, which
+// would take down the whole server at import time even though Stripe backs a
+// single endpoint. Null when unconfigured; that endpoint reports it as 503.
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY, {
+      apiVersion: "2025-07-30.basil",
+    })
+  : null;
 // Centralized JWT secret
 const jwtSecret =
   process.env.JWT_SECRET ||
@@ -4425,6 +4429,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Payment routes (Stripe)
   app.post("/api/create-payment-intent", requireAuth, async (req: any, res) => {
     try {
+      if (!stripe) {
+        return sendError(
+          res,
+          503,
+          "Stripe is not configured. Set STRIPE_SECRET_KEY in backend/.env."
+        );
+      }
+
       const { amount, currency = "rwf" } = req.body;
 
       // Create payment intent

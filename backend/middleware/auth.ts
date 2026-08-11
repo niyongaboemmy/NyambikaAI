@@ -4,6 +4,11 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { users } from "../shared/schema";
 
+// Centralized JWT secret — kept identical to routes.ts / routes/try-on.ts
+const jwtSecret =
+  process.env.JWT_SECRET ||
+  "o3j3k3m1YwT8c4h1j6JtU9v2bX5rQ7e0sN8aZ3lK1tM9wD2pF6gH4rJ7nV1xB0s";
+
 interface JwtPayload {
   userId: string;
   email: string;
@@ -43,11 +48,9 @@ export const authMiddleware = async (
       return sendError(res, 401, 'No token provided');
     }
 
-    // Verify token
-    const decoded = jwt.verify(
-      token,
-      process.env.JWT_SECRET || 'your-secret-key'
-    ) as JwtPayload;
+    // Verify token — fallback must match the one in routes.ts and
+    // routes/try-on.ts, or tokens issued at login fail to verify here.
+    const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
 
     // Check if user still exists
     const user = await db.query.users.findFirst({
