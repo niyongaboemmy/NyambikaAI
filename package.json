@@ -4,11 +4,11 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:file-server\" \"npm run dev:python\"",
+    "dev": "concurrently -n backend,frontend,file-server \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:file-server\"",
     "dev:frontend": "cd frontend && npm run dev",
     "dev:backend": "cd backend && npm run dev",
     "dev:file-server": "cd file-server && npm run dev",
-    "dev:python": "cd python/clothflow_service && python -m uvicorn main:app --reload --port 8000",
+    "db:setup": "./scripts/setup-local-db.sh",
     "build": "npm run build:frontend && npm run build:backend && npm run build:file-server",
     "build:frontend": "cd frontend && npm run build",
     "build:backend": "cd backend && npm run build",
